@@ -1,0 +1,1839 @@
+Hello everyone. We we discussed
+different types of word embedding
+methods, right? Word to make love first
+text and so on.
+So in each of these techniques, right?
+If you
+if you notice it properly, the first and
+foremost step is to tokenize
+the the the streaming words, right? The
+tokenization is very important because
+it it actually helps you determine which
+words are similar, right? In a in a very
+high level, okay? So it also helps you
+understand unknown words very very
+effectively, okay?
+So in in transformer or before
+transformer, let's say RNN based
+methods, neural methods, before
+and also word to make love kind of
+methods, the inputs that we give are
+basically a sequence of tokens.
+Now before
+you know neural language models, what
+people used to do, people who used to
+use
+you know different types of delimiters
+to
+to to tokenize a running text, right?
+For example, you use space, you use tab,
+you use
+say full stop, you use new line, right?
+Using these delimiters, you can
+essentially tokenize a sequence of
+a sequence of you know
+running text, right?
+So but then people realized that
+you know this this delimiters may not be
+a right approach because well in a in a
+in a normal text
+where when it is okay to split a running
+text into
+into into different words based on these
+delimiters, but when
+when it comes to the testing, right?
+When you see an unknown token or
+you know a token which is which is
+difficult to decipher, right? You may
+wonder what kind of tokenization we
+should use, right?
+So, uh
+this field, the field of tokenization,
+has been one of the prior,
+uh you know, areas in in large language
+models, in neural machine translation,
+neural neural language model in general.
+So, essentially, we we Here we look at
+three kinds of strategies, right? For
+tokenization, that are that have been
+used quite uh quite heavily in different
+kinds of large language models, okay?
+So, the word level tokenization, the the
+strategy that was there uh before neural
+machine machine translation, neural
+language model, right? Word level
+tokenization is not good enough because
+if you think of words, right? What is
+what? What is What is basically a
+combination of characters? Now, you can
+think of a exponential number of, uh you
+know, words possible, right? If you
+think of the fixed set of characters,
+now, uh with this fixed set of
+characters, you can think of exponential
+number of words. It may be possible that
+some of the words are not meaningful
+words, some of the words are meaningful
+words, but you can think of, you know,
+a lot of lot of such words, right?
+So,
+only words as a token may not be a right
+approach, whereas
+a character as a token also may not be a
+right approach. Because if you think of
+only a character, then there's a there's
+a fixed set of characters that we can
+think of, right? 26 characters and some
+maybe some special characters like hash,
+at the rate, like some some some
+unicorns and symbols like that.
+Uh so, that that may be a limited set of
+vocabulary,
+whereas if you only consider words,
+right? That is also a huge set of
+vocabulary. Now, you I mean, you can
+also imagine new words which are not
+part of your training set, right?
+Remember, when you talk about
+tokenization, this tokenization is
+performed during in training
+training phase, right?
+So, during the training time, you
+basically go through the entire corpus
+and you identify the vocabulary and that
+vocabulary will help you parts
+an unknown token during the test time.
+Okay?
+So,
+in between character level tokenization
+and word level tokenization, we can
+think of sub-word level tokenization,
+right? If you remember the word
+embedding method, we talked about
+you know, word to word glove and
+fasttext, right? Fasttext is essentially
+a sub-word level tokenization.
+Sub-word level embedding methods, which
+basically uses a sub-word level
+tokenization strategy. Okay?
+So,
+now why this sub-word level tokenization
+is even more important? Now, let's say
+if you have
+a verb, right? Let's say catch and let's
+say catch, okay? And catching.
+Now, let's say in your training set, the
+word catch is present, but the word
+catching is not present, right? But in
+the test set, when you pass this word,
+catching, right? You will be you will
+you will not be able to split it
+properly because you know that in your
+training set it is not present, right?
+But let's say if you think of sub-word
+level embedding and let's say one
+sub-word one sub-word
+token is catch, right? Then you can say
+that okay, in the test token, which is
+catching, you can split it into two
+parts, catch and ing, and since the word
+catch is also present here, maybe the
+word catch and catching these are kind
+of
+similar, you know, appear in the similar
+context and so on and so forth, right?
+Similarly, let's say there is another
+word, let's say hugging, right?
+Uh right? And let's say this is a split,
+hug, h u g g, for example. Again, it's a
+hypothetical split and ing, okay? Now,
+you know
+that in your test set, ing is present.
+In your training set, let's say
+hugging is present, where you know that
+ing is also part of hugging. So, you can
+essentially say that okay, maybe the
+catch the the word catching and hugging
+is similar. The word catching and
+hugging they they are similar in some
+context. Maybe they are
+both of them are actually continuous
+tense, right?
+So,
+So, therefore,
+we we will we will basically break a
+word into sub-words, right? Tokens into
+sub-tokens and so on and so forth. And
+then these sub-words basically form
+tokens and these tokens are basically
+fed to the neural model, to the
+transformer, to the RNN, to the word to
+vec and you know, any other model that
+you can think of.
+Okay. So, this is
+By the way, tokenization is an active
+research area.
+So, in this lecture, we will look at
+three types of tokenization techniques,
+byte pair encoding, word piece encoding
+and unigram language model tokenization,
+which is used in sentence piece
+encoding.
+Sentence piece
+encoding.
+Right? We will discuss
+these three kinds of techniques in this
+lecture and we will see
+that all modern LLMs like BERT, T5,
+right? GPTs, they essentially use this
+I mean, one of these methods or a
+combination of these methods, okay?
+So, in each of these methods,
+we will see that there are two basic
+steps.
+The first steps The first step is
+basically a token learner.
+The task of this token learner is to
+learn the tokens, which will basically
+form the vocabulary, okay? And this
+token learner is executed during the
+training time.
+So, during the training time, we run
+this token learner, which will
+essentially
+learn or identify the tokens, which are
+going to be a part of the vocabulary,
+right?
+Then,
+we During the test time, we use another
+module called token segmenter, right?
+This is during the test time.
+Test time. Remember
+um
+uh
+in the training time, you already
+identified the vocabulary.
+In the test time, based on the
+vocabulary and maybe a set of rules that
+you have identified, right? You can
+further uh
+you can tokenize a raw test sentence
+into different tokens. Okay? And token
+segmenter is is responsible for this.
+Okay. Now,
+for byte pair encoding, you have one
+type of tokenizer,
+uh one type of segmenter. For what
+piece, you have a different type of
+tokenizer and segmenter. For unigram
+language model uh segmentation,
+tokenization, you have again different
+types of tokenizer,
+uh learner, and segmenter.
+Let's start with byte pair encoding. In
+short, it is called BPE.
+Okay, very simple idea.
+So,
+byte pair encoding was originally
+proposed for text compression
+techniques. Okay? For text compression
+strategy, it was proposed in um
+in um long time back, and then in 2016,
+uh in the ACL paper, they used this uh
+you know, this this technique for uh
+neural machine translation. Okay? And
+byte pair encoding is used in methods
+like GPT, GPT-2, RoBERTa, uh BART, BART
+BART, right? Uh this is a different
+BART, by the way. This is a
+encoder-decoder model, right? We'll
+discuss later.
+And then RoBERTa,
+and so on. Okay?
+So,
+let's look at the algorithm. So, this is
+the algorithm. It's not very important.
+You will understand the algorithm once
+we uh describe the method.
+Let's look at the method first. Okay?
+So,
+essentially, there are three steps.
+The first step is that
+uh remember, uh you know, uh I as I
+mentioned earlier, you have two
+basically, two different uh modules,
+right? One is this token learner, other
+is this token segmenter.
+The task of the token learner is to
+identify tokens, okay?
+To identify tokens, what we do
+during the pre-tokenization stage. Now,
+pre-tokenization stage is a stage which
+is executed before the token learner is
+executed, okay? Now, during the
+pre-tokenization stage, what we do
+we
+we clean the corpus, right? We are given
+a training set. We clean the corpus,
+meaning we maybe we remove punctuations,
+maybe we
+we remove we I mean maybe we remove some
+special characters. We normalize the
+text, meaning we convert all the lower
+case to upper case, upper case to lower
+lower case again. These are not very
+standard steps, by the way. These are
+the all these things are dependent on
+the application, right? But, during the
+pre-tokenization stage
+you clean the corpus.
+You break words, let's say you break a
+sentence into words, right? You break
+sentence into words based on space,
+punctuation, more complex rules, and so
+on and so forth. You can use traditional
+NLP techniques for for doing that, okay?
+Now
+once we do that, once your
+cleaning process is done, you
+essentially identify all the words.
+Right?
+So, all the unique words that are there
+in the in the in the corpus, right? So,
+all these unique words basically are
+tokens.
+Our types.
+Right? All the types have been
+identified now.
+Okay. Now then, what you do?
+Once it is done
+we create a base vocabulary.
+What is a base vocabulary? A base
+vocabulary is essentially the starting
+point of your of your segmentation
+process, of your tokenization process.
+In the base vocabulary, what you do you
+essentially add all the unique
+characters present in in the tokens that
+you identified so far. Right? So, you
+have all these words.
+From the words you identify, you
+basically extract the characters.
+And you add those characters into the
+vocabulary, right? For example,
+one word is hello, h e l l o, you add
+the the character h e l and o.
+You add l one time because you only you
+want to add only unique character,
+right? So, h e l o will be added to the
+vocabulary. If there is a special
+symbol, let's say dollar or hash, these
+will also be added to the vocabulary and
+so on and so forth. Okay?
+So,
+now
+in the best case, what would happen? In
+the best case, you you basically ended
+up adding all the unique characters
+present in in a language, right? In
+English, let's say you you you ended up
+adding all 26 characters
+assuming that all 26 characters appear
+in the corpus in your training corpus at
+least once.
+Right?
+So, now this is my base vocabulary and
+what I do, I I I keep on increasing this
+vocabulary size with more and more
+training.
+Okay?
+Um
+Okay. Now, what is the step What is step
+three? Step three
+is merging. Right? Then what we do, once
+we identified the base vocabulary, what
+we do, we look at all combinations of
+these characters. So, so far we have h e
+l o, these four characters. Then we look
+at all possible combination of
+characters. We we we we start with
+bigram, right? Bigram character. Let's
+say h e, right? e l, h l, h o, l o and
+so on and so forth. All possible
+characters
+all possible character combination and
+we choose that particular combination
+whose frequency is high
+in the training set. I'll explain what
+what what what is what is the meaning of
+high frequency, right? Let's say for
+example,
+in our example, let's say the
+combination l l,
+right? Appears most frequently, right?
+In the bigram, right? Most So, LL is
+basically the most frequent bigram
+character
+in the in the in the training set. We
+merge L L and L, and that will become a
+vocabulary entry now.
+Okay?
+So, let us
+let us take an example and explain this.
+But before that, so
+we keep on merging this thing until
+unless a specific size of the vocabulary
+is reached, right? Let's say we
+predefine the size of the vocabulary to
+be let's say to be
+to be 1,000, right? So, we keep on
+merging bigram, trigram, four-gram, and
+so on and so forth, and we stop when we
+see that the the specified size is
+achieved, okay?
+All right.
+Let's say these are
+five words: cat, bat, bag, tag, and
+cats. Okay? These words are present in
+the training set, right? And their
+frequencies are as follows: 10, 5, 12,
+4, and 5. So, the word cat appears 10
+times, word bat appears five times, and
+so on and so forth in the training set,
+right?
+Okay.
+So, to start with, what we do,
+we first identify the base vocabulary,
+right? Base vocabulary is identified
+from the characters unique characters
+present in this corpus, right? So,
+unique characters are A, B, C, G, S, and
+T.
+So, this is my base vocabulary.
+Okay? Then,
+we look at combinations.
+We look at the combination and the
+frequency, and based on the highest
+frequency, we merge that particular
+combination, right? So, how many
+combinations are possible? AA, AB, AC,
+AG,
+AS, and AT. Then again, BB, BA, right?
+All possible combinations that you can
+think of.
+Okay?
+So,
+let's look at it here.
+So, the word cat, bat, cat, bat, bag,
+tag, and cats. These are the tokens
+present, right? So, initially, as I
+mentioned,
+uh the the the unique characters are
+part of the vocabulary. So, the word So,
+the character cat c a t g s, these are
+part part of the vocabulary now. Right?
+c
+a
+t
+g s
+b also.
+Now, we look at all combinations.
+Some of the combinations are listed
+here. Let's say c a.
+Right? c a by the c and a c are
+different, okay? c a, this token pair,
+the frequency is 15. Why this is 15?
+Look at it here. c a
+appears in the word cat. And the word
+cat appears 10 times. That means the
+word That means the combination c a also
+appears 10 times in the word c a t,
+right? c a also appears here
+in the word cats, right? So, the total
+appearance of c a is 10 + 5 15.
+Right? Similarly, uh another combination
+is a t.
+Five times here, right? Uh five times
+here, and uh 10 times here, right? So,
+the frequency is 20, and so on and so
+forth.
+We calculate all
+uh
+bigram characters and their frequencies.
+Now, here,
+which one is the highest? Right? The
+highest is a t.
+Right? So, therefore, we combine a and t
+with this new split rule, which is a + t
+goes to a t.
+So, this is the new split rule that we
+learned, right? From this table.
+Okay? So,
+once we identified this, what we do now?
+All the appearances of a and t, a
+{comma} t, will be replaced by the new
+vocabulary word, which is 80.
+Remember, 80 is new vocabulary word. So,
+80 will be added here.
+So, this is a vocabulary V.
+Right? So, A and T will be added will be
+added here and all these combinations
+will be replaced by the unique token 80.
+Okay? Now, look at here.
+C A T, it is not C {comma} A {comma} T.
+This is C {comma} 80. B {comma} 80,
+right? C {comma} 80 {comma} S and so on
+and so forth.
+Okay? So, what you did, we select the
+most frequent pair 80, merge them into a
+single symbol. A single symbol is now
+80.
+Add this newly created symbol to the
+vocabulary 80.
+But, remember one thing.
+The The earlier symbols which were used
+to create the new symbol, A and T, they
+are also present in the vocabulary.
+It is not that we removed those two
+symbols, A and T, and we removed them by
+another we we replaced them by another
+another new token 80. No, those are also
+there and along with those, you added a
+new token, which is 80.
+Okay?
+All right. Now,
+we learned a new rule, which is A plus T
+equals to 80. A {comma} T,
+uh you know,
+leads to 80. Now, these rules are
+important, right? We keep on collecting
+these rules. We keep on expanding the
+vocabulary. We keep on collecting these
+rules.
+Okay. Now,
+now look at here. Now, this is my
+modified table.
+Right?
+In the modified table, again, we keep on
+combining. Now, here, what are the
+combinations possible?
+Uh again, it depends on the vocabulary,
+right? My vocabulary is this one. A C T
+G S B A T. A C T G S B A T.
+How many possibilities are there? Again,
+A C
+A T A G and so on and so forth. Bigram
+possibilities are there. Trigram
+possibilities are also there, right? You
+can merge A with AT, AAT, right? C with
+AT, CAT, and so on and so forth. Bigram
+and trigram possibilities are all there.
+As you see, this is a bigram
+possibility, and these are
+trigram possibilities, right? This is
+again another bigram possibility, and so
+on. This is a partial table by the
+So,
+if you merge AG, right? Look at the
+frequency. AG appears here with the
+frequency 12. AG is here with the
+frequency four. So, totally 16.
+What about cat?
+If you merge C and AT,
+10,
+C and AT, five.
+15, right?
+And so on and so forth.
+Again, what is the highly frequent token
+pair, which is AG in this case?
+Right? So, we do we repeat the same
+thing. We learn a new rule, A
+{comma} G
+derives AG. Initially, we learned
+Earlier, we learned A {comma} T derives
+AT. Now, A {comma} G derives AG.
+Right? And what what What else we do? We
+replace all the occurrences of A {comma}
+G by AG. So, this is going to be B
+{comma} AG. This is going to be T
+{comma} AG, and so on and so forth.
+Right?
+This is my
+modified
+frequency table. This is the modified
+vocabulary, where you see both these new
+you know, new tokens have been added,
+right? And the new These two rules
+The two The two rules have also been
+added.
+Okay. Now, again, we do the same thing.
+We keep on merging. It can be fourgram
+now, right? As you see here, cat plus S,
+right? Trigram, trigram, trigram,
+trigram, fourgram, right? And you see
+here the most frequent
+you know merging could be the most
+frequent token can be cat.
+Right? With the rule
+uh
+c {comma} a t derives c a t.
+Okay? So, the word cat will now be added
+to the vocabulary.
+Right? A T along with A T and A G, a new
+token which is added is c a t.
+Okay? So, all appearance of all
+appearance of c a t will now be replaced
+I mean c {comma} a t will be replaced by
+c a t.
+Okay? So,
+we learned three rules. A {comma} T
+derives A T, A {comma} G derives A G, c
+{comma} a t derives c a t. Right? And
+um
+and and what is my
+my final vocabulary uh till this stage?
+The final vocabulary is this one.
+A B C D S T, right? A B C G S T,
+then A T,
+A G, and C A T.
+Okay? We keep on doing this thing
+until unless the predefined threshold of
+this vocabulary
+is reached. Let's say the size of the
+vocabulary that we're expecting is
+1,000. Right? We keep on expanding and
+we stop when this uh predefined uh
+threshold is reached.
+Okay?
+Now, let's see
+what happens during the test time.
+Right? So, this is essentially you
+remember again I'm going back back and
+forth
+uh token learner. So, this is the task
+of the token learner. So, the whatever I
+discussed so far is the task of the
+token learner to learn the token and the
+vocabulary. Now, we are we are we are
+executing token segmenter. Right? What
+the token segmenter will do, whatever
+was learned
+in the tokenization stage, that rules
+that vocabulary will be used to segment
+unknown tokens.
+Okay?
+So,
+let's say the word is bag, b a g, in
+your test set. Okay?
+Token
+segmenter
+will be executed here.
+So, what what it will do first? It will
+first
+split
+the word b a g into
+uh
+So, it it basically should be b a g s, I
+think. There's a typo here.
+b a g s, okay?
+So, it it first segment
+uh the entire word into characters, b a
+g and s, and then it it will apply it
+will start applying the set of rules
+that we have learned so far.
+But, remember, the set of rules are
+applied in sequence.
+Right? We'll first apply this, then
+this, and then this.
+The way we curated the rules, the same
+way we basically apply uh these rules.
+Execute the rules. It is not the case
+that we first apply c {comma} a t, and
+then a {comma} t. No, the way we applied
+the rule
+uh the way we curated the rule, the same
+uh sequence will also be used to execute
+those rules.
+Okay?
+So,
+we go through the match rules, right?
+Until we find we we basically we we find
+one uh that we can apply. For example,
+right? If I apply a {comma} t uh derives
+a t, it is not there, right? If I apply
+a {comma} g derives a g, this can be
+applied here, right? So, a {comma} g
+will now be replaced by a g.
+Okay? So, a Now, the modified
+the updated set of tokens will be b
+{comma} a g {comma} s.
+Now, let's see whether I'll be able to
+apply some other rules or not. Uh
+of course c {comma} a t will not be
+applied. So, the updated or the final
+tokenization the final tokens for the
+word b a g s is going to be b {comma} a
+g {comma} s.
+Okay? And this will be fed to the
+transformer or to the RNN method. Right?
+Now, what happens
+if a token
+is not present right in the vocabulary?
+Now, remember
+here in this case
+all the tokens b a g and s right? b a g
+and s they are part of the vocabulary.
+Right?
+All three are part of the vocabulary.
+But, let's say you have a word m u g.
+Right? The word m the the the the
+character m is not present here.
+Right? The character u is also not
+present here. How do you deal with this?
+During the test time again.
+Let's see.
+Okay. Let's say
+the word is mat m a t.
+Okay?
+And
+again we start applying the rule, right?
+First
+m a t will be split into a {comma} a m
+{comma} a {comma} t.
+Right? Then we apply the first rule.
+m {comma} a {comma} t
+right? Then we apply the first rule
+which we learned which is a {comma} t
+derives a t.
+Right? So, a {comma} t will be replaced
+by a t. Now, I have two tokens m {comma}
+a t.
+Now, I can't apply other rules. I can't
+apply other rules. So, the final token
+should be a should be m {comma} a t.
+But, the token m is not present in the
+vocabulary.
+Right? So, if it is not present we also
+don't know its corresponding embedding.
+Right? Think about word to vec. Think
+about uh uh, you know, a transformer. In
+transformer when we when you feed all
+the tokens, we basically feed their
+corresponding embeddings, right? So, if
+M is not present in the training set, M
+is not present in the vocabulary,
+therefore M doesn't have any embedding,
+right?
+What we do here,
+we replace all such unknown characters
+by
+an a token called UNK, U N K.
+Okay?
+So,
+this unique token UNK is always a part
+of the vocabulary that you have learned.
+Okay? It is always a part of the
+vocabulary that you have learned so far.
+Right? The base the base vocabulary must
+include every possible character or a
+symbol like UNK.
+Okay? So, this will be replaced by UNK,
+and then
+you already know the embedding for AT,
+because this is a known vocabulary
+entry. So, this is going to be my tokens
+for the word "empty".
+Clear?
+In this way we deal with unknown. We'll
+see in case of word piece we have a
+different strategy.
+In fact, in GPT-2 and Roberta, what they
+use, they use basically bytes. The bit
+byte concept, uh, instead of characters,
+right? These bytes are basically parts
+of their
+their their base vocabulary, and then,
+uh, on top of this they keep on applying
+these rules.
+Okay? So, this is a simple version of
+BPE, byte pair encoding. Of course, you
+can think of modifications, further
+modifications on top of this.
+Let's move to the next part, which is
+word piece tokenization.
+The idea behind word piece tokenization
+is very same as BPE,
+right? Uh, the only difference is that
+here
+the merging operation, merging of two
+characters, merging of two tokens into
+sub tokens, like uh, is not performed
+based on the frequency, right? It is
+performed based on another property,
+right?
+Uh
+another formula that we'll discuss here.
+So, in in in in what base we merge based
+on something called the likelihood,
+not frequency.
+How do we define likelihood? We'll
+discuss.
+So, this
+what this tokenization is used in BERT,
+uh the Google's BERT
+paper, DistilBERT, MobileBERT,
+FunnelBERT, and MPNet, and so on and so
+forth. Right? This was proposed way back
+2012, and then
+I think later on it was modified
+uh for the task of
+language processing.
+Okay. So, let's look at the uh steps
+here.
+It again has two steps. In the first
+step, during the training time, right?
+Uh we have this training training dog
+corpus, training document, and from the
+training document we identify the
+vocabulary, we identify the rules, and
+so on and so forth, right?
+And then, during the test time, we apply
+this we use this vocabulary and rules,
+right? For for splitting a word into
+subwords.
+So, here what we do
+Remember, in the BPE what I mentioned,
+let's say
+a word hello, h e l l o, right? It was
+split into h e l l o at the beginning.
+Right? Character level split. But here
+what we do, we use a special character
+double hash.
+Right? To indicate, to differentiate
+between the character which appears at
+the beginning of the word, and the
+characters which appear uh
+you know,
+uh in the intermediate part of the word,
+right?
+So, here the word h e l l o will be
+split in this way, h {comma}
+{double hash}
+e
+{comma} {double hash} l
+{comma} double hash l {comma} double
+hash
+o
+The double hash is a prefix.
+This indicates the This indicates that
+the token is an internal token, not the
+beginning of a token.
+Right?
+Okay? So, similarly, the word t o k e n
+will be split into t {comma} double hash
+o double hash k double hash e double
+hash n.
+Right? Now, for every So, when we think
+of merging, right? We use Let's say
+Let's we want to merge two characters c
+and d.
+Right? In case of BPE, what we did? We
+looked at the frequency of cd.
+Here, what we do?
+We use this core function. This is
+very simple.
+Frequency of cd
+divided by frequency of c times
+frequency of d.
+This is This is This is a kind of mutual
+information PMI point-wise mutual
+information
+that we generally discuss in the in the
+semantics of NLP.
+Okay?
+So, this is kind of my likelihood.
+Okay? So,
+frequency of the pair divided by
+frequency of the first token times
+frequency of the second token.
+What is the beauty of this score? The
+beauty of this score
+is that let's say even if a pair is
+highly frequent, a pair is highly
+frequent, if their corresponding
+constituent characters are also highly
+frequent, that specific pair will be
+penalized.
+Right?
+What says Let's say there's a case where
+the pair is
+you know,
+not that frequent, kind of medium
+frequent, right? But the tokens are not
+the the their corresponding tokens are
+not that frequent. That particular pair
+will be given higher higher priority.
+We'll discuss with an example.
+Okay? So, step one
+Step one and step two are the same as we
+discussed in case of BPE.
+Right? Step one is basically a
+pre-tokenization where we clean the
+corpus, we split the sentence into words
+based on space characters, we don't
+space space tabs,
+uh some other unicorns, and so on and so
+forth.
+Step two, we identify the base
+vocabulary. Base vocabulary in our case
+again, the base vocabulary constitutes
+all these
+tokens, right? All these characters.
+But, remember here uh characters are
+differentiated based on the positions.
+If a character appears at the beginning,
+it it
+it it will
+it will be added to the vocabulary
+without hash. If the character appears
+at the at at the middle or the end, it
+will be added to the vocabulary with a
+prefix of double hash.
+Okay? Now, step three
+is the merging.
+What we do here
+is we choose the symbols that maximize
+the likelihood of the training data when
+added to the vocabulary.
+Okay? What is the merge criteria? The
+algorithm identifies the symbol pair
+whose merge would maximize the
+likelihood of the training data. This is
+determined by selecting the pair with
+the highest score, the score that I
+discussed earlier, defined as the
+probability of merged symbols divided by
+the product of the probabilities of its
+individual components. Okay?
+And again
+similar to BPE, we stop the method when
+we when a particular size of the
+vocabulary is reached.
+Let's again take an example.
+Okay? So,
+let us assume that these are the
+training words, words present in the
+training corpus, sunflower, sunflower,
+right? Uh flow flowers, and so on and so
+forth, and the corresponding
+frequencies.
+Right? Now, when we segment
+right? As you see here, sunflower
+sun #u #n # # # # #
+right?
+Sun #u #n and so on and so forth. As I
+mentioned earlier, right, all the
+initial characters will be there without
+hash and all the intermediate characters
+will be there with hash.
+And what is the vocabulary now? The
+vocabulary is this one.
+You see here, there are two unique
+starting characters, s and f. s and f
+right? And all the other characters are
+intermediate characters, therefore they
+are they are preceded by a prefix. Our
+prefix is double hash here.
+Similar to BP, here also I start with
+merging
+a pair of characters, right?
+For example, s and u.
+Let's look at s and u. So, s
+and u
+right? So
+s and u
+uh
+So, the bigram is u, right? What is the
+frequency of this bigram? The frequency
+is one
+plus two, so three
+and then
+uh and then is there any other s or f s
+and u? No, right? So, the frequency is
+three. And what is the frequency of s?
+The frequency of s is
+one plus two three plus two
+right? One, so three
+three four four uh
+four and then six, right? So, six 10.
+What is the frequency of u?
+Frequency of u is one plus two three
+so three and then then then that's all,
+right?
+So, three.
+Okay? So, the score for s u is basically
+one by six.
+Right? Uh you look I
+The calculation may be wrong, but I hope
+you understood the
+uh understood the concept.
+So, uh
+So, similarly we merge u n, u f, f l, l
+o and so on and so forth, right? And we
+obtain the corresponding scores.
+Here again, you you basically identify
+that pair whose score is the maximum. In
+this case, s and u, right? s and u will
+be merged and the new token will be
+formed which is s u.
+Right? Now here, important thing to note
+is that when you merge s and hash u,
+right? The resultant
+token is not
+not hash s u.
+Right? This is only s u. Why? Because s
+is basically the initial character.
+But let's say if you had merged
+u, let's say if you merged this one. If
+you had merged this one, the resultant
+the resultant character would have been
+would be
+u n.
+Because both u and n are the
+intermediate characters, not the start
+starting character.
+Okay?
+So, in this case, you identified s and
+u, you merged them, and the new
+vocabulary word is
+is is is s u. Okay?
+So, s u is a new vocabulary word along
+with the previous words,
+previous tokens present.
+By the way, I'm I'm misusing the term
+word, right? I'm using the I'm basically
+using the term word and tokens
+interchangeably, but I hope you
+understand.
+So, once this is identified,
+then what we do again similar to similar
+to the BPE, I replace all s s hash u
+will be replace this by s u.
+Right? All
+appearances of s u will be replaced by s
+u and so on.
+Okay? So, this is my modified table.
+Again, on top of this, we I apply the
+same set of rules, right? Bigram bigram
+combination, trigram combination. You
+see here, this is a trigram combination,
+these are bigram combinations, right?
+And
+let's say in this case there's a tie,
+right? So, we can Yeah, we can break the
+tie by by choosing one of them. So,
+let's say in this case we chose E and R
+to be merged. So, E and R will be merged
+and the new token
+uh will be uh #ER ER which will be a
+part of the vocabulary.
+Okay? #ER is a part of the vocabulary
+now, and we replace all of appearances
+of E {comma} R by #ER, right? And so on
+and so forth. So, your vocabulary
+uh size gets increased, right? The table
+gets modified, and so on and so forth.
+The next stage, you again merge ED.
+Right? Uh it will be added here.
+Vocabulary size increases, and so on and
+so forth.
+All right. So, this is the tokenization
+step uh for
+WordPiece. Now,
+so, this is the training time. Now, what
+happens in the test time?
+This is very important.
+During the test time,
+remember in the case of BPE, what we
+did? We first split a word into
+characters, right? And then we applied
+all these rules one by one in sequence,
+right? And then we uh kept on combining
+characters based on this uh rules,
+right? And and and and and uh through
+the through that process we ended up
+basically uh splitting the word into uh
+tokens.
+We used the tools in case of BPE, right?
+Here, in case of WordPiece, we will not
+use any rule.
+We will not store the merge rules. We
+will only store the vocabulary.
+That's the difference here.
+We will not store the rules at all.
+We'll only store the vocabulary.
+Right? Now, if we have only the
+vocabulary, the updated vocabulary that
+we obtained from the training set,
+how do we split an an unknown token into
+sub tokens or a test token into sub
+tokens?
+Let's see.
+So,
+for that,
+WordPiece identifies the longest sub
+word
+available in the vocabulary and then
+perform the split based on the sub word.
+Let's see.
+Let's say
+the word is fused.
+f u s e d
+Right? And let's say this is my
+vocabulary that we have already learned
+from the training set.
+Okay? I we we don't have the rules. We
+we haven't stored the rules.
+So, here
+if you if you if you start from the
+beginning again, you start from the
+beginning, right?
+If you look at the vocabulary here, what
+is the longest sub word or what is the
+longest sub word which is present in the
+vocabulary? So,
+if
+let's say you start from if, right? If
+is present here. Of course, if is
+present, but if may not be the longest.
+Let's look at if you.
+If you is present here?
+Does Does if you present here? If you is
+a
+So, if you is not present here.
+Right? So, it means that the longest sub
+word here is if.
+Right? If you is not present here. Of
+course, if if you is not present, if you
+s will also not be present.
+So, the So, we split first
+uh fused by if. So, this this will be
+split into if u s e d.
+Of course, this hash.
+Okay?
+Now,
+I know that this is the longest one that
+is possible, so I keep this thing aside.
+Let's look at this one. Can we split
+this further?
+What is the longest sequence here? u s e
+d. So, of course, if we consider only
+hash u, hash u is present here.
+What about hash u s?
+Hash u s is also present here? No.
+That means from here also, the longest
+sub word is hash u.
+And the remaining
+part will be separated.
+Now let's look at this one.
+Has SED. Okay, of course double hash.
+What about has SED?
+Has S is present here? Yes, has S is
+present. What about has AC? Has has AC
+is not present here.
+That means again the longest
+word which is possible here is has S
+{comma}
+has
+ED. Let's look at this one again.
+Okay, has ED is present? Yes, has ED is
+present here.
+Okay, so the final tokens that are
+derived from fused is if, has you, has
+S, has ED.
+Okay, we haven't used any match
+merging rules, right? What we did here,
+very simple idea.
+Given a word, right?
+We start from the beginning.
+We look at what is the longest subword
+present in the vocabulary. Let's say
+again hypothetically assume that the
+the the token if you
+was present here.
+The token if you was also present in the
+vocabulary, right? If it was the case,
+then the
+the tokens would have been if you
+{comma} hash
+SED.
+Right? But this is not the case here. So
+we start from the beginning. We look at
+the longest subword which is present in
+the vocabulary or not. If it is present,
+we segment that part and again process
+the remaining remaining part of the word
+similarly, right?
+We don't need to store the merging rule
+which is useful in our case because we
+can basically save a lot of memory.
+What about the unknown word?
+Let's say the unknown word
+is funny, F U N N Y.
+Again this is my vocabulary.
+I start with if.
+Uh
+Uh so, the word the word if is present
+here. The word if is present here, but
+the word if you is not present here. So,
+the
+So, the uh longest word is if.
+Right?
+Then, let's say if.
+Right? You split it into uh into tokens.
+If, then So, if then has tag
+hash u n n y. Right?
+Again, maybe the unique token is the
+longest token is hash u. So, if then
+hash u and then
+hash
+The remaining part is hash n n y.
+Right?
+Uh hash n n is not present, but hash n
+is present. So, if
+hash
+u
+hash n
+hash
+n and the remaining is hash y. Let's
+look at hash y. Hash y is not not
+present here.
+So, hash y is not present here. It is
+not present. What we do here
+What we did in case of BPE, in case of
+BPE, we replace this by the token UNK.
+Right? In case of BPE, the uh in case of
+BPE, the uh the the tokens were if u n n
+unknown.
+But in case of word piece, what we do,
+the whole word
+is tokenized as UNK.
+Okay? I replace the whole word by the
+token UNK.
+Not the sub word.
+Okay? The entire token the entire word
+will be replaced by UNK.
+If
+if
+a specific token a sub token, right, is
+not present in the vocabulary, the
+entire word will be replaced by even
+came.
+That's it. That is about word piece.
+Now, let's move to the next part which
+is
+unigram tokenization.
+So, in unigram tokenization, it's a bit
+complicated, okay? But, it's a very
+interesting idea.
+So, in this tokenization, so this is
+used in
+in a specific embedding encoding method
+called sentence piece, right? Which is
+heavily used in recent methods like T5,
+in word, excellent, and so on.
+So, the idea here is that
+we will go back to the concept of
+unigram language model, right?
+I hope you remember what is unigram
+language model, right? We discussed in
+the language model introduction chapter.
+Given a sequence of
+tokens W1, W2, dot, dot, dot, WN, when
+we measure the probability of the
+sequence,
+this token, this is basically a
+multiplication of all individual tokens,
+right? P of W1 * P of W2, and so on and
+so forth.
+Probability of all individual tokens. We
+assume that all these tokens are
+independent of each other. So, if we use
+the same unigram language model concept
+here while segmentation, while
+segmenting
+word into sub words.
+Right? What is the motivation here? The
+motivation here is
+if you remember the discussion that we
+had today, right? BPE and word piece.
+Both these algorithms produce a single
+type of segmentation for a specific
+word. For a given word, you have only
+one type of segmentation. But, in real
+world, it may not be the case. A word
+can be segmented into multiple ways.
+There can be multiple ways through which
+you can segment a specific word.
+So, in
+in this unigram
+unigram tokenization, what we do, we
+introduce multiple sub word candidates
+for a particular
+for a particular token or for
+for a particular word during training.
+Right?
+And here we will use the concept of
+expectation maximization EM algorithm.
+So, EM as we know it's a it's a very
+interesting idea.
+Right? We generally used in
+non-parametric estimation and so on and
+so forth.
+If you are if you are not aware of EM,
+you go back and check
+you know, the machine learning course,
+right? Uh for example, the algorithm
+K-means
+use this algorithm uses EM EM algorithm
+for uh defining the the centroids and so
+on.
+Okay. So, expectation maximization is
+used uh during tokenization. Let's see.
+So, again similar to the previous
+methods, the first step is to identify
+the base vocabulary. Now, here
+this
+unigram language model tokenization is
+different from the other tokenizations
+that I discussed today.
+How?
+So, in both byte pair and word piece,
+our goal was to increase the vocabulary,
+right? And so, we started with a base
+vocabulary and we kept on increasing the
+vocabulary until unless we reach a
+certain threshold size of the
+vocabulary, right?
+Here,
+this is just opposite.
+We have a massive base vocabulary and we
+keep on reducing the vocabulary. We keep
+on shrinking the vocabulary until unless
+a specific threshold is reached.
+Right? There we increased, here we
+decreased.
+So,
+to start with during the initialization
+stage,
+we we we can use different types of
+methods to basically get all possible
+combinations of vocabulary tokens that
+are possible. For example, you add all
+the characters, you add all the sub
+words, possible substrings, and so on
+and so forth into the into the
+vocabulary. And then we later we decide
+that out of this tokens present in the
+vocabulary, which tokens are uh the
+useful, which tokens are useless.
+Okay?
+So,
+here what we can do, we include all the
+characters,
+all possible, all all all
+frequent, you know,
+medium frequent substrings into the
+vocabulary. We can also here, you can
+also run BPE, for example.
+You can run BPE exhaustively, right? To
+create the base vocabulary.
+Okay?
+So, once we
+once we did this,
+the next stage is essentially to compute
+the log log likelihood loss.
+Okay?
+So, what is this log likelihood loss?
+The log likelihood likelihood loss is
+computed based on this unigram language
+model.
+It's better to first, I think it's look,
+let's look at example, and then we go
+back to the algorithm.
+Let's assume that
+these are the training words, run, bug,
+fun, and sun.
+Okay? And these are the frequencies.
+Let's say we start with this vocabulary,
+right? Where r u n r u u n b g, these
+are present.
+There is no hash used here, by the Okay,
+these are kind of vocabulary tokens used
+in BPE, right? Therefore, I I said that
+we can just run BPE initially at the
+beginning to curate the initial
+vocabulary for for unigram language
+model tokenization.
+Okay?
+Then what we do, now these are my
+vocabulary words, r u
+n r u u n b g, and so on and so forth.
+Initial vocabulary tokens, right? And
+these are the frequencies. You For r,
+this is three, for u, 31, and so on and
+so forth.
+We will not use this raw frequency, we
+will use
+unigram frequency. Okay, what is the
+unigram frequency What is the unigram
+probability here? Unigram probability
+for R
+is three
+by the sum of this. What is the sum of
+sum of all the tokens? Let's say the
+number is 155. The sum of all these
+frequencies will 155.
+So,
+so the probability here, unigram
+probability, is 3 by 155. This is 31 by
+155 and so on and so forth. Right? For
+for example, for the token SU, this is
+10 by 155. Okay?
+So, we started We started off with the
+base vocabulary. Now, for each
+vocabulary entry, we calculated the
+unigram probability.
+Then,
+what we do? Then,
+we Now, for every
+for every word present in the training
+set,
+we measure the probability of a specific
+a specific segmentation. As I mentioned,
+a particular word can be split in in
+different ways. Right? For example, the
+word run
+can be split into R, U, N or R, U, N or
+R, U, N. Remember, R, U, N, R, U, U, N,
+these are all vocabulary entries already
+present in the initial vocabulary.
+So, the word R, U, N can be split in
+three three different ways. Now, let's
+look at
+the probability of each of these
+individual splits.
+So, the probability of this split
+is as I mentioned, this is unigram
+probability, meaning all the all the
+unigrams are independent of each other.
+So, probability of
+P, U, N is probability of P
+probability of
+probability of R, U, N is probability of
+R times probability of U times
+probability of N.
+And how do we get this PR, PU, PN? We
+will get
+PR, PU, PN from here. P This is PR, this
+is PU, this is PN. That is the this time
+this time this. This is going to be the
+probability for this split.
+For the single split, which is RU, N, RU
+and N, the probability is will be PRU
+times PN. PRU will come from here.
+PUN will come from here.
+Right? So, this is This is the
+probability for this split.
+For the last split, which is R, UN, the
+probability will be PR times PUN. Again,
+we go back to the table
+and we will see the probability is this
+one.
+For every word, I look at all possible
+splits
+with respect to the vocabulary and their
+corresponding probabilities.
+Now, from this, we identify the best
+a split, right? According to the
+probability. So, the best split here can
+be So, look at this one. These and these
+both are
+both are highest and the same. Right?
+So, let's say we randomly choose uh
+this one.
+This one, RU, N.
+Right? As the best split. So, for the
+word RUN, so far, the best split is RU,
+N.
+Right? Now, think about it. This is This
+is very exhaustive, by the way. It's not
+It's It's not a very computationally
+efficient method, right?
+For every word, coming up with all
+possible splits based on the vocabulary,
+it's uh it's it's it's quite tedious.
+So, what we use We use this Viterbi
+algorithm. I will not discuss Viterbi
+here, but you go back and check. Viterbi
+is a very standard
+method that we generally use in
+in in
+sequence modeling and many many other
+places. So, we use Viterbi algorithm to
+make this the entire computation
+efficient, right? But at the end of the
+day, the the the the end goal is to
+measure the probability for every split.
+Right?
+So, the for the word run,
+right? For the word run, whose frequency
+is three, the best split that we
+identified is r u {comma} n. And the
+corresponding probability is this one.
+Similarly, for the word bug bug, which
+is present in the training set,
+let's let us assume that the split best
+split that we identified is b u {comma}
+g.
+And this is the score. For fun, f u
+{comma} n, this is the score. For sun, s
+u {comma} n, this is the score.
+Okay? So, for every word in the training
+set, we identify the best split and the
+corresponding probability.
+Then, we compute the loss.
+Okay? What is the loss? Here, loss is a
+log loss. Very simple log loss.
+Uh for every word, I know the
+probability.
+Right? I take the
+I I basically take the log of the
+probability.
+Right? And minus. So, minus log loss.
+Minus log of this probability.
+Why minus? Because uh this probability
+ranges between zero to one. Log of that
+will always return minus. Therefore,
+minus and minus will cancel out.
+So, for every word,
+I compute minus log loss, right? And
+since the word is present, let's say the
+first word run is present three times.
+So, this will be three
+three in three times the minus log loss
+corresponding minus log log loss.
+Similarly, for the word bug, log minus
+log of this times five.
+For the word fun,
+minus log of this times 13, and so on
+and so forth. So, this log loss
+essentially is the loss of for the
+entire corpus of the training set,
+right? Because
+these words are taken from the
+uh
+training corpus, right? Essentially,
+when you are combining everything in the
+log loss, it is basically the log loss
+of the entire training corpus.
+Now, the log loss current log loss is
+66.102.
+As I mentioned, we will use EM
+algorithm, right? If you do not know
+what is EM, let's forget about EM. Uh
+Let's assume that there are two steps, M
+step and E step. Okay?
+So,
+what is the goal now? The goal is
+I My My My goal is to remove a
+vocabulary entry which is not useful.
+Already the vocabulary is significantly
+large. We started with a large
+base vocabulary. Then, at every stage we
+identify the the the token in the
+vocabulary which is not useful.
+How do we do that?
+Let's see.
+So, so far
+so far this is my token
+frequency table, right? In the based on
+the vocabulary I In the vocabulary I
+have r u n r u blah blah blah and these
+are the corresponding probabilities,
+right? Unigram probability that I
+mentioned earlier. This table is
+something I already shown I already
+showed earlier.
+Let us assume that I want to remove u n.
+I want to remove the token u n from the
+vocabulary.
+If I remove the token u n, so for the
+word r u n, remember initially mentioned
+that there were three splits possible
+splits. One was r u n, the other was r u
+{comma} n, the other was r {comma} u n.
+Right? So, this split will not be
+possible then because u n If u n If we
+remove u n,
+this split will not be possible.
+Right? So, there are only two splits
+that are possible r u n and r u and n,
+right?
+Then, for these two splits,
+I measure the probability.
+The same way, right? Uh
+probability of r, probability of u,
+probability of n based on this table,
+right? Probability of r u, probability
+of n.
+Now, out of these two splits, which one
+is the best? This is the best.
+Right? So, for r u n,
+now
+uh so,
+for r u n, the split that uh uh, that is
+the best at this moment is r u comma n.
+If we remove u n.
+Okay? Similarly, for bug, for fun,
+right? For sun, look at here. For fun,
+one split could have been f comma u n.
+Right? But since we removed u n, we we
+just need to discard that that that
+option. So then maybe the best split
+will be f u comma n. Right? Similarly
+here, s u comma n and so on.
+So I
+So u n is a possible token from the
+vocabulary that I want to remove. Right?
+If I remove, these are the resultant
+base splits and these are the
+corresponding probabilities.
+Right?
+Again, what is the total loss?
+The total loss of the corpus
+with respect to the corpus is
+the frequency times minus log loss. So
+this
+log of this minus log of this times
+three minus log of this times five and
+so on and so forth.
+So this this is the total log loss now
+after removing u n.
+Now remember this number, 66.102.
+Earlier it was also 66.102
+when the token u n u n was present in
+the vocabulary. After removing it, it is
+still 66.102. Meaning,
+removal of the token u n doesn't affect
+the log loss at all. Right? So I can
+safely remove this token from the
+vocabulary.
+In fact, if you do this calculation, you
+will see that there are many other
+candidate tokens that can be removed.
+Right? U n was one of the tokens I mean
+one of the possibilities. R u can also
+be a possibility. B u can also be a
+possibility. U g can also be a
+possibility. In fact, removal of each of
+these tokens from the vocabulary will
+not change the loss at all.
+Right? So now out of this, which one I
+should remove? I can choose one
+randomly.
+One of this randomly, right? In fact,
+what the algorithm does in practice, it
+removes 10% 5 to 10% or 10% to 20% of
+vocabulary vocabulary entries at one go.
+Right? If you see, all these tokens are
+are useless, you remove them at a time.
+Okay?
+So, but let's assume that in our case we
+remove this one by one, right? So, let's
+say we select U N and we remove U N,
+right? And then we basically modify the
+table.
+So, in the maximization stage, what we
+did, we maximization state, we removed
+basically a token we we aim to remove a
+token whose
+whose removal will not affect the loss
+or whose removal will affect the loss
+least least affect the loss.
+Now, once we removed U N, this is the
+modified table now.
+This is the This is the vocabulary. R U
+R U N R U Look at here, the the token U
+N is not present at all.
+And the corresponding frequency.
+Since you already removed the token, the
+corresponding bigram probability will
+also change.
+Right?
+The corresponding bigram probability
+will also change.
+Okay? So,
+now the resultant bigram probability is
+this one.
+Right? Now, let's let's look at the
+split again for these words, R U N, run,
+bug, fun, and sun.
+Let's assume that the best split for R U
+N is R U {comma} N, right? For B U G, B
+U {comma} G, for F U N, F U {comma} N,
+for S U N, S U {comma} N, and these are
+the corresponding probabilities.
+Based on this table.
+Okay? Again, I measure the loss the
+total loss. The total loss is the
+frequency times minus log loss. And now,
+the current log loss is
+61.155.
+Okay?
+Now,
+let's see which one I want to remove. If
+I remove are you,
+right? So, among this
+among these tokens, this is the
+vocabulary. If I remove are you,
+if I remove are you, the loss will be
+63.0126.
+Remember this number, 61.61.155.
+If I remove are you, this will be the
+loss. If I remove be you, this will be
+the loss. If I remove you, this is the
+loss, and so on and so forth. Right?
+Now, look at here.
+The
+token be you,
+if we remove this token be you or you g,
+it will not affect the loss at all.
+Right? So, I can remove both either both
+be you and you g or I
+can remove either be you or you g.
+Right?
+So,
+I keep on removing
+you know, vocabulary entries in this
+way.
+And then I stop when I see a certain you
+know, a certain
+vocabulary size is reached.
+So, let me recap what we discussed here
+in this especially algorithm. Unigram
+language model
+um
+tokenization.
+So, I am given the training set, right?
+From the training set, I did all this
+pre pre-tokenization. I identified all
+the
+um all the words, right? From the words,
+I then identified the best vocabulary.
+The best vocabulary in this case is the
+is is the largest one. It is the is the
+is the longer one compared to
+BP and what piece, right? Because here
+the aim is different. Here the aim is to
+basically remove the vocabulary entries
+which are not useful.
+So, what we can do, we can either, you
+know, uh
+you can either add all possible
+characters, you know, sub words that you
+can think of out of the words present in
+the training set, right? And make a
+larger kind of vocabulary.
+Or you can run BPE or WordPiece or not
+WordPiece, maybe BPE, right? To identify
+the initial uh initial vocabulary.
+Once Once it is ready,
+then what we do? Then for every word,
+right? For every word present in the
+training set, right? I identify the best
+split
+for that word. How do we identify the
+best split? Best split So, for a word,
+there can be multiple possible splits,
+right? For every split, I measure the
+probability. The probability is
+essentially uh the uh the the
+multiplication of all the individual
+probabilities of tokens present in the
+in the specific split.
+Right? So, for every word, I identify
+the best split.
+For every word in the training set, I I
+identify the best split. Now,
+uh for the entire corpus, meaning for
+all the words present in the training
+set, I basically cumulate all the uh
+all the loss together. So, what is the
+loss? Loss is a log loss. So, minus log
+of the probability of the split times
+the frequency of the word.
+So, I uh measure the uh
+the the total loss with respect to the
+corpus, right? And that's my standard
+now.
+Then,
+from the vocabulary,
+I identify that token whose removal will
+not impact the loss or least impact the
+loss.
+Okay? I can remove one such
+uh one such token from the vocabulary at
+a time or multiple tokens from the
+vocabulary at a time.
+Right?
+So,
+once I remove this, again, I modify the
+bigram, I I modify the uh the the
+frequency table, right? Meaning the
+unigram table, right? Based on the
+modified
+uh modified count and so on and so
+forth. Then again, based on the modified
+count, uh for every word present in the
+training set, I again identify the best
+split, right? Again, cumulative uh loss,
+right? And again, uh we we choose the
+best
+we choose the best candidate token whose
+removal will will
+will not impact the overall loss and we
+keep on doing this thing doing this
+thing. We keep on removing tokens from
+the
+from the vocabulary until unless it it
+basically gets shrinked into a certain
+size predefined size that we that you
+already determined at the beginning.
+Okay?
+So, this is
+unigram language model tokenization
+which is used in
+sentence piece embedding.
+These are the standard tokenization
+tokenization methods BPE, WordPiece, and
+SentencePiece unigram language model,
+right? But, there are lots of recent
+advances in tokenization strategies.
+Tokenization is very important to handle
+low-resource languages like the For
+example,
+you know,
+those languages which are not as at all
+present in the training time, right? And
+the model is completely unaware of the
+those languages for example, let's say
+let's say you don't have the resource to
+compute to to to pre-train the model
+from scratch for a specific language,
+right? We can use this kind of
+tokenization techniques
+to deal with low-resource languages.
+With this, I stop here and next year we
+basically move to the next topic of this
+of this course. Thank you.

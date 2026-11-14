@@ -1,0 +1,1093 @@
+Hello everyone. So in this session we
+will be covering some implementation
+part.
+We'll be coding transformers from
+scratch in PyTorch. So in this week what
+we saw was how transformers and the
+self-attention mechanism in transformer
+works. We saw different components of
+transformers like self-attention,
+multi-headed self-attention, then we
+move to positional encoding and finally
+we saw how layer normalization works.
+So we will put all this into practice,
+code this up in PyTorch.
+In the interest of time
+I have already
+kind of compiled all the code that we're
+going to show today and I will describe
+step-by-step every step how we implement
+and um
+things like that. So let's start. So in
+the second week we already
+uh or in the third week I guess we
+already saw the basics of PyTorch, what
+are tensors
+and how autograd works, how
+gradient descent is done and all these
+things. So now we will use all the all
+of that those concepts to implement
+transformers.
+So for implementing we import torch
+which is the PyTorch library and the
+uh torch.nn which uh consists of all the
+functionalities you need to implement
+neural networks.
+Uh as explained device basically checks
+whether uh if CUDA CUDA is stands for
+basically it's it's you can think of it
+as a GPUs, okay? So if you have some uh
+GPUs or graphics processing units
+available in your server, then torch
+will kind of search it whether it is
+available in your current environment.
+If it is not available we will
+uh we can use CPU.
+Colab provides some hours of free GPU
+access, but since this is a kind of toy
+exercise, we are not going to do some
+really
+large transformers. We are just doing a
+toy transformer. So CPU will be enough
+in our case.
+Okay. So, let's start by the
+self-attention module.
+So as we know the paper which first
+proposed attention mechanism was
+in fact self-attention mechanism because
+attention was already previously
+proposed for
+RNNs and LSTMs and sequence-to-sequence
+models basically.
+So self-attention was proposed in this
+paper, Attention Is All You Need, and we
+will be religiously following this paper
+for implementing transformers using
+PyTorch, right?
+So let us look at the architecture which
+the authors proposed. So we have already
+previously seen this diagram, but let us
+revisit this once uh
+before moving on to coding the part.
+So this is an encoder-decoder
+architecture
+in the same way what we have discussed
+in this week.
+Here,
+first if you see the left-hand side
+block, that is a encoder block, right?
+So the encoder block
+uh
+consists of basically three modules if
+you see it in that way. First is the
+multi-head attention module, second is
+the feed-forward module, and third is
+the add and norm module. So focus on
+this left-handed block, right?
+So what it goes is first you have
+inputs. So inputs are like NPTEL is
+great, right? This is a text input. And
+then we have a input embedding which
+which So first this text is tokenized.
+So we have already seen the tokenization
+algorithms, different tokenization
+algorithms like byte pair encoding, like
+sentence piece tokenizer, word piece.
+All these we have seen.
+Uh so, first the text is tokenized. So,
+suppose NPTEL is great, we will see this
+in practice in um in subsequent weeks in
+when we discuss in the hugging face
+uh library and hugging face tutorial,
+there we will explain and show how
+tokenizers work basically
+in practice.
+So, suppose we have this text, NPTEL is
+great, and
+for now let us assume it is tokenized as
+NPTEL a single token, is a single token,
+and great is a single token. Now, each
+token is then passed to an input
+embedding layer. So, what input
+embedding layer does, it is basically
+kind of a lookup table, where for every
+token in the vocabulary, which is
+already present, we have a
+uh
+embedding. Embedding is a basically a
+vector representation of the token,
+right?
+And then, we add positional encoding.
+So, in this paper, they proposed um as
+you already have seen, the sinusoidal
+positional encoding. If we see here,
+right? This.
+So, the sinusoidal positional embedding,
+what it says is
+So,
+uh it's sine of position by some number
+to the power 2i by d model, right? And
+uh it alternates for each dimension
+between sine and cos.
+So, this is a kind of static positional
+embedding. Static and absolute. Static
+in the sense, it is already predefined
+for every dimension.
+Every dimension i and every position p o
+s
+pos, and every dimension i it is already
+predefined, right? It is not trained
+explicitly.
+And it is absolute in the sense, it
+considers the absolute position of the
+token, right? Whether it is at zero
+index, whether it is at one index,
+and like that.
+So, it is not relative. So, gradually we
+saw how
+there are
+propositions on trainable positional
+embeddings which are dynamically updated
+during training
+and also relative position encodings
+which takes instead of taking the
+relative absolute position zero one it
+takes the relative position between the
+tokens. So, we've already seen this all
+this in this week, right?
+So, this multi-head attention
+so, takes in three inputs.
+The query vector or the query matrix,
+the key matrix and value matrix.
+For the encoder part
+all the query, key and value comes from
+the input.
+Right? Whatever the input we are giving
+after getting the input embedding
+addition of the positional encoding we
+have say
+vector matrix X. So, QKV query, key and
+value matrix all are coming from the
+same input matrix.
+Then multi-head attention gives uh
+whatever it does we'll see that again.
+Then it is add a norm what it does is it
+there's a residual connection. So, the
+input matrix is again added to the
+output of the
+multi-head attention.
+We apply a near norm on top of it and
+then pass it on to feed forward network.
+So, this is a encoder block a single
+encoder block and and it is stacked n
+times. So, there are n encoder layers,
+right?
+And then we have the decoder we will
+which we'll see next. So, now let's So,
+what is the main part of this? The main
+tough part the where you need to do a
+lot of thinking how to implement it is
+basically the multi-head attention part.
+This is self multi-head self attention.
+So, we will see this first this module
+first.
+So, this class right? So, this class
+self attention implements
+that multi-headed self attention part.
+Right?
+So, uh
+for any class, uh hopefully you have
+already done the prerequisites for
+Python and object-oriented programming.
+So, you must know that whenever we
+declare any class in any object-oriented
+programming language, be it C++, be it
+Python, be it Java, we need a class
+constructor, right? So, the class
+constructor basically defines how we're
+going to handle the different attributes
+of the of the object which will be
+instantiated from the class.
+So, uh this init method is basically an
+instant uh an instant basically, it
+instantiates the class, right? It is a
+constructor method.
+So, our embed size is basically the
+model embedding size, right? So, if we
+want to draw parallels with the paper,
+um
+if we see here,
+okay? So, let's see the multi-head
+self-attention uh section.
+So, here uh you can see that this D
+model this D model is basically the
+embedding dimension, and this dimension
+is consistent throughout the model, that
+is each layer output is of dimension D
+model. So, this D model we define as our
+embed size, right?
+And heads is the number of attention
+heads
+at each layer,
+right?
+So, what will be the head dimension? If
+we see here,
+so, it says that DK and DV. So, DK and
+DV DK is the dimension of the key and
+the query. So, the key and the query uh
+vectors or when you stack vectors, it
+become matrices,
+uh the key and the query matrices always
+have the same embedding dimension,
+right? So, this DQ and DK are basically
+same.
+So, DK is the key dimension, and DV is
+the dimension of the value vectors.
+So, what is it? It is D model by H. So,
+D model is our embed size, and H is the
+number of heads.
+So, that's what we do.
+Head dimension is embed size by number
+of heads.
+And we write a condition and assertion
+condition to check that the embedding
+size, right? So, the embedding dimension
+should always be divisible by the number
+of heads. So, when you multiply the
+number of heads and our head dimension,
+we should get the embed dimension. So,
+this is a kind of assertion.
+And we define three layers, linear
+layers. Basically, linear layers means
+simple linear transformation,
+multiplying a projection matrix. So, if
+you have KX, it is just writing WX. So,
+that is W is our learnable matrix. So,
+that's what linear layer does, right?
+So, maybe I can write here. So, what
+linear layer does is if you have a
+input, say X, then what after passing on
+this linear,
+right? What it will does is it will just
+make it WX, right?
+So, this W, where
+W is
+trainable.
+Right? W is a trainable matrix.
+And
+we
+define such linear layers for every
+values, keys, and queries. And this FC
+out is basically where we multiply WO,
+if you
+see here. After See, after
+concatenation,
+we multiply another matrix WO, right?
+So, that's what this FC out does.
+You can say it as WX or in our case,
+it's basically XW, right? So, it's XW,
+so this
+FC out is basically then WO. So,
+whatever
+after concatenating
+the head outputs,
+we apply
+W on top of it.
+Right? This is what FC output.
+Now, let's look at how do you define the
+forward pass through the self-attention.
+So, as I said, what is the input to the
+multi-head multi-headed self-attention
+module? It's three matrices, the key
+matrix, the query matrix, and the value
+matrix, right?
+So, we define N
+as the first uh
+dimension
+of the
+query matrix. So, what is the first
+dimension of the query matrix? The query
+matrix, if uh we will see in details
+there later. So, the query matrix,
+whatever we have, this query
+is basically
+of shape Shape is basically the uh
+dimensions of the matrix, right? So,
+first is N. So, what is N? N is the
+number of training examples, number of
+examples in a batch. Right?
+And then we have how many tokens are
+there in the query. So, we can define it
+as query length.
+Right?
+We can define it as query length.
+Then we have
+the embedding dimension, right?
+Embedding size in our case.
+So, this is a query, how it is going in.
+And uh
+So,
+Okay, after that, what do we do?
+Look. So, you have the QKV, you pass it
+through a linear layer, each of the
+matrices. So, these linear layers are
+defined here, these three linear layers,
+right?
+And then we have N, which is the number
+of training examples in the batch. And
+this value length, key length, and query
+length are basically the number of
+tokens in the query
+uh matrix, the key matrix, and the value
+metrics. So, number of tokens uh
+in is defined as basically the query
+length what we are saying, right?
+So, now because look um
+in the encoder case
+the query length, key length, and value
+length are the same because
+all the query, key, and value comes from
+the um
+inputs.
+In case of decoder, on the other hand
+the query comes from the input to the
+decoder. But, the key and values come
+from
+the encoder um
+module, right? Uh
+so, um
+the key and
+value may not have the same length as
+the um
+or rather in most of the times don't
+have the same length
+as the
+query. So, that's how we handle it
+explicitly.
+And when we have this um
+key, query, and values as N
+which is the number of training examples
+say len which is the number of tokens
+and embed size so, this embed size is
+now basically
+if you think of it that way, this is
+heads, number of heads, into head
+dimension, which you already saw. So, we
+need to break this up into different
+heads. So, we have already multiplied it
+by the projection. Now, we divide it
+into
+different heads explicitly, right?
+So, we do that here. What we do is we
+reshape the uh in torch, there is this
+concept of reshape uh reshaping tensors.
+So, we keep the first two dimensions
+same, right? It's N and value length,
+key length, query length, whatever it
+is, and we divide the embed size into
+number of heads
+and the dimension of each head. So, the
+multiplication of this last two
+dimension
+uh so,
+we already asserted that self.heads
+into self.
+um head dimension, which is the
+dimension of the individual heads, is
+equal to self.embed
+size. We already made that assertion,
+right?
+So, now we have the key query and the
+value matrices passed through the linear
+layer, so it's different for
+every heads, right?
+Now, how do you calculate the attention
+scores? So,
+this is how we calculate the attention
+scores, right?
+So, this part we call attention scores.
+So, it is QK transpose by scaled by the
+square root of the dimension of the
+keys, right? So, let's first focus one
+by one. So, first is QK transpose.
+Now, let's think.
+When you have a normal
+query and key vectors,
+right? Where Q is basically
+say your
+number of tokens
+and DK,
+right?
+And your key matrix
+is also the number of tokens into DK,
+number of tokens {comma} DK basically.
+So, if these are your shape of Q and K,
+then it's pretty easy to do
+QK transpose,
+right? QK, let me write QK
+.d. So, this is QK transpose.
+And
+So,
+we already have Suppose we have the Q
+matrix of
+which is just Basically, think of it as
+a single example, right? A single
+sentence. So, Q matrix is of say say
+N tokens is the number of tokens {comma}
+the dimension of the key vector
+uh because Q and K have the same
+dimensions. And the K vector or matrix,
+whatever, is
+simply um
+the number of tokens in and {comma} the
+dimension of the key.
+Then we can do simple a QK transpose,
+which will give us a basically attention
+map
+or attention scores of dimension
+our square matrix with dimension
+number of tokens {comma} number of
+tokens, right?
+But when we have this batch, right? When
+we add this N over here, right?
+N over here,
+then QK transpose
+doesn't work as intended, right?
+So, now what do we do, right?
+So, um so there is this method called
+einsum, okay? So, einsum is basically a
+more generalized
+uh function for doing matrix
+multiplication. So,
+what do you give as input to the einsum
+are your input matrices.
+And as a rule, you explicitly tell
+what are the
+dimensions of your input and to what
+dimension do you want it to map to,
+right? So, this is a more generalized
+matrix multiplication. So, so ex for
+example, here
+N is our number of
+sentences in our batch.
+Q is the query length, right? Q is the
+query length.
+H is the number of heads,
+and D is our head dimension, right? So,
+tell me what is the
+uh shape of the query vector? It's N,
+right?
+Then the query length Q,
+then the number of heads. Just look
+here. N, query length Q, number of heads
+H.
+And the head dimension D.
+So, this is
+uh
+This is how we represent the dimension
+of the query vector
+when passing it to einsum. Right?
+Similarly, tell me what is the dimension
+of keys.
+It's N.
+The number of training examples. Key
+length is different from query length.
+It can be different in a generalized
+case. So, let us call it K.
+Right? And the number of heads are the
+same H. And the head dimension is same
+D. So, it's NKHD. Right? This is the
+dimension of key key key matrix.
+And we want to map it to attention
+scores. So, what should the attention
+scores give? For every sentence N,
+right?
+We should have
+So, for every sentence and for every
+head,
+right? For every sentence and for every
+head, we have an attention map. Right?
+So, ponder upon this very carefully,
+that when we are giving a batch of
+sentences as input
+in a multi-head self-attention, at the
+first step, what do we have? We have a
+square matrix. So, the square matrix uh
+the Y axis In the Y axis, we have the
+keys. So, NPTL is great. Right? So, for
+every token, say NPTL, right? We have a
+attention scores over each token in the
+sentence. So, for NPTL token as query,
+the all the three acts as keys. Right?
+So, we have attention score for NPTL. We
+have attention score for is. We have
+attention score for great. Right? Say it
+is 0.5. So, before normalization, before
+converting to probability, it can be
+anything. After converting to
+probability, when it
+when we apply soft max, it becomes say
+something like say 0.5 0.3 0.2. Just
+like that.
+So, then what is the
+dimensions of the attention score
+matrix? It is the
+for every n number of training examples,
+for every head, we have a matrix where
+the number of rows is the y-axis, which
+is the query length, and for each query,
+we have attention distribution over the
+keys. So, it's n h heads q and k, right?
+So, this is a mapping you need to do.
+So, now einsum tells what what do you
+give as input to the einsum? It if you
+give the input uh
+one, the dimension of input one, {comma}
+the dimension of input two,
+given arrow like that, right?
+Given arrow like that,
+and tell to what you need to you want to
+map it to.
+So, we need to map it to n h q k, as we
+discussed here. And the inputs are
+queries and keys.
+So, maybe I can illustrate a little bit
+um to give you an example
+that einsum occurs in similar way to
+matrix multiplication, right? Suppose um
+I have a
+torch.
+tensor.
+Let us take a
+1 2 3,
+right?
+And uh
+say 4
+5 6, right? So, this is basically A. So,
+what is A then?
+You'll see A is a tensor, and what is
+the shape of A then? Shape of A is So,
+it's 2 {comma} 3, right? 2 {comma} 3
+um dimensional tensor.
+Now, we have say a B,
+so let us copy this.
+Uh
+Okay.
+So, define another tensor B.
+And it is say it is something three
+comma, right? So, it should be say one
+two
+four five
+and six seven.
+So, what is the shape of B? The shape of
+B is three comma two.
+Okay. So, now
+A and B are fit for multiplication. And
+after multiplication, what should the
+dimension?
+Two comma two.
+So, if we do a simple
+matrix multiplication
+So, this is basically matmul. Let it Let
+us call it matmul.
+So, this gives us
+some basically uh
+So, let us print that, too. So, we can
+print say
+say normal
+matrix
+multiplication, right?
+Now, suppose we want to do einsum,
+right? So, let us say einsum.
+So, in einsum, what will you do?
+Tell me. So, you should
+do things along with me. You should also
+have a laptop and open your basically
+collab and just do with me. So, okay.
+So, when you einsum, what do you want to
+give? Tell me. We already discussed.
+So, we have a
+rule, right? A rule. What is the
+mapping? So, what is the dimension of A?
+Say it is PQ.
+And what is the dimension of B? So, the
+number of columns in A must match with
+the number of column number of rows in
+B. So, say it's QR. And what is the
+mapping rule? We want PR. So, this is
+the mapping rule
+in case of
+matrix multiplication, right? And what
+are the inputs? It's A {comma} B.
+Right? Similar to what we did here.
+Correct?
+And now,
+let us check
+whether if we do
+Einstein multiplication
+and if we do matrix multiplication, are
+the results same? Let us check.
+So, you can check, you can see here by
+normal matrix multiplication and by
+Einstein, we get the same output, right?
+So, this is a kind of a small
+illustration on how Einstein works.
+Einstein can be helpful for dealing with
+more generalized, more complicated
+things, but this is just an
+kind of
+toy example to illustrate that, right?
+So, let's go back to our self-attention
+code.
+So, till now, what we have are is our
+attention score matrix, right? So, the
+attention score matrix
+is of
+shape
+number of training examples N,
+right? Number of heads H,
+and
+query length cross key length.
+So, this is clear till now, right?
+Now, we define a mask. Why do we define
+a mask?
+Because suppose the number of the
+sentences the different sentences in our
+training batch
+are say not of equal length, right?
+Suppose the first sentence is of length
+uh the number of tokens is say five. The
+second sentence is say 10. Then we
+basically pad pad some special tokens
+into the smaller sentence to make the
+two sentences of equal length.
+Sometimes you we can also truncate where
+the we can decrease the uh of the larger
+sentence. So, it's up on us.
+Uh but um
+generally we use both truncation and
+padding. So, we truncate uh
+the length of the maximum sentence to a
+particular input length, say like 512.
+And if any sentence is lesser than 512,
+we pad it pad with some special token to
+make it 512. And if we have sentence
+greater than 512, we truncate it to 512.
+So, that is how we generally handle
+uh batches to make them of uh same
+length, right? For parallel processing.
+So, what this mask does is if you have
+zero in a mask, so we'll later when we
+run this, we will see how we define that
+if we have a padding token,
+uh make it uh zero uh index, right? So,
+if you have a zero, what it does is it
+makes the attention
+score in place of that mask token as
+when this mask token is the key for a
+particular query, the attention score is
+made basically a large minus negative
+number. So, when you have a large
+negative number, think of it as minus
+infinity. So, when we apply soft max, it
+becomes zero. So, the uh model does not
+unnecessarily attend to the uh mask
+tokens, right? So, this is kind of um
+a way to handle that the model does not
+pay attention to the padded tokens.
+Otherwise, training will become noise.
+And then finally, once we have the
+attention scores, we as we uh saw here,
+we first scale it by the square root of
+the number of
+square root of the head dimension, so
+that's attention score by self head
+square root of that, and we apply soft
+max with Where do we apply soft max? We
+apply soft max on dimension three.
+So, what is dimension three? So, this is
+zero dimension, one dimension, two
+dimension, three dimension. Third
+dimension is the query key length,
+right? Key length. So,
+applying soft max on dimension three
+tells us that for every query index, so
+what is a for every query index that is
+for every query token, we have a
+probability distribution, right? Over
+the keys.
+So, that's what attention does and then
+again we use einsum, so this is again a
+simple matrix multiplication, but it
+couldn't have been handled by a simple
+matrix multiplication. So, what is out
+is doing is after we have the softmax of
+this we just need to multiply with the
+value matrix, right?
+So,
+so the input is basically the attention
+and the value matrix. So, what is the
+dimension of the attention?
+Um okay, so attention dimension is the n
+h, n is the number of examples, h is the
+number of heads, q is the query
+dimension and l is k dimension, k is the
+key dimension, dimension of the
+basically not key dimension, it is the
+number of the keys, right? Number of key
+tokens, key length.
+And one thing you should always notice
+the key length is always equal to the
+value length.
+So, the key space and the value space
+are defined over the same set of tokens,
+right?
+So, um
+the key length l and the value length l
+are the same, right? It was k
+previously, we just made it l to make it
+generalized in both cases, right?
+So, the what is the shape of the value?
+It's n
+its value length l, number of heads,
+number of dimension and finally what we
+want is we for every sentence
+uh we should have n q h d, that is for
+every sentence we have the key query
+length the head number of heads, the
+number of dimension. That is again we
+want to restore after multiplying with
+the value matrix. So, the final output
+from the
+uh from each head is same to the final
+uh is the dimension of the final output
+is same as the dimension of the initial
+input query input we get, right?
+So, this makes that and after we have
+the output, so this this part What is
+the output? It's the N
+Q
+H number of heads and D the head
+dimension. Now, we want to reshape it.
+So, why do we want to reshape it? We
+want to make it uh basically want to
+concatenate all heads, right? So,
+concatenating all heads means this this
+H and D. So, this N and Q remains the
+same. This H and D are merged, right?
+So, basically this operation, this
+concatenation of each head.
+Right?
+So, uh this H and D are merged to heads
+into head dimension, which is the
+embedding dimension. So, finally um you
+can check. Maybe I can comment this for
+now.
+So, attention scores.shape should be the
+N query length and the embedding
+dimension. We simply apply the FC out.
+FC out is basically applying the W
+matrix, right?
+And we return the output. So, now we
+have this whole um
+whole multi-head attention module
+implemented
+all all over, right? We implemented the
+whole multi-attention. Now, the stacking
+up for encoder and building the decoder
+is easy because we have this main part
+done. So, now we can
+quickly go through how we finally do the
+encoder. So, for each encoder block, we
+call it transformer block. Why? We will
+see because this part can be reused when
+writing the code for the decoder. So,
+what we have we have once we have the
+multi-head attention, we take the add
+and norm and apply to feed forward
+network, right? So, um
+We define two norms, norm one and norm
+two. So, this is norm one for norm after
+the multi-attention and one norm after
+the feed forward network, right? We
+define a simple feed forward network
+using nn.sequential. If you are not
+familiar, you can look up the
+documentation and read what
+nn.sequential does.
+So, it's simply a linear layer followed
+by a ReLU activation function and
+another linear layer.
+Uh what this forward expansion does is
+so, suppose you have first embedding
+dimension of D as input.
+The forward expansion that is a first
+feed forward layer up projects it.
+Now, what is the up projection dimension
+in this paper?
+So, in this paper,
+uh they have taken the forward expansion
+factor to be four. That is um
+um
+if the input dimension is D, after up
+projection, it becomes 4D, right?
+And then from 4D, it again down projects
+to D.
+So, that is what we do in this part,
+right? We first map it from embedding
+dimension to forward expansion into
+embedding dimension or embedding size.
+So, forward expansion can be defined as
+four if as in the paper, and then we
+apply our activation function, and then
+again uh down project it from 4D to D,
+right? And then we apply a dropout.
+Uh dropout is just for regularization,
+so it doesn't overfit during training.
+So, what does the forward function do?
+We have the attention. So,
+we have the query key and value
+matrices
+and the mask with the padding which the
+ensures that the it doesn't attend to
+the unnecessary padding tokens, special
+tokens.
+So, then uh this attention plus query is
+basically the add part. So, if you
+attention is the input to the
+multi-headed self-attention block,
+right?
+So, uh the output uh
+is
+again attention, so you can see here
+attention. So, self.attention when you
+pass value, key, query, and mask,
+the output is attention, right? So, with
+the output of the multi-head attention,
+you add the initial input query again,
+right? This is the add, right? And then
+you apply the norm on it.
+So, this X here is basically after multi
+attention and add and norm, right? And
+then what you do, you pass X to feed
+forward and again add and norm. So, what
+you do you pass X to X to feed forward
+layer. This is forward. And then you
+again apply the norm. First you add it.
+So, forward is the output of from feed
+forward and X is the input to the feed
+forward. This is the add operation.
+And then you again apply new norm.
+And finally you get the output.
+So, this this this completes our encoder
+block. Now, for the whole encoder
+module, what you do? You start you
+basically
+stack N like N encoder blocks, right? On
+top one on top of the other.
+And what is the input? The input is you
+have the word embedding, you add
+positional embedding to it. So,
+we have taken a more simpler trainable
+positional embedding layer here, which
+is trainable. So, the embedding is
+defined over the max length
+of the input and the embedding
+dimension, right? And the word embedding
+is embedding and not embedding is
+basically a trainable dictionary look up
+table kind of a thing, right? So, the
+number of keys are the vocabulary size
+and um
+the embedding dimension. So, maybe we
+can quickly go through this that we have
+a module list, right? So, in the the
+module list what it does is it stacks N
+modules, right? So, this transformer
+block is stack stacked N times. So, what
+does stacking mean is the input
+you give input to one block and then the
+output of one block
+output of the block acts as the input to
+the block on top of it, right? So, that
+we stack that and we add a dropout. So,
+if you look at the forward function, so
+first you have the X, which is the
+input. The X is a basically a matrix.
+Number of rows is the number of
+training examples in the batch and
+sequence length is the number of tokens
+in each
+in each
+sentence, right? So, positions are
+basically zero to the word length. These
+are used for positional embeddings. So,
+what do you do first is uh
+get the embedding of each token and add
+it to the positional embedding, right?
+And then for layer in self.layers, that
+means for each encoder block, you pass
+on the
+uh
+final out. So, what is out? Out is X
+plus positional embedding of X, right?
+So, you pass on that. So, the key,
+query, and value, as I said, the key,
+query, and value for the encoder block
+is the same. It's the
+uh
+input embedding plus positional
+embedding embedding that uh matrix,
+right? So, the key, query, and value
+comes from the same matrix in case of
+encoder.
+On the other hand, for decoder block,
+right?
+So, for decoder block, everything is
+same. Only difference is that the uh
+key, query, and value, the query comes
+from the input and the key and value
+comes from the encoders, right? The
+first attention, which is the masked
+multi attention, this masking is done on
+the future tokens, if you remember. So,
+the transformer can't see the future. We
+should ensure the transformer shouldn't
+see the future because generally
+transformer can see the future if you
+give the whole uh target sentence as
+input. So, we must make sure that the
+future tokens are masked um as uh keys
+and values
+um when we are handling a particular
+token as a query, right? So, it they
+shouldn't be able to see the future. So,
+that is is first thing. That is the
+masking. And this masked self masked
+multi-attention takes as input the input
+to the decoder, right? So,
+to the first attention block
+takes as input the input to the decoder.
+And then we apply the add and norm
+again, similar to that. And then we
+apply this is the cross-attention,
+right? Cross-attention, the key and the
+value comes from the encoder and the
+query
+comes from the decoder input. So, uh
+So, basically
+when we stack these layers, so in the
+decoder again, we have the right word
+embedding and positional embedding. We
+have We stack uh the N layers, right?
+And uh this is the feed This is the feed
+forward basically FC out. You can uh
+similar to what we did in encoder. And
+we add a dropout. So, this is the input
+to the decoder.
+And the positions. So, what we do is we
+first
+take the word embedding and add the
+positional embedding, add a dropout, and
+then for every layer, what we do is
+basically we just pass on the current
+input to the decoder, the output of the
+encoder,
+and the source mask for masking the
+padded tokens, and the target mask for
+uh masking the
+um
+Target mask is basically for masking the
+what to say?
+For the tokens, uh as we said in the
+decoder, what is the masking? The future
+tokens, right? So, target mask masks the
+future tokens so that transformer can't
+see the future in that case. And this FC
+out is basically then projecting the
+whatever output you have. So, this FC
+out is this final linear layer, right?
+It projects from the embedding dimension
+to the vocabulary dimension. And then
+softmax makes it a probability
+distribution, right? So, this FC out is
+basically uh projecting
+from embedding dimension
+to the
+vocab size, right?
+And this completes the decoder. And the
+final part is using all this. So,
+when we use all this, what happens? So,
+we have an encoder, we define just like
+we said to the other end encoder models
+within it. We define a decoder.
+Uh we define the padding index, right?
+Uh padding index for input
+to the encoder, padding index for input
+to the decoder. So, this takes care of
+the
+pad tokens.
+And this takes care of the
+future token marks, right?
+And then we have device.
+So, then we have the source mask. So,
+what does the source mask do? Uh for all
+places where there is zero, so we'll
+define the padding index to be zero.
+Uh it's a source mask, so it's one
+everywhere and wherever there is a
+padding token, it's zero. And previously
+we saw how we make it minus infinity in
+the attention matrix. Similarly for
+target uh mask uh
+So, trill is a basically a lower
+triangular matrix, right? So, for the
+as we have seen in the lecture, for the
+target mask, what we have is a lower
+triangular matrix. So, the lower
+triangular matrix is one and the upper
+triangular matrix is basically minus
+infinity in the attention score. So, we
+make it a
+zero here and then in the mask it makes
+whatever is zero, it is minus infinity,
+as we discussed in the code. And then
+similarly we pass the forward source
+mask, target mask. Uh we get the output
+from the encoder using the
+self-attention encoder and we pass out
+pass the output of the encoder to the
+decoder along with the input to the
+decoder. So, uh just to show,
+suppose we have a
+basically a tokenized uh input, right?
+So, this is say a tokenized input of
+dimension 2,9.
+And then we define the source and target
+pattern next to be zero and the vocab
+size to be 10. Right?
+And then if we apply input input this X
+um input X, the target vocab size or
+vocab size and all this to the
+transformer,
+uh it will process it. So, maybe I will
+run this once to show you
+that it works fine, right? So, this
+prints that it's working on CPU. There's
+a printed device over there and then the
+torch dot size that is a two is the
+number of example sentences,
+seven is the number of output tokens,
+and 10 is
+uh
+basically the output vocabulary size,
+right? So, this is a kind of walk
+through to how we can uh implement
+transformers in PyTorch. Uh we could do
+more things like um
+define the position encoding using rope
+and things like that, but this must be
+helpful for you to at least get started
+with uh coding transformers in PyTorch.
+Okay? So, that's it for this lecture.
+Thank you. Enjoy and happy learning.

@@ -1,0 +1,1029 @@
+[Music]
+hello everyone welcome to this course
+again so in this lecture we going to
+talk about pring
+strategies last lecture we covered
+Transformer different blocks of a
+transformer model right
+we also talked about what to glove
+models which are pre-rain U word
+embedding methods right
+and uh we will see you know the the
+overall uh the overall Arena of
+pre-training with Transformer and then
+we'll also see how the you know how the
+Paradigm of preening actually changed
+from pretend word embeding to pretend
+language model let's look at the
+pretending strategy
+okay so while discussing this let us
+start with this famous quote which we we
+already mentioned earlier in the
+distribution semantics chapter in the
+word embeding chapter that we shall know
+a word by the company it
+keeps
+right so the same
+person uh modified the quote later on
+and then he said that the complete
+meaning of a word is always contextual
+okay this is always contextual and no
+study of meaning apart from a complete
+context can be taken
+seriously okay and this is essentially
+the foundation behind building the
+pre-training strategies
+okay this is an example I record the
+record right if you look at these two
+the two positions of the word record
+right the meanings are completely
+different now if you use a water to we
+kind of method or a glove kind of method
+which produce which basically produce
+pre Trend embeddings right you will get
+same embedding for a for for these two
+positions of
+record right but the meanings are
+different okay let's take another
+example A bat flew out of the cave he
+hit the ball with a bat again here the
+two words bat the the the the the two
+positions of the word bat the two
+context of the word b are different
+right if you use the same embedding to
+represent this you will not be able to
+uh do the uh proper processing of it
+right so what we will do here we will
+produce embeddings word embeddings which
+are going to be
+contextualized meaning depending on the
+context the embedding will change for
+example
+here let's say for the word bat you will
+get one embedding for the word bat here
+you get another inviting which are
+different okay how do you do this the
+first approach which was proposed which
+is not a Transformer based approach this
+was proposed in 2018 is called
+Elmo right deep contextualized word
+representation right this was this was
+done by uh mostly by Ln team and you
+know some folks from from this
+University
+also right one of them is a very good
+friend of mine
+so the the idea behind the Elmo method
+is as follows so Elmo is a non-
+Transformer based approach there is no
+concept of Transformer Transformers was
+introduced in 2017 and the same time it
+was introduced 2018
+right so Elmo stands for embedding from
+language
+models what what it
+does it essentially relies on rnns right
+can be lstm can be Gru right RNN
+and what it does it essentially
+processes a sequence right when you
+process a sequence using RNN each of the
+Hidden
+states which are which correspond to
+basically the tokens right this hidden
+States will basically be used as
+edings right let's say I
+am going to
+school this is my RN
+okay in RNN what what do we learn we
+learn the weight Matrix W right there
+are how many how many matrices are there
+in
+general generally there are uh three
+matrices one is a matrix between uh
+layers right W another is this w e which
+corresponds to the input and other is
+this U which basically projects it to
+the output space right
+for the time being you just assume that
+there's only one Matrix which is
+wh okay so you have an
+RNN a fixed L length RNN right and then
+what you do you pass one training
+instance okay and you train this RNN
+using language model objective next for
+prediction right you pass one sequence
+you predict the first position of the
+sequence second position third position
+fourth position position and so on and
+so forth right you do backdrop and and
+you then you update W wh
+right then again you pass another uh
+sequence you update uh this and so on
+and so
+forth now think about it what is
+happening here so the claim is
+that the hidden state will act as an
+embed the hidden State here let's say
+let's say this hidden state will act as
+an embedding for the word
+two right now you may wonder how how
+would it be possible because there are
+so many sequences there there's only one
+RNN right
+so let's think of let's think of a
+dictionary right where every row
+indicates an embedding of a of a
+particular token right let's assume that
+this is a whatev token right not a C
+Level water level
+tokenization so there's an entry I and
+this is the vector entry J this is a
+vector and so on and so forth and let's
+assume that this Matrix is initially
+randomly initialized okay now when you
+start this
+RNN you need to feed the input right
+this input is taken this input is fed
+from the from the dictionary so the
+correspond so so when you when the input
+is I you basically F the corresp
+responding embedding Vector from the
+dictionary and you feed it as an
+input right to start
+with then you train the model let's say
+you take one instance you train the
+model your hidden states are updated
+right the hidden State corresponding to
+the word I is also updated right so you
+when when the training process is done
+you take that hidden State and you
+replace the previous uh embedding of I
+by this hidden state
+done another instance another training
+uh sentence comes in you use the same
+RNN okay let's say this is C is u c is
+eating a
+pizza okay so what you do first how do
+you initialize this you take the
+embedding of C from the dictionary e
+right eating and so on and so forth
+right you already have this we Matrix
+which which came from the previous
+iteration you again update it you update
+you update the hidden States and the
+corresponding uh corresponding
+dictionary is
+updated you keep on doing this thing
+with all these instances now you can say
+that you know I will I will I will train
+the model using batches that is also
+possible you take a batch and then you
+do this update or let's say per instance
+you basically update this
+RN okay so this is a language model
+objective based RNN
+model there's no task involved so far
+now so this is now what you do so this
+is your first RNN which is a language
+model OB T
+RNN when all these things are done you
+freeze this
+RNN when you freeze this what does it
+mean it means all the embeddings are
+freezed right and now let's say you are
+interested in doing some
+task okay and let's say you have some
+task specific
+data you have some task specific data
+which you you you you want be used to
+train the model
+further some sort of fine tuning okay so
+on top of this you you apply another
+RNN which will be responsible for doing
+this task and let's say the task is
+sentiment
+analysis okay this is s analysis so this
+is frozen it is frozen means the hidden
+states are coming from this the first
+layer so given the task specific input
+all the tokens embedding are coming from
+this layer which are frozen right and
+here in the second layer you have
+another uh we Matrix wh Dash which
+corresponds to that
+layer and you have the task you you
+produce the uh some output there's some
+error right you back prop and you update
+the uh
+weights the task specific weights are
+updated so during the inference time
+let's say you are given a sentence right
+what do you do first you are given a
+sentence then you first retrieve now
+remember there are two
+layers don't forget there are two layers
+the first layer is a language model
+layer the second layer is a task
+specific layer right during the
+inference time what you do during the
+inference time you feed here right you
+you basically feed here the bottom layer
+the coresponding weight wh is already
+stored it has already been
+learned right so let's say you are
+feeding a new sentence let's say aai aai
+is a great Cricket player okay so what
+you do uh so this is my first layer okay
+so you feed the input uh the the input
+Vector of Oxi from the dictionary right
+you multiply this with the weight
+wh right it will and then uh Ox is then
+you also have this is uh emitting for
+the for for the word is this and the
+previous hidden state will basically be
+used to generate the next hidden state
+right and so on and so forth you roll
+out okay when you roll out now let's
+let's look at the current hidden States
+now now these hidden States the current
+hidden states of the of the bottom layer
+are very different from the hidden
+states which are stor
+earlier because these are multiplied by
+these are these are basically functions
+of the weight
+Matrix right and this is contextual why
+this is contextual because the word
+great is now dependent on on the
+previous Words which is AA
+is okay maybe the word great was used in
+some other context but in this context
+this is a function of the previous
+words clear so the bottom layer will
+produce will produce some hidden States
+right now this hidden States will be
+moved to the to the Tas specific
+layer and the Tas specific clear we
+already know the corresponding weight
+which was learned earlier that will be
+used to predict the
+task
+okay now there are some changes here and
+there what I mentioned is a very high
+level overview of this let's look at the
+changes but the bottom line bottom line
+stories should be clear right there are
+two layers one layer is responsible for
+language model objective the top layer
+is responsible for task right um here
+you store the hidden States as
+embeddings of the tokens right and then
+the embeddings will be will will be
+changed when you apply um for a for a
+specific context it will change
+okay okay RNN is not a very great
+approach I mean RNN unidirectional RNN
+is not a very great approach because it
+only scans from left to right right as
+you understand for a language model
+objective why why do we need why do we
+just need to scan because I want to
+process the entire sentence so along
+with the left to right uh RNN I will
+also use a right to left
+RNN as you process the enter sentence
+now left to right RNN will process will
+basically predict uh the next word from
+left to right right to left RNN will
+basically predict the word from right to
+left okay now I mean there are two ways
+to essentially do this thing let's say
+if you if you have access to only a left
+to right RNN not an right to left and
+what we can do you can just rotate the
+sentence right let's say I'm going to
+school school to going m i and then you
+uh run a left to right rnm
+okay in fact what they
+did they used a stacked rnm there are
+two layers now this rnm that I'm talking
+about is a language model R the bottom
+the bottom RNN that I mentioned earlier
+so the bottom RNN was essenti a stacked
+RNN there are two layers right so you
+see here this is this is one RNN called
+the forward uh language model there are
+two layers layer one and Layer Two right
+and this is a backward uh LM backward
+RNN here also there are two layers layer
+one and Layer
+Two right a cute puppy and a cute
+puppy okay left to right and right to
+left then what is going to be my final
+hidden state which I'm going to store
+into the dictionary the final hidden
+State corresponding to the what
+cute right can be can be either the
+concatenation of this and
+this right or it can be let's
+say only the top
+layers this plus
+this plus means
+concatenation right there can be
+multiple ways of combining this let's
+look at it here
+so you have a left to right RNN okay
+look at this equation very carefully
+okay so this is a language model
+objective here so you have you have you
+are given a sequence of tokens T1 T2 dot
+dot dot TK minus one we are predicting
+TK what is this one this is essentially
+the lstm I mean the RNN parameter which
+is
+wh right the all the other parameters
+meaning the let's say we right all the
+other parameters in the RNN will remain
+the
+same what is w w is the parameter
+corresponding to the input right in this
+case this is Theta X this will remain
+the same in the forward lstm and the
+backward lstm okay all the other
+parameters what is this Theta s what is
+this Theta s Theta is the S is the
+U okay the soft Max parameter this will
+also remain the same in forward and back
+word so the only parameter which is
+going to change is the
+wh okay so
+then you essentially add this to um look
+at here this is I think better way to
+presented so for every token k for every
+token K you you you got one
+representation from the forward layer
+and one representation from the backward
+layer
+right either you just concatenate them
+so they what they argued is that instead
+of instead of taking this embedding this
+embedding this embedding and this
+embedding instead of taking four
+embeddings for a particular token we
+will only use the top
+layers not the bottom layers why bottom
+layers are not that interesting so after
+the top layers we have this U metrix
+right and the S Max so the
+when you do back prop right this layer
+will be
+affected more compared to the bottom
+layer so task specific weight is just
+above the top layer I'll only use the
+top two top layers and the corresponding
+vectors will be fixed and
+concatenated okay in fact what they said
+is that instead of doing this you can
+also add some some parameters
+so along with this which is the
+combination of right combination of
+backward and forward you add a parameter
+now this parameter is a layer specific
+parameter look at here
+layer J ranges from Z to
+L and there are two parameters one is
+this Gamma One is this s right now this
+s corresponds to a specific layer and
+this gamma corresponds to a specific
+task what does it mean it means that
+when you on top of this language model
+layer when you apply a task specific
+layer right I mentioned earlier that the
+language model is going to be
+frozen right what they said is that
+instead of freezing it completely you
+add some parameters which will be
+dependent on the task okay this hidden
+state will not be updated but the
+parameters will be updated parameters
+corresponding to the hidden States will
+be updated it means
+during the inference time when when when
+you Feit one specific instance for that
+specific task you basically f is a and
+Gamma you because this parameters are
+already
+learned so now your hidden states are
+little bit dependent on the parameters
+of the
+task now if you want you can discard
+this dependency you can just remove this
+class specific parameters only use the
+hidden state right but if you feel that
+okay you know some dependency should be
+there you can use
+this right some other properties of this
+Elmo uses token level representation
+this token is essentially character
+level token not a word level token okay
+so for that they used a CNN right 2048
+character CNN um con blayer and then uh
+you know some some some linear
+projection and so on and so so forth
+because uh Cel Cel encoding always helps
+you overcome the Unk kind of problem
+right an token
+problem okay let's look at the result
+very
+quickly so Elmo was Elmo was one of the
+first large scale models okay million
+size models I think 90 million or
+something like that I forget the exact
+sides it was tested uh on different task
+question answering task Squad question
+answering task the squad data set was
+proposed by Stanford again in 2017 2018
+during that time we'll talk about it
+later another task was uh natural
+language inference task right semantic
+Ro leveling task core reference
+resolution task named entity recognition
+task sentiment analysis task ss5 is a
+very famous data set right
+and if you look at the results uh there
+is always an increase right increase in
+fact in some cases increase is
+significant quite significant compared
+to the other models okay so this is the
+previous SOA output right state of model
+and this is
+Elmo in fact you can use Elmo um to
+initiate
+Transformer right in in in a Transformer
+also you need to feed uh embeddings
+right instead of using water to B you
+can essentially use Elmo's
+representation okay so this is all about
+Elmo so Elmo is yet another word
+embedding
+technique but contextual Dynamic unlike
+word to V glove which were static right
+context
+independent so we we have been talking
+about pretend W
+vectors in pretend what vectors your uh
+your embedding layer is from
+right and your task specific layer is
+essentially something that you are
+interested in okay and this part is pre-
+Trend model is not pretend the entire
+model is not pretend only the inputs are
+pretend right now from pretend what
+vectors we are moving to pretend
+models in the pretend model all the
+parameters are
+pretend right all what are the
+parameters in a Transformer model the
+parameters are
+the the parameters corresponding to the
+attentions right parameters
+corresponding to fit forward Network all
+of them are
+treaten right then for a specific task
+you then fine tun
+it okay so let's look at uh so there are
+there are three kinds of prings that we
+are interested in right depending on the
+depending on which part of the
+Transformer we are interested right
+Transformer there is an encoder block
+there's a decoder
+block so one type of pret turning only
+considers the decoder part of the
+Transformer okay so all these GPD series
+models they are only
+decoder decoder only models decoder
+based models right they do not consider
+the encoder part therefore this CR cross
+attention is not there okay the other
+type of models are encoder only models
+where we only look at the encoder part
+of it we forget the decoder part and
+then we'll pretend an encoder
+model but right um robot all these
+models are encoder only model and then
+the normal structure which is the
+encoder decoder kind of model the
+transform mod actual transform model
+this can also be used for free
+training right so GPD GPD comes here B
+series model comes here and T5 right
+another model is called bot b r t these
+are all basically incoder decoder models
+okay so let's look at this bot BT model
+proposed by
+Google okay so board stands for
+bidirectional encoder representations
+from
+Transformer and this is the
+paper so we now we have only the encoder
+part of the transform model only the
+encoder part and now we are preing this
+encoder
+part okay encoder part the beauty of the
+encoder part is that there is no mask
+self attention this is unmask self
+attention meaning all the tokens each of
+the tokens can attend to all the other
+tokens in the in the sequence right so
+it is some sort of B directional in
+nature because you can scan from left to
+right right to left and whatever so in
+B when you pre-train what we do we
+essentially now for pre training what is
+my
+objective because I don't have any task
+specific
+data I only have access to Raw Corpus
+right raw Corpus raw sentences what is
+going to be my
+objective
+so in this paper they came up with an
+objective called mask language model
+MLM now this is a self-supervised
+approach not an unsupervised approach
+because there's some gradient flow
+self-supervised approach you don't need
+any label
+data right so what you do in B in the
+encoder part is that you feed a sentence
+right and you mask some of the tokens of
+the
+sentence and let's say for the time
+being the tokens are WS you mask some of
+the tokens and you let the model predict
+those
+tokens okay now there are so many
+questions for example which tokens I
+should mask how many tokens I should
+mask right and so on and so
+forth so these are all empirical
+questions and what they showed is that
+50% masking is enough so you mask 15% of
+tokens
+present uh in the training set right but
+when you mask it you mask it in in three
+different
+ways okay out of this 50
+15% 80% cases right you you you
+basically just mask that token right
+so so what does it mean by masking a
+token so they introduced a new token
+called
+mask right a new token called
+mask when you feed right you replace a
+word you replace a token by mask okay
+and at that position corresponding to
+the final output you predict what is
+going to be the actual word uh at the
+place of mask
+okay so 80% time you mask some of the
+tokens 10% times you replace that token
+by another token let's say the sentence
+is like going to the park you replace
+the word park by
+store and you let the model predict the
+word
+park right this is some sort of
+corruption you do some sort of
+corruption and you uh let the model
+predict the actual word right and 10% of
+time you don't do any change but still
+you let the model predict it your input
+is uh like going to the park right you
+let the model predict the word
+Park why this is
+important why this is important this is
+important because if you only teach the
+model to predict The Mask token the
+model will basically start forgetting
+predicting the actual tokens so
+sometimes you also need to you know tell
+the model that that look I mean you are
+learning the this mask output but you
+also need to understand what is what is
+there in the other
+tokens okay so why 15% why not
+50% if you mask 50% of the tokens
+right most of the contest will be
+destructed your contest you also need
+some context right the contest will be
+will be
+gone right so they empirically tested
+that 15% is a good number 15% of an 1
+billion or you know 10 billion size
+token is good
+enough this is my sentence let's say uh
+like going to the
+park right right you fit
+this you replace this by
+mask okay and you want the model predict
+to predict
+like going to the to the
+park so your error is only computed
+here not at the other tokens other token
+positions this is very important
+right now this is not all about B I'm
+coming to the other parts of it so mask
+language modeling is clear clear so one
+task is this Mass language prediction
+okay Mass language model so they
+actually they use two tasks one is this
+Mass language prediction and the second
+is next sentence prediction what is next
+sentence prediction you give two
+sentences
+right you have this Corpus you know we
+sentences are actually
+are there side by side you know the two
+consecutive sentences you take two
+sentences W1 and W2 and you predict you
+let the model predict whether W2 will
+follow W1 or
+not so for the training data what you do
+you
+take those pairs of sentences which
+actually appear side by side right as
+your positive samples and as your
+negative sample you do random shuffling
+right and you basically take those pairs
+which
+which do not appear side by
+side let's say uh I enjoy reading the
+book right I finished the novel these
+two sentences appear side by side so the
+label is yes otherwise the label is no
+right so these are two tasks and we will
+do these two tasks
+simultaneously meaning let's say the
+input
+is I
+enjoyed
+reading the
+mask okay and how to separate these
+two sequences this is sequence
+one sequence
+two the
+novel was
+great right we separate them using
+another token called ACP separator
+the separator is a new token like a mask
+token right and they again you may have
+a separator
+here right so you introduce two new
+tokens along with
+this we introduce another token called
+the CLS
+token and this is
+prepended with the sequence this stands
+for classification
+okay so you feed this enre thing to the
+encoder block right what is the need of
+this CLS token now let me let me first
+tell you what what will happen after
+this
+so the model
+will predict the vectors right at the
+end right Vector corresponding to CLS
+VOR corresponding to I and so on and so
+forth
+and it will also try to predict this
+mask mask word on top of the CLS I will
+use a task task specific head meaning
+basically a linear layer you right which
+will project it into two
+classes yes or
+no okay if two sequences are if two
+sentences are
+uh
+sequential then it will predict TS
+otherwise no there are two losses one
+loss is here another loss is here mask
+and those two losses will be back
+propagated right now my question is why
+do we need this CLS
+token can't we just can't we just you
+know take the embeddings of all this all
+these tokens and then concatenated and
+then pass it to a linear lay followed by
+nonlinearity okay okay what is saying
+that uh we take the we don't we can't
+take the concatenation
+because we don't essentially know this
+one the actual M token right that's fine
+then we we just ignore the M token and
+uh somehow come com the other tokens the
+other tokens are good enough only 15%
+are masked why the CLS token so remember
+CLS token also acts as a normal token
+meaning CLS also attends to all the
+other
+tokens in the S pention part it has
+attended to all the other tokens so CLS
+has information about all the
+tokens right but CLS token is a token
+which
+doesn't indicate any meaning
+present in the sentence because this is
+not a part of the sentence at
+all you may argue
+that why do I need a classification
+layer on top of CLS I can have a
+classification layer on top of
+I on top of uh read they have also
+attended to all the other
+tokens right but they themselves have
+some meanings a CLS is a token which is
+not present in the sequence at all so it
+is not biased that token is not
+biased the cess token is not biased to
+any of the other tokens present in the
+sequence whereas the token I is biased
+towards
+itself attention score would be
+high
+right in fact there there is another uh
+plus point you know behind using CLS for
+the
+classification how many weights you are
+incorporating here
+apart from the uh you know the normal
+encoded weights self attention Feit
+forward weights is already there in the
+in the in the encoder for this
+classification how many wordss you
+incorporating parameters you are
+incorporating only this part right only
+U and what is the size of U if the
+vector size is 512 this is 512 into
+2 right instead of this if we had a con
+of tokens this is going to be
+bigger right the parameter size can also
+be
+decreased okay now this error which is
+the task specific error will get back
+propagated end to
+end right the mask the error related to
+this mask token and the error which is
+there on top of this CLS token those two
+errors will be back propagated into it
+and all the uh encoder blocks will be
+updated okay now this is encoder you can
+use this encoder block for word
+embeddings
+also like Elmo you can use B for
+contextual contextual word
+embeddings
+okay all right so this is the this is
+the graphical depiction look at here e0
+E1 E2 E3 E4 basically one to E1 to E4
+right uh from this to this this is one
+sequence from this to this this is
+another sequence this to this this is
+another sequence right my dog is my dog
+is cute he likes he likes
+playing right you have a poal encoding
+right so in here they introduce another
+encoding called the segment encoding
+segment encoding is just indicating
+whether this is the this token comes
+from the first sentence or the second
+sentence right so segment this is a and
+this is B so positional encoding segment
+encoding then uh from that you and you
+also have this
+token you know normal token encoding
+this can come from Elmo can be can come
+from what what to vake and so on and so
+forth and then you have this CLS
+prepended ACP separator and so on and so
+forth now this is my input sequence you
+must ask some of them and you
+feed so this is the training details
+they used 2.5 billion Wikipedia Corpus
+another book Corpus consisting of 800
+million words they tested two different
+variations of Bot B base consisting of
+only 12 layers of encoder and Bot large
+consist of 24 layers of encoder with
+different hidden State size and
+different uh multi-headed attention
+uh 12 head 16 head right and so on and
+so forth there are other uh you know EPO
+and so on other other details are also
+me mentioned
+here okay now if I ask
+you can we use board for a downstream
+task and let's the downstream task is
+question
+answering okay what is the question
+answering task you were given a question
+Q
+okay and
+let's say who
+played uh the
+role
+of Bikram
+rur in
+Jawan okay this is the question and this
+is the
+passage you have a passage where all
+these things are written and Somewhere
+In this passage it is written that the
+role of Vikram RoR right was played by
+shuk
+Khan
+right this is the passage and your task
+would be to essentially retrieve this
+information from the passage now tell me
+how do we use Bard for this kind of task
+okay this is a typical uh Close book
+kind of question answering task where
+you are given there are so many data set
+Squad Squad is one data set right there
+are other data set like uh quar right
+Hotpot QA so many data sets available
+some data sets look like this some data
+sets basically are conversational data
+sets where you have conversation you ask
+a question and you retrieve answer from
+the conversation how do we use this uh
+the bot model to solve this kind of
+task what do you
+think the B model is already preten
+using mass language model right now when
+you find T the model for this task you
+already have some training data but the
+question and the corresponding uh P
+passage is the input and the output is
+the specific uh
+token right so what you do here in the B
+model this is B
+you addap to this model for specific
+task this is one such task okay so
+during
+training you feed question Q right
+separator and the passage
+P
+separator
+okay and you have
+CLS okay so you have different tokens
+here you have token let's say token T1
+token T2 T3 dot dot dot dot dot right so
+t60 and so on and so
+forth then what you do you add a
+classification layer on top of every
+token in fact you add two classification
+layers on top of every token right one
+classification layer will be responsible
+for I mean you can think of this
+specific
+phrase as a
+span right so this is start of a span
+this is end of a span so so here in this
+passage there is this word called saruk
+Khan right and the corresponding
+embedding of saru sa corresponding
+embedding of Rook corresponding
+embedding of Khan will also be present
+here right you maintain two two
+different classification heads one
+classification head will basically keep
+track of the beginning of the span and
+other will keep track of the end of the
+span let's say you have C1 let's say CB
+C okay so CB for all the all these
+tokens will be
+0000000000 0 during training right and
+for the word sa right CB is going to be
+one and CU will be zero then the other
+the rot will be 0 0 Khan will be 0 and
+one and the remaining will be 0 0
+0 this is my ground to
+data I want the model to predict this
+this
+labels right now you feed the input to
+the model the model will produce the
+embeddings right and those embeddings
+will be Fade to the classification
+layers classification layers will
+essentially produce uh do some
+probabilities there are two
+probabilities one is the probability
+that the current token is uh uh act as a
+beginning on the current current token
+act acts as an
+end right so I hope my hope will be that
+the token correspond to sa is going to
+be the the the PB for the token sa is
+going to be 10 to one that tends to one
+and the PE correspond to Khan uh tends
+to one right if it doesn't have happen
+then there's a
+loss and that that L loss gets back
+propagated right task specific layers
+meaning uh this these two layers right
+these two layers will be mostly updated
+and the other uh prend layers can also
+be
+updated okay so the now this the model
+is now ader to the specific
+task when a test sentence comes in a
+test sentence the test question and the
+passage what you
+do you use this pretend model pre-end
+followed by fine tun whatever the model
+that that is there right you pass the
+sequence right it will produce p p uh p
+uh B and P for all these
+tokens and our task would be to
+maximize what the task would be to
+basically figure out two such positions
+such that PB time
+P will be
+maximum now think about it for every
+token you have two probabilities PB PE
+right all there are so many possible
+combinations are there right PB * P so
+pb1 * P2 right P pb3 * PB uh P1 and so
+on and so forth all these combinations
+are
+possible which combination I will
+take I will take that combination where
+number
+one the end token I mean let's say let's
+say you choose you have chosen I and J
+as two different positions right and PB
+uh comes from I and P comes from E uh P
+comes from J J should always be greater
+than
+I of course right the end token should
+should come after the beginning token
+right this is the first first condition
+or whatever get than equals to because
+only one token can also be possible okay
+and then uh you know considering this
+condition then I want to maximize this
+probability PB *
+P now you may ask that in a p in a
+passage there are multiple appearances
+of the word shukan so which one I will
+consider right so generally you you
+consider the beginning the the the first
+the first appearance of the
+words okay so in this way you can you
+can uh essentially use a pretend B model
+for a downstream task like question
+answering task which apparently looks
+very different from the pretending
+objective right now this is all about
+bir uh it was tested across multiple
+task right this uh question in task uh
+natural language inference task remember
+for each of these task you need to adapt
+your your model accordingly right uh
+this is this this skola Benchmark which
+is a corpus of linguistic acceptability
+is basically indicates whether sentence
+grammatically correct or not right STS
+Benchmark p r Benchmark and so on and so
+forth and it showed that b large
+significantly improves the tasks right
+right compared to the other baselines
+which are s at that time it it also bit
+the gpt1 model OKAY B had been one of
+the state of the art models till 2020
+and following B there were approaches
+like deata robota right tiny bir where
+people started squeezing the model right
+uh making the model tiny then this robot
+paper says that you know the B model is
+under trained you need to train them you
+know uh more and more and so on and so
+forth there are papers where people
+essentially feed a lot of training data
+across multiple task um people also
+showed when you keep on adding new task
+how the model I mean whether the model
+will be generalized or not and so on and
+so forth right so this is One Direction
+of research I will not go into the
+details of the followup of B but I will
+strongly suggest you guys to read those
+papers at least use those models for
+your projects okay with this I stop here
+and in the next uh lecture we will uh we
+will try to address the other types of
+pre trainings like GPD and T5 yeah thank
+you
+[Music]

@@ -1,0 +1,1895 @@
+[Music]
+in the last class we started discussing
+different components of the Transformer
+model and so far we discussed attention
+self attention we noticed that the self
+attention operation is a linear
+operation therefore we had to include
+some sort of nonlinearity then we added
+feed forward Network right feed forward
+network was a position wise feed forward
+Network right so then you know in the
+encoder block we have a uh I mean in in
+each of the encoder blocks we'll
+have self pention layer and the feed
+forward layer right in the decoder part
+of it uh in every block there's a s
+pention mask self pention right because
+the decoder block uh should not should
+not be aware of what is going to come in
+the future in the normal self attention
+every attention head has access to all
+the other positions right but in mask
+self attention the attention head has
+access to only the the left uh side of
+the uh representations not the right
+side okay and we also discussed that um
+you know in order to basically get an
+interaction between the encoder and
+decoder layers we need a cross attention
+right in which the key will come the
+query will come from the from the
+decoder part and key and value will come
+from the encoder part right and then
+through that uh through a normal self
+attention mechanism right we will we
+will let the decoder interact with the
+encoder okay that's what we discussed
+and and we also mentioned in the last
+class that Transformer since Transformer
+model accesses all the tokens in
+parallel right the position information
+is not properly maintained right so in
+order to you know let the model
+understand the position of every token
+we need an additional tokens which is
+called position embedding right uh the
+the additional uh token embedding called
+positional embedding so we'll discuss
+positional embedding in today's class we
+will first discuss the
+the default positional
+embedding you know method proposed by
+vasani at all in the Transformer paper
+which is the sinusoidal positional ining
+and then we move to the recent one which
+is the rotary positional encoding rope
+okay and then we will also talk about
+some other small components in
+Transformer like add uh add and Norm
+layer residual connection and add and
+nor layer right in the Transformer model
+today we will focus on positional
+encoding add not layer and this residual
+connection okay so let's start with the
+positional encoding
+layer okay so so this is the survey
+paper that I would strongly recommend
+you guys to read this is this contains
+more or less you know all sorts of
+positional encoding uh methods proposed
+so far the archive version is more
+updated this is published in a journal
+but you can look at the survey paper to
+know more about different types of ver
+encoding
+methods okay so in Transformer we have
+already seen that for every token let's
+say this these are three uh uh input
+words and these are X1 X2 X3 are the
+embeddings of the input vs these
+embeddings can come from a pre-end model
+like uh like let's say what to V or GL
+bottles or it can be a simple one
+encoding and what we do next we since
+this token are accessed in parallel
+right just to give more information
+about the position what we do we will
+add a positional encoding step here
+right now this is a vector a positional
+encoding a positional embedding is a
+vector right of same size of the input
+if the input Vector size is four this
+will also be four right so this is the
+positional eming embedding for token one
+this is to for token two for token three
+and so on and so forth and then then
+what what we do we will basically sum
+the uh the word embedding right the
+token embedding and the position ording
+and this will give you the resultant
+embedding which is position aware okay
+now obviously you you may ask why some
+why not concatenation right uh there is
+no reason behind uh concrete reason
+behind this but you know I mean you can
+also you can Al also concatenate the the
+original embedding vector and the
+positional embedding Vector when we sum
+them up the number of parameters that is
+needed will be decreased of course right
+because you don't you are not increasing
+it to 8 Bits it is still a 4bit uh a
+four size
+Vector but there is no concrete reason
+you can also Conca inate if you
+want so so so this one is these these
+and these These are the position ever uh
+embedding and these embeddings these
+embeddings will be will be moved will be
+fed to the first layer of the encoder or
+the first layer of the
+decoder right each layer I mentioned
+already each layer consist of each
+encoded layer consist of unmasked multi-
+sell pention a feed forward Network and
+there are some components here and there
+each block of a decoder consist of mask
+attention mass s attention a cross
+attention and a fit forward Network
+right so the input that is given to the
+block the first block is position a EMB
+right now remember sometimes people
+think that maybe this position
+information is added to every input of
+the layer it's not like that right say
+if this is the second layer it is not
+the case that I will again add the
+position information here the position
+information will only be added at the
+beginning here and here right okay so
+what is the simple way of encoding the
+position information what do you think a
+simple way could be that you know you
+can just encode first position by one
+second position by two third position by
+three and so on and so forth say there
+are 30 tokens first position you will be
+encoded using this one the number one
+the second one is two three and so so on
+and so forth this is a simple option for
+position zero the position embedding can
+be Zer all all zeros right in the vector
+uh for position one all ones for two all
+twos and so on and so forth for three
+all three and so on right
+this is not as simple right there are
+many problems the first problem is that
+the size of the input right varies the
+size of a sentence varies let's say U
+let's say in one sentence there are 10
+tokens 10 words in another sentence
+there are 20 words right 20 tokens and
+so on so how do you how do you identify
+the max number right because remember
+the number the maximum number the maxim
+maximum uh number of tokens should be
+predefined right so how do you identify
+the max number because you don't have
+access to that and it will also change
+if we increase the training set the
+second problem is uh the last let's say
+there is a sentence where there are only
+three tokens the last token embedding is
+3333 right the position limitting there
+is another sequence where the last token
+is at the 30th position so the last uh
+positional embedding is 30 30 30 30
+right so look at here so the three and
+this three vector and the 30 vectors are
+different right so one may the model
+misinterpret by thinking that this three
+position embedding is is is same as here
+which is also the three the third
+position right how does the model know
+that this is the end of the token end of
+the sequence
+how does the model know this is the end
+of the sequence because here also you
+have 3 3
+3 okay so determining number one
+determining the uh length maximum length
+of a sequence is not possible through
+this approach right
+so what is the simple remedy to address
+this problem the simple remedy is you
+just normalize it right so let's say the
+max so in this sequence the maximum
+number of tokens is let's say three
+right so you divide everything by three
+isn't it if you divide it then the last
+embedding is going to be one one one one
+here also one one one one you divide
+everything so here in this case you
+divide by 30 so you divide every portion
+I'm getting by the max number of tokens
+present in the sequence right like
+this okay like this so now you guarantee
+that okay the last the last position uh
+information will be encoded by all ones
+irrespective of the size of the sequence
+length right but there are problems here
+what is the
+problem the problem here is it depends
+on the number of tokens in the sequence
+right so when you divide this by three
+and divide this by 30 look at the first
+position zero position first position
+this is the position I'm reading 3333
+and3 right and in this case the first
+first position is encoded by 2.2.2
+although both of them denote denote the
+first position of the sequence right but
+now they are denoted using two different
+uh
+vectors this is not desirable right we
+always assume that you know uh for every
+position there should be an unique
+Vector right so that the model will also
+understand that you know this is a
+unique Vector so although this this
+approach addresses the problem of this
+is last token uh you know uniformity
+but it doesn't address the problem of
+two positions should be encoded using
+same vectors okay what do we do in this
+case how do we address this problem so
+in in a in a simple way right a simple
+way to address this problem is as
+follows now this is what was proposed in
+the original Transformer paper let me
+first motivate what does it mean so this
+is position zero position one position 2
+3 4 5 6 and so on and so forth okay
+let's assume that every position is
+encoded by uh a vector of size four okay
+so if I use a binary number concept
+right you can encode this by 0 you can
+encode one by 001 right 2 by 0 0 1 one0
+and so on and so forth you basically
+convert every integer to a
+binary so in this way if you do that you
+at least guarantee that
+all positions will be unique right and
+the model should be able to also
+differentiate uh different positions but
+of course adding this kind of binary
+numbers to a to to a word embedding
+which itself is composed of fraction
+numbers right let's say 3.1 and you add
+a a binary Vector like 00 0 1 0 0 1 0 to
+a fractional Vector doesn't make much
+sense right it also suffers from the
+same problem that we don't know what is
+the length of the uh input sequence
+right but we can motivate we can get
+motivated by this idea that you know if
+we use this kind of binary encoding
+techniques you can uh differentiate
+different
+positions and how do we encode this kind
+of thing how do we encode uh or how do
+we encode this kind of uh
+representations okay now look at the
+look at this numbers or look at these
+vectors very carefully let's say this is
+the least significant bit LSB right
+every number every unique number is
+altered every second position right 0
+here 0 here 0 0 right zero every number
+here is altered in fourth position so
+here here right here and so on every
+number here is altered in eighth
+position isn't
+it so you see some sort of periodicity
+right and we know what's the best uh way
+of capturing periodic signal use
+sinusoidal
+representation you know don't get afraid
+by this formula I explain okay so this
+is the positional embedding formula that
+was proposed in the Transformer model if
+this is the position
+vector and there are elements in this
+Vector right these are different
+elements right first element second
+element and these elements are denoted
+by
+I okay so I = to 0 I = to 1 I = 2 and so
+on and so forth here you see these are
+elements okay this is a vector and these
+are different elements so instead of
+using 01 I will use some trick to
+essentially determine the value of every
+element in the
+vector okay so I denotes the element
+within the vector pause is position
+right so position one position two
+position three and so on okay and D
+model is basically the the model
+size okay so in this case the model size
+is
+512 okay now the model size is already
+fixed it's a constant right position is
+also fixed we know the position and I is
+also fixed and we see how we can use
+this okay so let's assume that I would
+like to encode the position information
+of the first position so pause is
+zero okay and the size here is four okay
+so so I so this I will vary from 0 to 4
+this is i = 0 I 1 2 3 4 right so every
+element of this position Vector will be
+determined by this
+formula so in this case this is going to
+be sign right position equal to0
+by 10,000 to the power let's say you are
+interested in I equal to Z right I
+equals to 0 I equals to
+0 0 by D is whatever right d is fixed
+number so this this number is going to
+be the first element of the position
+embedding okay the second element of the
+position embedding is going to be right
+S
+0
+10,000 2 * I 2 * 1
+BYT you may ask why this is the number
+10,000 coming here right this is just a
+number that they
+proposed and this determines this value
+determines the frequency of the sine web
+isn't
+it think about it D is fixed D is fixed
+if I equals to Z or I equal to 1 I equal
+to I is a less I mean a small number
+then the frequency will be
+high right if high is a large number
+then the frequency will be less and we
+know that a high frequency sign curve
+looks like this and the low frequency
+sign C may look like
+this
+right so we capture the first of the
+upper part of the vectors through the
+high frequency S Wave and the lower part
+of the vector by the low frequency I
+mean upper part means I = 0 I = to 1 and
+so
+on so more or less you understood the
+concept right now let's
+see so you may wonder why do I need this
+I let us let us forget this I okay and
+let us only embed the positional Vector
+using the using only the position
+information okay so basically sign
+position now look at this figure here
+x-axis indicates the position position
+zero position 1 2 3 4 and y axis is a
+sign
+value look at here if we do that the
+zeroth position value and the sixth
+position value would be the
+same isn't it similarly you will will
+see that the first position value and
+the Seven position value will be the
+same right but all these position should
+be
+unique right therefore we add the
+concept of frequency we add the concept
+of I Index
+right and if we if we do that if we add
+this then it would look like
+this I equals to Z high frequency right
+you see the high frequent web right I
+equals to two uh a bit low frequent wave
+and I equals to four even lower frequent
+wave and so on and so forth so 0 2 four
+these are different uh indices in the
+vector
+now the concept wise I think this is
+clear now let's look at the beauty of
+this formula
+okay
+so let's say there are
+two consecutive positions position one
+position two x-axis indicates position
+okay position zero position one position
+two and so on and so forth and y axis is
+the sign sign value with different
+eyes let's look at two consecutive uh
+position zero and
+one okay
+ideally ideally what do you think
+intuitively if two words are close by
+right versus if two words are very far
+should that information be also captured
+in the position information position
+Ting some
+WS if you look at this one carefully
+zero and one I will call the this part
+of the figure as the low frequent band
+and this is the high frequent
+band okay so two nearby position Z and
+one you see that their low frequent uh
+sign numbers are quite
+similar they
+are they they will be separated by the
+high frequent
+signal look at
+here right so they will be separated by
+the high frequent
+signals it
+means that if you if you compare two
+embeddings right position zero embedding
+and position one embedding right you
+will see at the zero position one
+positions there are there are changes
+but as we move away as we move far I
+equal to 4 6 8 right 10 12 30 40 you see
+the numbers are more or less
+same right agreed so two nearby
+positions are mostly separated by high
+frequent bands High frequent signals and
+high frequenc signals are captured by
+the first few elements of the
+vector I = to 0 IAL to 1 and so on and
+so forth okay now as you move on let's
+let's compare the zero position and
+let's say sixth position right zero
+position and the sixth position you see
+that the low band the low low signals
+low frequen signals they are itself
+capable enough to differentiate them
+look at this one so here you see the
+difference mostly the difference here
+but here you will see the difference at
+the low frequent
+Zone okay so when you compare zero
+vector zero position vector and the
+sixth position Vector you see that the
+high frequent digion will of course
+differentiate them but the low frequent
+region will also
+differentiate the best way to visualize
+this I have a visualization this is the
+this is a visualization so this is an
+position impeding of 50
+words okay 50 positions so each row
+indicates a a vector position Vector
+right each row indicates the position
+Vector so the first first row is the
+position information of the uh zero
+token and second one is the first token
+and so on and so forth each column
+indicates the elements of the vector I
+look at the first embedding you see this
+periodicity here right this white block
+is getting repeated right every every
+single position if you compare the first
+two bits here or first two elements here
+you see there's a
+difference and these are high frequent
+regions isn't it because I to 0 I = to 1
+and so on and so forth this is not only
+this is not exactly the sign curve by
+the way because we will discuss it is
+composed of a mix of s and cos
+cosine now let's look at the third
+important property
+here so look at here
+here there
+are there are two positional embeddings
+for zero and sixth respectively at I
+equals to 4 which is which is the lower
+frequency range they are more or less
+the same right as you move on I equals
+to two you see a
+difference okay as you move on as I
+equals to Z you further see the
+difference right
+so at low frequency the value is exactly
+the same this will start to differ
+differ significantly as we move to the
+high frequency high frequency
+zones okay so
+now the original uh Transformer paper
+they they used a a combination of s and
+cosine right so so this is the formula
+that they
+use every odd position of the vector
+okay let's say I equal to 1 if I equals
+to 1 then EI I will be two and e i + one
+will be
+three right so so the second element
+will be will be driven by
+sign and the third element will be
+determined by Co
+cosine the frequency is the same this
+will be determined by S and this will
+Beed by so this is s and this is cosine
+right if I = to 0 then this will be sign
+and I = 0 means 2 I + 1 will be 1 right
+so this will be cosine so the first
+element will be uh will be determined by
+S the second will be cosine third by
+sign fourth by cosine and so on and so
+forth this is even complicated so far we
+have only seen
+one one one type of signal sign now here
+they said let's mix both s and cosine
+both are periodic and you know kind of
+complement so this will even help
+differentiate positions
+further let's look at whether uh this
+concept is enough to satisfy all the
+position embedding U you know properties
+so it is independent of the length of
+the sequence right it will give same
+embedding to the same position of in
+different sequences right
+okay two nearby words will be
+differentiate will be differentiated by
+the The High Frequency region right
+whereas wordss which are F will be
+differentiated by both high frequency
+and low frequency
+region right so if we take the dot
+product or some sort of similarity you
+will see that the positional similarity
+between nearby words are quite High
+whereas those words which are far there
+positional similarity is quite
+low now this is the formula okay uh
+let's say the model size is four so D
+mod is
+four and
+um and you have S cosine s cosine and so
+on and so forth so this this is the
+positional embedding and this will be
+added to the actual
+water okay and this added Vector will be
+passed to the next layer the first
+layer this
+clear this is just a visualization uh
+you can also you can also just run this
+and see how it looks
+like by the way so this was proposed in
+vasan's paper but then later people
+realize that you know let's not make it
+complicated let's just consider this
+position embedding as a trainable
+parameter let's train this positional
+embeddings right
+so for every position you you will have
+a trainable Vector right which will be
+learned okay and this position Vector
+will be same across all the sequences
+that we're going to fit
+in right let's say you you have the
+first sequence X1 X2 X3 X4 second
+sequence y1 Y2 Y3 y4 y5 Y6 third
+sequence Z1 Z2 Z3 okay the position
+Vector that we are we will learn would
+look like this let's say
+P1 P2 P3 P4 right plus plus plus plus P1
+the same position Vector will be learned
+based on the second sequence P1 P2 P3 P4
+right and so on and so
+forth so you can think of it as a kind
+of a dictionary where every element of
+the dictionary indicates the position
+vector right so whenever you you feed a
+sequence you f the corresponding
+position encodings from the dictionary
+and you just add them and pass them and
+then when you do back propagation the
+position embeddings will also be
+updated
+okay so these are the three properties
+that we generally consider when people
+think of a new position embedding
+techniques right the first property is
+called monotonicity
+we says that the proximity of the
+positional embeding positions decreases
+when the positions are far
+apart I already mentioned right let's
+say the position X so this is the vector
+right corresponding to the position and
+and there is another position X+
+m x X+ M and X+
+n okay if m is greater than n meaning n
+comes earlier so x x plus n X+ M right
+so the the proximity between this and
+this should be higher the difference
+should be lower and the the proximity
+should be higher if two words are close
+by right they are near their proximity
+should be
+higher okay so this proximity will be
+higher than the this one proximities can
+be captured in using similarity and
+other
+matri the second property says it should
+be translation uh invariance meaning
+meaning the proximity of embedding
+embedded positions are translation in
+invariant now what does it mean let's
+say X1 X2
+X3 okay these are two three positions X1
+X2 X3 and there's a number M so X1 + m
+X2 + m X3 + m right so you have three
+pairs now X1 X1 + m X2 X2 + m X3 X3 plus
+m M right if you measure the proximity
+they should be the
+same it should not depend on the the
+original position X1 X2 X3 these are
+basically highlighting the relative
+positions okay the relative position
+should be intact the relative position
+difference or the proximity between
+between one and three positions and four
+and six positions right it should be
+same this should be the
+same symmetricity it is also very
+obvious right uh the proximity between X
+and Y two positions should be same as
+the proximity between Y and
+X so if you if you try to come up with
+the new positional embedding these three
+properties should hold okay so let's
+move on to the very recent one in this
+paper this is called rotary positional
+encoding this was uploaded in
+2023 and since then recent methods like
+Palm right GPT Neo G PJ Lama 1 2 all
+these models are basically using this
+potion nobody uses the sinusal
+representation okay the idea behind this
+is a bit complicated but very different
+from the sinal approach
+okay so what is the idea here by the way
+they propose this rope embedding rope
+positional embedding and and they just
+Incorporated this rope embedding to
+Transformer right and they came up with
+this model called Ro
+forer everything is same except the uh
+embedding and that actually made a lot
+of difference I'll tell you so why
+position information is so important
+when you see the result you will realize
+that you know this is although it looks
+like a very simple problem it's not not
+like that in fact if you read the uh
+surve paper you will see so many
+variants have been proposed so far with
+small changes here and there
+okay
+so we have seen two kinds of thoughts in
+designing The poal Ting method right one
+is the absolute positional embedding in
+the absolute positional embedding you
+are
+essentially uh you are only focusing on
+the absolute positions right you trying
+to somehow encode those positions right
+so how do we do that one way is either
+through uh through learning right you
+basically learn all the emings and the
+other way the sign cosine based approach
+that I mentioned earlier so this is
+absolute po
+encoding uh this is just a demonstration
+of absolute po coding that I discussed
+so far these notations are important
+therefore I'm explaining it again so
+what is this XI XI is the word embedding
+okay input word embedding uh for the
+corresponding position I or the word
+token I right
+so what is fq now remember from every
+token I generate three vectors query key
+and value right query will be generated
+through a function uh some function fq
+right which in the normal Transformer
+this is essentially a linear
+transformation you multiply the
+embedding with a matrix WQ right we
+multiply this by WQ and this is by w k
+and this is by
+WV but let's assume that these are
+generic functions okay now these are
+functions of the word embedding and the
+position
+M right in a normal Transformer what we
+do we basically X do XM plus
+PM PM is the position information right
+and here xn plus PN and so on and so
+forth right but again let's make it
+generic assume that there's a function
+which is be applied to XM and M meaning
+the word embedding and the
+position right now whether this is an
+absolute position or the embedding or
+what doesn't
+matter then what we do once we got the
+query key value uh vectors we
+essentially we we we get the attention
+score right this is essentially U query
+key. product followed by sigmoid uh
+Follow by sof Max and sof Max will give
+you a distribution and then your output
+is going to be the weight average of the
+values right the sof Max sof Max output
+right and this will be multiplied with
+all all
+V right and in the original paper they
+suggested this kind of s cosine based
+cres okay so in the relative position so
+this is absolute position let's look at
+the relative position in coding in
+relative position the idea is that we we
+don't care about the absolute position
+we only look at the relative position
+between a pair of tokens so let's say
+the dog chased the pig
+uh Once Upon a Time the peak Chas the
+dog right if you look at the relative
+positions between these two they are the
+same right although the the the the two
+words got swapped right and the few
+tokens uh you know were added at the
+beginning but the relative position is
+the
+same the relative position is I mod IUS
+J or mod M minus
+n okay so this so we we will basically
+try to preserve the relative position
+instead of preserving the absolute
+position let's look at some of the
+developments recent developments before
+rope right where people mostly focused
+on the relative position okay
+so so in this paper in this specific
+case you you see here is query key and
+value vectors are generated but the
+query Vector has nothing to do with the
+position this is just a DOT product this
+is just a multiplication of the
+parameter and the word embeding XM
+whereas keys and values they are in in
+in these two cases they use two
+positional
+embeddings you see the difference
+between these and the previous one in
+the previous one for for for for all
+these query key and value cases you add
+you basically add the position and the
+word I'm Bing but here only for the key
+and value you add add the the word
+embedding and the position embedding but
+look at this position embedding very
+carefully it is
+PR right not PM PN by the way this the
+the the index M indicates the query and
+the index n indicates the key and value
+remember the key and values vectors are
+generated from the same
+token right so you have a query and keys
+and
+values so this is R what is this R the r
+is essentially the relative distance
+between M and
+N okay R is M minus
+n now if it is arbit large M minus n you
+clip right you clip using basically
+threshold called R max if it is very
+small again you clip using this
+threshold R
+mean right so the r is essentially a
+clip right of M minus n if M minus n
+ranges between R mean and R Max then it
+is okay if it exceeds r r Max you you
+consider R max if if it is below R me to
+consider R
+me so this is
+PR now how do we measure this PR this is
+trainable you will learn this uh PR this
+PR is added with the value and key not
+with the
+query okay
+this is the this is one way of
+preserving the relative position the
+second paper Transformer Excel they said
+that let's look at it in a different
+way so ultimately we are we will do
+query key. product right query
+qm
+tkn okay ultimately we'll do dot product
+right and the in the in the original
+Transformer paper what was qm qm was
+WQ
+xm+
+PM right what was k
+n w k xn+
+PN right let us just unfold this so when
+we take the dot product of these and
+this you're basically basically
+multiplying this and this right and
+transpose is a transpose because q q
+transpose K is basically a plus b into C
+plus d okay and this will result in four
+elements so these are the four
+elements okay now let's look at each of
+these elements very
+carefully the first
+element doesn't have any pos position
+information this is these are just you
+know what embeddings of uh of query and
+key the second element has a position
+information of the the key the third
+element has a PO information of the
+query and the last element doesn't have
+any any word eding this is these are
+just two positions that's
+all okay so what they
+suggested is that this in which is the
+position of the key or value right the
+position of key and value let's replace
+this
+by a relative position encoding so I'm
+replacing pm
+by p m minus
+n and this I will
+learn okay so whenever you see PM it is
+replaced by PM minus n PN it is replaced
+by p m minus
+n okay what's the second change the
+second change what they said is that
+the look at this one
+this PM what is PM PM is the position of
+the query right they said
+that we don't care about the position of
+the query because we have already taken
+care of the relative position of query
+and key now let's replace this by some
+sort of bias term or some sort of
+parameter that we'll again
+learn okay so PM you see the PM is
+replaced by V so PM is replaced by V but
+where at this pm basically uh appearing
+PM appears here PM also appears
+here right so here uh your now these two
+PMS when they they get when they get
+multiplied with the remaining part
+they'll produce something else right so
+therefore they said let's not keep the
+same Vector let's introduce two
+vectors so this is V and this is U
+because their context are
+different okay so you see V transpose
+and you transpose
+here so what are the changes again the
+changes are as
+follows the position of the key will be
+replaced by the Rel position the
+position of the query will be
+trainable okay this is this is there in
+the Transformer Excel
+paper now the T5 paper this and this I
+already discussed the T5 paper the
+famous encoder decoder paper that we'll
+discuss later
+in the T5 paper they said forget about
+all the terms okay we'll learn
+everything okay we'll only keep that
+term which doesn't have any position
+right and the relative and the other
+terms just remove all the terms all the
+other terms where the position
+information is there we learn everything
+right and what they they learn they
+learn something called
+Big what is b b looks like this
+looks like very interesting so the so
+this is B 0 right this is B1 I I'll tell
+you what what are the this is B2 this is
+B3 this is B 0 this is B minus one this
+is B1 this is B2 right this is B minus 2
+uh b minus1 b 0 B1 and so on and so
+forth what are these
+numbers this b0 is the bias or the
+learnable parameter which indicates the
+basically the basically the relative
+position between the between a current
+position with
+itself right three with three four with
+four what is B1 B1 indicates the the the
+the distance between three and four or
+seven or eight one or two right two
+words two subs what is B2 3 5 right 11
+13 what is B3 three words what is B
+minus
+one okay 2
+one therefore this is
+B okay and this again this will be
+learned and this will just be added to
+the query key do
+product okay uh there is other
+formulation another formulation in this
+formulation they said that uh it's very
+difficult to learn all these things let
+us uh keep this this term
+this term right and maybe let us keep
+let us keep let's say this term and the
+other terms can be can be captured using
+this bias and so on okay
+so de paper they again modified this one
+so this was the original equation you
+see they further modified they kept some
+terms right these terms some terms are
+kept some terms are removed some terms
+are modified and so on so these are
+basically the concept of relative uh
+position encoding now we'll see how this
+concept are used to essentially uh build
+the Rope embeding okay so let's see how
+we can uh how we can actually combine
+the relative position and the absolute
+position information together rope is a
+first paper which essentially leverages
+both the absolute position encoding and
+the relative position encoding
+together what is the idea the idea here
+is very interesting the idea here is
+that
+the dog Chas chase the Pig and the pig
+chase the dog the relative positions of
+dog and pig is the same and how do we
+capture this we capture this using the
+angle of these two vectors so dog is a
+is an embedding it is basically a vector
+P again has an embedding which is a
+vector we look at this
+angle okay if
+the absolute position of these two
+vectors will change keeping the relative
+position the
+same the embedding these two embeddings
+will just
+rotate let's say this is the this is the
+sentence but the absolute position of
+pig and dog is different from the
+previous one right but the relative PO
+is is still the
+same they are separated by two words
+right so we rotate this to right this
+rotation essenti takes care of the
+change in the in the absolute position
+and the angle takes care of the relative
+position okay since the since the their
+relative positions are are the same the
+angle will not change but due to the
+rotation we'll also capture the absolute
+position
+change beautiful idea right in this
+paper they essentially mapped all the
+embedding to the complex Place uh
+complex
+space okay how many of you remember the
+complex complex
+number wonderful okay so please be
+careful this is a bit complicated to
+understand uh I will try to it's a very
+ma math heavy paper I will not go into
+the very details of the math I strongly
+suggest you to read the paper but I'll
+I'll try to give you the intuition
+behind the the Rope
+embedding so rope encodes the absolute
+position with a rotation Matrix so how
+do you rotate a v vector we rotate a
+vector using a rotation matrix by the
+way all of you should know that when we
+multiply a matrix to a with a vector it
+is just a linear
+transformation right it's just a
+transformation
+now and and due to the transformation it
+may happen that you know the magnitude
+of this Vector gets
+changed right but rotation Matrix is a
+special Matrix if we multiply it with a
+vector the magnitude will remain the
+same but the angle will
+change just to verify you uh take this
+Matrix okay cos 90 minus sin
+90 sin
+90 cos
+90
+okay essentially this is 0 -1 1 0 okay
+this is the rotation Matrix I claim that
+this a rotation Matrix if you multiply
+this let's say you apply this rotation
+Matrix to a vector uh to a vector 01 if
+you multiply what is going to happen
+minus1 minus1 and uh 0 right what is
+min-1
+0 min-1 XS is minus1 and is0 this
+one it basically rotated the vector by
+90°
+anticlockwise
+90° I added 90° it rotated this by0 90°
+okay so we use the concept of rotation
+Matrix rotation Matrix is always
+orthogonal and so on and so are very
+interesting
+properties okay
+so so we will incorporate the absolute
+we will encode the absolute position
+using a rotation Matrix and this is
+important we will incorporate explicit
+relative position dependency in s
+attention formulation we will see later
+when we calculate the self attention
+formulation the dot word between query
+key right we will see that there the
+relative position between M and N will
+be preserved you don't need to do it
+explicitly okay if it's is not clear it
+will be clear very soon okay now let's
+look at the requirement that
+they that they basically uh considered
+so what is this XM what is XM XM is the
+XM is the query embedding right xn is
+the key embedding right m is is the
+query position n is the query uh key
+position
+right so they said that I will try to
+come up with such a formula or such a
+function fq FK and G which will
+basically follow this
+property what does it
+mean so the function
+here which is applied to the query and
+the function here which is applied to
+the key
+these are dependent on the position
+information the absolute position
+information M and N but this dot product
+of these two functions right should be
+same as a g another function which will
+be a prop which will be a function of
+the
+relative distance of two
+positions I will try to come up with
+such an F Q FK and G where fq and FK are
+dependent on the absolute position but G
+will be dependent on the relative
+position and when I do the do product
+between fq and FK right the resultant uh
+uh value would basically be the same
+value which will produce with using
+G okay and one of the options of you
+know which basically satisfies this is
+as
+follows so if Q this they said that if
+fq can be written in this way remember
+what is fq fq is the transformation of
+your query uh embeddings and the
+positions right so they said that we
+already know this one XM and WQ XM is
+the what embedding and WQ is the query
+uh Matrix that we learn we will
+introduce this factor which is this is e
+to the power I mq the imaginary part of
+the part of the vector e to the power I
+I is this imaginary part what is m m is
+the position of the query what is Theta
+Theta is the rotation rotation
+value so I will capture the position
+information using this uh imaginary
+component okay so why this is a Natural
+Choice I'll tell you why this is a
+Natural Choice similarly for the key I
+have w w k and xn right and it i n
+Theta M Theta and N
+Theta the same rotation value
+Theta okay now if you take the dot
+product if when we take the dot product
+between uh the two complex numbers in a
+polar coordinate right what will
+happen right X let's say x i
+XJ you take the dot product right this
+will be x i let's say x u x i is how do
+you how do you represent this in a polar
+coordinate R Theta right so r i let's
+say this is R this is r i e power Theta
+I and this is r j e Theta
+J okay when you take the dot product
+between e e i e z i ZJ this is going to
+be dot
+product z i ZJ complex conjugate how
+many of you remember complex
+conjugate right go back and check what
+is complex conjugate okay when you do
+the complex conjugate this is
+essentially saying that r i
+RJ th minus
+th
+okay
+so if we do the dot product between
+these two this will result in this
+one W qxm WK xn right this w k xn star
+what is this this is the complex
+conjugate of this one this is Z1 this is
+Z2 I have to take the complex conjugate
+of Z2 so this is complex conjugate and e
+to the power i m Theta and E to i n
+Theta so I M minus n
+Theta okay now the interesting part is
+look at this m minus n so now this is my
+G
+and what they said is that when we
+expand this right cos cos theta plus I
+sin Theta right I will only take the
+real part of it not the IM imaginary
+part of it so the real part is going to
+be the output of
+G so G would look like this now let's
+see whether these three things satisfy
+the property that I was I was mentioning
+earlier fq is a function of M and X XM
+FK is a function of N and uh n xn and N
+where G is a function of XM xn and M
+minus
+n okay all right uh few more maths
+so so this e m Theta right again if you
+if you remember the um complex number
+right e m Theta can be represented using
+Oilers formula right which basically
+says that em Theta is nothing but a
+matrix like
+this again if you're not convinced go
+back and check okay so this is em Theta
+is nothing but a matrix like this which
+is a rotation
+Matrix so you are applying a rotation
+Matrix with this uh
+transformation right you are applying
+this rotation Matrix with this
+transformation so this is the rotation
+Matrix this is W Matrix and this is the
+eding so when you multiply this
+with the linear with this weight it will
+produce a vector this Vector will be
+multiplied with the rotation Matrix
+right and that will essentially
+rotate
+okay now whatever I mentioned soer is
+for the two dimensional case when the
+size of the vector is
+two now what happens if there are if the
+vector is of in dimension right if the
+vector is of in dimension then this
+rotation Matrix would look like
+this what is this let's say the D
+Dimension right you have d by two number
+of small small blocks diagonal wise
+right this is the first
+block okay this is the second
+block this is the third block and so on
+D by2 number of blocks what does it mean
+can somebody tell me what is happening
+here
+if think about it if there are there's a
+vector of size d right you are taking
+every two elements of the vector and you
+are
+rotating you're taking every two
+elements of the vector and you are
+rotating okay remember we also need to
+preserve the the all these properties
+right I mean the uh unique unique
+positional embeddings the relative
+positions and so on and so forth and how
+do you determine this
+Theta Theta is essentially same as this
+vas's paper right 10,000 to the power
+minus uh two 2 * I
+BYT
+okay are we learning something
+here in this case look at this numbers
+all this formula carefully are we
+learning something
+here are we learning something we're not
+W's are trable parameters already there
+right we are not learning the PO
+information at all because Theta is
+already uh
+given Theta depends on
+I okay now when we take the dot product
+qm transpose KNN right what is qm Q qm
+is this rotation Matrix time WQ time XM
+right what is KNN KNN is another
+rotation Matrix right w k
+XM if you multiply if you do some
+arrangement here and there you will see
+that you will get a matrix which looks
+like this ration Matrix which looks like
+this right which we call R right R is
+basically a function of M minus
+n okay so when we do attention self
+attention you basically preserve the
+relative
+information okay so the statement I
+mentioned earlier incorporates explicit
+relative position dependency in the self
+attention formula is there encodes
+absolute position with the rotation
+Matrix is there so rotation Matrix takes
+care of this m and n right M and N when
+you do self attention you see the
+relative position is
+preserved okay this is a great paper I
+would say if you read the math you will
+you'll be basically amazed okay
+okay so these are some of the properties
+uh uh in contrast to in contrast to the
+earlier positioning method rope is
+multiplicative remember this that I
+forgot to mention the position
+information is not additive here is
+multiplicative right is a multiplicative
+isn't it multiplicative rope naturally
+incorporates Rel position information
+through rotation Matrix right instead of
+instead of altering terms that I
+mentioned earlier uh and you know the
+the things I already mentioned you can
+if you go through the slides you will
+realize okay let's look at some of the
+again just two properties you're almost
+there if I plot the relative distance
+between tokens 2 3 4 56 and the relative
+value of the position in coding you see
+that with the increase of the relative
+position the proximity value of a pair
+of positions right pair of position
+embeddings will decrease
+which was one of the properties right
+that with the increase of this it should
+decrease right X+ M and X+ n
+remember the second good thing is that
+although this Matrix looks like a very
+gigantic Matrix right but most of the
+entries in this Matrix is are zero right
+so if you do some some small math here
+and there if you see that this can be
+realized uh by this okay where you look
+at the cost part you segregate the cost
+and sign part right and you multiply one
+part of the embedding with c and another
+part of the embedding with
+sign so this is also computationally
+very
+efficient let's look at the result okay
+so this R
+forer was tested with the original
+Transformer paper on the machine
+translation task German to English to
+German and there's a small blue score
+Improvement right Ro former was also
+tested with the Board model okay it was
+it it showed significant Improvement
+remember we just added the positional
+information just change the position
+information remaining part is the same
+right we such change there's a gain from
+71 to
+86 85 to
+87 not only that but also the in the
+training time so this is the X x-axis
+indicates that the training time step
+right and y axis get the loss you see so
+this orange line is the Bo and the the
+original B without rope right and this
+blue line is
+theformer you see that the model also
+converges
+fast faster than
+b okay now if you see the per you know
+there is another model called performer
+you know there are different Transformer
+versions long forer performer and so on
+so in the performer mode model if we use
+rope and if you do not use rope so
+performer with rope performer without
+rope you see again the loss decreases uh
+you know quickly compared to the case
+where there is there is the you know the
+normal
+po okay so this is all about the um
+rotary positional encoding part so we
+have discussed what we have discussed
+positional encoding right positional
+encoding and the other modules also
+discussed what are what the remaining
+one part which is remaining is a
+residual connection we all know what is
+a residual connection so let's say this
+is a layer right this is X okay and this
+this is basically a function f FX f it
+will produce FX right so I will
+basically have a shortcut from input to
+Output which will basically add the
+output with the
+input okay now this will be fed this
+will be fed to the next layer instead of
+feding FX will feed f plus FX plus X
+right now why this is important this res
+connection is important because it it
+helps you address the vanishing gradient
+problem because now you have a direct
+connection right you are not letting the
+gradient flow through the complicated
+portions of this F block right it can
+flow through this
+directly this will help in convergence
+and there are many important properties
+so what we do we add a residual
+connection here at across sale pention
+you you will add another residual
+connection here across this um feed
+forward
+Network okay the last part is this add
+Norm add means the residual connection
+add and what is Norm Norm is layer
+normalization what is a layer
+normalization let's
+say when you do some complicated stuff
+within a layer within a specific layer
+let's say the layer is a self attention
+layer right you you B basically result
+in a vector right now this
+Vector sometimes due to this operations
+some of the properties of these vectors
+get changed now what are these
+properties you know when you try to make
+the model fast uh fast in terms of
+convergence Etc we always make this
+Vector as smooth as possible now what do
+you mean mean by smoothing basically a
+smoothing means that I want the elements
+of the vector to basically follow
+certain distribution right let's say you
+follow a distribution where uh you have
+zero mean and units standard deviation
+in that case what we do whenever you
+obtain a vector I basically apply
+another formula right where I make sure
+that all these elements basically ranges
+between between zero and one right and
+it also follows certain properties and
+so on and so
+forth okay let's uh now look at the
+batch and layer normalization which is a
+essentially one of the components of the
+Transformer model if you remember the
+architecture once again right we had
+input position and coding right multier
+s pention feed forward Network right and
+uh residual connection and then we have
+this add Norm layer uh you know uh after
+every sub component of a layer right
+after every attention layer we have this
+adorm after every fit forward layer we
+have an adorm and so on similarly in the
+decoder you have adorm here adorm here
+look at here after mask attention you
+have adorm after cross attention you
+have adorm after feed for feed forward
+also you have an adorm layer right so
+let's look at what this what is the
+function of this adorm layer so add
+corresponds to this res connection you
+basic you are basically adding the input
+uh to the output of the layer okay uh
+let's look at the normalization part of
+it now the normalization of uh of a
+vector or of an output right it is not
+restricted to Transformer model it is
+used you know uh all over the neural
+networks any deep learning model when
+you design we always try to add this uh
+normalization layer after every block
+okay after every layer uh there are
+multiple reasons behind this and what is
+this normalization it essentially this
+function this is operated on a specific
+Vector okay now this Vector is the
+vector can be the uh a single Vector
+like an output Vector in this case let's
+say a vector can a vector can correspond
+to a token right or a vector can be a
+concatenation of multiple vectors and so
+on okay
+so what is the purpose of this
+normalization layer the purpose is that
+I will try to essentially um you know
+after every layer since there are so
+many operations within the layer it may
+happen that the entries uh uh within a
+single Vector get deviated right and uh
+it may not start following a certain
+pattern right what do you mean by a
+pattern a pattern can be let's say you
+want to make sure that the entry all the
+entries in the in a specific Vector
+ranges between 0 to one for example or
+let's say you want to make sure that the
+entries actually follow us distribution
+okay now this pattern actually gets
+destructed gets changed when you move
+from one layer to another layer due to
+this complicated operations within a
+layer okay so therefore we use uh we do
+this normalization normalization has a
+series of
+benefits the first benefit is that if we
+do normalization it will help you
+stabilize it will help you speed up the
+training process right uh by keeping the
+inputs to the to to each layer within a
+similar range or within a similar
+distribution it ensures that the
+gradients don't explode or the gradient
+uh don't vanish during B propagation
+right it also uh you know is very
+effective in accelerate the convergence
+right uh there are empirical studies
+which showed that if you use
+normalization versus if you do not use
+normalization right uh in the former
+case the model converges
+fast faster than the later case the
+third Advantage is preventing
+overfitting right there are methods like
+Dropout some of you know in the Deep
+learning right uh in deep learning we
+use the Dropout techniques where we
+essentially freeze some of the weights
+and uh you know along with Dropout and
+normalization it also helps you know
+address the overit overfeeding problem
+empirically and essentially I mean if
+you I mean if you think of all these
+three points together it essentially
+improves the the gradient flow right uh
+across the layers
+so normalizations can be of different
+types batch normalization layer
+normalization instance normalization
+weight normalization group normalization
+and so on and so forth but in this
+specific part of the lecture we'll focus
+on batch and layer normalizations so in
+Transformer we generally use layer
+normalization but batch lay
+normalization can also be used we look
+at the pros and cons of batch and layer
+normalizations okay let's take an
+example to illustrate the idea of
+normalization let's say
+uh you are given a instance where U
+there are two features one feature is
+the age of a student and the other
+feature is the the tution fees right in
+an academic year so based on the age of
+a student and the tution fease you want
+to determine whether the student is
+eligible for taking a loan or right
+so here the age ranges between 18 to 25
+let's say you have a feature which
+ranges between 18 to 25 whereas the uh
+the tution fees in an academic year
+ranges between U 20K to 50K doll okay
+now you if you look at this two features
+now these two features essentially
+correspond to two entries in the
+vector right and the ranges are very
+different so one way to do this
+normalization is that
+you make sure that all these entries
+range between 0 to one how how do we do
+that one way of doing this thing using
+right you can use this kind of min max
+uh normalization you subtract uh every
+entry by the mean entry of the feature
+right let's say the feature is uh age
+right you look at the minimum age
+present in the training set and you
+subtract that uh that minimum value of
+that feature from the uh element from
+the
+entry and the denominator is the Max
+minus mean max value minus mean value so
+let's say the max value is 25 mean value
+is 18 so it is essentially 25 minus 18
+and it it makes sure that the this will
+always be between 0 to one okay of
+course there are other ways also to make
+sure that the range is between 0 to one
+now this is called
+normalization there's another term
+called
+standardization in a standardization
+what we do again giving the two features
+age and um tution fees right what we do
+we we will make sure that these two
+features follow a certain
+distribution okay uh let's say we make
+sure that the distribution in this
+distribution the mean is zero and the uh
+variance is one right how do we do this
+we for every feature we calculate the
+mean right and the standard deviation
+and we subtract the mean from the from
+the uh element from the value and we
+divide it by the standard
+deviation if you do that it it doesn't
+guarantee that it ranges between 0 to
+one it will not be 0 to one at all right
+but it will follow a certain
+distribution where we see that the mean
+is going to be zero and the standard
+deviation is unit okay now this is
+called standard this is called
+standardization but often times we will
+essentially use standardization and
+normalization interchangeably
+okay now let's focus on batch
+normalization in batch normalization
+what we do we will will we'll perform
+the normalization operation after every
+batch so we'll send a batch right we
+will stack all the outputs of the batch
+and then we will do the normalization
+right let's first look at the B
+normalization properly okay let's assume
+that in a batch now batch is what batch
+is a collection of training instances
+right
+so let us assume that in your batch
+there are three instances this is the
+first training instance second training
+instance and third training instance so
+the column corresponds to the the column
+indicates a feature
+Vector right or a vector in batch
+normalization what we do you take every
+element of the vector let's say you
+focus on the first element okay first
+element of the first Vector second uh
+first element of the second vector and
+the first element of the third Vector
+you you look at the first element of
+every vector and then
+you do the standardization meaning you
+you you calculate the mean and and and
+standard deviation right let's say the
+mean is four and the standard deviation
+is this one okay then you essentially
+subtract uh the mean from each of these
+elements right and divide this by the
+standard deviation now this is batch
+normalization where we are looking at
+the batch all these instances of the
+batch and first element of the that
+instance in the first uh first element
+of every Vector right and you are
+essentially calculating the mean and
+standard deviation right now this is
+happening for instance for for for entry
+one for entry two for entry three entry
+four and so on and so forth so you are
+looking at all the instances within the
+batch and then we you are doing this
+operation this is batch
+normalization what is the problem here
+the problem here is that
+uh your bat should be representative
+enough the batch should be
+representative enough of your entire
+population of your entire training set
+right if your b s is very small this
+mean and standard deviation remember the
+mean and standard deviation will vary
+when we when we basically feed another
+batch right so for for a particular
+batch you have a certain mean and
+standard deviation when you feed another
+batch the mean and standard deviation
+will
+change okay so if the bat size is
+not not uh large enough right you may
+not you may not be able to basically get
+the correct distribution of the
+population okay U mathematically how do
+we uh formulate it look at
+here there are B number of instances in
+the
+batch okay and across the batch across
+the batch you are you are taking the
+mean and standard deviation right for a
+particular element right and you
+subtract the mean from from the element
+and the then you divide it by the
+standard deviation right and this is
+happening for a specific for a specific
+element
+I right so I is the index ranging from 0
+to d d is the vector
+size often times what we do along with
+this batch mization we also add some
+trainable parameters so let's say this
+is the updated value of the element
+along with the updated value we add some
+sort of gamma and beta right and this
+gamma and beta are basically learned
+during the backwardation time okay
+so the first limitation as I mentioned
+if the bass size is small the sample
+mean and standard deviation are not
+represented representative enough of the
+actual distribution right and the
+network may not be able to learn the
+actual
+meaning okay uh
+this is not very suitable for uh for a
+Transformer kind of model why because in
+a Transformer kind of model which is a
+sequence model the sequence length
+actually varies right it's say you have
+a batch where there are U there are
+sequences of length four there are
+batches where sequences are of length
+eight and so on and so forth so this may
+not be a suitable option for that kind
+of cases
+right and you you easily understand why
+let's say there's a badge where there is
+one sequence of size four another
+sequence of size eight another sequence
+of size 16 right how do we do this uh
+mean right because you right in the
+second second instance you have this
+fifth element which is not not present
+in the first first instance so when this
+this varies this may not be a right
+approach
+okay okay so in layer normalization what
+we do
+we will not look at all the instances of
+a batch there's no concept of batch here
+at all right we look at every vector and
+all the elements of this Vector will be
+used to calculate the mean and standard
+division okay here again every column
+indicates an instance right I will look
+at columnwise entries and then I will
+basically uh measure the mean and
+standard deviation so 1 3 5 7 mean is
+four standard deviation is 2.23 then I
+subtract this
+four
+right and so on and so forth so this
+will make sure that each Vector follows
+a distribution right the distribution
+may vary across vectors but every Vector
+follows the distribution okay look at
+here uh there are D dimensions for every
+Dimension we basically there are D
+dimensions and then for every element
+for every instance I measured the mean
+and standard deviation then I subtract
+mean from the standard deviation and
+sorry the mean from the element and this
+is the standard deviation here also I
+will use two learnable parameters if
+needed
+okay let's look at the difference
+between batch and layer normalization
+what do you think B I already mentioned
+that um so in B normal
+each
+feature right it it normalizes each
+feature or each element each entry in
+the vector independent independently
+across the
+Min right and in in Lay ration we look
+at one U one input and then we look at
+all the elements of that input and we do
+layer normalization so B normalization
+is dependent on the bass
+size right layer normal is independent
+right but
+if the bat size is small it will affect
+batch normalization but layer
+normalization is independent of the size
+of the batch right doesn't
+matter bation requires different
+processing at the training and inference
+time now look at this one right what
+does it mean it it requires different
+processing at training and inference
+time as in layer mulation is done along
+the length of the input to a specific
+layer the same set of operations can be
+used and as as both training and
+inference
+times okay so we have actually described
+all the components of Transformer right
+we have described positional embedding
+uh we have described two um ways to do
+position encoding right the sinusal
+operation and uh rope right we described
+residual connection we described Feit
+forward Network right which is
+responsible for doing
+nonlinearity every encoder block consist
+of mask self attention and feed forward
+and two uh adorm layer and two res
+connections right and you repeat this
+end blocks this is block end times right
+in the decoder part since this is a
+decoder uh block you do mask attention
+and then this cross attention in the
+cross attention part here the key the
+query comes from decoder keys and values
+will come from the encoder one point to
+remember is that it is not the case that
+the first layer of the decoder will
+basically attend to the first layer of
+the encoder in the cross attention
+formulation it will not be like that
+okay every layer of every decoder layer
+will attend to the last layer of the
+encoder
+block okay so you have in Block stacked
+and the last layer of the encoder block
+will produce your uh keys and values now
+if every layer of the decoder will
+attend to those keys and
+values okay so the this diagram may be a
+bit uh you know wrongly represented but
+I I hope you
+understood then fit forward Network
+right so now I have never mentioned how
+this model is
+trained right there are so many
+parameters how does this model will be
+train now when this decoder blocks are
+stacked right after the decoder block
+let's say you are you you you want to
+perform some task and in Transformer the
+paper the task was machine translation
+right so next word prediction given
+a given a source sentence you basically
+predict uh the target sentence you you
+gener the target sentence right so what
+you do so you have this decoder block
+right every uh token you need to predict
+right so you feed start token it will
+generate something that will come during
+the inference time that will come to the
+next next place it will generate
+something and so on and so forth now
+during the training time what is going
+to
+happen during the training time remember
+Transformer will perform all the
+sequences in parallel process all the
+sequence in parallel right so during the
+training
+time you already know the translated
+version of the input right so all this
+so let let's say this is the last block
+okay this is the last block of the
+decoder
+right now each of these blocks each of
+these uh heads each of these heads each
+of these tokens will be fed through a
+linear
+layer right followed by nonlinearity sof
+Max linear layer followed by
+nonlinearity it would essentially uh
+produce a distribution and from that
+distribution you pick the uh you see
+sample the sample of a specific token
+right if it is deterministic you take a
+gy you you use a gritty approach you
+take the uh token which is maximum uh
+probability right you also know what is
+the ground to token at that
+position your in the training set you
+already have the translated version
+right so you can basically compute the
+error right some sort of cross entropy
+error right and that gets back
+propagated so all this at every uh at
+every position of the decoder block you
+compute the error in
+parallel unlike RNN where you need to do
+this sequence here you are doing in
+parallel right so either you can uh sum
+them up and then take the total error
+and then you back back prop I think uh
+or or let's say you take each of these
+errors in isolation and then you back so
+better way is you just sum them up and
+then do the back propagation this back
+propagation essentially happens in end
+to end
+fashion meaning it will basically come
+the gradient will flow from here to
+here gradient will also flow from here
+to
+here right so all the weights of the
+layers weights corresponding to the ad
+Norm layer weights corresponding to the
+feed forward uh mask
+mask attention self attention and also
+weights corresponding to the input
+embeddings if you feel that during the
+uh I mean you you need some uh trainable
+parameters in the input but in the
+position embeding for example right I
+mentioned you know last uh in the in the
+in the previous part there are certain
+cases where we use trainable parameters
+in the positional embeding right so
+those uh parameters will also be
+updated right now think
+the the volume of volume of data sets
+that are needed to essentially train the
+entire
+network okay we'll talk about training
+later now uh this feed forward network
+will act as a nonlinear uh module this
+will essentially this self attention
+will help you pass messages from one
+head to another head right one position
+to another position I mentioned earlier
+that the sale pention is nothing but you
+know memory fishing operation
+and and this adorm essentially adorm
+layer will also help you reduce the
+covariant shift what is this covariant
+shift this is another another important
+part of uh the normalization layer what
+is covariant
+shift when you move from one layer to
+another
+layer it may happen that the the entire
+covariance of the population get ched
+because of this operation right so if
+you do normalization again and again it
+will essentially reduce the the uh
+covariance uh sip across different
+layers okay and then you have this mask
+attention which will help you prevent uh
+the attention you know looking up into
+the future decoding
+States this is all about Transformer
+okay so in the next uh lecture we will
+talk about um pre-training okay we'll
+we'll discuss U different types of
+pretaining techniques Elmo B right and
+then in the subsequent lectures we also
+talk about GPD and T5 models encoded
+only and decoded only models okay thank
+you
+[Music]

@@ -1,0 +1,1378 @@
+[Music]
+All right. Uh hello everyone.
+Uh so today uh we'll be uh talking about
+uh quantization, pruning and
+distillation. So these all fall under
+the same umbrella and uh maybe once I go
+into the introduction it'll be clear why
+we are discussing these three topics
+together. Right. All right. So so like
+we discussed last time the reason why we
+wanted to to do theft was uh because of
+how the model sizes have been increasing
+over time. Right? And this is again a
+recap of that that uh
+uh like over time the size of the model
+is increasing exponentially and uh and
+it's not just the size but the
+performance of these models are also
+increasing over time. So here we see
+that these are the uh test loss of uh
+various uh language modeling tasks on on
+different data sets and you see that
+they are sort of decreasing considerably
+uh based on the uh amount of parameters
+that are there in the large language
+model right. So now uh like what are the
+flip side of having such a large models
+uh during inference right so the first
+thing like we discussed last time is
+that uh the bigger the model is uh
+you'll have to buy new hardware to
+support things right uh and and and and
+it's sort of
+uh not so uh monetarily friendly to keep
+buying hardware as and when the model
+keeps growing over time right so so then
+This also puts a cap on uh how many
+organizations can actually run these LLM
+inferences. So GPU requirement is going
+to get larger and one of the biggest
+problems in deployment is latency.
+Right? So the larger the model is the
+more time it is going to take to come
+back with a completion for a given
+prompt. Now let's say that you have a
+chatbot that is deployed uh whose
+backbone is an LLM. then having to wait
+for 30 seconds or 40 seconds seems it it
+seems like really difficult at this
+point in time when we are so used to
+getting replies very quickly right and
+and and the way the LLM field is
+progressing now people are not just
+using single LLM call per sort of
+responding back right for example there
+is now this new paradigm called agentic
+behavior where once a language model
+responds you ask the same language model
+or a different language model to reflect
+on the output
+or even sometimes execute the output get
+execute whatever being like for example
+if the model generates a code you
+execute the code get the outputs and
+then make the model reflect on the
+output and then decide whether there's
+an execution error should it redo things
+uh and then finally you give back the
+right so now if you have to make
+multiple LLM inference to just get back
+with one output then that's going to
+increase latency even more right so
+latency latency is one of the biggest
+concerns third is inference cost like uh
+if you have an application deployed uh
+who which uses LLMs of course you'll be
+worried about how much money you're
+going to spend to serve a single user
+right and the money that a single user
+is going to pay you should be more than
+what you invest uh for that user right
+so if LLM for for for for slightly more
+improvement in accuracy if you have to
+spend a lot more uh then it doesn't seem
+uh commercially friendly right so so of
+course inference cost is going to be one
+of the one of the biggest dimensions And
+finally sustainability right environment
+concerns like you'll have to you need a
+lot of energy to run these LLMs you need
+to support data centers which require
+cooling water and and uh so so if your
+energy is not coming from a sustainable
+source then there are a lot of carbon
+emissions which sort of affects uh the
+the overall environment right so so
+again LLM inference has a huge impact on
+uh
+sustainability
+So, so here uh before going into how can
+we do this, let's look at what just
+happened very recently, right? In
+OpenAI, uh after they released GPT40,
+which is the pink model, uh they
+released something called GPT40 mini,
+right? Now, uh GPT4 mini is sort of like
+let's say on MMLU is 6 points lower on
+uh uh NGSM it is three points lower. uh
+but uh it the GPT4 mini is also almost
+always better than the previous version
+right I mean the one before GPT4 right
+GP3.5 so it's so but if you see the
+inference cost that you'll have to pay
+you will end up paying a lot more for GP
+3.5 turbo than GPT4
+omin right uh even now so so this is uh
+a website called GPT4 for work where if
+you give them the number of tokens in
+the input, the number of tokens that you
+expect the model to have in the output
+and how many times you'll end up calling
+this again and again, it'll give you an
+estimate of how much money you will end
+up spending. Right? So, so here if you
+see for the same amount for the same
+setting uh for GPT4 you end up spending
+$80, but for GPT 40 mini you only spend
+$3, right? You guys just saw the
+performance drop you get for GPT 40
+Mini. It's not that bad, right? So if
+you're able to get this much uh
+reduction in cost for slight drop in
+accuracy, I think like lot of people
+would go for it, right? Because it makes
+so much commercial sense to do things
+like this rather than go for high
+accuracy. Now why is GBT 40 mini so
+cheap, right? Compared to the the non-
+mini
+version, right? or uh the bigger
+question here is that uh how can we uh
+deploy LLMs in a in a cost effective
+manner while maintaining the performance
+of the bigger model right so so this is
+what we'll be answering in this uh in
+this talk today uh we going to cover the
+different ways in which we can achieve
+this right so uh so there are two main
+classes of techniques that you could do
+right one is model compression. Uh which
+is like if you have a 65 billion uh
+parameter model, you can compress it to
+let's say 8 billion parameter model,
+right? With very minimal loss like not
+so much. But there are also another
+class of algorithms where uh you would
+do engineering efficient engineering to
+sort of achieve the same thing that you
+achieve now. Uh but it sort of helps you
+reduce the inference cost right. So I
+can give you some examples of uh
+efficient engineering. Uh for one of the
+most common operations that you do in uh
+transformer inference is scale dot
+product right uh you have the key vector
+you have the value vector uh you'll have
+to compute a dot product then you'll
+have to scale it up uh or scale it down
+and then uh you'll have to do a soft max
+right. Uh so there
+are there are software kernels that have
+been developed which fuses all these
+subtask together into a single kernel
+and that gives you tremendous
+improvement in uh efficiency. Right? So
+here it's not lossy. You do get the
+exact same operation. You do get the
+exact same output. It's just that you do
+some engineering efficiency to reduce
+the cost. Now there are also hardware
+that specifically support certain
+operations right out of the box and and
+you can people who do these efficient
+engineering when they fuse kernels they
+also they also effectively make use of
+the information provided in the the
+instruction manual about in the data
+sheet about how to leverage those
+operations and then make it more
+efficient right
+u so the efficient engineering part will
+covering it in the some parts of it.
+Yatin will be covering it in the next
+lecture. For this lecture, we'll focus
+mainly on model compression techniques
+and specifically we'll be talking about
+quantization, uh pruning and
+distillation. So let me give you a brief
+about what these are. Quantization as
+the name suggests uh what we want to do
+is we want to keep the exact same model
+but just use reduced number of bits to
+represent parameters and activations and
+whatnot, right?
+uh and pruning is as the name suggests
+again you just prune out certain parts
+of the network uh and then uh while
+trying to maintain similar performance
+of course it's going to be lossy and
+finally it's distillation where you have
+a a big model that is trained well and
+then now you train a smaller model uh by
+using the bigger model as a teacher
+right don't use the real output but
+rather use what the model predicts uh to
+guide the smaller models to
+Now out of these techniques,
+distillation helps you is is the least
+lossy, right? Uh but it's the most
+expensive because now you have to train
+the whole thing. First of all, you have
+to do inference over the teacher network
+and then get the outputs that itself is
+expensive on on a on a really large data
+set and then you have to use those
+outputs and then back prop on the new
+model which is smaller much smaller than
+the original architecture to sort of uh
+achieve uh model compression. So
+distillation is the costliest but uh it
+it it gives you a lot of uh uh good it's
+it's a it's sort of the best way to get
+to maintain the accuracy whereas
+quantization and pruning are sort of
+slightly lossy uh but uh but but they
+require very little changes but
+quantization has other advantages as
+well which I'll be covering uh when I
+talk about it. So let's first talk about
+quantization. So before jumping into the
+quantization technique, let's just do a
+recap of uh how LLMs do inference and
+talk about uh how uh floatingoint
+numbers are represented in uh in the
+computers and then finally talk about
+quantization. Right? So, so this is a
+usual neural network where uh there is
+input and uh uh and then there
+are weights which are the which which
+are here and and and you also have uh
+activations here, right? So, so like
+LLMs have uh a lot of parameters uh that
+are in the weights uh and and and they
+are really expensive to store and and
+during inference you you end up creating
+activations and uh these are the product
+of input and the weights right and they
+also are required to be stored and and
+and the goal of quantization is like how
+uh efficiently uh can you store these
+values so that you end up using lesser
+memory, you compute faster and you save
+cost, right? So, it's more about how do
+you represent them. So, let's talk about
+how uh numbers are represented. So,
+typically uh a full precision is what is
+referred to as the FP32 notation where
+uh you represent the floating point with
+a single sign bit for positive negative
+and there is an exponent that is
+represented using 8 bits and the
+fraction or the mantisa is represented
+using 23 bits. Right? So the the the
+difference between the two smallest
+numbers that you can uh the the the
+difference between the two smallest
+numbers is so low and it's sort of
+captured in the 23 bits right so the
+precision is really high here this is
+typically called full precision u like
+in the past a lot of machine learning
+modules used uh FP32 to represent so
+this this gives enough uh precision for
+a lot of scientific applications right
+and and and after a while uh in the deep
+learning era people moved to FP16
+because uh GPUs out of the out of their
+box started supporting FP16 uh with
+improvements in time than FP32 right and
+uh so so here the difference is that as
+you see it's it's the number of bits
+that you use for exponent and the number
+of bits that you use for the fraction
+right so the range has reduced because
+the exponent has reduced and even the
+precision has reduced considerably but
+for machine learning specific
+specifically deep learning applications
+this still does the trick right you you
+you you almost don't see any drop in
+like performance uh but your
+computations improve significantly if
+you move from FP32 to uh
+FP16 now you can reduce it even further
+right so there are certain uh
+applications where people simply use uh
+int 8 uh representation where you use
+one bit to represent the sign and seven
+to represent just the
+the
+rest. So, so let's talk about how would
+you uh quantize a FP32 uh into int8 for
+FP16 also it sort of remains the same.
+Uh so so the so this is a very simple
+way of quantization uh which is the the
+simplest of all. So what we do here is
+the first task is so let's say this is
+the FP32 vector that you have right so
+first task is to identify the value in
+this vector that has the highest
+magnitude right uh so for a given vector
+you identify the max absolute number
+which is 10.8 date in this particular
+case. And then what you do is that you
+you set the maximum and and and set it
+symmetrical and the minimum, right? The
+the range is centered at zero always and
+and you set the maximum absolute value
+and the minimum absolute value as the
+two extremes. And and then the rest is
+simple, right? You sort of map this
+maximum alpha to 127 and minimum alpha
+to minus 127. And and how do we compute
+this number the the intate? So so
+basically the first thing you do is
+compute a scale factor. So here we are
+using seven bit uh here we using eight
+bits. Uh so so we so this number would
+be 127 and alpha is the highest absolute
+value. So this is going to be your scale
+factor. And to compute the the let's say
+the quantized value for 5.47 47. All you
+have to do is multiply the uh value 5.47
+with uh the scale factor and then round
+it up. Right? So that's how you quantize
+a um 32bit floating point into a intate.
+Right? And and of course for for
+different vectors your alpha is going to
+change and so the scale factor is going
+to change. So you will if you have let's
+say an uh a two-dimensional matrix which
+has uh 20,000 rows then you will have
+20,000 different uh scale factors to
+sort of quantize right uh so so so this
+is how quantization works and and and
+deant u yeah so this is how quantization
+works and uh dequantization is quite
+straightforward all you have to do is if
+you have the quantized uh vector and you
+divide by the scale factor you end up
+getting the dequantized version which is
+the FP32 version right so here you have
+the FP32
+uh matrix and then let's say you want to
+quantize it into int uh 8 format you
+will end up getting the the alphas and
+the scaling factor for each vector
+separate individually and you'll
+quantize them and then when you
+dequantize of course you're not going to
+get the original back right so the
+difference between original and
+dequantized is this quantization
+error right so it is going to be lossy
+and you will end up getting a
+quantization error so so let's see how
+this quantization and dequantization is
+typically used in uh machine learning
+inference
+right so so there are two types of ways
+in which you can use this quantization
+technique uh during your in your LLM
+inference right one is you during
+training don't worry about quantization.
+Okay, you you train the model in half
+precision which is FP16 or or mixed
+precision FP32 and BF16 whichever format
+that the model that the code supports
+and you want to train on do that and and
+during inference uh you do uh you you
+first do a post training quantization
+and figure out your scale factors and
+and and and other things and other
+constants and then uh use them for
+inference. So that is one way you can do
+it. Uh the second way is quantization
+aware training right. So so maybe uh
+like like for example we we we discussed
+Lora in the last class and there is a
+variant of Lora called quantized Lora.
+So that fine-tuning would be is a
+quantized version of Lora and it is it
+is quantization aware during training.
+Right. So you can leverage uh
+quantization even during your finetuning
+process.
+So, so now let's discuss uh the post-
+training quantization. Um, so, so here
+the good part is that you don't have to
+worry about figuring out what should be
+your compressed versions architecture
+should be. It's exactly the same, right?
+So, there's no uh difficult decision to
+take there and uh and and the good part
+is you you also don't need retraining,
+right? So, it's very cheap. uh but again
+it's at the cost of how much
+quantization loss you get and how much
+lossy compression happens right so so
+the easiest thing here is that uh look
+weights and bias are fixed after
+training right so and and when you look
+at the weight matrix you look at it at
+one vector at a time you so whatever
+quantization I discussed just before is
+called symmetric quantization because
+zero is represented using zero in the
+quantized format and you have both
+positive and negative
+going through the the same value, right?
+But there are other asymmetric formats
+where 0 is not mapped to zero and and
+the negative minimum and the maximum
+values are not the absolute values are
+not the same, right? So so there in
+addition to scale factors, you will have
+other constants as well. So so so since
+weights and biases are are sort of
+doesn't change over time, it is easy to
+compute all these scale factors and
+other constants and then keep them
+fixed, right? But this is not going to
+be the same for input and activations,
+right? Right? You're going to get uh
+inputs uh like during you're going to
+get inputs during inference. Sometimes
+the input matrices might have a smaller
+max value. Sometimes it may have a
+really big max value which will make it
+like clip which will end up clipping if
+you choose the uh uh the choose the
+scale factors like in a not so uh good
+way. So what people typically do is
+similar to how we do for validation that
+you take some sort of a very small
+calibration data set okay pass them uh
+through your network. So if you just
+have the data set you'll only know the
+inputs but if you pass them through the
+network you'll understand how these
+activation values changes with respect
+to the weights right. So once you do it
+for a bunch of uh input called the
+calibration data set you'll be able to
+get some sense of what are the range of
+values you would see and what vectors
+would look like what maximum value you
+would hit and what range you would get.
+So you use all these data and you again
+compute the scale factors. So right so
+now for a given network you would know
+all the scale factors that is needed to
+quantize for both weights for both model
+parameters and the inputs and
+activations. Right?
+So then what do we do? So typically what
+you do during inference is that uh you
+have multiple layers and within layers
+you'll have multiple operations one
+after the other that leads you to
+complete that layer. Right? So the the
+typical way people use post- training
+quantization is take one operation at a
+time. Right? You have full precision or
+or half precision whatever precision the
+model is trained on as input. Right?
+quantize the weights and the activations
+and then dequantize them after that
+operation, right? And then you keep
+repeating this, right? So, so why why is
+this
+uh why is this efficient, right? Because
+if you do a matrix multiplication using
+FP16, there is only so much uh you can
+do. But if you convert this into a much
+smaller quantized version then the
+number of operations you can do like
+blows up right. So that that blow up is
+sort of not is so high that even the
+quantization and dequantization is sort
+of very small in that fraction. So you
+end up getting a lot of speed up right.
+So here if you see like you you have the
+input and the weight matrix and uh and
+then first you quantize them because
+here you know your scaling factor the
+scaling factor is 127 divided by alpha
+right uh and uh uh and and you have the
+input you quantize them into from fp 16
+to uh int 8. You do the same for your
+weights as well. And then you do your
+matrix multiplication in the quantized
+format, right? And then you end up
+dequantizing
+them, right? So, so why is this really
+helpful? Like I said, like here we saw
+that we are converting from FP16
+uh to int 8, right? So, so this is a
+data sheet of the H00 uh GPUs. So here
+if you see for FP16
+uh you get let's say for NVL you get or
+SXM you you end up getting 9 79
+teraflops
+uh but on intate you end up getting a
+lot more tensor operations right so so
+for the same amount of uh energy you end
+up doing lot more operations than what
+you would do on uh FP16 right so this is
+the advantage of uh doing uh this type
+of quantization and dequantization
+within every uh step in your
+computations,
+right? So, okay. So, people started
+using this uh and this seems to work a a
+lot well. uh but then uh in uh 2022 uh
+when the size of the model started to
+increase uh people found that after a
+certain value the the 8 bit baseline uh
+was not giving as as much accuracy as
+the 16- bit one which is the green line.
+Right? So, so here if you see the the
+the point at which this property emerges
+is around the the 2.7 billion uh model
+uh where uh until then there was not
+much difference in performance uh here
+but then after that there was a steady
+uh decline and and it sort of doesn't
+make sense to quantize anymore right so
+then uh uh these people figured out that
+the reason the the reason behind this uh
+emerging pattern and and they also
+proposed a way in which you can fix this
+right and their technique is called
+LLM.indate in data. Right? Now we'll
+discuss a bit about what this does. So
+before going into uh what this does, the
+the reason why this dip is happening is
+because of outliers in your uh vectors.
+Okay. So we'll we'll see what and what
+they say is that the percentage of
+outliers in your vectors are sort of
+negligible until you reach 2.7 billion
+parameter model. But once you cross that
+you start from 6 billion and above the
+number of outliers becomes so high right
+that you end up not getting the same
+performance as what you would get right
+so let's see the effect of outliers
+right so let's say that
+uh you have your uh vector right and
+most of the numbers in your vector are
+sort of between uh let's say uh 10 minus
+10 and 10 or something like that right
+most of them are in that range Right?
+And a lot of them are focused around
+zero. Right? But there is one one value
+in the vector that is really really
+high. Right? So what happens because of
+this the alpha is decided by this
+particular
+uh absolute number and so you set your
+uh the you set both your extremes to uh
+represent this particular number. So
+then what happens is that every other
+number in the vector sort of ends up
+getting mapped to the the same point
+right which means you end up losing
+everything just because of that one
+number and and if most of your vectors
+are going to be like this then
+quantization is not going to help right
+so so this was the reason why uh you
+sort of saw a dip uh after the 2.7
+billion model because most of them seem
+to have these
+outliers so so how do we fix them right
+their their proposal was quite simple.
+The the the main uh contribution of this
+paper is that they found the issue.
+Right? So that was the biggest
+contribution. The approach is very
+simple and elegant. Right? So so this
+was what we used to do before LLM
+intake. Right? If you have any matrix X
+and W, you would just quantize them and
+then do the matrix multiplication and
+then dequantize them. Right? So what
+these guys said is that you have a
+certain threshold and and and any value
+that crosses that threshold is sort of
+the
+outlier, right? So don't use them to
+compute your scale factors or other
+constants, right? Keep keep them away.
+Just identify them as outliers and keep
+them out. Right? do all your
+quantization constants and then during
+input uh when you see these outliers
+then just mask them out take them out
+right so if you see here the yellow ones
+are the outlier ones so they have
+removed the the outlier columns here and
+the outlayer rows here and then they
+have kept it separate right and now uh
+for the nonoutlier ones you do
+quantization and for the outlayer ones
+you don't do quantization Right? You
+represent them as is and then whatever
+uh precision you used for your uh during
+your train and what the full model uses
+use the same to do inference here as
+well and then you add them up. Right? So
+the the simplicity of this sort of uh is
+really good and and it helps solve this
+problem. Right? And and as we saw in the
+first graph once you do this small hat
+then everything gets fixed. Right? So
+this is uh int 8 lm int 8 post post post
+training
+quantization. Okay. So the the most
+popular uh technique uh for quantization
+aware training is qlora because like
+this is sort of one of the most
+popularly used uh p technique uh mainly
+because of two reasons. One is that it
+memory footprint is quite low and it
+almost achieves similar performance as
+fp16.
+right now uh on an average uh if you're
+going to fine-tune a 65 billion
+parameter model uh again this is for
+full finetuning that uh I mentioned that
+you would end up requiring 12 to 20
+times the size of the parameters right
+so you'll end up taking 780 GB of memory
+which seems like almost impossible to
+get that much GPU memory right and uh so
+so the good part about Qura is that it
+reduces the memory footprint by big
+margin and and for Now you can try fine
+tune a 65 billion parameter model in
+just 48 GB of
+memory right and and the best part is
+that uh it it almost doesn't degrade
+your performance right for a lot of
+tasks so so so Laura is a is sort of a
+combination of these four items right so
+the here the Laura Laura is sort of
+borrowed from the previous work but what
+these guys suggested is that on top of
+Laura we would use this specific format
+of quantization of weights which is
+called the 4bit normal float. They would
+use something called double
+quantization. I will get into the
+details and they also make use of uh
+some of these hardware specifications to
+sort of further reduce the memory
+footprint. And this sort of is sort of
+they they looked at the uh the fact
+sheet of Nvidia GPUs and then they came
+up with these paged optimizers which
+would further reduce the amount of
+memory that you would need uh during uh
+PEFT. So let's talk about what uh the
+normal float uh for quantization is. So
+as the uh like since it is four it is
+clear that it's a four bit quantization
+right and uh float again it it would
+represent floating numbers and then n
+here represents a normal distribution
+right so so typically when you do the
+regular quantization uh you would define
+the max and the min and then you divide
+the buckets into equally spaced ones
+right because now you know the range now
+you can bucket them and and because of
+is what happens the assumption here is
+that your uh array is uniformly
+distributed right so if that is the case
+you'll end up getting uh sort of same
+number of candidates in each of the
+bucket and you would do the computations
+but if you make another assumption that
+most of your weights are going to come
+from normal distribution then this is
+not the effective way of leveraging
+quantization right so so for this rather
+than using equally spaced now that you
+know the data distribution you can and
+and it is not uniform. So you can get
+equally sized distribution by by
+assuming that this is a gshian normal
+distribution. Right? So this is what in
+simple terms NF for quantization is. And
+uh so now let's look at what double
+quantization is right. So, so when you
+quantize uh you typically store the
+quantization constants in FP32 full
+precision, right? Because the more
+precise your constants are, the lower
+your quantization error is going to be,
+right? Uh so what people typically do is
+that represent uh these in uh FP32. But
+now imagine if you have so many vectors
+in your parameter space right because
+there are going to be so many matrices
+there are going to be so many feed
+forward networks right so many weight
+matrices uh attention uh weights and so
+on and you'll end up getting so many
+constants right so so this storing these
+constants would end up taking a lot of
+memory and and what they said is that uh
+once I have all these constants
+I will divide those constants into
+blocks and further quantize these
+quantization
+constants. Right? So you sort of do
+double quantization. So and they say
+that by doing double quantization you
+don't lose so much on your performance
+but you gain a lot in storage space in
+gain a lot in saving storage space.
+Right? So that is the advantage of
+double quantization. It's not going to
+give you a performance bump. It's just
+going to save a lot of space.
+And thirdly, like I said, uh, paged
+optimizers. So, let's say that you have
+a you want to fine-tune a 1.3 billion
+parameter model and and it ends up
+taking u it, it needs about 21 GB of
+memory, right? So, so, so if you look at
+GPU in isolation, you don't have 21 GB
+of memory, right? uh but if you look at
+the memory that the uh that the chip has
+on both GPU and CPU that is good enough
+right so how you do paging for CPU and
+main memory right uh some of these uh
+hardares do the same for GPU and CPU
+memory right and and what Qura does is
+that it makes use of this particular
+feature uh in the hardware right so so
+you would be able to fine-tune F1 model
+with uh this particular GPU even though
+it has only 16 GB of uh GPU memory.
+Right? So this is one thing and finally
+of course uh they are going to use LoRa
+uh for for for as a base for
+fine-tuning. So a small recap of what we
+did in the last class. uh in Laura the
+the the basically the the weight matrix
+is divided into w and dw and and the
+dell uh this part is uh dell w and this
+part is
+w and and any input is first multiplied
+here with this and then here with this
+and and this sort of leads to
+uh plus del w uh a
+* right so so this is what you end up
+getting uh uh and and and this is
+factorized in a way where uh the rank
+here r is much lesser than t
+right so
+just the same uh sort of equation is
+slightly rewritten where you have the uh
+input uh sorry you have the input you
+have the weights this is a scale factor
+again uh and there is this is a b l1 l2
+and the input is the same so this is the
+usual lora uh equation for for doing one
+uh for for the for the for getting the
+output given the the PF weights right L1
+and L2. Uh so now let's do a little bit
+recap of uh different style different uh
+uh data formats again because we'll use
+this in in in understanding the whole
+Qura setup better right so so so far we
+discussed FP32 FP16 and int 8 right and
+in FP16 they reduce the exponents and
+and and they also reduce the fractions
+in sort of similar proportion right but
+what uh people in Google brain did was
+that they came up with this new format
+called
+BF16 right so that it's brain float
+because it is from Google brain uh and
+what they did was that they said let's
+not change the exponent right let's just
+reduce the precision right so why is
+this helpful like if you have to convert
+an
+FP16 sorry an FP32 to BF16 it's so easy
+right all you need to do is just
+truncate it you don't need to scale or
+do anything right So this simplicity
+actually speeds up a lot of things. This
+conversion is so convenient, right? And
+there are also certain operations where
+this amount of precision does not lead
+to that big a gain in performance. It
+increases the computations but it does
+not lead to that big a performance jump.
+So there are certain uh uh training
+paradigms called mixed precision
+training where not all parameters are
+represented in the same representation.
+For certain formats you use certain for
+certain operations you use certain
+representations for certain you don't
+and and this paradigm a whole paradigm
+is called mixed precision training. So
+here also we sort of use some mixed
+precision. Let's look at it how it does
+right. So so let's look at this format.
+This is rewritten. We just rewritten the
+first equation here by representing what
+goes on within Qura. Right? So your now
+your like most of your operations are
+going to be in BF16.
+Right? So, so if you see this part is in
+BF16, right? This part is also going to
+be in uh
+BF16 and and L1 and L2 are negligible
+number of parameters, right? So, it's
+okay. Let them be in BF-16 and here the
+input is also in
+BF16, right? So, so far here everything
+is in BF6, right? and and here is the
+part where we going to do double
+quantization and NF4 quantization right
+so so let's look at this in more detail
+right so so this double quantization can
+be first let's look at only this bit
+right this is first we are
+dequantizing the quantization factors
+the scale factors and the quantization
+constants right so for that the the
+quantiz ization. The second level
+quantization constants are in FP32,
+right? The first level are now
+represented in 4bit. Uh but now once you
+do the dequantization of this, you will
+end up getting the 32-bit precision
+dequantized version of the new scaling
+factors. And now again you dequantize
+your weight uh weights which are in uh
+the normal float, right? And then you
+get back the uh the the the double
+quantized
+uh the double quantized value and
+finally you would use that to get the
+weight matrix in B of 16 which again
+goes back here. Everything is in B of 16
+and you get Y in B of 16. Right? So this
+is the the whole uh uh uh this is the
+whole crux of uh Qura and and this gives
+uh incredible amount of memory
+uh
+efficiency. Again here I've not actually
+talked about the paging uh but what
+typically happens is that you won't be
+able to save let's say if uh uh if if a
+certain uh 65 billion model uses 48 gigs
+of memory and you only have 32 gigs of
+memory on your GPU then there will be a
+time wherein you will hit and and
+certain matrices will not be available
+and all the hardware will do is that go
+replace something that's not used for a
+long time get the right matrix that
+needs to be used into the memory and you
+will not run out of out memory you will
+keep running right so so that is not
+covered in this equations but that's
+also a very essential part of uh why
+Qura should work
+right so so here uh so all these three
+graphs are four bit quantization the
+only difference here is that this is
+simple FP4 something like FP4 right uh
+the orange the orange line is the normal
+float so there is a good improvement in
+accuracy from uh FP4 to normal 4. But
+like I said earlier, double quantization
+does not give you improvement in
+accuracy as much but it gives you a lot
+of space, right? So you reduce on
+storage and uh so this is the uh so if
+you use only four bit quantization like
+say float 4 then there is always a drop
+in comparing to do to doing the usual
+one which is using BF16. Uh so 38
+becomes 37. There is a there is a drop
+here, there's a drop here, right? uh but
+when you use normal float 4 plus uh
+again DQ will uh is not going to help in
+accuracy but again it will help in
+storage but adding both you end up
+getting almost actually slightly more
+mean
+uh than even the VF16 but that's only a
+little bit you can for all practical
+reasons you can assume that it's able to
+maintain the half precision uh
+performance
+uh so so in pruning it's as the name
+suggests it's pretty simple. All you
+need to do is just uh remove certain
+things from the network. So, so here uh
+these are the uh weights, right? Uh so,
+so unstructured pruning is like randomly
+keep removing weights from the network
+with the hope that you don't uh affect
+the performance and structured pruning
+is more like you take into account the
+exact structure of the network that you
+are going to uh prune and then and then
+prune certain structural components from
+the network. Right? So, I'll cover both
+of them. So, so the simplest form of uh
+pruning is unstructured pruning is
+called magnitude pruning. Just sort the
+weights. Whichever weights are low, just
+ditch them off. Right? It's as simple as
+that. So, what they found is that if you
+remove 40% of the weights, you don't
+actually see that big a change in
+performance. But if you start removing a
+lot more, then you see a degradation.
+But what they say is after you prune, if
+you fine-tune, right, continue
+pre-training or continue finetuning uh
+then uh you would end up bridging that
+gap. until 80% of the case, right?
+Um and and some people figured out that
+everybody only does weight pruning. You
+only take into account the weight of the
+uh the parameters only the parameters.
+But uh activations are also important.
+Uh so if you take into account
+activations, then the product of weights
+and activations will show you a
+different story. So rather than pruning
+at weight level, prune it at
+activations. Right? So this uh this was
+one idea that was very recently
+proposed and uh so the issue with
+unstructured pruning is that let's say
+you prune right you make a lot of values
+in your matrix zero right but if a
+hardware is not going to utilize that
+information it's as much as using that
+same FP16 or uh to store zero as well
+it's not going to give you speed up in
+numbers it's not going to save uh
+compute it's not going to save energy
+nothing is saved right So, so there's no
+point in actually doing unstructured
+pruning if your hardware doesn't support
+it. Right? So, it's a very important
+part. So, people started to slightly
+move away from unstructured pruning and
+start to focus on structured pruning.
+Like for example, uh there is this 800
+Nvidia GPUs which says that if you take
+up any block of four
+uh you compress them into block of two
+by ignoring two, right? This is called 2
+is to four sparsity pattern. If you do
+that and you represent uh your values
+with half the number of weights and and
+you use two bit indexes to store the
+indexes where which are non zero, it
+will give you performance speed up.
+Right? So now your pruning algorithm
+that you're going to design should be
+aware of this particular hardware choice
+uh to sort of leverage this. So if you
+see here uh if you
+do for any different type of uh uh
+precision uh the dense operation and
+there's a big difference between how
+much you can do with the dense operation
+and the sparse operations right so
+because the hardware supports this now
+you can think of pruning your weights in
+this particular format without loss
+while minimizing the uh the loss in
+performance right another recent paper
+that came
+was that uh that let's say that you have
+a fine-tuned bird there are a lot of
+multiattensions feed forward network and
+within multi attention you have multiple
+heads uh within feed forward network uh
+you would have certain hidden dimensions
+and so on so what they say is that you
+can prune almost any component right you
+can remove a layer like for example they
+removed this feed forward layer they
+removed this multi head attention you
+can remove certain heads uh within the
+multi head you can remove certain hidden
+dimensions here and and they say that
+you take into account the structure of
+the network and remove structural
+components uh you end up getting
+performance speed
+up. So this is about pruning. So I'm
+just covering the overview to give a
+brief picture of what pruning does. I'm
+not going into details or other
+techniques that does pruning more
+efficiently. Finally, I'll talk about
+distillation. Uh so distillation again
+is a process of uh training a much
+smaller model to imitate a bigger model.
+The bigger model is the teacher and then
+the smaller model is the student. So the
+smaller model should end up mimicking
+what the bigger model
+does. So it sort of works like this. The
+one of the biggest issues with
+distillation is that you need this data,
+right? So so think about post- training
+quantization, right? Like if you have
+llama uh 70 billion model and you want
+to quantize it, you don't need the data
+with which llama was trained for. You
+don't have to find a proxy for the data
+with which llama was trained for, right?
+You can just do your quantization. But
+here uh you need the data, right? If you
+don't have the real data, you should
+sort of end up getting some
+representative data uh that sort of
+looks like what this model would have
+trained on and that is a big bottleneck
+in this era, right? Because people are
+willing to share and open source their
+models, but nobody's willing to open
+source the data, right? Because that's
+the gold, right? So nobody would do
+that. So this distillation is typically
+difficult from that standpoint. And so
+people do task specific distillation.
+You have task specific data. Let me
+distill the model conditioned on the
+task. Right? So in general distillation
+is still a useful technique to learn.
+But uh thinking that I can fine-tune or
+or I can distill any big model into a
+smaller model is not going to be that
+effective unless you have the right
+data. Right? So the the the way it works
+is that you feed only the input to the
+the train fully trained bigger model you
+get its predictions right so let's call
+it yhat right and then you give the same
+data to the student network let's call
+it y dash right and now you want ydash
+to be as close as yhat both are not bold
+right uh but you just want ydash to be
+as close to yhat as possible that's all
+the objective function is so the the the
+different there are different flavors of
+distillation. Some of them are
+specifically about how you compute this
+loss. There are different ways of
+computing this loss, right? And some are
+like you don't just do distribution
+matching only on the output. Do
+distribution matching even in the
+intermediate layers based on certain
+structures, right? There are a lot of
+variants of
+distillation. So, okay. So, let's take
+an example here. So, here there are five
+uh outputs. Let's assume that they're
+all going to give us a uh a probability.
+And so let's say if the goal label is
+something like this, then your typical
+loss would have been that you increase a
+log likelihood of of that particular
+value which is one, right? That's going
+to be your usual loss. So now for the
+knowledge
+distillation, your theta is here. That
+is your theta. This network parameters
+are theta t. So now in addition to
+theta, you also have theta t but theta t
+is frozen. So what you do is you end up
+getting the value of every output uh
+with Q and you serve that as a reference
+distribution and computer crossing
+right. Um so there are several
+advantages for doing Q rather than again
+taking only the uh the max value and
+doing it. Uh that is like you can find
+more details in this the this this first
+paper that came for distillation.
+Now like I mentioned before uh the good
+part of distillation is that your
+student network can be much much
+smaller. You can have very few number of
+layers so that you can like increase the
+latency sorry reduce the latency by
+quite a bit like whatever your latency
+is you can define your network structure
+to satisfy that latency right you have
+that flexibility with you right and then
+you can try to fine-tune and then figure
+out what is the performance gap you get
+now now if you have to get like a lot of
+speed gain this is the way to go right
+pruning and quantis quantization are not
+going to get you there now again like I
+said the cons is that you need the
+training data and It's extremely
+expensive to perform this type of model
+compression mainly because you have to
+do first inference you have a lot of
+data you have to do inference inference
+is a lot more expensive because it has
+to do one generate one token at a time
+it's extremely expensive and then again
+after you do that expensive task of
+generating outputs of every data point
+in your input you will again have to
+train the model student model from
+scratch right there are there are
+techniques which say like if you
+initialize your student network this way
+by pruning the teacher and and then
+using uh a very uh aggressively pruned
+version of the teacher as student your
+starting point is much better you can
+reduce the time but still you'll have to
+end up finetuning
+right now like I said there are
+different ways in which hint proposed
+hint at all proposed distillation one is
+called the hard target where let's say
+that this was the uh value that got the
+highest probability you can you can
+forget about the the likelihood just
+take the arg max and then set it to one
+and uh use it or the other way is to end
+up using the uh entire soft
+distribution. This is specifically found
+to be a lot more better than simply
+using hard targets. But sometimes uh
+when you don't have access to
+the the probabilities, right? For
+example, if you're using open API and
+they're not going to give you uh they do
+give you for some cases, but maybe you
+are doing some complex things and
+they're not you're not able to get
+access to those probabilities, you can
+still do some sort of a hard target uh
+distillation. Although it's illegal, but
+still so so now so what I talked before
+is more like a a single step
+quantization sorry uh distillation,
+right? Now what if you want to distill a
+whole sequence, right? which is like in
+an auto reggressive manner or something,
+right? So, so this is our usual
+knowledge distillation equation where
+Q's are the teacher uh likelihoods and
+then you want to match them student ones
+to exactly the same as the teachers. Now
+in in word level distillation what we
+say is that uh we add this particular
+summation over all the uh j words and
+it's simply the same as before right you
+do it one word at a time by fixing the
+other ones and in case of sequence level
+distribution uh we ideally would want to
+do it by taking the entire space of all
+possible sequences but that's going to
+be like all possible sequences are
+insanely expensive right it's it's so
+the space is So dis
+like they're so high that it's not
+possibly possible to even do this. So
+what they typically do is that very
+badly approximate this into just what
+the
+model gives you the highest uh sequence
+for a beam search or something like
+that, right? And then set that as yhat
+and simply uh increase the log
+likelihood of that the highest sequence
+that you get, right?
+So these are some simple ways of
+knowledge distillation. There are also
+other techniques where the loss function
+is not cross entropy. They use KL
+divergence. They use inverse KL
+divergence. So there are a lot of
+different flavors of uh loss functions
+and a lot of different flavors of how do
+you approximate the knowledge. So one
+way of approximating the knowledge from
+the teacher to student is to mimic the
+whole distribution, right? But you're
+only mimicking the distribution at the
+output space. But there are like
+multiple other places where you can sort
+of fix your network parameter in such a
+way that you expect the middle layer in
+this to be replicated by this layer
+here. Something of that type and you can
+do a lot more uh and then try to mimic
+the teacher as much as
+possible. Right? And uh so I just want
+to make a small connection between
+distillation in in in sort of network
+related literature and and and and a
+certain other distillation that uh
+people are now doing with large language
+models, right? Which is that let's say
+if you take a the llama 405 billion
+model, right? Uh so do you guys know why
+would somebody use a 405 billion model?
+It's going to take like minutes to come
+back with a response. But why would
+anybody want to use a 405 billion model?
+It has a much better output quality than
+any of the models. But then its latency
+and its cost is so high. Whatever task
+you use it for, you're not going to get
+back the money that you put in. But why
+would still people use it? It'll be used
+as a proxy for humans, right? So that is
+sort of heading towards the right
+answer. So basically what they say is
+that an extremely overparameterized
+model can capture all the nuances in the
+training data and it can model it
+better. So once it models it better, you
+can always distill it, right? So that
+the whole point of why you want such a
+big model is that it will it will
+generate output so good right that you
+can use that output to distill a smaller
+model which would be much better than
+just training that smaller model from
+scratch right so one such way is so one
+early the first paper that came out in
+this paradigm is called self- instruct
+uh what they say is that let's say uh so
+C tasks are something like this find out
+if the given text is in favor or or
+against right this is one task And the
+other task is like give me a quote from
+a famous person on this topic. And and
+for for each task they give an
+instruction along with one example right
+and they only take 175 C tasks not more.
+Right? These are handcrafted with one
+instruction and one instance that's
+about it. Now what they say is that they
+ask the LLM to generate new instruction
+like you have 175 you do a few short
+example. Uh you give a few short example
+and then you say generate one more. It's
+going to give you one uh task that is
+different from the 175. And once you
+have one task, you again do a check
+whether it's good or not. If it is good,
+then you ask it to
+generate the class label and the input
+given the instruction. Right? This is
+output first, input next, right? And in
+in another case uh you do input first
+and output second. So so there are some
+advantages of doing these. And what they
+say is that by doing this you end up
+generating so much data right so so this
+is a few short example right so a base
+LLM can do a base LLM which is not
+instruct fine-tuned can still do this
+work right because they cannot follow
+zeros short instructions but they can do
+few short very well right so so just
+with one side of a seed example you end
+up getting a lot of information from the
+model itself on how to instant finetune
+it right so what you end up getting is
+an instep find data set. Right? Now you
+can use this instep finetune data set to
+actually instep finetune the model
+itself. Right? So so
+here distillation is coming from
+gathering as much knowledge from the
+model as possible. Right? In the other
+way how did you gather knowledge? You
+gave the input and you saw how the model
+reacts to it. Right? So now these are
+generative models. Right? If they're
+discriminative models you can all you
+can do is only see how it reacts. Right?
+you cannot ask it to generate new stuff.
+But if it's generative model, then you
+can ask it to actually generate new
+stuff. And this is a new paradigm and
+and and and this is sort of like widely
+used paradigm now for any uh industrial
+finetuning applications. Like for
+example, if you want to create a uh
+let's
+say a new natural language interface for
+one of your uh softwares or something
+like that, right? So you have your whole
+action space about what all it can do,
+maybe some descriptions of uh what they
+achieve. You can actually synthesize a
+lot of examples of how a person would
+ask in a natural language to do this
+execution, right? And if you have an
+example for a few, you would you can end
+up generating a lot of data from a
+bigger model that can do this and then
+you can use that to finetune a smaller
+model and now you have a very easy to uh
+use software. Right? So there are a lot
+of good application synthetic data
+generation and then using it to finetune
+a smaller model is sort of the big thing
+now. Right? So dissolation is sort of
+indirectly what led to this whole space
+being developed and this distillation is
+possible only if you have an awesome
+teacher right and that's why people want
+to build really really big models
+because you end up getting really good
+synthetic data and you end up saving
+cost uh
+eventually right so to summarize uh we
+we looked at uh effective ways of
+reducing inference cost and and
+specifically we looked at model
+compression techniques and in them uh We
+we discussed in detail about uh
+quantization. We discussed the uh the
+LLM intate for post training
+quantization. We discussed qlora for
+quantization of training. We discussed
+some pruning techniques and some
+distillation techniques and where the
+field is moving more.
+Okay. All right. Thank you.
+[Music]

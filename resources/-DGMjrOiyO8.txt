@@ -1,0 +1,188 @@
+Hello everyone.
+Let me start by asking you a question.
+How do you unify quantum mechanics and
+general relativity?
+Sounds a very difficult question, right?
+Okay, let me ask a paradoxical question.
+What is the meaning of meaning?
+I'm sure some of you have already opened
+ChatGPT to find the answer.
+Tools like ChatGPT have become a part
+and parcel of our life. We use these
+tools to, you know, to draft emails, to
+write documents, to solve assignments,
+and whatnot.
+Some of you know that these tools are
+called large language models, LLMs,
+right? But some of you may not know how
+these tools work. Okay, if you know how
+these tools work, you would basically
+make best use of these tools instead of
+just writing random prompts. For you, we
+introduce a new course called large
+language models.
+My name is Tanmoy Chakraborty. I am a
+faculty member at IIT Delhi. I work in
+natural language processing and these
+days large language models.
+Hello, I am Soumen Chakraborty, a
+professor at IIT Bombay.
+I work on web and text search, natural
+language processing, question answering,
+knowledge graphs, and machine learning
+for graphs.
+We knowingly or unknowingly use language
+models in our daily life. For example,
+let's say when we write a query on on on
+Google search, right? When we translate
+one language to another language, when
+we use assistive technology like Alexa,
+we use language models in all these
+cases, right? In in 2017, a breakthrough
+happened, and a model called transformer
+was introduced, and then we heard a new
+term called large language models. So,
+what is large in large language models?
+When we say large language models, there
+are basically two aspects that we point
+out. One is the size of the model in
+terms of number of parameters, and other
+is the size of the training data set on
+which these models are essentially
+trained. Earlier models like models in
+2017-2018,
+the size was roughly 65 million to, you
+know, 100 million. And now we are
+talking in terms of trillion, right?
+GPT-3, for example, is a 1 trillion
+model. The second aspect is the size of
+the training data set. So, earlier
+models like BERT used a data set of size
+1.7 billion tokens. Now, the models that
+we have been witnessing these days use
+more than 300 billion tokens for
+training. So, why this course is
+important? We know that the the paradigm
+of natural language processing has has
+completely changed due to this
+introduction of large language models.
+They are essentially used everywhere.
+They are used for designing
+conversational AI, for generating
+content, code writing, code correction,
+right? And so on and so forth. This
+course is also useful for industry
+professionals and newcomers who are
+looking for jobs, because these days, as
+you realized, that most of the
+industries are looking for experts who
+know generative AI large language
+models. So, this course is graduate
+level course,
+mostly for final year undergraduate,
+postgraduate, and PhD students in CSE,
+electrical, ECE, IT, math students. And
+of course, students from other branch
+who are interested in AI, multimodality,
+and NLP in general, they can also opt
+for this course. And of course,
+researchers who are who have general
+interest in deep learning and machine
+learning should also consider this
+course.
+We always say that if you are willing to
+learn something new, and if you're are
+about language, you should opt for this
+course. But, officially, you know, data
+structure algorithms, machine learning,
+and Python programming, these are the
+mandatory prerequisite, whereas NLP and
+deep learning are desirable. The entire
+course is divided into five modules. The
+first module covers the basics of this
+course, which includes introduction to
+NLP, introduction to deep learning,
+introduction to language model, and then
+different types of word embedding
+methods like word to vec and glove. And
+then we'll move to neural language model
+including CNN, RNN, sequence to sequence
+model, and then we introduce attention.
+In the second module, we will discuss
+the architecture of different LLMs.
+Specifically, we start with the
+transformer model. We will discuss
+different components of the transformer
+model including the positional encoding
+method, different tokenization
+strategies, decoder-only, encoder-only,
+and encoder-decoder-only models. And
+then in the third module, we'll discuss
+different learnability aspects of large
+language models where we will discuss
+instruction fine-tuning strategies,
+in-context learning, different types of
+advanced prompting techniques like chain
+of thoughts, graph of thoughts, prompt
+chaining, and so on and so forth. And
+then we move to the most interesting
+part called alignment, right? Where
+we'll discuss RLHF and if possible also
+DPO. And then if time permits,
+parameter-efficient fine-tuning
+techniques.
+In the fourth module, we will study the
+interaction between knowledge graphs and
+LLMs.
+Natural language is largely informal and
+imprecise.
+Because language models are
+probabilistic generators of text, their
+outputs are not guaranteed to be
+consistent with facts.
+Graphs provide a critical common
+representation for recording and
+reasoning with factual world knowledge.
+Knowledge graphs in particular record
+subject-relation-object triples with
+rich textual features.
+Instead of depending on an opaque
+encoding of corpus-derived knowledge
+inside LLM parameters, open book
+question answering integrates
+transparent mutable facts in knowledge
+graphs with LLM's matching and reasoning
+power.
+Another perspective is that access to a
+knowledge graph is a tool used by an LLM
+to generate responses. The race is now
+on to create the most versatile and
+reliable LLM's. However, severe
+challenges remain.
+As we have mentioned just now, LLM's can
+lose touch with reality and hallucinate.
+They're also only as good as their
+training corpus and method of
+supervision.
+Bias and toxicity routinely show through
+and these have severe social
+consequences.
+In this final fifth module, we will
+present and explain some of these
+weaknesses. Then we will discuss some
+possible guardrails and mitigation
+strategies.
+So the textbook that we will follow,
+this is a textbook on large language
+models written by me. The book will be
+available online from December 15.
+Limited copies will be available in
+December. So if you are interested in
+buying the book, I strongly suggest you
+to enroll yourself. The course will
+start in January 2025. The enrollment
+process is ongoing. So if you are
+interested in learning LLM's,
+specifically chat GPT like tools, this
+is the course for you. See you. Thank
+you.

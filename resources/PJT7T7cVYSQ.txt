@@ -1,0 +1,804 @@
+[Music]
+hello everyone so in this lecture we
+will start discussing neural language
+model okay so uh in the last class we
+have completed what meting where we
+talked about glove and before the last
+before that we also discussed what to V
+and count based methods we will see how
+these methods are used in neural
+language model okay for this chapter
+these are the prerequisites you should
+know what is a loss function uh how back
+back propagate back propagation happens
+right you should have a fear bit of
+understanding about CNN and a little bit
+of understanding about RNN also
+okay okay so let's get started this is a
+neural language model we already
+discussed statistical language model if
+you remember the task was to predict the
+next word right uh this was the example
+that was shown I was so I I like pza
+with lots of Dash right and the language
+model should be able to predict the
+appropriate word right and how the
+language model predicts it basically
+samples a word from a distribution what
+is the distribution it depends on the
+hypothesis let's say if you are if you
+are designing a unigram language model
+so distribution is sampled from un
+digram model otherwise Byram or trigram
+and so on and so forth right what are
+the major problems in statistical
+language
+model the major problem is that for an
+unknown word it would be very difficult
+to process it the Byram metrix that you
+compute would also be sparse right and
+so on and so
+forth so now we move to neural language
+model it was proposed uh by um yoso
+benzio in 2001 2002 during that time uh
+not exactly the one that I'm Des
+describing here but you know somewhat
+similar to what we will discuss
+here okay so we'll start with a CNN
+method and we'll see that how a CNN
+method a CNN model predicts the next
+word okay
+so for a CNN method we all know that
+when we run a CNN on an image right it's
+an RGB kind of image what we do we
+identify a particular patch right let's
+say this is a this is an image right we
+first identify a particular patch and on
+top of this patch we apply a Kel or a
+filter right what is this caral filter
+this is essentially a matrix
+W which is same as the size of this
+patch right we apply this here and then
+we can use let's say Max pulling mean
+pulling etc etc right these are I mean
+you can also think of some nonlinear
+function right out of whatever you got
+right from from from this
+Kel so you need to First identify a
+patch size right a window
+size here in our case in case of
+language or a sentence this is a
+sentence is a sequence of tokens right
+so I also need to identify a context or
+whatever a a path size here also it's a
+it's a 1D matrix it's not a 2d matrix
+it's a 1D Matrix where there's a row and
+in that Row the token are arranged right
+and these tokens are essentially
+represented by
+waterings okay so to use a CNN what we
+need we need to First identify a window
+size or a filter size a cal
+size we can't process the enter enter
+sequence at one go right so let's say
+this is the sentence as the Proctor
+started the clock the students opened
+their Dash and you you you want to
+identify the next word right and let's
+say the size of this window is four the
+size of this Cal is four right so you
+look at the previous four words and you
+discard all this other words okay so you
+discard
+them okay so this is now the patch that
+we are focusing on okay now we apply a
+CNN kind of layer on top of this
+so the is represented by this Vector X1
+this is X2 X3 and X4 X1 X2 X3 X4 are
+word embeding vectors obtain from let's
+say what to or glove or it it can be as
+simple as one one hot encoding
+right
+then let's say the size of the vector is
+four so four 4 4 and four so it's a 1
+cross 16
+Matrix right and on top of this I apply
+the Cal or a filter w w is a w is a
+matrix right when I apply this let's say
+the size of this Matrix is 16 Cross 8
+for example right when you multiply this
+it will produce a vector size of 1 cross
+8 or whatever 18 you know transpose you
+just look at the dimension okay so it
+will it will produce another Vector of
+size
+8 yes or no
+right so now this is my hidden
+State what is the goal the goal is to
+predict what is going to be the next
+word and how many words are possible how
+many candidates words are possible
+vocabulary size let's say there are in
+number of there are let's say n is one
+one million so there are one Million
+number of words present any of these
+words can basically come here so from
+this
+hidden uh layer right what I do I apply
+another linear layer linear layer is
+just a fit forward layer right which
+will basically appr project right this
+eight size Vector to a million size
+Vector right so what is the size of what
+is the dimension of this U 8 cross 1
+million it's just an example by the way
+okay so it will it will produce a vector
+of size uh 1 million and of course after
+this projection you we you apply s Max
+and all this stuff so that uh the
+entries of this Vector will be basically
+probabilities and all the probability
+laws will be followed okay so I will get
+the distribution like
+this from that distribution I will
+sample and um hope is that the word with
+maximum probability will be sampled so
+this word can be either books or laptops
+for
+example this is CNN
+clear so you flatten uh the inter Matrix
+you apply CNN layers you can have
+multiple such layers by the way there's
+only one layer I showed you can have
+multiple such layers
+okay and then you uh sample it what is
+the problem in this kind of
+approaches the first problem is that we
+have to decide the window size right we
+can't consider the entire uh context as
+window the second problem is that the
+size of the window which is four in this
+case is an hyper
+parameter meaning you have to play
+around this you you have to play with
+multiple values of this window and we'll
+have to see which one is
+better so as we increase the size of the
+window the dimension of w will
+change it will also
+increase so with the increasing size of
+context with the increasing size of
+window the dimension of the weight
+Matrix that we are going to learn will
+also increase right these are the two
+major problems but what are the good
+part about the CNN method over over
+statistical language
+model what do you think do you think the
+sparcity can be addressed
+here there will be no
+zero right it can also handle unknown
+words in a very uh systematic way right
+assuming that the word embeddings are
+available otherwise you can use one not
+encoding and so on so these are the good
+parts uh you don't need to store this
+entire metrix by the way you don't need
+to store the entire B Matrix
+here okay the other problem the problem
+that I mentioned the first problem is
+that um uh you need to decide the size
+of the window right with the increasing
+window size W will
+increase the third problem is more
+subtle let us discuss the third problem
+what is this third problem the third
+problem is
+that let's
+say you have this uh W Matrix right
+which is a four cross 4 Matrix let's say
+a four cross 4 right let's say let's say
+4 3 1 5 7 4 32 1 2 75 1 1 25 this is the
+W Matrix okay and let's say this is my
+embedding uh this is the embedding uh
+Matrix which which will be multip with
+with W right and let's say the embedding
+Matrix is like like this E1 E2 E3 E4
+let's say E1 is the embedding for for
+the word d and E2 is the embedding for
+the word uh students and so on and so
+forth that's is a four cross
+one you have to multiply these
+two right and let's assume that these
+embeddings are one di Tings just for the
+sake of discussion okay if you multiply
+what is going to happen 4 E1 + 7 E2 + 1
+E3 + 1 E4 right 3 E1 + 4 E2 + 2 E3 + 1
+E4 right 1 E1 + 3 E2 + 7 E3 + 2 E4 so
+what is actually
+happening you notice what is happening
+here
+E1 is only affecting this
+column E2 is only affecting this
+column E3 is affecting this column and
+E4 is affecting this
+column
+okay so ideally when we do this kind of
+multiplication right uh weight and uh
+you know embeddings and so on and so
+forth we hope that you know it should
+not be disjoined something like this
+right the hope is that when we multiply
+the information from U1 should pass
+through all the columns of Weights the
+information of W2 should E2 should also
+pass through all the columns of the
+weights and so on and so
+forth I mean when a multiply something
+with something what I'm doing
+essentially I'm essentially doing some
+sort of message
+passing right but here if you look at it
+carefully E2 E1 is not affecting uh
+column two e E2 is not affecting column
+3 and column one and so on and so forth
+so essentially the message passing is
+not actually happening at all you are
+essentially learning four independent
+functions right it's a very subtle think
+about it carefully it's not very uh easy
+to understand right you pause and Ponder
+and then maybe uh we'll discuss
+again
+so so there are three problems the first
+problem is that it is uh it depends on
+the fixed window size right uh it is not
+able to capture infinite length window
+right the second problem is that there's
+no message passing happening right and
+the third problem is that with the
+increasing size of window right W is uh
+W is also increasing so let us address
+this using
+RNN right what is an
+RNN so an
+RNN looks like this so let's say um I
+have inputs X1 X2 2 X3 and X4 these are
+embeddings right these are
+embeddings and we have different hidden
+States so every uh every at every
+position we have an hidden state so it's
+is position one position two position
+three position four you can also think
+of these positions as times time one
+time two time three time four right and
+this is hidden State one hidden state
+two hidden state three hidden State
+four and let's say there's a dummy
+hidden State a zero let's to start
+with okay and how we are Computing every
+hidden state every hidden state is
+computed in this way let's say
+H1 is computed so there is a weight
+parameter Matrix wh here right there is
+a so this parameter Matrix is
+essentially a projection a parameter
+Matrix right and you have another
+parameter Matrix we for example
+here so h0 will be multiplied with
+W right X1 will be multiplied with uh uh
+we this will be added of course I'm
+biased term right okay and then I will
+pass it through a
+nonlinearity this will be multiplied
+with this this will be multiplied with
+this we'll add them add a bias and we'll
+B basically pass pass it through some
+nonlinearity sigo or tan H right that
+will give you the hidden
+state so now so look at here H1 is
+determined by h0 and X1 H2 is determined
+by H1 and H2 H3 is determined by H2 and
+H3 and so on and so forth so essentially
+HT is determined by HT minus one wh plus
+XT we plus a bias
+B right if you look at it very carefully
+this is a recurrent
+function right and this these two weight
+matrices wh and we they are the same
+across all the layers so so here there
+are four layers right so they are the
+same across all the
+layers and these Matrix wh and we
+they are independent of the context
+size there is no concept of context at
+all but if you still want to you know
+consider the context it is independent
+of the size of the context what is the
+dimension of wh by the way so let's say
+the dimension of the Hidden state is
+four it's a it's a vector right and this
+is also four so the the dimension of w
+will be four cross
+4 what is the dimension of
+we let's say the dimension of the
+embedding is 10 and the dimension of
+hidden St is four so this is 10 cross 4
+or or whatever 4 cross 10 right and this
+is fixed irrespective of the size of the
+uh context length it only depends on two
+things one is the size of the Hidden
+state that we'll Define beforehand and
+the size of the embedding that is also
+constant right
+clear okay so let's see how you can use
+RNN to predict the next
+word
+right so this I already
+mentioned uh let's say the students open
+there okay this is the embedding E1 E2
+E3
+E4 right and this is the projection
+layer e we these are the hidden States
+wh is a again parameter Matrix right and
+so on and so forth you can ask what is
+this
+e e is a embedding lookup embedding
+lookup basically says that uh you have
+you already have a predefined embedding
+right and uh you have an one hot
+encoding you multiply the one hot
+encoding with the predefined encoding
+and you retrieve the corresponding Ed
+these are Matrix right or this is a
+vector
+okay so then what you do whatever things
+you obtain at the last
+layer which is H4 corresponds to the
+what there right you pass it through a
+linear layer
+you pass it through a linear layer
+followed by nonlinearity same process
+sigmoid right it will return a
+distribution and then you sample from
+the
+distribution okay so this is
+RNN Advantage it can process it can
+ideally process a context size of any
+length right doesn't depend on the
+context L at all I mentioned right
+uh ideally it actually capture ideally
+it can capture uh it can also capture uh
+things which are far far from each other
+long distance relation can also be
+captured but CNN remember CNN can't
+capture long distance relation why
+because CNN only depends on the previous
+uh few context previous few words but
+here ideally here ideally if you look at
+it carefully every layer let's say a tth
+layer has the information of all the
+previous layers from 0 to T minus
+one with certain changes right ideally
+why ideally I'll tell you
+later uh model Size Doesn't increase
+with the with the increase of the
+context length
+right and uh and this symmetricity right
+same weights are the same weight if you
+look at this we this is applied this is
+Multiplied with all the uh all the
+embeddings uh separately right now this
+guy W uh e E1 will affect we similarly
+uh similarly to right um uh
+E2 E2 will also effect uh I mean the the
+the the effect of E1 to we and the
+effect of E2 to we will be more or less
+similar I mean similar in the sense we
+give fair chance to both E1 and
+E2 what are disadvantages the first dis
+disadvantage is that U this is
+slow why because this is a sequence
+model to compute the hidden State at tth
+time you need to compute all the
+previous hidden States
+right and the second problem is that
+although I mentioned that it can capture
+long distance right but as the size of
+the context increases we will see the
+effect of the first word for example to
+the last word will
+reduce right so as we increase the steps
+in RNN the effect of The Words which are
+far far from the current word will be
+less
+okay okay so uh uh Now we move to the
+training part of RN
+okay so in in training an
+RNN we need to First Look at a loss
+function consider loss function right so
+now look at it this this diagram again
+the objective is to predict the next
+word okay in fact you assume that the
+objective is to predict the next word at
+every Tim
+stamp right when you are
+here when you are here your objective
+would be to predict the next word which
+is students when you are here your
+objective would be to predict the next
+word which is opened when you are here
+your objective would be to predi the
+next word which is theirs there and so
+on and so
+forth right you also assume that again
+uh just for Simplicity assume that the
+input vectors are one hot
+encoding okay not embedding often from
+uh glove or what to it okay so
+so here you generate a hidle state the
+way I mentioned earlier right and there
+is this linear layer U followed by
+nonlinearity it will produce a
+distribution over all the vocabulary
+words right and you choose a sample from
+it right right and let's say the sample
+is let's say the sample is
+Teachers the the sampled output is
+Teachers right what what do you mean by
+the sample output is Teachers so you
+basically retrieve uh the word teacher
+because uh it its probability was quite
+high right and I also know the one
+encoding of the word
+teacher right I also know the one not
+encoding of the word students right so
+student is my ground truth but the
+output I obtained here is Teachers so
+what is the loss students embedding and
+teachers embedding difference how do we
+do do this we use cross entropy so we'll
+measure a cross entropy here similarly
+we measure a cross entropy here cross
+entropy here cross entropy here there is
+a
+small uh twist here right when you train
+let's
+say ideally what should happen ideally I
+uh it should be something like that if
+if this is if the output here is
+Teachers the teacher output will should
+should be fade
+here right and the model should be able
+to predict the next word as opened let's
+say the model predicted
+closed closed should be given
+here so there are two paradigms right in
+one Paradigm whatever output you obtain
+you feed that output as an input to the
+next layer the other Paradigm is that
+whatever ground truth you have input you
+have that will be your input to the
+layer so if the ground truth is fed to
+the model if the output is not fed the
+ground to this fed is called teacher
+forcing okay it's called teacher forcing
+remember this
+term right so at every time at every uh
+instance we have this cross entropy uh
+let's say J1 Theta J2 Theta j3 Theta j4
+Theta right and we take the sum of all
+these uh losses which will be my overall
+loss right overall loss is this and we
+uh basically take the average of it
+there are t number of instances so this
+will be 1 by T of total
+loss now let's look at the cross entropy
+a bit carefully uh cross entropy is
+defined by uh cross entropy is already a
+fun I mentioned cross entropy right in
+one of the classes so cross entropy here
+is basically happening between the
+predicted uh embedding and the actual
+embedding hat is the predicted one and
+this is the actual
+one okay so the the actual one is one
+not encoding okay so it means that all
+zeros except only one one right so if
+you do uh position wise cross entropy
+essentially you will only consider that
+value of y hat whose corresponding Y is
+one right so this is y and this is y hat
+y looks like this 0 0 0 1 0 0 0
+something like that why hat is 0.5 it's
+say 0.3 and so on and so forth right so
+I will only consider this entry and
+others will be zero because of this
+multiplication so essentially this is
+minus log of the probability that you uh
+minus log of the entry that you
+generated the probability that you
+generated okay all right
+so now this is the total loss and we
+need to and what the parameters by the
+way what are my parameters in the
+RNN what are my parameters there are
+three parameters wh W and w
+u sorry U whatever U or w
+u right so now I need to do
+backrop so in backrop
+here what I will do I will use a concept
+called back propagation through time
+it's not a normal back propagation of
+course the concept is the same but this
+is called back propagation through time
+bptt okay let's look at
+BPT uh for the discussion I will assume
+that uh there are let's say there
+are h0
+H1
+H2 H3 there are four hidden States
+okay and W W is the
+Matrix and this is my loss just a simple
+diagram forget about we forget about U
+because U and W are very easy to train
+the main problem the main culprit is
+W so so this is my
+loss so I when I need to compute this
+derivative of loss with respect to
+W how do I
+compute so here I use a concept of
+multivariable chain rule right
+multi
+variable
+chain
+rule what does it say it says that let's
+say you have a function
+f which is parameterized by X and Y and
+X and Y they are also a function of
+let's say
+p right if you want to take a derivative
+of f with respect to P how do you do
+that so this is my f it is dependent
+on X and Y and X and Y are dependent on
+P I want to take a derivative of this
+with respect to this how do we do this
+DF DX DX DP plus DF Dy Dy
+DP right so this will be DF
+DX DX DP
+plus DF Dy Dy
+DP this is the idea this is the
+multiable chain
+R okay now let's look at this this
+network
+okay
+and
+um and let's assume that
+and let's say uh you want to measure
+this derivative DL
+DW so to do that I first need to look at
+the dependence the dependence is very
+important so this back propagation
+happen through these
+directions right so this will be this
+will be what this will be DL
+dh3 right
+dh3 DW
+H but H3 is dependent on
+H2 which is also function of
+w right so this is not the
+straightforward and this you can easily
+do but this is not that
+easy so for that let us look at the uh
+dependence tree right so this is the
+dependence tree so L this is L okay this
+this is
+H3 okay H3 is dependent on
+W right H3 is dependent on H2 which is
+dependent on W right H2 is dependent on
+H1 which is dependent on W H1 is
+dependent on h0 which is dependent on
+W okay so to compute D H3 d w we need to
+look at all possible paths using
+multivariable Chan
+right so how do we do that let's only
+focus on this component okay
+D
+H3 DW so dh3 DW is
+essentially um look at this path so this
+so this is one path to move to W this
+this is another path to move to W this
+is another path to move to W this is
+another path to move to
+W so this will be
+dh3
+DW plus
+dh3 d H2
+dh2
+DW Plus
+dh3
+dh2
+dh2
+dh1 dh1
+DW plus
+dh3
+dh2
+DH 2
+dh1
+dh1
+dh0 dh0
+DW
+okay let's do some uh small changes here
+and there DH DW Plus dh3
+D H2
+dh2 DW plus what is this
+one can I simplify this pleas and this
+dh3 dh1 dh1
+DW plus now look at this one do D H3 H2
+H2 H1 H1 h0 right H2 H2 will cancel out
+H1 H1 cancel out this will be dh3
+dh0
+dh0 DW
+okay now let's see what is actually
+happening can we think of a genetic
+equation out of
+this let's look at this let's let's
+write the entire equation in a reverse
+Direction this one will come first so D
+H3 d
+h0 t h0 DW plus
+d H3 D H1 dh1 DW plus
+dh3
+dh2
+dh2 DW plus
+dh3
+dh3
+dh3
+DW huh this
+ter right so here let's say t equ to
+three the third stage right can I write
+it as sum of
+K = to 0 to
+T right
+DHT DH
+K DH K
+DW right so this is you know the actual
+derivation for this one so ultimately
+what is d uh d l
+DW this is D L this is d h t sum of k
+equals to let's make it generic okay so
+K = to 1 0 to K = 0 to
+T okay uh
+Del HT d h k d h k d w this is
+the final formula
+okay this is called back propagation
+through time and the other uh you know
+when you take the derivative with
+respect to U with respect to WV this
+would be straightforward
+because I mean you can also do it
+similar way for
+example okay
+now using this formula you update the
+value of w okay now what is actually
+happening here think about it now in a
+very high
+last layer you compute the loss right
+and that loss loss gets back propagated
+all and and the W vectors the W Matrix
+will be updated similarly you have
+another loss in the in the second
+position right that will also affect W
+when you back propagate let's say here
+you back propagate through this W will
+be updated you also have a loss here
+isn't it you have a loss here this will
+also beated have a loss here this will
+also
+beated so every Position will affect W
+and W will be updated multiple
+times
+right okay
+now think about it what's the problem
+here so if you if you look at it very
+carefully
+this m this uh this one by the way here
+I uh you know I is the derivative is not
+so easy by the way because these are not
+normal derivatives remember H is a
+vector and HT is a vector h k is also a
+vector right W is a
+matrix okay you should know how to uh
+how to uh take a derivative with respect
+to a matrix how to take a derivative of
+a vector with respect to to Matrix
+derivative of vector with respect to
+Vector you should thank hugging face and
+all these libraries right that you don't
+need to do all these things you know
+manually okay so now let me write this
+one
+again DL DW is so DL DW is
+DL uh D
+HT sum of K = to 0 to T DHT
+dhk
+dhk
+DW okay look at this
+part so what is
+this think about it so these are hidden
+States okay H1
+H2 H3 right let's say
+H4 and so on and so forth and you have a
+loss here
+L Okay so by the way how do how do you
+compute this loss d l
+DHT let's say d l dh1 how do you compute
+how do you compute DL
+dh1 DL dh1 is DL dh4 times DL D dh4 dh3
+dh3 dh2 dh2
+dh1 okay
+so this with respect to this when you
+take the derivative you are multiplying
+multiple such uh
+uh derivatives now each of this
+derivatives which looks like this d k d
+dhk DH K minus one right each of these
+derivatives is essentially a
+culprit so if now by the way you are
+taking a derivative of vector with
+respect to another Vector it will
+produce a
+matrix right so if the value of the
+Matrix I'll tell you what is the meaning
+of a Val value of Matrix if the value of
+the Matrix is
+low right if a value of a matrix is low
+and you keep on multiplying multiple
+such low valued Matrix multiple such uh
+low values right small values and you
+have multiple steps let's say from H1 so
+you start with H1 and then let's say
+h8 if if you keep on multiplying this
+small values you will see that this will
+be even lower and
+lower okay what is the meaning of the
+small value of a matrix you take the
+largest i v the value I value
+corresponding to the largest I vector
+and if you see if this is less than one
+then U is a small
+Matrix okay you can prove this also so
+intuitively if it's a small Matrix then
+we see the effect of the first hidden
+state which is H1 on the loss L will be
+much much lesser than let's say the
+effect of the last hidden State on the
+loss and this is called The Vanishing
+radient problem with the increasing
+depth of the RNN you keep on forgetting
+the information that you had earlier and
+if the Matrix is large I I value is
+greater than one exploding gradient
+problem exploding gradient can be
+addressed using gradient clipping you
+can you can at every stage you can say
+that look I want I don't want the value
+to be greater than threshold you can
+clip uh the
+gradient and Vanishing gradient how do
+you address by the way the BPT method I
+mentioned that propagation through time
+there are multiple variations of it
+there something called truncated back
+back propagation truncated BPT truncated
+B you don't allow uh this to move till
+the end okay you stop somewhere and you
+decide the you you decide when to stop I
+mean how much you allow the gradient to
+to Pro to propagate to move you don't
+allow it to till the end okay so this is
+about back propop the next class we will
+discuss how we can address the Vishing
+radiant problem using Advanced RN
+methods like lstm and GF okay thank you
+[Music]

@@ -1,0 +1,1892 @@
+Hi, welcome back to a new lecture from
+the attention family lecture series.
+Today's lecture is for the first time in
+this series going to talk about position
+embedding.
+I was not sure at the start of the
+series whether we should include
+dedicated lecture about position
+embedding or not. But I decided to
+include this because no matter what
+attention mechanism we are going to
+discuss in the rest of the series,
+position embedding is an inherent and
+important part of it. So I thought it
+was very relevant for you to understand
+how injecting position information into
+the um either in the input embedding or
+into the key vector or into the dot
+product between query and key or
+wherever else the position embedding in
+position information is being embedded
+in the attention mechanism. I thought it
+was very important that you understand
+it. So this lecture and the next lecture
+will be about position embedding and
+today's lecture specifically we'll
+discuss about some common position
+embedding mechanisms. So in the last
+lecture if we do a quick recap what we
+discussed was multi head attention. So
+we saw that you can calculate
+attention not just in a single head but
+you can have multiple attention heads
+operating parallelly and finally the
+output from each of these attention
+heads are concatenated which passes
+through a mixing operation and then you
+have the final output. But we also saw
+that this can be done through four
+loops. You could operate on head one
+then head two etc. Or you could do it
+using one single matrix multiplication.
+Both of this we implemented in Google
+Collab notebook also last time. Now
+today what we are going to do is if you
+come back to this figure which we will
+be referring to again and again in this
+lecture series we'll be for the first
+time focusing on the bucket number six
+and bucket number six is about position.
+So so far we have looked at attention
+score calculation. How tokens attend to
+each other especially when we discussed
+about mass self attention. how attention
+heads can be multiple which was the
+multi head attention lecture the last
+lecture and now the current lecture
+lecture number nine is about position
+information how do we inject it into the
+attention mechanism
+so today's lecture is about four
+attention mechanisms first is learned
+absolute position which is probably one
+of the most easiest way you could think
+of how to inject position information
+into the attention uh into the whole
+transformer architecture
+Second is sinosidal embedding which was
+famously used in the attention is all
+unit paper from 2017. This learned
+absolute embedding was used in GPD2 if I
+remember correctly and also in the bird
+paper. And the third one is a relative
+third and fourth are actually relative
+position embedding. So relative position
+embeddings
+uh means you look at the distance
+between the query and key rather than
+looking at where they are positioned
+absolutely in the sequence. So that is
+also a very important attention
+important way in which uh position
+embedding or position information is
+injected into the um the whole
+transformer architecture. So we will
+discuss two architectures relative uh
+position embedding proposed by Shaw and
+others and also something called as
+relative bias proposed in in the T5
+paper which came out in 2019. These are
+all highly cited papers by the way.
+So we are dividing the lecture into
+three parts. In the first part, we will
+discuss what is the problem if we don't
+have position embedding. What happens?
+What is there any issue with respect to
+that in the second part we will see how
+absolute position information can be
+injected into um the embeddings and
+third is if we don't want to do absolute
+what could be the reason and how will we
+implement relative position embedding.
+So that's the last part of the lecture.
+I will also walk you through a simple
+Google collab notebook which shows you
+in presence and absence of relative uh
+in in presence and absence of position
+embedding what the output of a small
+language model will look like because um
+obviously you should know that if
+position information is not available
+it's very difficult for tokens to attend
+to each other you don't know um and and
+and this you will see when you are
+looking at two sentences consisting of
+the exact same tokens I will show you an
+example in in the upcoming slide
+So I will show you using a Google collab
+notebook with and without position
+embedding how does the output quality
+look like. But before that let's look at
+the problem. The problem is this. If I
+have two sentences this is the first
+sentence and this is the second one. All
+all dogs are animals versus all animals
+are dogs. The first one is a true
+sentence. Second is not a true sentence.
+But more than whether it is true or
+false. What is important here is to
+notice that both sentences are
+consisting of the same tokens. Assuming
+one word equal to one token. Obviously
+tokenizer is different but here assuming
+we are using a simple tokenizer where
+where one word is equal to one token. Uh
+this is two exact same sentences. If you
+just look at it token by token and for
+that reason if you convert the tokens
+into corresponding vector embeddings the
+vector embedding correspond to
+corresponding to the word all will be
+the same in both sentences. The vector
+embedding corresponding to dogs will be
+the same in both sentences. Although in
+the first sentence dog is in position
+number two. If you assume position
+counting is starting what from one. If
+we if you start the count from zero
+it'll be 0 1 2 3. But the position of
+the token dogs is different in both of
+these sentences. But it wouldn't matter
+if position information is not injected.
+The initial embeddings are the exactly
+the same. Now what is the problem with
+this? If embeddings are exactly the
+same, what will happen is the dot
+products will also be exactly the same
+because we will take a token, we will
+project it into query space and key
+space, right? And when we take dot
+product, it is quiry dot key transpose,
+right?
+So if you consider dogs as the query in
+sentence number one and let's say
+animals as the key it is basically Q2
+dot product with K4 transpose. If you
+consider the dot product between query
+of dog and key corresponding to animals.
+If you do the same thing for the second
+sentence it's actually Q4
+dotproduct with K2 transpose. Why?
+Because here dog if dogs is the query
+and animals is the key dogs is in
+position number four animal is in
+position number two. Now we know that
+the attention score has to be different
+in both of these cases because in the
+first sentence the token animals is
+coming two tokens after dogs. So dogs
+plus one token plus one more token
+that's when animals token is here.
+Whereas in the second sentence the
+animals token is coming before the dog's
+token in the sequence. So the attention
+score has to be different because
+clearly the order in which tokens are
+arranged in a language matters. It
+changes the meaning, right? But if you
+take the initial embeddings like these,
+if you take the embedding of dog and
+embedding of animals, these embeddings
+are same whether you are in sentence
+number one or two. Which means when you
+project the embedding into query space
+and key space, they will look exactly
+the same uh whether you are in position
+number two or position number four. And
+for that reason Q2.K4 transpose and Q
+K4.K2 transpose sorry Q4.K2Rpose
+will be the same number. So the dot
+product between quiry and key will be
+the same as long as the quiry and key
+are originating from the uh same tokens.
+Their positions won't matter. But this
+is not the right thing to do. Right? You
+you know it
+logically. You know that the attention
+score has to be different. So what is
+missing here? What is missing is the
+fact that these tokens are arranged in
+different positions. So if we count the
+positions starting from zero in the
+first sentence with the dogs with this
+token corresponding to dogs or with this
+embedding corresponding to dogs we have
+to add an additional position
+information in the form of a vector.
+So we can do this in the form of input
+embedding plus a position information.
+And there are also many other places
+where we could inject position
+information. I will show you that in the
+upcoming slides. But the basic idea is
+somehow we have to modify this input
+embedding so that position information
+is also part of it. Now if you are
+directly adding a position information
+into the input embedding. Obviously this
+position vector should live in the same
+space as that of the original vector. So
+this will be a three-dimensional vector.
+This will also be a three-dimensional
+vector resulting in a new
+three-dimensional vector. Same thing
+applies for sentence number two. dogs
+the input embedding of dogs is added
+with position uh vector and here this
+time it's position number three this one
+and that results in a new vector. So if
+you look at this vector versus the
+vector at the bottom both are
+threedimensional vectors but and both
+are representing uh the input token dogs
+but the first one is dogs in the first
+sentence second one is dogs in the
+second sentence and they they look
+different.
+Now a natural question that you should
+ask yourself is that
+you know when we are adding position
+information we are adding a vector right
+I mean in certain implementations we are
+adding a vector not in all
+implementations we are adding a vector
+to the input embedding but in several
+cases where we are adding input we are
+adding position information we add it by
+adding a vector to the input embedding.
+So how does it look like? You have a
+vector corresponding to dogs and here is
+like a position embedding vector and
+this changes the resulting vector.
+Right? Now a natural question that you
+may have is when you add something and
+when the resulting vector is changing,
+what if the resultant vector is landing
+in a semantic space corresponding to
+another word? What if the original token
+which was corresponding to dogs when you
+add position information? What is the
+guarantee that the resulting vector is
+not landing somewhere close to cats
+which will totally change its meaning?
+Right? So that's a valid question. Does
+this happen or does this not happen? So
+this is where we have to understand a
+few things about uh position embeddings.
+Firstly, I want you to become very
+comfortable visualizing the embedding
+space. U not exactly how the embeddings
+themselves look like but how are they
+spread in the space. Think about this in
+if you look at the number of tokens
+which were part of GPT's vocabulary they
+range anywhere from around 52,000 all
+the way till there are bigger models
+with bigger number of tokens. So uh 52
+52k 52,000 tokens. So let's say we have
+total 52,000 tokens living in a
+embedding space of dimension 768.
+Do you think in a 768 dimensional space
+52,000 tokens can basically crowd the
+space? It actually cannot crowd the
+space. Here is a thought experiment and
+this is also something which Yan Lakun
+mentions uh regarding why you know in
+his Japa model which is unrelated to
+this but for those of you who are aware
+of it in Japa models one of the reasons
+why he says contrastive learning cannot
+work with negative examples is because
+negative examples cannot span this
+entire space. But anyways um here this
+is what I'm trying to tell you. If you
+assume that your embedding space is two
+dimensional
+and let's say you divide your x-axis
+into 10 parts.
+You also divide your y-axis into 10
+parts. Okay.
+Now let's say you want to span
+embeddings throughout this two
+dimensional space. You want to put one
+here. So assume that you have a 10x10
+grid so that every corner of your space
+is filled with some sort of embedding.
+How many embeddings would you require?
+You will require 10 raised to two
+embeddings because you will require a 10
+embeddings like a 10x 10 grid. Right?
+Now this is because we have divided the
+space into 10 parts. You could have
+divided it into three parts also. No
+problem. In that case you would have
+required three raised to two embeddings
+to fully span and crowd the entire
+space.
+But now if you are looking at a 768
+dimensional space, if you are dividing
+every axis into 10 parts, you would
+require and and by the way this is not
+from minus infinity into infinity. Okay,
+this is from whatever is the range of
+magnitude. There is a range of
+magnitude, right? It's not like
+embeddings can be like 10 to 13 or
+something. Their magnitude is within a
+certain range. So if you split that
+range into 10 parts within that range,
+how many embeddings would you require?
+That's the question here. If you have
+768 dimensional space, you would require
+10 raised to 768
+number of examples. That many embeddings
+you would require to really crowd your
+space.
+This is if you are dividing the space
+into 10 parts. If you were dividing your
+space such that every axis is divided
+into three parts, you would require
+three ra to uh 768. That many
+embeddings.
+Now compare this 10 to 768 with 52K. The
+actual number of embeddings, the actual
+number of tokens you have is only 52K in
+uh let's say GPT small models. What is
+52K? 52K is between 10 to 4 which is
+10,000 and 10 to 5. Let's say it is 10
+to 5 maximum. Compare the numbers 10 to
+5 versus 7 10 to 768.
+If you had 10 to 768, you would really
+crowd the 768 dimensional space. But you
+still have a 768 dimensional space. But
+the number of examples that you have or
+number of embeddings you you have is
+simply only 10 to 5. So no way your your
+you know multi-dimensional space is
+crowded with large number of examples.
+In fact it is a very sparsely
+distributed uh you know these all these
+embeddings are highly sparsely
+distributed. So because of that reason
+if you take an embedding of a word let's
+say this is the embedding of cat
+and if you add position information and
+let's say this becomes
+a new embedding for the cat with
+position information embedded it is very
+unlikely that this new position
+information injected version of the cat
+it will land into the space for dog or
+it will land into the space for some
+other animal or some other object or
+something. This is one of the
+fundamental reasons this the space the
+embedding space is very very sparse.
+There is one more way in which you can
+visualize this. So so the reason why I'm
+saying this is to tell you that the
+position embedding vector which we are
+adding in some of the position embedding
+models that vector is not a small
+vector. The magnitude of that vector can
+be maybe as big as the magnitude of
+embedding vector itself. So it's not
+like you are making small change. The
+change that you are bringing to the
+original vector is high but the
+resulting vector is pointing into a into
+a dimension of into a certain direction
+of your embedding space where no other
+vector is pointing.
+And it is by the way seen that even
+after this change the closest vector to
+your position embedded vector is your
+original vector. the original ve if you
+look at the the distance between the tip
+of the original vector and tip of the
+resulting vector after you add position
+embedding the distance between those two
+vectors will still be smaller than
+distance between the new vector and that
+vector for dog and the new vector and
+the vector for apple. So this new
+position embedded vector is still
+closest to the vector cat in 99.99
+percentage of the cases. There is one
+more way in which you can visualize the
+same idea. Assume that your embedding
+space is three-dimensional.
+What we are saying is since the number
+of examples is very small the the total
+regions of the space our examples are
+spanning is very less. So so we can
+imagine that your your third axis is not
+even being utilized. So you have one
+example of a cat which is pointing in
+this region of the space in two
+dimensions. Another example of let's say
+embedding of a dog which is pointing
+into this direction. And you can imagine
+that when you add a position vector to
+cat
+that position vector will make the
+resulting cat pointing also into the
+third dimension.
+So there is no way and there are no
+other vectors which are generally
+pointing in this direction which means
+the new vector is not really near the
+near any other vector embeddings. So if
+this original one was that of a cat
+and if this was that of a dog I'm
+waiting of a dog the new vector
+corresponding to cat after adding
+position information it is still close
+to cat it is not close to dog even now
+right and this principle which you can
+visualize in small number of dimensions
+like two or three dimensions extends to
+larger number of dimensions also in fact
+associated with GPT paper they had uh
+performed certain experiments And what
+they did was they took some 2,000
+example words and um what they see was
+the closest vector even after and they
+had 128 positions basically that many
+positions four position embeddings um
+and even after adding any of the
+position embedding to any of these words
+the resulting vector in 99.999
+percentage of the cases is closest to
+its original embedding than to any other
+embedding in that space.
+One more thing that they found is the
+um the position vectors which we are
+adding it's only spanning primarily it's
+only pointing into 10 out of 768
+dimensions available.
+And if you think about what about uh
+these 10 dimensions are the original
+vectors pointing into this these same 10
+dimensions where your position vectors
+are also in general pointing to only
+04%age of the spread of the original
+input embeddings are there towards the
+direction towards these 10 directions of
+the directions which your position
+vectors are pointing towards. So it is
+very very unlikely that when you add
+position information to a dog the dog
+will suddenly become cat. That is very
+very unlikely. That is that is the
+takeaway from this. Okay.
+Now let's come back to the question. How
+do we inject position information? Where
+all can we inject? Are we always adding
+a position vector to an input embedding
+or can we do something else? Look at
+this diagram. You must be very very
+familiar with this diagram by this point
+in this lecture series. You have a
+vector a word vector which you call as
+X. This is the input embedding. X is
+converted into quiry Q key K and value V
+by multiplying with query weights
+matrix, key weights matrix and value
+weights matrix. So ignore this plus this
+R this R this plus. Ignore it. You will
+see what it is in a moment.
+Then query and key you take dotproduct
+that these are the attention scores
+which you convert by normalizing and by
+applying a mask. If you if you want to
+have mass, multi head, attention uh you
+apply that and you take softmax to
+convert it into attention uh weights.
+Once you have attention weights, you
+multiply it with value. So attention
+weighted values are essentially the
+context vectors. So this output is the
+context vector. If you have n number of
+words at the input, n number of uh input
+tokens, you will have n number of
+context vectors. So this is the simple
+attention mechanism formula uh
+demonstrated in a visual way.
+Now this is one place where we can embed
+position information into the incoming
+words. You can simply add a vector
+corresponds to position. So this is what
+I mentioned earlier. You add a position
+vector to incoming embedding. This is
+this is one thing we will discuss today.
+And this is part of you can there are
+two ways in which we can do that. We can
+add sinosidal position embedding or we
+can add learned position embedding. The
+second place where we can do which is
+part of Shaw embedding uh which is a
+relative position embedding is we can we
+can do this with the key vectors. So we
+will have keys and we can add something
+to the key to say that with respect to
+query the key is this much far away.
+It's plus two ahead or it is minus two
+behind something like that. We can also
+add key embedding to value which I will
+show you in a moment. So this also we
+will discuss. Sorry, we can also add
+position to value which we will discuss.
+Another position embedding which is very
+very famous is rope or rotary position
+embedding which is applied to quiry and
+key. So you rotate query and key before
+you take the dot product. We are not
+going to discuss rotary position
+embedding in today's lecture that we
+will discuss in the next lecture. So
+that is one thing and aliy that also we
+will discuss in the next lecture. We
+will see how exactly aliy modifies the
+query key.
+And as I mentioned this uh relative
+position embedding uh proposed by Shaw
+and others that also that is not just
+modifying the key it can also modify
+value vectors. Okay.
+So these are the position embeddings
+that we are discussing. One more
+position embedding that we will be
+discussing today is called T5. So T5 is
+actually not a name of a position
+embedding. It's actually the name of the
+architecture which was proposed in the
+paper where they tried this. So this is
+also a relative position embedding very
+similar to the the mechanism proposed by
+Shaw but here you are not changing the
+key or value vectors but rather you are
+adding a constant uh you're adding a
+scalar to the quiry key dot product. So
+obviously when you are adding something
+to the quiry dot key quiry dotkey is
+already a dot product. So when you are
+adding something to it whatever is being
+added is a scalar it's not a vector. On
+the other hand, when you are adding
+something to the key or when you adding
+something to the value or when you are
+adding something to your incoming
+embedding, all of those are vectors
+because when you add something to a
+vector, the added item also has to be a
+vector. On the other hand, rotary
+position embedding, it's a it's a
+rotation transformation. So, we will see
+that in the next lecture. Okay. So,
+these are the position embedding
+mechanisms that we will be discussing in
+uh today's lecture and next lecture
+combined.
+So first let us look at the absolute
+position embedding mechanisms which is
+the part two of today's lecture. So
+within absolute position embeddings
+we'll be looking at two mechanisms and
+the first mechanism is learned absolute
+uh positions. This was used in the GPD2
+paper. This was also used in the bird
+paper but by the way it's also a very
+famous paper although it was not a
+generative model. It was a mass language
+modeling based paper. It's equally
+famous. And in both of these cases, the
+position information will be injected
+right at the level of input embedding.
+So input embeddings you modify by
+injecting the position information. All
+right.
+So the idea of absolute position
+embedding using a learnable table is
+this. you have around 50,000 tokens not
+50 the earlier in the earlier example I
+mentioned roughly 52,000 tokens more
+like more or less like 50k not like 52k
+but anyway doesn't matter 50,000 tokens
+roughly and uh you have each token
+embedded in a as a 768 dimensional
+vector so usually you you convert your
+um tokens into corresponding embeddings
+using this embedding lookup table so you
+have a table which has 50,256
+rows and 768 columns like that you
+identify what should be the position
+embedding vector using a learnable
+table. So this table is learned through
+the process of training the GPT2 model.
+It has,028 four rows and 768 column. 768
+column you might be clear why is it why
+is that the case? Because the embedding
+dimensionality is 768. So the position
+embedding also needs to live in the same
+space. So it has to be 7 of 768
+dimensions. But why is this 1,024?
+If you have 50,257
+tokens, don't you need that many rows?
+Don't you need 50,256
+57 rows uh in the position embedding
+table also?
+You don't need that. The reason is
+because of the context window size
+because the [clears throat] in the
+forward pass of GPT2 it is not going to
+process all the 50,257 tokens at once.
+maximum it will process only,024 tokens.
+So if the context window size is,024
+tokens, you only need to have
+information about that many positions
+because at any given point of time you
+will have positions starting from 0 to
+10,023. So your position embedding table
+is also it looks like a table uh like,24
+rows and 768 columns. And what is done
+is if your if your token is if your word
+is let's say dogs let's say this is the
+token you're looking at you will see
+where is the row corresponding to dogs
+and you will see that first you will
+convert this into a token ID and then if
+the ID is let's say uh 3,800
+you will look at the row number 3,800
+and find the vector corresponding to
+dog. Now if this token is appearing in
+the position number three in your uh
+input sequence, you will look at this
+row. You will look at this row of the
+position embedding table. Then what you
+do is these two vectors
+you will add with each other. So the row
+corresponding to docs which is let's say
+the row number 3,800 from your token
+embedding table and the row
+corresponding to position number three
+which is this row in the position
+embedding table there that you will add
+element by element. So each dimension
+you will add up to get a resulting
+position embedding injected uh embedding
+which is of again 768 dimensions. So
+this is how GPT2 works but you can
+obviously see the problems with this
+very soon. Uh this is just a visual
+showing the same thing. This is the
+original embedding of the dog showing in
+a lower dimensional space. This is the
+learned position embedding. If you are
+in position number one and this is the
+result versus if you are in position
+number three, this is what you will add
+to the input embedding. So when you add
+these two, you get this. When you add
+these two, you get this. Okay.
+Now what is the problem with this
+approach? The problem with this approach
+is that what if your context context
+window size is you are planning to
+increase the context window size. What
+if you want to increase it to 1,100
+now you need additional position
+embeddings corresponding to,24th
+position,25th
+position up to,99th position. These
+additional positions which resulted from
+increasing the size of your context
+window, you don't have any vectors any
+learned vectors corresponding to this in
+your learned position embedding table.
+And this is this was one of the
+limitations of GPT2.
+And this is the limitation that
+sinosoidal position embeddings was
+trying to solve.
+So in s and cosine embeddings uh you
+have a formula which may look
+intimidating when you look at it for the
+first time. But it's actually trying to
+do something very interesting. The
+interesting thing is if your context
+window is increasing to beyond let's say
+1,000 or beyond 2,000 be or beyond 3,000
+etc.
+you should have the ability to produce
+unique position embeddings for those
+additional new positions. Right? So if I
+increase my context window by another
+500, I should be able to have a unique
+position vector defined for that
+particular uh position. So the idea here
+is that if we can use a deterministic
+formula which will produce a set of
+numbers uh for each dimension of the
+embedding, we can use that formula
+irrespective of whether my context
+window size is small or big. So I'll
+just show you with one example. Okay. So
+this formula you should also be able to
+see in attention is all unit paper where
+dimen they mention what kind of position
+embedding are they using. So the formula
+is if we have a let's say eight
+dimensional embedding
+for simplicity
+you can calculate what the number should
+be for a given position for all the
+every single one of those eight
+dimensions. So the goal is to produce a
+number like this.
+So see this is a vector an 8dimensional
+vector and this 8dimensional vector is
+corresponding to one particular
+position. What position is that? So we
+are calculating this 8dimensional vector
+for an example of position number two.
+Position number two meaning token
+uh the first token followed by the next
+token. So uh position start with zero.
+position number zero, position number
+one, position number two.
+And how do how do you come up with a
+vector that looks like this? What's what
+what is the calculation behind this? And
+how does
+what ensures whether if I change the
+value of the position whether the vector
+becomes another unique vector. So this
+is the formula
+for for your vector. The value depends
+on whether the position is an even
+number or odd number. What are even
+numbers? Uh not the position whether
+dimension is an even number or odd
+number. So if I have an 8 dimensional
+vector the dimension 0
+dimension 2 4 6 they are odd dimensions
+and sorry even dimensions and 1 3 5 7
+these are odd dimensions.
+So if if it's an even dimension,
+the formula that is used to calculate
+the corresponding um value corresponding
+position embedding value for that
+dimension is sine of position divided by
+10,000 raised to 2i by D.
+A fairly complex I mean complex looking
+formula you don't know why there is
+10,000 what is this 2i by D? Lot of
+questions you may have. I will show you
+one graph immediately after I show you
+this calculation. then uh the graph will
+make a lot of sense. So first let us
+plug in numbers. What is the value of
+position? Pause position equal to
+um two.
+So the value of position is
+is equal to 2
+10,000 let it be there 2 I by D. What is
+2 I by D?
+Now by the way please note that this
+formula applies only to u dimensions
+that are of even values. If dimensions
+are of odd values the formula is
+basically cosine of
+position divided by 10,000 ra to 2 I by
+d. Okay.
+Now let's look at by starting with i =
+uh z. So if i is equal to0 the formula
+for the
+um even position is this. So 0 is an
+even not position 0 is a dimension that
+is uh even so 2 i by d value will be 2 *
+0 divided by d where d is equal to 8
+that will be zero. But when you jump to
+here you should not you're not
+increasing the value of i instead you
+are now looking at the other formula
+cosine formula. So basically if you look
+at this whole table
+these are the eight dimensions and these
+are the values of the position embedding
+corresponding to those eight dimensions
+for position equal to uh two. Okay it's
+an example you can calculate this for
+position equal to zero position one
+position three any position. Now these
+are the the ones shown in circle are
+calculated using the sign formula. The
+ones shown in squares which are odd
+dimensions are calculated using this
+cosine formula. So first let's focus on
+the sign formula. When i is equal to0
+you get 2 i by d=0. When i is equal to 1
+you get 2 i by d = 2x 8 which is 1x 4
+that is 0.25. When i is equal to
+2 you get 4x 8 which is.5. And when I
+equal to 3 you get 6x 8 which is 3x4 or
+or it's also 75.
+Same thing also applies for cosine
+because in cosine the value of 2 I by D
+is the same. It's just that for even
+position it's a for an odd position the
+formula has a cosine value. For even
+position it's a sign value. So once you
+have 2 I by D you can calculate the the
+divisor. So divisor is nothing but
+10,000 to 2i by d. What is 10,000 to 2
+by d? First of all, 10,000 is 10 to 4
+and 10,000 to 2 I by D is 10,000 to 4
+the whole to 2 I by D
+and we can rewrite this as 10,000 ra to
+sorry 10 to um 8 I by D right
+and this part is very easy now uh so
+when I equal to0 and if D and D is 8
+right so basically this is 10,000
+to 10 to um
+I
+so when I equal to0
+the divisor is 10 to0 which is 1. When I
+is equal to 1 the the divisor is 10 to 1
+which is 10. When I = 2 it will be 100.
+When I equal to 3 it will be th00and.
+So if you look at the s and cosine
+formula
+you can you can see that
+these two dimensions so this is a pair
+of odd and even and odd dimension they
+have the same divisor these two
+dimensions they have the same divisor
+but the value of divisor has increased
+these two have same divisor these two
+have same divisor 10,000 to 2 by d
+and now what is this total value inside
+cosine it is position divided by 10,000
+to 2 by d. So the value of what is there
+in the s and cosine formula is given in
+this table. So the value of um the
+dimension number zero for position
+number two is sine of 2. Sine of 2 is
+0.91. For the second uh for the
+dimension number one you have to switch
+to cosine formula. It is cosine of 2
+which is minus 42. For third one it is
+sine of 02 cosine of 02 and you you can
+imagine why sine of 02 is 02 itself
+because s of a small number
+approximately equal to that that number
+itself. So here it is s of 0.02 it is
+that number itself. Now let me show you
+instead of showing you a big table I'll
+first show you a graph then I'll come
+back to this. Okay.
+Now this graph explains
+what the position embedding for a given
+for any position for any dimension looks
+like. So here I'm only plotting sign
+graphs. The cosine ones I'm not
+plotting. That's the reason why here you
+can only see dimension zero, dimension
+2, 4 and six. But dimension one,
+dimension three, dimension five,
+dimension seven also is needed. But
+dimension one is basically if this is
+the sign graph with the same frequency
+you will have a cosine graph. First of
+all just think about it for dimension
+zero what is the what is this graph?
+What is the x-axis? x-axis is position.
+You need to create position embedding
+for let's say if your context window
+size is 1,000. You need to create
+embeddings for all 1,000 positions.
+And in this case we are assuming that we
+are having a eight dimensional vector.
+Okay. So what will be the vector
+embedding
+corresponding to position number zero
+the vector embedding will be collection
+of all these values
+the strip of the first you know you see
+these black dots collection of those
+values of course for odd dimensions you
+will have the these dots picked up from
+the cosine graph these are only showing
+the even dimension you also have the odd
+dimensions obviously those two
+dimensions you need to construct the
+full eight dimensional uh vector
+embedding for position zero for position
+zero Meaning for whichever token comes
+at position zero, this particular
+embedding vector will be uh position
+embedding vector will be added to it.
+Look at the next one or if you consider
+position let's say 1 2 3 4 5 6 for
+position six your embedding vector would
+look like a collection of these dots.
+The numbers resulting from these dots
+uh and these are for the even
+dimensions. You should also consider the
+numbers coming from the cosine graphs of
+these corresponding graphs which are the
+odd dimensions.
+Now what is happening is when you're you
+know although this is repeating
+frequently the numbers in this graph is
+repeating more frequently. So you might
+think that oh for my dimension zero the
+the the numbers might repeat because
+this graph has a very high frequency
+but it does not mean that your embedding
+will repeat. Your embedding has to be
+unique for no two positions should have
+the same embedding. And you know what
+ensures that you look at the later
+graphs. So this is actually not a
+straight line. This is actually a
+sinosidal graph with frequency very very
+small. The dimension number four it is
+actually cinosidal graph with an even
+with a know with a slightly higher
+frequency than this previous one.
+Dimension two is also a sinosidal graph
+but you know a small frequency. So what
+is happening is even though the values
+in this dimension zero may repeat for
+position 0 and let's say position 1,00
+that won't happen for later dimensions.
+For later dimensions it takes a long
+time before the value repeats because
+the the frequency is very small which
+means the vector itself won't repeat
+because of uh having such a low
+frequency in in higher dimensions. So
+this graph is like a very clever
+mathematical way to construct embeddings
+that are unique. Are they unique in
+every single dimension? No, not
+necessarily. But overall as an embedding
+it will be unique because there will be
+some of the dimensions which are
+completely unique.
+So this the dimension six for example
+here the values will never repeat but
+for but in dimension zero some value
+will repeat. So here it is written it
+repeats every 6.3 positions. So by the
+time you you track around 20 positions
+when you go from position 0 to position
+20 three times the same value would have
+repeated. So this is the value this
+value would have repeated here that
+value would have repeated here but that
+value would have repeated here rather
+four times.
+But if you look at the same thing in
+dimension two it repeats only once in
+every 62 positions. So for a number in
+dimension two to repeat once you start
+with position zero you have to go to
+62nd position only then a number will
+repeat.
+So yes in some dimensions the numbers
+repeat but overall when you look at the
+overall position embedding vector even
+though the dimension zero may repeat in
+some of those vectors the dimension two
+has a lower likelihood to repeat.
+Dimension four has an even even lower
+high likelihood to repeat. dimension six
+has very low likelihood to repeat and if
+this is a very high dimensional space
+the chances of the dimension repeating
+itself uh becomes very very low and if I
+go back to a graph which I had shown in
+the first slide of this lecture I don't
+know how many of you noticed it if you
+look at this graph this graph shows
+exactly that
+just just look at this graph this color
+map is literally showing the position
+embeddings of a 32dimensional vector for
+48 the eight positions. So this is
+position zero.
+Um this first first row is position
+zero. Let me open the tab.
+The second row is position one, position
+two and up to position 48. And each row
+is a vector 48 dimensional vector. And
+look at the first dimension. In the
+first dimension you can see values are
+changing rapidly as you see from this
+color map. Whereas in later dimensions
+the the rate at which values are
+changing is very low. It may look like
+the colors are the same but actually
+there's a fade change in the color which
+you can't perceive. Like for example if
+you look at this one the color is slowly
+changing just like how the wavelength of
+the graph is very big. The same color
+has not repeated in throughout this
+column anywhere because the color is
+still gradually changing. But maybe in
+the first column the color has repeated
+multiple times. In the second column
+maybe color has repeated maybe slightly
+lesser number of times. In third column
+also the color may have repeated once or
+twice. But as you move to the rest and
+rest of columns no color will repeat.
+The color is slowly changing. And here
+you might think oh this is entirely
+white. But that is because we have
+limitation of showing the color. But
+actually what's happening is that the
+color is faintly changing. And as a
+result if you look at any given vector.
+So this is the vector for position zero
+and this is let's say
+the vector for another position.
+You may see that for this dimension and
+for this dimension the values might be
+the same for this dimension and for this
+dimension the value might be the same
+but for the few the rest of the
+dimensions although they look similar
+they are not exactly the same. The
+values are there is subtle difference in
+the values. So this is how unique
+position embedding vectors you can
+create um for large number of positions.
+So this can handle even you know very
+big context windows. So let me now go
+back to our
+original slide. We were at slide number
+20.
+Yeah.
+Okay. Now let let's go back to this
+previous table. Now you should be able
+to have you know visualize how position
+embedding is calculated. So now this is
+for position zero, position one etc up
+to position five. I could have shown up
+to position 8 but then the page will
+become too crowded. So here we are
+showing basically a sixdimensional
+vector
+and each row is one vector. The first
+row is the position uh is the vector
+corresponding to position zero. Last one
+is vector corresponding to position uh
+five. And uh you can see this the
+dimension
+0 dimension one. So dimension 0 is sin
+cosine sin cosine sin cosine sin cosine
+and if the sign value is zero
+corresponding cosine will be one. If s
+is 0 cosine will be 1 sin is zero cosine
+will be one. So the square root of this
+uh the square of this plus square of
+this will always be one because sin
+square plus cos square of one number is
+always equal to 1. So you will see 96
+square + uh minus.96 square + 28 square.
+We can do it 96
+to 2 +
+28 raised to 2. This should be
+approximately equal to 1.
+It's equal to 1. Right? So uh everything
+checks out mathematically.
+And here you see that
+uh and by the way these numbers are
+rounded off numbers. Okay. Um like so
+here in for example in dimension five
+you have uh 0.04 04 here and it is this
+is one but actually this is not one this
+is 0.99
+something but I have I have just written
+it in a rounded off manner but of of
+course this number is unique this number
+is not exactly equal to one so when you
+see it it may look like exactly same
+number but it's actually not an exact
+same number and how is this calculated
+this is this number what formula did we
+use to calculate sine of
+position what is position 0 divided by
+10,000 raised 2. So 10,000 is was 10.
+What? 10 to 4 raised to 2 I by D. What
+is 2 I? 2 * 0. And what is D? D is the
+dimensionality which is 6 in this
+example. So 2 * 0 / 6. So that is how
+this was calculated. How is this
+calculated
+or no not that? Let me pick another one.
+How is this calculated?
+That is a which dimension? It's
+dimension number three which is odd
+number. So it should be a cosine
+formula. that is cosine of
+um position. What is position? Position
+four. So 4 divided by 10,000
+raised to 2 I by D. Uh sorry uh yeah 2 I
+by D. What is the value of I? Value of I
+because this is position uh 2 and 3 is
+equal to 1. So 2 I will be 2 * 1 which
+is 2 itself and D is 6 to 2x 6.
+So this is the formula which resulted in
+this. So you can calculate this is how
+you can calculate the uh position
+embedding vector for any position. And
+what you do once you have the position
+embedding vector same thing which you
+did earlier you have your original
+embedding to your original embedding you
+will uh add your position embedding
+vector and this will give you the final
+um embedding.
+All right. So that is the s and cosine
+embeddings and this was used in GPT
+paper and I'm sure we can come up with
+probably other formulas also. But look
+at what is happening when we add this
+position embedding. You have word the
+the original input embedding plus
+corresponding position embedding and you
+you multiply this with query weights
+matrix and this is the query. This
+resulting thing is the query Q.
+Similarly, you have input embedding
+plus position information added and that
+this is key, right?
+That is multiplied with keyways matrix
+to to get the key. So, this is basically
+QI
+and this is KJ
+key corresponding to the token number J.
+But when you multiply this, if you
+expand it, you will see that earlier if
+position embedding was not there, you
+will simply have these two terms. You
+will have the word transformed into
+query using query based matrix. The the
+word J transformed into key using key
+matrix. But now here we will have
+additional three more terms where the
+position term is coming into picture. So
+here position is coming into picture.
+Here position is coming into picture and
+here also position is coming into
+picture. So now in the query.key
+transpose which is the attention score
+formula attention score calculation.
+Originally if position embedding was not
+there it'll simply be the transform
+versions of word. Basically quiry and
+key quiry dot product with key that's
+all. But here it won't be just the query
+and key resulting from the original
+token. It'll be original token plus
+position converted into query and key.
+When you take the dot product you will
+basically you can imagine there are
+these three additional terms and because
+these three additional terms are there
+obviously your query dot product with
+key which is attention score will be
+different. So this is how the earlier
+problem which we mentioned is solved.
+Earlier we mentioned that all dogs are
+animals and all animals are dogs. The
+when dogs is the quiry in both of the
+sentences the attention and let's say
+animals is the key the attention score
+has to be different when you take dot
+product between query and key in those
+two sentences and this is indeed how it
+happens.
+Now let's move on to the part three of
+the lecture which is relative position
+embedding and this is this part is
+fairly easy.
+So the idea of relative position
+embedding is the following. You may have
+a very big context window and in the
+context window maybe you have two tokens
+that are appearing such that
+they appear close to each other or they
+appear in two relative positions that
+are the same. For example, in the
+context window the dog chased this kind
+of term can appear at an earlier
+position position one and two
+respectively. And the same thing can
+appear sometime later in the context
+window also in the same context window.
+Let's say in position 101 and 102 also
+let's say the same thing is appearing.
+So what really matters is sometimes to
+capture the meaning of words what you
+are not looking at is whether whether
+this word is in the 100 position or not.
+What you're really looking at is what
+are the other words that are close to
+this word. So the relative position
+between the words plays a big role in uh
+in how humans you know understand the
+meaning of a sentence. It's not just
+about if you have a very long sentence
+or if your context window is very big,
+you can fit multiple sentences in the
+context window. So, but if you really if
+you really look at how humans are
+understanding the meaning of sentence or
+meaning of groups of words, the way we
+understand it is we see the words and
+and we we look at what are the other
+words next to it. So, the relative
+position between the words within a
+sentence or within a context window
+might have more importance compared to
+absolutely where where are they present?
+Are they present in the second half of
+the context window or are they present
+in the first half of the context window?
+Maybe it does not matter this this
+probably does not matter in deciding the
+meaning or the context of the the the
+words. Right? So that was the idea
+behind people thinking uh maybe we
+should define relative position
+embeddings. So the first relative
+position embedding was introduced uh in
+this paper by Shaw and others self
+attention with relative position
+representations. Ashish Baswani the name
+you will recognize he is part of uh the
+attention is all unit paper.
+So where is this position embedding uh
+injected is where is it being injected?
+It is being injected primarily into the
+key of the uh key corresponding to the
+token. So you should have many questions
+like why is it only into the key? Why
+not into the query why not into the
+value? How does it work etc. So let's
+look at that.
+So relative position embedding uh in
+this Shaw at all paper it only restricts
+to primarily
+five position embeddings five learned
+position embeddings.
+Okay. So if let's say this is the query
+that the if we are considering query
+corresponding to dream and let's say
+these are all the keys basically token
+converted into query and token converted
+into key the distance between dream as a
+query and dream as a key is zero. So we
+need something we need a learned vector
+for distance equal to zero. So we will
+have a learned vector that vector will
+live in the same dimensional space as
+that of quiry key value space. So if
+quiry key value space is of 384
+dimensions you will have a learned
+vector corresponding to relative
+position of zero which will live in the
+384 dimensional space. Right? So as you
+can see here for all the diagonal
+elements the relative distance between
+query and key is zero. So all of these
+will have the same uh same learned
+vector.
+What about the distance between dream as
+a query and big as a key? So big is
+coming
+right next to dream. Right? The position
+of big is + one or to the right side of
+dream. So this is classified into a
+bucket which we can call as a plus one
+bucket but that is actually literally a
+a a new learned vector corresponding to
+distance equal to + one. Now here I have
+written it as + one in blue color but it
+does not mean that it's a number. What
+I'm trying to show is there will be a
+vector living in 384 dimensional space
+or whatever is the dimensionality of the
+quiry key value space. In that vector
+there will be a learned vector which
+will be learned during the process of
+training this neural network. and that
+that vector will apply to those query
+key value pairs whose distance is plus
+one. So if I ask you what would what is
+the distance between and as a query and
+work the distance is plus one as written
+here
+and which will be the vector
+corresponding to that that we'll pick
+we'll pick this vector. So now all of
+these quiry key value uh sorry quiry key
+pairs belong to relative distance of +
+one and they will all map to uh you know
+uh the position embedding corresponding
+to all of those query tires will be
+position corresponding to this + one uh
+the the learned vector corresponding to
++ one. Same thing applies for minus one.
+What is minus1?
+minus one is if the key if the position
+of the key it's to the left of if is one
+step to the left of the query. So if
+dream is your query
+and uh or rather if big is your query
+and dream is your key dream is coming
+before big which means to go from query
+to key you are taking one step
+backwards. So we we denote all of those
+query key pairs as minus one for and for
+corresponding to minus one also you will
+have a learned vector. Now is this this
+much is okay right now is the
+interesting part. Look at the plus2 for
+everything else you are assigning plus2
+distance. So what we are doing here is
+whether the distance between quiry and
+key is + three or plus4 or + 5 or +2. In
+all those cases the distance we are
+capping at plus2.
+Similarly, if the distance between query
+and key is minus2 or minus3 or minus4 or
+any other negative big number, we are
+capping it at minus2. What we are saying
+is if the relative distance between two
+tokens are too big or too small, we
+don't we don't take that huge relative
+distance. We cap it at a maximum number
+or minimum number. And there will be a
+there will be a corresponding learned
+embedding learned position embedding
+corresponding to that. So totally how
+many learned position embeddings will be
+there? one corresponding to zero, one
+corresponding to minus1, one for + one,
+one for minus2 and one for +2. So total
+five learned embeddings are the only
+thing required irrespective of whatever
+is your context window size because for
+a given query if you look ahead or if
+you look behind you're only considering
+maximum plus two distance ahead or
+minus2 distance behind. So for any given
+query you just need five uh relative
+position embedding vectors and because
+this is relative position embedding
+vector with respect to query you don't
+have to modify the query itself
+because you are you are saying quiry is
+my origin I'm looking from the point
+where quiry is and I'm just trying to
+see where my key is is the key plus one
+distance away is it plus2 distance away
+or is it at plus0 distance away or is it
+minus1 minus2 where the key
+So the only parameter that we have to
+modify here to modify the attention
+scores is key. You don't have to modify
+the query. So what is done is in the
+equation when you calculate attention
+score you are basically adding a learned
+vector
+to the key. You are not adding it to the
+query. So basically quiry dotproduct
+with key plus the learned vector. What
+is the learned vector? learn vector.
+Whatever is the learn vector we pick out
+of these five vectors, it will depend on
+what is the distance between query and
+key
+and we can also have a learn distance
+between uh query and value which we can
+add to the value also. So the inaw paper
+we can do that also that I had shown you
+as a graph in the very beginning.
+So um so for example this is how you
+will use it uh how you will implement
+it. So the sentence that we were looking
+was dream big and work for it.
+And uh so if we are considering quiry as
+it. Okay. So if I write the sentence
+here dream
+am big
+and work
+for it. Now if quiry is it and key is
+and and is here. What's the distance
+between query and key? It is -1, -2,
+minus3. But minus3 we will not use. We
+will clip it at minus2. Right? We say we
+are maximum considering only a print
+till minus2. And corresponding to minus2
+there will be a learned position
+embedding vector. Here in this case it
+happened to be something that looks like
+this. So that learned position embedding
+vector corresponding to minus2 position
+distance we will add with the with a key
+to get the new key. So this is now the
+new key and query is not modified. Query
+is still the same. And when you take the
+dot product between query and key you
+will get a score of something like
+minus.59 because dot product is
+basically a scalar. What if you consider
+query as big and key as and so big is
+this and is this. What's the distance
+between them? Distance between them is +
+one. So if the distance between them is
++ one you will have a distance uh you
+will have a position embedding vector
+corresponding to + one distance that is
+this that you will add to the key. you
+won't add it to query. So what is the
+key? Key was and. So this is the key you
+are adding the position vector along
+with the key. So this plus this. Now
+this is the new key
+and that key you will take dot product
+with the query unmodified query. This is
+the unmodified query to get the dot
+product which is the scala dot product
+query.pose
+which will be here uh this number. So
+this is how qu the key is modified in
+relative position embedding introduced
+by Shaw and others. There is one more
+position embedding relative position
+embedding which I want to discuss in
+this lecture and that will be the last
+one today is relative bias introduced in
+the T5 paper. So uh it is the paper is
+called T5 because um it's transfer learn
+transfer learning with unified text to
+text trans uh texttoext transformer or
+transfer learning or something. uh I
+have written it in one of the slides.
+Yeah. So text to text transfer
+transformer. So TT TT. So T5. So that's
+the reason why this paper I mean the
+model in this paper or the the
+architecture in this paper was called
+T5. But architecture is not what is
+mattering. What matters here for us is
+what kind of position embedding they
+used. So the position embedding was
+looking like this.
+So interestingly this time the position
+embedding is added directly to the dot
+product between query and key. So you
+might wonder oh how is position
+embedding added to uh dot product
+because dot product is a scalar right
+and so far we have been discussing about
+embedding in position embedding in terms
+of a vector. How can you add a scalar a
+vector to a scalar? You can't. So
+actually here what is added is not a
+embedding. Here what is added is a
+number. So for certain positions we
+calculate a number that number is added
+into the dot product between query and
+key. So now the question is how are we
+considering relative position bias in
+this particular example and that's the
+reason why it's called as a bias right
+bias is usually one number. So that bias
+is helping us uh change the value of the
+dot product between quiry and key. So
+how is this bias calculated? Let's see.
+So the idea is very similar to what you
+saw earlier. Okay. So don't get
+intimidated by seeing a lot of these
+numbers. It's fairly straightforward.
+Look at the distance first of all.
+Distance between query and key. How many
+distances are possible? So if quiry is
+dream, the distances possible are you
+can have 0 + 1 + 2 + 3 + 4 + 5 in this
+particular case. Similarly if quiry is
+it
+compared to it you can have um minus1 -2
+-3 -4 - 5 zero also is there. So here
+the range of values are um basically for
+corresponding to one particular query
+you can have um distances in in that
+range.
+So if the key is belonging to the left
+side of query. So if the distance is a
+negative number so for example if
+distance is minus1 minus2 -3 -4 - 5 etc.
+we will consider these buckets.
+Okay. So basically for all negative
+numbers we will consider bucket number 0
+to 15. For all positive numbers we will
+consider these buckets. Bucket number 17
+to 30 31. What are these buckets?
+Previously we had five buckets. Bucket
+four +2 minus2 + 1 - 1 and zero.
+Similarly here we are having 32 buckets.
+So instead of five we will have 32
+buckets. Okay
+32 what does 32 buckets simply mean? 32
+buckets mean for each bucket there will
+be one number that is learned as the
+relative position bias. However, one
+more additional thing is this is
+implemented per attention head. So for
+each attention head you will have 32
+buckets or 32 numbers that are learned
+learned relative position bias. So if
+you have 10 attention heads you will
+have 32 multiplied by 10 320
+unique uh relative position number uh
+position bias numbers learned. But how
+are we applying this and and how does
+this uh and to which kind of query key.p
+products we are applying this. This is
+how.
+So if you look at the if you look at and
+as the query and big as the key what's
+the distance between and and big if and
+is the query and big is the key the
+distance is minus one. So if the if the
+distance is minus one uh it is basically
+the the the absolute magnitude of
+distance is basically one right if you
+if you forget the sign and since the key
+is coming before the query since key is
+in position number one and query is in
+position number two you are now looking
+at these blue buckets from the blue
+bucket if the distance is one you will
+consider bucket number one and
+corresponding to bucket number one there
+will be a learned learned relative
+position bias a number a number like
+0.63 something like that
+and for all such positions. So now if
+you look at the uh if you look at all
+these numbers
+these are all cases where between quiry
+and key the distance is minus one but
+I'm showing here one because minus1
+is mapping to bucket number one. These
+are all pairs of queries and keys where
+the distance between query and key is
+minus2. But if it is minus2, it maps to
+bucket number two.
+Similarly, if it is minus3, it maps to
+bucket number three. If it is minus4, if
+the distance between query and key is
+minus4, it maps to bucket number four.
+Similarly,
+look at uh the case where you have
+distance equal to zero. The reason why
+we don't have bucket 16 is if the
+distance is zero, you don't need two
+buckets. You just need one bucket
+because there is no plus 0 and minus0.
+So you just need only one bucket. So for
+for that reason if the distance between
+query and key is zero which means if
+quiry and the key are originating from
+the same tokens the distance between
+them is zero. Right? If it's the same
+token you only focus on bucket zero.
+Bucket 16 does not exist.
+Now what if the distance is plus three?
+What would be the bucket? If the
+distance is plus three the bucket would
+be bucket number 19.
+So if the distance is + three the bucket
+would be bucket number 19. If distance
+is + two you will look at bucket number
+18. So here 18 19 etc are are not
+distances. They are also not the numbers
+that we are adding that is just the name
+or just the ID of the bucket
+corresponding to that distance. But each
+of this bucket will be associated with
+one scaler. So bucket number 31 might be
+associated with a scalar like 0.613.
+Bucket number 27 might be associated
+with a scalar minus0.132.
+And how uh and the way we decide whether
+this should be the relative position
+bias or this should be the relative
+position bias depends on whether the
+distance between my um my query and key
+is belonging to this particular bucket.
+And by the way, why are we calling this
+as a bucket? This is the reason. If the
+distance is 1 2 3 4 5 6 7 or zero, you
+have unique buckets for each of them.
+Okay. However, as you move farther away,
+if the distance is 8 9 10 or 11, they
+all belong to the bucket number 8 or
+bucket number four. Depending on whether
+it is + 8 or minus 8. So if it is - 8, -
+9, - 10, - 11, you look at bucket 8. If
+it is + 8, + 9, + 10 or + 11, you look
+at bucket number 24. And you can see
+that these buckets are widening. This
+bucket is 46 to 63. This is 64 to 90.
+The last bucket is 91 plus anything
+else. So if your context window is
+1,000, let's say the distance between
+query and key is 300 plus 300. Your key
+is 300 tokens ahead of your query.
+What would be the bucket that it belongs
+to?
+It will belong to bucket number 15.
+Sorry, sorry, sorry, not bucket number
+15, bucket number 31. What if your uh
+key was 200 tokens behind your uh query?
+Since it is 200 tokens behind the query,
+the number that you're looking at is
+minus 200. And since here you are saying
+for 91 and above, if the absolute
+distance is 91 and above and if the key
+is to the left side of the query, you
+look at bucket number 15. So basically,
+you are you are having a logarithmic
+division of your distances of your
+relative distances. you are bucketing
+them and uh this this creates relative
+distance um relative distance bias
+scores which are trainable and that is
+also calculated per head. If you have
+100 heads if it's a 100 head multi head
+attention mechanism you will have 100
+multiplied by 32 that many buckets or
+that many relative position bias numbers
+and once you have the relative position
+bias number where do you add it? You
+simply add it to the dot product between
+query and key. I'll show you exactly
+where. So if this is our sentence dream
+big and work for it we can consider
+let's say it as the um quiry
+and key can be let's say any one of this
+so if it is the quiry quiry is over here
+right the distance between it and four
+is minus1 distance between it and work
+is minus2 between that it and and is -3
+-4 - 5 so -1 belongs to which one bucket
+number one -2 belongs to bucket 2 -3
+three belongs to bucket three. If it was
++ one, it was bucket 16. Sorry, bucket
+17. If it was plus two, it was bucket
+18. So here the buckets that we will
+have is 5 4 3 2 1. And each of these
+bucket will have a corresponding learned
+relative position bias. So these are the
+learned uh relative position bias
+corresponding to these buckets. That
+bias we will add to the dot product
+between query and key. And what is the
+dot product here? The dot product
+between query and key in this case is
+0.9. What is this dot? Dot product of
+query corresponding to it and key
+corresponding to dream is 0.9 plus
+minus.8 is equal to uh 0.1. So this is a
+new attention score between query and
+key. Which one is the query? Query is it
+key is dream. How does the dot product
+change when you are looking at and as
+the key? If and is the key the the
+relative position bias is minus.2. So 7
++ -2 equal to.5. So now these are the
+attention scores between quiry as it and
+all the keys before adding the relative
+position bias. After adding the relative
+position bias, this is how it would look
+like. So relative position bias
+introduced in the T5 paper actually does
+not introduce a position embedding
+vector. It rather introduces a bias
+score which is just a scalar. Okay. So
+that's all I wanted to discuss in
+today's lecture. So in summary, we have
+looked at learned uh absolute position
+embeddings. There were two of them. One
+was learned absolute and one was
+sinosidal. Learned absolute introduced
+the introduced the embedding table. But
+the the downside of that was if the
+context window size increases, you won't
+be able to you know create position
+embeddings for that. Sinosidal position
+embeddings have the ability to because
+it's it uses a s and cosine formula. you
+can handle very big context windows.
+Then we also discussed two relative
+position embeddings. One was introduced
+in the paper by Shaw and others. Uh the
+second one was introduced in the
+relative position T5 paper. Both were
+relative position uh embeddings. Sorry,
+not embeddings. Third one was a relative
+position embedding. Fourth one is
+actually a relative position bias. It's
+not an embedding. It's just a number.
+It's just a bias. Okay. And where were
+these things added? The learned absolute
+embedding is added to input embedding X.
+Sinosidal embedding is also added to
+input embedding X. Relative position
+embedding is added to um key. It can
+also be added to value. It is not added
+to query. Relative bias is added to the
+dot product between query and key. It is
+not added to neither the key nor uh nor
+the Q because it's not a vector. It's a
+scalar. So this brings us to the end of
+this lecture. uh I hope you have a
+fairly decent understanding of position
+embeddings or and how they are
+implemented in practice. One last thing
+I want to show which I had promised at
+the beginning of the lecture is the
+output quality difference between um the
+cases where you have position embedding
+and you don't have position embedding.
+So I will just show you that uh as the
+last thing and what we want to cover in
+the next lecture is rotary position
+embedding and albyi. So we will discuss
+that in the next lecture. But let's also
+spend a few minutes on the Google collab
+notebook now. So this is the Google
+collab notebook. I don't want to spend
+any time going through the code at all
+because uh that is not my intention
+here. I just want to show you one
+demonstration that's all. Okay. So here
+uh I'm showing you two cases. It's a
+tiny GPT like model uh trained on a data
+set called as tiny stories. So tiny
+stories is a very popular data set very
+short like paragraph level stories. So
+it's not even like a story. It's like
+few sentences which we call as a story.
+Now transformer architecture let's not
+spend any time on it because that is
+immaterial right now. Uh I mean it's a
+very very small transformer
+architecture. But uh what I want to show
+you are is one thing which is this
+graph. So this graph shows as the
+training proceeds how does the test loss
+look like with and without position
+embedding. So you can see that the gray
+color graph is without position
+embedding and blue color graph is with
+position embedding. You can see that
+when you have position embedding, when
+you inject position information, your
+network trains better. Surprising thing
+here is that the loss is not terribly
+low in the absence of position embedding
+because network can learn a few things
+even if you don't inject position
+information. But network won't be good
+enough. Although this graph does not
+look very different, the output I just
+want to show once I'll share the link to
+this collab notebook with you. So you
+can spend a lot of time on this
+notebook. But here are two outputs. One,
+the first output is without position
+vector and second is with position
+vector. You just read the stories
+produced by these two models and tell me
+which one looks better. First one reads,
+"Once upon a time there was a little
+bird named Lily." So far good. She loved
+to put She loved to put it. It was a
+fort. One day the sun both say it was so
+play. So it's not making any sense,
+right? There's no meaning. Whereas with
+position vectors, it's slightly better.
+Once upon a time, there was a little
+bird little bird named Lily. She loved
+to put it it on her bed, not took a big
+castle. One day she decided to go to the
+park and they put the fox. So story is
+still not making sense. There are
+grammatical mistakes and all but
+slightly you can see that the second
+version is slightly better. Uh on the
+other hand on the first one without
+position embedding one day the sun they
+both say it was so play with the with
+the should sometimes. So it's like just
+a collection of words no meaning.
+Whereas in the second one some meaning
+is there as she could have some special
+to park special to the park to put it it
+away. I mean the result is so bad
+because the the number of training steps
+I have run is very little because I I
+here we are not training a neural uh we
+are not training an LLM or SLM right
+now. Here we are just showing the
+difference in the case where you have
+position information you don't have. She
+was so happy to have a big fun playing
+in the park. Some sense is there. So
+when the position information is
+injected the output becomes more
+sensible as you can clearly see here and
+um obviously like I mean I don't even
+have to show you this but this is just a
+visual proof of what we have been
+talking about so far the importance of
+position embedding.
+>> So that's all I'll just share this link
+with you. Just take your time to go
+through it. Um uh no rush and um we will
+anyway if in the future lectures if if
+uh our our scope allows we can also go
+through some Google collab collab
+notebooks in detail that goes through
+the attention mechanism itself. So far
+we have not gone through any
+implementation detail of attention
+mechanism. We have looked at some of the
+self attention implementation classes in
+some of the previous lectures but that's
+that's the extent of our uh course so
+far in this lecture series. So thank you
+so much. This is a good time to end the
+lecture. We will meet again in the
+upcoming lecture on rotary position
+embedding albyi etc. And uh uh rope is
+by the way a very famous very popular um
+uh position embedding which was also
+used in deepseek model. So you will
+enjoy learning about it. Thank you so
+much. See you soon. Bye.

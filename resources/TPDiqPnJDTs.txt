@@ -1,0 +1,496 @@
+Hello everyone, today we will discuss instruction fine-tuning or instruction tuning.
+which is one of the key advancements in recent language modeling research.
+which enables us to have a conversation with language models easily
+Or, simply put, we can chat with language models.
+So, first, a quick review.
+So in previous weeks, we have learned about decoder-based language models.
+So such models are trained on vast amounts of text from the internet.
+Using the next word prediction task.
+As a result of this, these models learn to encode a great deal of information.
+About the world.
+They also have the ability to understand language to some extent.
+So these models are very powerful.
+They're pretty amazing, but we'll see in the upcoming slides.
+That they have some major limitations.
+One note: these pre-trained language models are also known as base models.
+So I'll be using the term "base models" throughout the lecture.
+So whenever I mention base models, it simply refers to pre-trained language models.
+For example, let's say we have been given the following prompt.
+What is the national flower of India?
+We have prompted the language model with this question.
+Now, what can happen is that the language model can generate the following response:
+What is the national animal of India?
+What is the national bird of India?
+So this response is nothing but the continuation of the prompt.
+And this is the result of the next word prediction that is happening.
+after the prompt.
+So here we see that the response contains questions that are quite common.
+which we can come across such questions on the web, where we see
+There is a web page on general knowledge questions about India.
+Such questions are very common.
+However, this is not the desired response.
+Because when we asked this question of the language model, we were expecting an answer.
+That is, the national flower of India is the lotus.
+This was the desired outcome.
+However, since the language model is just predicting the next word,
+So the response to a question could be that it may.
+or may not follow the question.
+May or may not.
+Might follow the instructions, might not follow the instructions.
+Because, as I said, it's simply just doing next-word prediction at this point.
+So the key takeaway from this slide is that next-word prediction,
+which is what is governing this response generation,
+That does not necessarily ensure that the model understands or follows instructions.
+So the reason we need instruction tuning is that.
+We want to teach the language models how to follow and understand instructions.
+So multitask learning is another very important paradigm in the natural language processing literature.
+So in classical multitask learning, what we do is combine multiple tasks.
+We train the model, the language model, on multiple tasks with the intention.
+that these models will have a positive influence on one another
+And thereby, the final outcome will be improved across all the tasks.
+So here, if we take a look at this example during training,
+There are two tasks: sentiment analysis and machine translation.
+These are two tasks with which we are training the model.
+So when I say I'm training the model, what I'm doing is.
+I'm simply passing the input-output examples corresponding to these tasks to the language model.
+There's no explicit notion or information that I'm supplying to the language model.
+Saying that, "Oh, this example corresponds to central analysis."
+This example corresponds to machine translation.
+No such thing is there.
+We are just passing the input-output examples, and that is the way.
+We are training the language model using multitask learning.
+Now, suddenly during test time, the language model encounters a new task.
+which was not there during training; for example,
+Here it is: COLA, which is the Corpus of Linguistic Acceptability.
+So what it does is that it's actually a task from the GLUE benchmark.
+So mainly, the task is to classify whether the sentence that I'm supplying is.
+Whether it's a grammatical sentence or not.
+So, to the language model, this is just a random example.
+And it has no idea what it is supposed to do with this example.
+So, as a result, the language model will have no clue.
+and will not generate a legitimate output in this case.
+Here, a major obstruction is that when I'm training the model,
+I'm simply passing the example.
+I'm not giving the language model any information about the task that I'm solving.
+Hence, when it encounters a new task during test time, it is clueless.
+Again, the takeaway from this slide is that using this approach.
+The model can only generalize within the training tasks.
+When it encounters a new task during test time or during inference,
+It struggles with it as it was not encountered during training.
+What could be a possible solution?
+Can we describe these tasks with instructions?
+Again, in this example, we can see that.
+Various NLP tasks can be expressed through natural language instructions.
+So for sentiment analysis, I can pass the instruction to predict the sentiment of the sentence.
+This is the instruction that defines the task, describing the task.
+instructing the model that what it has to do with the sentence.
+Action-packed thriller, and it predicts the sentiment is positive.
+Again, for machine translation, I'm explicitly mentioning it to the language model.
+That translates the sentence to Hindi.
+It has been raining continuously for the past few days.
+So, what would the Hindi translation be?
+So, like this, now when I'm training the language model,
+I'm not only supplying the input and the output,
+I'm also supplying and providing the instruction along with the input.
+And the idea is that we want to teach the language model.
+How to understand instructions, because if it can understand instructions,
+It can generalize across some arbitrary tasks that it has to solve during test time.
+And since we'll be describing the task, for example, during inference time,
+when we are now taking the COLA task,
+we are now describing the new task by an instruction.
+We are asking, is this sentence grammatical?
+We are asking the language model, and the language model is able to respond.
+That it is not grammatical.
+So here the change is happening that now when I'm giving a new task
+During the test time, I'm describing the task through a natural language instruction.
+And the idea is that during training, since we had supplied the language model
+with similar examples, which demonstrated how it is supposed to be
+to respond to such instructions,
+Now it won't fumble when it suddenly sees a new task during test time.
+And it would be able to solve it.
+So this is one of the goals of instruction tuning, where the idea is.
+That it should be able to generalize to new tasks seen during inference time.
+And these tasks will be described, and all the tasks will be described.
+by a natural language instructions.
+So with that, we can discuss: what is instruction tuning?
+So to consolidate what we have spoken about until now,
+so instruction tuning is a fine tuning technique.
+We fine-tune the large language model on instruction datasets.
+Instruction data sets have tasks and examples; this type of natural language instructions.
+So these data sets contain examples that demonstrate to the language model.
+that how it should respond to an instruction.
+So this boosts their ability to understand, reason, and follow instructions.
+And when it comes across a new, unseen task, it becomes better at handling it.
+So, in this slide, we have another example.
+So this is from the paper, "Fine-tuned Language Models as Zero-Shot Learners."
+Here we can see in the example that during training,
+We are instruction-tuning the language model using a variety of tasks.
+common sense reasoning, translation, etc.
+And for each of these tasks, you see,
+If we take a look at the translation example, we are first giving the instruction.
+Translate the sentence into Spanish.
+Then we have the corresponding sentence, which would originally be the input to the language model.
+The sentence we want to translate.
+The new office building was built in less than three months.
+And then the target is the translated Spanish sentence.
+So in instruction tuning, each example first has the instruction and the input.
+and output, these three components,
+Input is not always mandatory; sometimes, some tasks have input.
+Some do not, but the instructions will be there and the target output will be there.
+One thing is that the tasks are present here during training and inference.
+At this joint, there's no intersection between them.
+So during inference time, we see how it is performing on a new, unseen task.
+which, in this case, is natural language inference.
+So we have the premise that says that at my age
+You will probably have learned one lesson, and the hypothesis is.
+It's not certain how many lessons you'll learn by your 30s.
+And the instructions, so this is originally the input, the premise, and the hypothesis.
+Now the instruction to the language model is: Does the premise entail the hypothesis?
+In this instruction, we are describing the task we want the language model to perform.
+And from this, since the language model now has some understanding.
+of what it is supposed to do and how it is supposed to respond to instructions,
+It responds by saying that it is not possible to tell.
+So we are not sure whether it's an entailment or not.
+So again, the key idea here is through instruction tuning.
+We want to teach the language model.
+We're training the language model to execute tasks based on natural language instructions.
+such that it can adapt efficiently to new, previously unseen tasks.
+One more point that I would like to mention here is that this week,
+Prompting will also be covered.
+There's a distinction between prompting, context learning, and instruction tuning.
+In instruction tuning, we fine-tune the language model.
+The parameters of the weights of the language model are getting updated.
+whereas in prompting or in-context learning, no such thing happens.
+We are not updating any parameters of the language model.
+So let's discuss training laws in the case of instruction fine-tuning.
+So say you're visiting Mumbai and you're curious to know.
+What places can you visit over here so you prompt the language model?
+Can you recommend some places to visit in Mumbai?
+And the desired target response for the language model is
+So here are some great places you can explore in Mumbai, along with the list of places.
+So basically, what would happen during training is that at each point,
+The prediction happens one word at a time based on the input.
+The instruction is fed to the language model.
+Along with it whatever output has been generated by the language model till this point.
+For example, initially, this is the input that we passed to the language model.
+which is an instruction.
+For certain tasks, input will also be present.
+Like the example we saw in the previous slide.
+The input would also be fed to the language model.
+Initially, the first step, we are feeding the entire instruction
+and input to the language model.
+And what the language model would do is conditioned on this input and instruction.
+It needs to predict the next word.
+So it would be predicting the probability distribution of the next word.
+for all the words in the vocabulary.
+And we know that this is our target word at this point.
+So here we can use the cross-entropy loss across each of the steps.
+And via that, we can train the language model.
+So this is how it gets updated.
+Now, in the next step, we'll have the instruction input.
+Along with that, we'll also have this word that was generated by the language model.
+And with that, the process goes on until the end of the sentence token.
+Would be encountered.
+And with that, the generation is complete.
+Next is a little bit more explanation about chaining loss for decoder-only models.
+and encoder decoder models.
+So in decoder-only models, what happens is
+we'll be feeding so i1 to i5 is the instruction or the input
+That we are feeding to the language model.
+And o1 to o4 are the outputs that a language model is generating.
+So here are these o1, o2, o3, and o4, which are colored in red.
+So these are the actual target outputs that we desire.
+So this is marked in red because we are using teacher forcing here.
+So we are passing the actual output to the language model.
+And not the one that was generated by the language model.
+This is a difference.
+So for decoder models, we're feeding the entire thing into the decoder.
+For encoder-decoder models, we'll be feeding the instruction and the input to the encoder.
+And the rest of the things, and again due to the teacher forcing, will be feeding the...
+actual output to the decoder and the output would also be generated
+from the decoder end.
+So this is just that there's a bit of a difference in architecture.
+between encoder-decoder and decoder models
+where there is only decoder component you'll be feeding everything into the decoder component
+When there is an encoder and a decoder component.
+You feed the input and the instruction to the encoder.
+and you get the output from the decoder.
+So this is just following the previous lecture.
+So again, if we just quickly take a look at the formula, too,
+I just described the idea on the previous slide.
+So here you can see the formulation.
+So here is the log likelihood.
+So this is the conditional probability of generating this token,
+Given all the previously generated tokens and the input that
+We have given it to the model.
+And you ideally take a sum of it since this is log likelihood.
+you will be maximizing this.
+A similar formulation holds for the encoder-decoder modules as well.
+So another interesting thing in instruction tuning is that.
+There's a lot of diversity in how we can phrase the instruction.
+Given a single task.
+For example, here we have the task of natural language inference.
+For this task, there are several different ways in which we can describe it.
+in which we can provide the instruction to the language model.
+All these different ways are helpful for instruction tuning.
+So, for this task, there are four different templates or ten different templates.
+That I can generate.
+For all of those templates, if I train the language model on them
+By rephrasing the instructions, we'll see that the model can learn and generalize more effectively.
+So if I discuss the example in more detail, here we have the premise.
+We have a hypothesis.
+The target is whether it is an entailment or not.
+So the options would be "yes" or "no."
+So in this template, we have a placeholder for the premise, hypothesis, and options.
+Other than that, the text in red is the instruction that describes the task.
+in various ways.
+So one way to talk about it is based on the paragraph above.
+Which is the premise, can we conclude that this is the hypothesis?
+So this is one way to describe the task.
+Another way is to give the premise and ask, can we infer the following?
+And then we provide the hypothesis.
+Another way is to read the following and determine if the hypothesis can be inferred.
+from the premise.
+This is very explicit; we are giving and explicitly providing the premise.
+and hypotheses along with the options.
+So there are many ways to describe the same task.
+And we train the model when we generate the instruction in the.
+fine-tuning data set.
+We use all these ideas and train the model on various versions of the instructions.
+for the same task.
+So here, if I talk about the data set that is present in this slide,
+It is from the Scaling Instruction Fine-Tuned Language Models paper.
+This is a very interesting paper.
+If anyone is interested, please feel free to read the paper.
+Here, what they have done is create this dataset consisting of 1,836 tasks,
+Which is a huge number of tasks, and they have further fine-tuned a language model.
+on these tasks.
+So here's one interesting idea that they have used:
+So from a single data set, there are different varieties of tasks.
+that can be generated.
+For example, if we take the SQuAD dataset, SQuAD is originally
+It's an extractive question-answering dataset.
+We have a passage, a paragraph, and a question.
+And there's a specific span in the paragraph that is the answer to that question.
+So it's an extract of a question-answering data set.
+So now other tasks can also be generated from this.
+For example, query generation is important.
+We already have the paragraph.
+Maybe we can generate a query from that or generate context.
+That we have the question: can we generate the context for that?
+So just from this, just from the squad dataset,
+We can have multiple different tasks that can be created from it.
+Using this idea, they were able to generate a huge number of tasks.
+Again, like we saw in the previous slides, there's a
+Distinction between which tasks appear in the training dataset.
+versus the ones in the held-out task.
+So they are disjoint.
+There are no common tasks that appear in both the training and held-out sets.
+So the authors of this paper also tried various data formats when fine-tuning.
+So one way is your instruction tuning,
+So one way is when you're instruction tuning, you provide no examples.
+Just ask if you have a question.
+Can you write a whole haiku in a single tweet?
+And you simply ask the question, "Answer the following yes or no question."
+So that's it.
+All you can do is give examples; if you have another question, ask.
+That you provided as an example to the language model.
+And then you ask the intended question.
+Another thing that you can try is using a chain of thought prompting.
+So you can ask the language model to reason step by step.
+And here there are also two variations.
+You can give examples.
+You can simply ask the question without any examples.
+So there are four different variations in the data format.
+So this can also be useful.
+And this technique was also discussed in the paper.
+If you look at the results, first, let's start from the topmost results.
+Here we can see that if we increase the model's size
+and as well as if we increase the number of fine-tuning tasks,
+We see that the performance of the language model increases.
+So if we look at the first graph, here each of the lines
+Indicate a fixed number of tasks.
+And we see as the number of tasks is increasing,
+The lines are also ascending on the graph.
+So here, this is also indicative that with a higher number of tasks,
+The performance increases.
+Also, now along the x-axis, we see the number of parameters of the model.
+So here also, if we increase the parameters of the model,
+We also see that there's an increasing trend.
+So the performance is increasing with a higher number of model parameters.
+Higher model size, better performance.
+In the second graph, again, we see along the x-axis.
+Now we have the number of fine-tuning tasks.
+And here we have three models.
+We have an 8 billion model; we have a 62 billion model.
+And we have 540 billion-parameter models.
+And we see that if we increase the model size again,
+We see that the graphs are above the earlier graphs.
+So there's an increase in performance.
+As we're increasing the number of tasks, the performance is also increasing.
+So, overall, the key takeaway is length.
+When you increase the model size and the number of fine-tuning parameters,
+The performance increases.
+So far, we are only focusing on the improvement in performance.
+Does this come at a cost?
+Do we have to bear a lot of computing or not?
+So here we compare the amount of computation that was required for pre-training.
+versus what was required for fine-tuning, we see that
+It's simply like 0.2%, 0.6%, 1.6%, which is very, very little compared to.
+So the compute for fine-tuning is very, very low compared to
+What was required for the pre-training?
+And so here, the authors have also tried to experiment with different varieties of tasks.
+So tasks with different architectures, such as the encoder-decoder model,
+decoder-only model, and also with different pre-training objectives.
+So we have span corruption, which is the pre-training objective for T5 model.
+For PARM models, which are decoder-only models,
+Their causal language modeling is a pre-training objective.
+So, across different varieties of language models, the authors have tried to see.
+If the results are generalizable.
+So, if you look at this big table over here, and now if you look at the results,
+The difference in results between the base model and the fine-tuned version of the model.
+We see that there is an increment in performance, which is written in these blue numbers.
+We can see.
+So all these blue numbers indicate that after fine-tuning the language model,
+We observe that the performance of the language model has improved.
+So the previous approach that we discussed,
+The instruction tuning dataset was mainly generated by.
+mainly consists of human-written instructions.
+So that becomes very tedious when there is a human in the loop.
+Like creating and writing instructions, it becomes very tedious.
+And it becomes difficult to scale beyond a certain point.
+So for that, there has been research that has explored automated ways of generating.
+instruction tuning data sets.
+And one important work in this area is that of self-instruction.
+So, in this slide, we have an overview of the technique that they follow.
+So, they start with a number of C tasks.
+So there are 175 C tasks.
+They have one instruction and one instance for each task.
+This is human-written.
+Initiate.
+Then there's a task pool where they sample a number of instructions.
+And they pass it to their language model, which in this case is GPT-3.
+And from that, they generate instructions.
+And there are a few details that we'll cover in the next few slides.
+But they clear the instruction.
+That is one important step.
+Once you have the instruction,  So the LLM creates the instruction,
+and once you have the instruction, you make the LLM itself generate instances like input output pairs,
+And then there's a filtering step involved, and if it's valid,
+Reasonable instruction input-output example that was generated.
+Then it is added to the task pool, and like that, the cycle goes on.
+So one of the steps that we saw was generating instructions.
+So for instruction generation, what is done is...
+What is done is from the initial pool, so we have 175 seed tasks.
+From the seed tasks, eight tasks were sampled.
+And in this age task, six tasks are human-written.
+And two are generated by the language model.
+And like that, we pass instructions for those existing tasks.
+So these will serve as examples.
+Based on this, we want the language model to generate new instructions.
+So these are the eight tasks that were randomly sampled.
+From the pool of seed tasks.
+And with this, new instructions will be generated.
+Now, once an instruction is generated, you want to identify next.
+whether the task corresponds to the instruction,
+Is that a classification task or a non-classification task?
+I'll mention the reason for this distinction in some time.
+So, how do we do that?
+We prompt the language model again.
+So here we are doing few-shot prompting.
+We prompt the language model with examples that given this is the task instruction,
+We need to know, is this a classification task?
+Yes or no.
+So, for example, you can describe a task with the instruction:
+Given my personality and the job, tell me if I would be suitable.
+So the answer to this is yes, you can be suitable, you cannot be suitable.
+So there's a finite output space, and this is indeed a classification task.
+Another example is to give me an example of a time.
+When you had to use your sense of humor.
+So, this is not a classification task.
+This is quite an open-ended task.
+So this is not a classification task.
+So we are giving the language model examples that illustrate that, given an instruction,
+The language model needs to predict whether the task is a classification task or not.
+And then finally, given all these examples, we pass to the language model.
+the instruction for the target task.
+It predicts whether it is or it is not.
+Until now, in step one, we have created the instructions.
+Step two, we found out whether the task was a classification task or not.
+Now, the next step for classification tasks is a separate way in which
+We'll be generating the input and output.
+And for non-classification tasks, we'll do it in a separate way.
+This is because the authors of the paper saw that for classification tasks,
+Since there is a finite output space, the language model gives importance.
+to the more popular output labels.
+As a result, in the final dataset, the representation of examples across all the labels is balanced.
+Is not even.
+So we want more or less an equal number of examples across all the
+Class labels that are present in the output space for the classification task.
+And for that, what the authors do is propose this approach.
+Called output-first approach for instance generation in the case of a classification task.
+Here they provide the classification task definition and the class labels.
+Based on that, they ask the language model to generate an input.
+That corresponds to the class level.
+For example, they’re giving the task label, which is the output label.
+And then they're asking the language model to generate the input or the sentence.
+Like that, finally, for the target task, the language model needs to perform.
+this similar response, the language model needs to generate.
+These are all examples of few-shot prompting where we show the language model.
+This is the behavior I want the language model to follow.
+We're first showing the language model through the examples.
+Again, now if you talk about non-classification tasks,
+They're following the much more intuitive way that you give the task.
+Then you ask the language model to first generate the input and then the output.
+So this is simple.
+And then there's also a filtering mechanism where we see that
+the new instruction that is generated should be different from the instructions
+that are already present in the task.
+So they have used the Rouge-L similarity score, and they've seen that the Rouge-L similarity score
+between the new instruction and the existing instruction should be less than 0.7,
+only then the instruction will be included in the task.
+Second are keywords such as image, picture, graph.
+Instructions that contain such keywords will be excluded.
+Because the language model does not have the capacity to handle such inputs.
+Another is, now we have generated an instruction at the time of instance generation,
+Say, we come across duplicate instances.
+We removed them.
+Or, for example, we come across instances where the input is the same.
+And the output is different.
+These are also removed.
+And finally, there's a heuristic-based filtering where, say,
+So there's a constraint on the length of the instruction.
+So the instruction should not be too long or too short.
+Based on this, filtering also happens.
+So these are some examples of data that were generated using this mechanism.
+So you can look at the last example.
+So here is the instruction that was generated by the language model.
+Write a story with three characters: a person, an animal, and an object.
+Then again, the input was also generated by the language model.
+So here we have a person named John who's a programmer.
+An animal, a dog; an object, a laptop.
+Based on that, a story was generated again by the language model.
+So this is also quite a reasonably valid data instance.
+That was generated by the language model in an automatic manner.
+without any humans in the loop
+So there are other examples.
+You can pause the video and take a look at it.
+Nice survey paper, "Instruction Tuning for Large Language Models."
+I would encourage the students to read this paper if they’re interested.
+And here in this slide are all the lists of various instruction tuning data sets.
+are present.
+So in today's lecture, we discussed instruction tuning.
+which is a technique by which we teach the language models to follow instructions.
+There are other techniques, such as reinforcement learning from human feedback.
+which is our nature which further improves upon instruction tuning
+And it helps the language model better align with human objectives.
+and preferences which is
+So this topic will also be taken up in the upcoming weeks.
+Along with that, another point is when we spoke about instruction fine-tuning.
+We were mainly talking about how we are fully fine-tuning the language model.
+So all the entire model is getting updated.
+So this is compute intensive and takes up a lot of memory.
+So there are many more efficient strategies present that are the best parameter-efficient fine-tuning.
+So those strategies will also be covered in the upcoming lectures.
+So that's it from my end for today.
+Thank you for listening, and happy learning.

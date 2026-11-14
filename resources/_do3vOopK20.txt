@@ -1,0 +1,700 @@
+[Music]
+Welcome back. We recently reviewed
+translation and rotation based models
+for knowledge graph representation.
+Recall that in translation models, the
+subject is a point in space and the
+relation is a displacement that
+displaces the subject toward the object
+vector. In case of
+rotation, the subject may be simplified
+as a complex number with an angle and
+then the relation is a rotation to the
+object
+position. Today we will cover a
+different family of knowledge graph
+embeddings. They involve multiplicative
+or factor models.
+Factor analysis has been known from
+before
+1960s. The basic idea is if you want to
+predict some property of two items i and
+j let's call that property yig j I would
+like to model that as some featurization
+let's call that f of i and a
+featurization of
+j. This is a vector that is a vector.
+And now we have an inner product between
+them. Okay. So think of f of i as a row
+vector like this and f of j as a column
+vector like this. If we multiply these
+together, we get a scalar number. And
+that's the property I'm trying to
+predict.
+This technique was refined as latent
+semantic analysis in
+1988 and has been used in natural
+language processing as early as from
+1992. This was resurfaced as word
+embedded word tovec and glove in 2013
+and this has been covered earlier in our
+course. We'll still review this very
+briefly because it will help us
+understand this important family of
+knowledger graph embedding
+techniques. Consider a corpus
+represented as a document by term
+matrix. Documents go down
+rows and words are shown across the
+columns.
+For example, ant might appear in
+document D1, in which case I might put a
+one over here. Ant may not appear in
+document 2, in which case I may put a
+zero in there. That would be the boolean
+representation of this corpus. Or I
+might say that ant appears five times in
+document D1 but only twice in document
+D4. That keeps more information in this
+matrix. We could do more fancy things
+such as transform these numbers to say
+normalize document
+length. So a document is represented by
+a
+row. This row tells you what words are
+contained in the document. But a column
+also represents a word. And if you read
+down the column, you get to know which
+documents contain that word.
+This matrix is very far from random.
+There has to be sim systematic
+similarities between row or column
+pairs. For example, we expect some
+reasonable similarity between cat and
+dog as columns or car and sedan as
+columns. But we do not anticipate much
+similarity between the columns
+corresponding to say ant on one hand and
+car on the other hand.
+So there is this duality between
+documents and words in terms of
+similarity. When two documents are
+similar, they tend to contain or not
+contain similar words. Conversely, two
+words are regarded as similar if similar
+documents contain them. This intuition
+was used in these factorization models.
+Any matrix M such as the one we saw in
+the previous slide can be factored into
+three parts. This is called a singular
+value decomposition or
+SVD. MIG can thus be written as a sum
+over K UI K * sigma KK * V JK. So let me
+draw what I mean here.
+I goes across the rows of the first
+matrix
+U. K goes across the columns of the
+first matrix. The second matrix sigma is
+actually diagonal. Only the diagonals
+have non-zero values. The off diagonals
+are all zeros. And K simultaneously goes
+down rows and columns because it's
+diagonal. So I'm actually running down
+the diagonal here.
+And finally um if I'm trying to model
+the element at I and J then I use the I
+row here and the J column in the last
+matrix but I still run down rows indexed
+as K. That is the meaning of this
+three-way multiplication.
+We can write it more compactly as M is
+equal to U as a matrix time sigma as a
+matrix time
+VRpose. So this symbol in both cases
+means
+transpose. I mentioned that sigma is a
+diagonal matrix. We can rearrange the
+rows and columns suitably so that the
+first element sigma 1 is greater than
+equal to the second element and so on
+and all of them are non-
+negative. It's known that the SVD
+factorization can ensure that the
+columns of U are unit vectors. So every
+column has L2 norm equal to one and
+they're perpendicular to each other. So
+if you pick two such vectors their
+dotproduct is zero and so are the
+columns of V or the rows of
+VRpose. Now you can see here that some
+part of the matrix is encased in dotted
+rectangles. This means that even if they
+were not zero to start with, I can
+replace them with zero
+chunks and that will give me an
+approximation to the original matrix. If
+I start zeroing out more and more, this
+equality will be replaced by an
+inequality.
+Now observe that if I have only K rows
+and K columns and K diagonals then the
+rank of the right hand
+side is at most
+K. So that is why SVD is also called a
+rank
+revealing or a low rank
+factorization of the original matrix.
+Even if the original matrix had full
+rank by first factorizing it through SVD
+and then selectively
+dropping these low signal parts of the
+matrix, the largest sigas are taken care
+of. After some point, I start truncating
+it. That gives me a good approximation
+to the original matrix.
+When I do that, these truncated rows of
+U give me approximate representations of
+documents and the truncated columns of
+VRpose gives me approximate
+representation of
+words. In fact, it has been shown that
+word
+tovec finds word vectors which are
+approximately these columns.
+So hereafter we will keep this matrix
+factorization in
+mind. What do we say is the similarity
+between two word
+vectors? Suppose I want to find in this
+original matrix before factorization the
+similarity between the word cat and the
+word dog. To do that I may take the
+original corpus matrix and transpose it.
+So this is M transpose. Documents now go
+across the columns and words go across
+the rows and my focus row is the row of
+cat. I take another copy of the original
+matrix M and I focus on the column for
+dog and then I multiply those
+together which means this first value
+for D1 times the first value for D1 plus
+etc to the end. What does this give me?
+So that is the quantity mrpose m at iig
+where i is for cat and j is for dog. And
+it's easy to see that the quantity
+mrpose mig is the number of documents
+that contain both words i and j in the
+form where the matrices are
+boolean. Similar extended
+interpretations are possible for other
+elements that we can fill into these
+matrices.
+Now if we go back to the earlier slide,
+if I instead take the column of cat and
+the column of dog and I find their inner
+product, that is an approximation to
+taking the column of cat and the column
+of dog over here and finding their inner
+product. In fact, it's known that
+support vector that SVD has noise
+reduction capabilities and VI star which
+is this row vector dot V J star which is
+this column gives a smoothed similarity
+score between these words I and
+J. We now extend from this act of
+two-dimensional factorization to three
+dimensions because that is how our
+knowledge graph is going to be
+encoded. Remember that the knowledge
+graph consists of triples subject
+relation and
+object. We plot the subject along the
+first axis over here.
+We plot the object on the second axis
+over there and the third axis which goes
+into the plane of the paper is the
+relation. So now there are three axis
+instead of
+two and this matrix is also a boolean
+matrix.
+We set the element of X S O R equal to
+one if S R
+O is in the knowledge graph and zero
+otherwise. So you can see that this E *
+R * E bits can represent any knowledge
+graph in the world. Any bit pattern can
+fit inside this threeaxis kg tensor. X X
+is extremely sparse. Of all possible
+facts which can hold in the universe,
+very few actually do. People are only
+born in one place. A country typically
+has only one capital. A company only has
+one CEO.
+We also suspect that this tensor X has
+low rank just like our document by word
+matrix has low rank and for much the
+same reasons that there are very similar
+entities and there are very similar
+relations. For example, born in and
+citizen of are very strongly correlated
+relations. Only very few people
+statistically change citizenship.
+If you are a CEO of a company, you're
+most definitely an employee of the
+company. So that's an implication
+relation. For all these reasons, we
+expect this tensor X to have low rank,
+meaning that there will be a lot of
+linearly dependent rows or columns or
+fibers. In case of matrices, various
+chunks and slices of the matrix can be
+called as rows and columns. Now, there
+are two kinds of things in a 3D tensor.
+There are the edges and then there are
+the planes which cut through the
+tensor and we expect many of them to be
+linearly dependent on each
+other. So therefore let's try to factor
+this three axis kg tensor in the same
+style of singular value
+decomposition. Again we will have three
+tensors being multiplied together to
+form that original threeaxis tensor.
+However, we are going to simplify two of
+those tensors to actually be
+matrices and in fact the same
+matrix. In particular, this matrix will
+give us the entity representations or
+the entity embedding matrix which has
+only two axes. So let's look carefully
+at the sizes and shapes of these
+tensors.
+As in the previous slide, the ayat
+entity or the subject, this can take
+values in the whole entity space. The J
+entity or the object can take any of uh
+E values again. And the third axis has
+any of R relations. So it's an E by E by
+R tensor. On the other hand, the entity
+embedding matrix still has a height of E
+because I have to represent all the E
+entities and the same over
+here. But its height which is the same
+as the width of A over here is some
+arbitrary dimensions D which will be the
+width of our entity embeddings.
+Now if there are R relations the depth
+of the M tensor in between is still
+going to be R but on the other two sides
+I'm just going to have D by D. Okay. So
+in other words
+each relationship R is represented by a
+D * D matrix which we might call the R
+slice of the matrix R written as M
+subscript R.
+Generally speaking, we expect A and A
+prime to be dense D-dimensional
+embeddings of each entity just like we
+had dense D-dimensional embedding for
+each word in case of singular value de
+composition or word to vec. Now our
+objective in this
+factorization is that X be approximately
+equal to this three tensor product on
+the right hand side. In other words, I
+want to find the entity embeddings A and
+the relation tensor M optimally so that
+the difference between the original
+matrix X and the
+approximation computed by this three-way
+tensor product is minimized. Now what is
+this difference? This is the tensor
+difference which is element by element.
+So it will be x
+of s o r minus the counterpart in this
+product tensor and then we take a square
+error over the two sides and then we add
+up over s o and r that's sometimes
+called the frobaneous
+norm and we would like to minimize that
+uh with regard to the choice of A and M
+to keep the model well conditioned.
+Sometimes regularizers are added.
+Meaning that to that loss objective in
+the previous line, we add the probonius
+norm of A itself and the probonous norm
+of M itself. So that the elements in A
+and M remain under check and their
+magnitude cannot grow arbitrarily large.
+This still is a relatively simple
+optimization although it is neither
+exact nor as well behaved as singular
+value
+decomposition. In fact, the common way
+to optimize is to do it in alternating
+substeps. We first fix m for the moment
+and we improve a via gradient descent
+which is easy to compute. And then in
+the next alternating substep we fix a
+for the time being and we improve m
+using gradient
+descent. Unlike singular value
+decomposition a unique optimal solution
+is not guaranteed. We can only get to a
+local optimum and the process is also
+slower than matrix factorization which
+is highly
+optimized. To address these
+difficulties, two main approaches are
+known. The first is to somehow convert
+this threeaxis tensor factorization into
+a twoaxis matrix factorization and then
+apply singularity de composition. The
+other approach is to take our main
+troublemaker the tensor M in between and
+restrict it to occupy only simpler forms
+and then the optimization can again
+become easier.
+The first technique suppose we want to
+reshape tensor factorization into an act
+of matrix
+factorization. Remember that we start
+with S O
+R. We group S and O together into a pair
+and make that the
+row. So Obama and Honolulu is a pair.
+Honolulu and Hawaii is a pair. Obama and
+Nigeria is a pair. So every possible
+entity pair appears here in principle
+and every column is a
+relation. So born in is a column,
+capital of is a column, citizen of is a
+column and so on for all the R
+relations. So you could see that the
+number of rows in principle is E squared
+and the number of columns is of course
+R. What is in the matrix? Just bits
+boolean. Obama was born in Honolulu.
+Therefore born in column has a one or a
+tick in that row. But Obama is not the
+capital of Honolulu. Therefore this is
+zero. Obama is not a citizen of
+Honolulu. Citizenship is only defined on
+nations. Therefore, this is also
+zero. Honolulu is capital of Hawaii, but
+Honolulu was not born in Hawaii in
+unusual sense. Bangkok is a capital of
+Thailand. So, that's how these bits are
+filled out.
+Once again you see that this matrix is
+likely to be low rank because similar
+relations like born in and citizen of
+are going to have similar columns and
+this is exploited by taking this matrix
+now and subjecting it subjecting it to
+singular value
+decomposition. This gives us two sets of
+embeddings. One is an embedding for each
+entity pair and the other is an
+embedding for each relation. As
+before, this method has some
+disadvantages in the sense that we only
+get an embedding for each entity pair
+but not individual entities. So if
+tomorrow after training this system I
+wanted to predict the property of an
+unknown new entity coming in I cannot
+form an individual vector for it and
+then compare its vector against the
+vectors of known entities. I really need
+all the entity pairs to be available
+ahead of time before the factorization
+is attempted.
+The second technique you might recall is
+to simplify the relation tensor M.
+Remember our diagram where A was here, a
+transpose was there and this was the
+troublemaking uh threeaxis tensor M.
+Now our approximation can also be
+written as X of SR O or O R depending on
+the convention of the axis ordering was
+approximately the embedding
+for the
+subject times the embedding of the
+object but mediated by the R3. relations
+plate
+MR right so see what's happening if I
+multiply these three tensors together
+every plate in M corresponds to one
+relation and the score for the truth or
+falsity of that fact involving R is
+given by this three-way vector matrix
+vector product observe that the overall
+vector matrix vector product is actually
+just a real
+number. A short hand for this um if the
+matrix M was made
+diagonal suppose all the of diagonals
+were made zero then it's easy to see
+that our approximation is further
+simplified to X SRO is approximately
+equal to as I run over these
+dimensions I'm basically rolling down
+this row rolling across this diagonal
+and rolling down this column
+So it's sum over d sd rd od where those
+are their embeddings. So we'll shorthand
+this to be inner product of sr a
+three-way inner
+product or
+dotproduct. This is called dismalt for
+multiplicative model over distributed
+representations.
+This is of course much faster to train
+than general M's because if the general
+M had D squared dimensions or capital D²
+dimensions only D of them are non zero
+everything else is zero. So the
+complexity has decreased quite
+substantially and the system is easier
+to train. However observe that SR O is
+the same as O R S. It's just a
+multiplication which is symmetric. You
+can reorder these three terms any which
+way you
+like. So it clearly cannot handle
+asymmetric relations and anti-ymmetric
+relations. What's an asymmetric
+relation? If a person follows another
+person on social media, if A follows B,
+it does not necessarily follow that B
+follows A. B might follow A or B might
+not follow A. So following is not
+asymmetric relation and there are
+anti-ymmetric relations where if subject
+relation object holds then object
+relation subject most definitely does
+not hold. For example, S is the father
+of O. Then certainly O cannot be the
+father of S. So there's asymmetry and
+anti-ymmetry and dismalt cannot handle
+either of them. So that's a
+limitation. This can however be fixed.
+But before we get into that, Dismmart
+has actually been surprisingly effective
+on the standard benchmarks that we
+mentioned in a previous part of this
+lecture. But has Dysmart been
+sufficiently stress
+tested? A paper in later days claimed
+that that was not the case. They claimed
+that the good performance of
+dismalt on data sets that are themselves
+asymmetric or non-ymmetric such as FB15K
+or
+WN18 is surprising.
+Now then they observe that these data
+sets when they evaluate the query SR
+question mark they rarely also evaluate
+in the test set the query question mark
+R and S for a non-ymmetric
+predicate. In fact, in FB15K data set,
+these kinds of challenge or problematic
+queries make up only 4% of the test set.
+And that's why the failings of dismalt
+never really float up to aggregate
+numbers. How do we fix it? There's
+actually a very simple way to fix it and
+it's called
+simple to address asymmetry or
+anti-ymmetry. Each entity now instead of
+getting just one vector gets two
+associated vectors sub E and obg. So
+subject of E and object of E depending
+on what role the entity E plays in a
+fact. If it appears in the subject
+position, we'd have to use sub E. If it
+appears in the object position, then we
+have to use object E. Also, for each
+relation R in the database, we
+automatically introduce the inverse
+relation R minus unless it's explicitly
+provided. For example, if we have
+city is capital of
+nation is already part of the kg then we
+automatically introduce the inverse
+relation nation has capital
+city. So if this is R that is R
+inverse. We don't need to worry too much
+about whether R inverse has already been
+explicitly provided or not. If
+accidentally the KG already has an R
+prime which is secretly the same as R
+inverse. All that will happen is that
+their embeddings will evolve toward the
+same embedding or representation. So we
+can always feel free to even redundantly
+introduce the inverse relation into the
+database. Finally, the score of a
+fact is now expressed as the average of
+two scores. the forward score where we
+take the subject vector of S, the vector
+for the relation and the object vector
+of O and we multiply all of them
+together using the formula in the last
+slide and then we average that with the
+converse. We take the inverse relation.
+We flip the subject and the object and
+also score that and we take the average
+of these two vectors.
+It is possible to convince ourselves
+that this formulation can fully express
+any knowledge graph which may have
+symmetric relations, asymmetric
+relations and anti-ymmetric relations in
+the same knowledge graph. By choosing
+suitable forms and formats of subject
+and relation and object vectors, I can
+always represent this kg provided d is
+large enough.
+Now there is another way to look at this
+kind of extensions of dismalt and that's
+called
+complex. Complex as the name might
+suggest uses complex numbers just like
+rotate e did in a previous part of this
+lecture.
+In
+uh dismalt, our subject entity was
+turned into a real
+vector and so was the relation on the
+object entity. And remember this inner
+product really meant I took the first
+element, I multiplied it by the first
+element, I multiplied by the first
+element, then I added on the product of
+the second row and so
+on. Right? That is now going to change
+because subject relation and object are
+now going to become complex numbers
+where I have shown their real part in
+the upper rectangle and the their
+imaginary parts in the lower rectangle.
+However, if you think of the formula
+through which complex multiplication
+happens, their real and imaginary parts
+are going to be mixed up in all kinds of
+ways to arrive at the final three-way
+inner product of complex
+vectors. Now, the three-way inner
+product is in general a complex number.
+So, to turn that into something like a
+real score, I need to take the real
+part. And that's the symbol for taking
+the real part of the inner product of
+subject relation and object. Also
+observed that the object is not taken as
+is but it's taken with a star. Here O*
+is the complex conjugate of O. Which
+means that if O was A + J * B where J is
+square roo<unk> of minus1, then the
+conjugate is A minus roo<unk> of -1 *
+B. If a relation is symmetric, we can
+always model this as before doing
+nothing more than dismalt by choosing
+the imaginary part of R to be
+zero. Okay. Um and that then reduces to
+dismalt. On the other hand, if a
+relation is
+anti-ymmetric, it can be shown that we
+want to set the real part of R to zero.
+This ensures that SR oar real part is
+minus real part of or R SAR. If you flip
+the arguments, the score negates, which
+means if the original fact has a high
+score, the swapped fact will have a low
+score and vice versa. And that will take
+care of anti-ymmetry for us. We can
+combine the ideas in simple E and
+complex.
+Like simple E, we can use two
+representation vectors for each entity
+subject and object of E. And we can also
+add R inverse for every relation R given
+to us. Except that these sets of vectors
+subject E, object E and the relation
+vector for R and the relation vector for
+R inverse will all become complex
+vectors instead of real vectors.
+Furthermore, although I don't have time
+to get into
+details, the nuclear porm of these
+vectors will be regularized. If that
+porm increases, that will add to our
+loss unlike the standard L2 or probinous
+loss in earlier parts of this
+discussion. This version of complex is
+called complex M3 and is among the most
+competitive knowledge graph completion
+algorithms.
+We already discussed some of the popular
+knowledge graph completion benchmarks
+previously. They are WN18 or WordNet 18
+relations FB15K from freebase with
+15,000 entities and Iago 310 from the
+Yago knowledge graph.
+However, WN18 was hardened to
+WN18RR and FB15K was hardened to FB15K
+237 after certain weaknesses were found
+in the original data
+sets. Remember that WN18 was extracted
+from the English word net which is a
+lexical network. It has 18 relations
+like Antony, synonym, polymi, etc. and
+about 41,000
+entities. What was found is that many
+test triples SRO had corresponding
+inverse triples in the train fold
+enabling many algorithms to overfeat or
+cheat. Removing these conflicting or
+leaking triples gave 93,000 tipples over
+40,943 entities and 11 relation types.
+So this W18RR is a harder benchmark with
+less leakage. The evolution of FB15K to
+FB15K 237 followed a similar story.
+Starting from a larger number of triples
+entities and relations after the
+cleanup, uh people ended up with about
+310,000 triples over about 14 and a half
+thousand entities and only 237 relations
+instead of
+1,345 relations.
+uh these tables are a bit busy but we
+can only look at the general
+trends. Complex V2 uses large or full
+negative sampling and it's almost as
+good as complex N3 which basically leads
+the chart and both of these are better
+than earlier methods like simple simply
+and complex alone. This is true across
+all these data sets.
+So here's the summary. So far we defined
+what a knowledge graph is in terms of
+entities, relations and fact triples. We
+noted that knowledge graphs are very
+incomplete and we need to either
+complete them or infer missing facts. To
+do that we need a triple scoring
+function f which given a subject
+relation and object gives us a real
+confidence score in that fact. We can
+turn that into a probability if we wish
+and use that probability in a loss
+function. Then we explored two families
+of knowledgebased encoding or
+representation schemes. The first used
+either translation or rotation and the
+second which we discussed just now is to
+use matrix and tensor factorization
+models.
+[Music]

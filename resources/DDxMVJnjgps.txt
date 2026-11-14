@@ -1,0 +1,781 @@
+Hi and welcome back to a new lecture
+from the attention family series. In
+this lecture series, we are looking at
+various attention mechanisms starting by
+building the basic foundations and going
+all the way till more modern and more
+complex attention mechanisms including
+Kimmy delta attention etc. Today's
+lecture is about two attention
+mechanisms dot product attention and
+scaled dot product attention. In the
+last lecture we looked at badano
+attention and before that we discussed
+regarding what was existing before even
+attention mechanism came into picture.
+So today's lecture is the last lecture
+we before we enter into self attention
+mechanism. So let's do a quick recap of
+what we covered in the last lecture. In
+the last lecture, we discussed what
+exactly is attention score and attention
+weights and how these numbers help us
+compute context vectors that are
+dynamic. So before attention mechanism
+came into existence, the encoder
+produced a context vector and that
+context vector was fixed and decoder
+always had access to just that one
+context vector. But that is not the case
+uh after attention mechanism. After
+attention mechanism, we have these
+attention weights that can be used for
+computing new context vectors depending
+on what token the decoder is producing
+at the moment. So we discussed about bad
+attention in detail in the last lecture
+and now and we also discussed why it is
+called as additive attention mechanism
+because we are uh multiplying by a
+waiting factor and that weights are
+multiplied with the hidden state from
+the encoder and hidden state from the
+decoder and those two things are added
+up. then they are passed through a an
+activation function and then you take a
+dot product with a learned vector and
+that that dot dot product produces the
+attention score. So I'm just recapping
+what we discussed in the last lecture
+before we move ahead. So once again we
+are back to this diagram which we will
+be again uh and again we be coming back
+to so first category or the first bucket
+is where we are still at which is the
+scoring bucket. Scoring bucket meaning
+whether this attention mechanism is
+looking at how the attention score
+calculation happens or not. So in the
+last lecture we were still in the
+scoring bucket because the attention
+score calculation in the additive
+attention mechanism is different from
+what we will be discussing today. Today
+we'll be looking at uh two attention
+score calculations. One is the
+dotproduct attention score and another
+is the scaled dot product attention
+score. Let's see how that works. This is
+again very straightforward. So if you
+are very familiar with attention score
+calculation from a foundational
+perspective, you can completely feel
+free to skip this lecture and you can
+move ahead with the next lecture. But
+otherwise if you want a good refresher,
+please uh feel free to stay on. So the
+two attention mechanisms we are
+discussing today, the first one uh the
+dot product attention was proposed uh in
+this paper by Luong and U co-authors.
+This paper came out one year after the
+Badano attention paper. So this was in
+2015 and this paper currently has around
+11,000 or 12,500 citations. So this is
+the first paper that is u the paper that
+is behind the dot product attention
+mechanism. The second paper which is
+behind the scaled dot product attention
+mechanism is none other than the
+attention is all unit paper which now
+has almost 260,000 citations. So let's
+go through this one by one.
+So today's lecture has three parts. In
+the first part, we will discuss about
+the dot product attention mechanism and
+why is it simple and why does it even
+make sense compared to the additive
+attention mechanism proposed in Badano's
+paper. In Badano's paper, actually the
+attention mechanism included a neural
+network itself, which is a bit
+complicated, right? If you think of uh
+the fact that you you need a neural
+network to just compute a simple
+attention score, it's a little bit
+complicated. So we will discuss why
+attention score calculation need not be
+that complex. A simple dot product is
+enough. Second is we will also discuss
+the problem with respect to increasing
+dimensionality. So if the dot product
+between the two vectors which is
+resulting in the attention score
+calculation. If the dimensionality of
+those two vectors increase, there is a
+chance that the softmax scores which are
+resulting from the output uh finally the
+softmax scores which are corresponding
+to the attention weights can saturate.
+So we will see that issue we will
+visualize it. I have a Google collab
+notebook which I want to run uh and I
+want to show you some things and in the
+last part of the lecture we will discuss
+regarding how this problem of
+dimensionality increase resulting in
+saturated softmax scores can be fixed by
+scaling the attention scores. Okay. So
+these are the three parts. So first
+let's discuss about the dot product. The
+idea here is in Luong's paper uh the
+question that was asked was what if
+instead of having a neural network based
+function for calculating attention
+scores why don't we simply use a dot
+product. So in the last lecture we saw
+that this neural network which was like
+f that was performing a complex function
+like this it was doing tan hyperbolic of
+uh w1 q. So instead of Q it was the
+hidden state from the encoder plus W2 *
+hidden state from the decoder uh
+multiplied by or dotproduct with a
+learned vector V. So this was the
+function f which was essentially this
+small neural network. But look at how
+complex this is and here quiry Q and K
+are kind of like universal notations for
+quiry and key. Usually you take dot
+product between quiry and key. The
+definition of what is query, what is
+key, what is value etc. We will discuss
+in detail in the upcoming lectures. For
+the simplicity purpose for today's
+lecture, just imagine that query is
+corresponding to uh let's say hidden
+state from encoder. Key is corresponding
+to hidden state from decoder. Or you can
+simply imagine them to be vectors
+corresponding to two different tokens
+that are trying to attend to each other.
+So you have two tokens converted into
+vectors. You want to calculate what is
+the attention score between those
+tokens. Okay, as simple as that. In
+additive attention mechanism, this whole
+thing is a little bit complex. In dot
+product attention, it is extremely
+simple. There are no learnable
+parameters. It's a simple dot product
+between these two vectors. Okay. Now
+let's look at the logic behind taking a
+dot product. The logic behind taking a
+dot product is fairly straightforward.
+So first of all, the vectors that we are
+taking dot product of are representing
+different tokens. And what are tokens?
+In simplest language, token is a word.
+In reality, tokens are subwords. But we
+can imagine that many many tokens might
+represent certain words. So let's say I
+have a semantic space like this in which
+there are some dots here. These dots are
+basically uh end points of vectors. And
+let's say these vectors are pointing
+into a certain direction of the space
+corresponding to animals. So maybe this
+dot is about cat, this is a dog, this is
+a tiger, what not. Then there could be
+another set of vectors which are
+pointing into a slightly different
+region of space. So this we can call as
+semantic space which is definitely not
+two-dimensional. It is
+multi-dimensional. I'm just showing a
+two-dimensional space here. And here
+these vectors may be corresponding to
+fruits like apple, orange, pineapple
+etc. Now clearly the cosine similarity
+or the cosine of the angle between these
+vectors. So what is cosine of 0? cosine
+of 0 is 1 and if the angle is extremely
+tiny between the vectors it means the
+cosine of the angle between those
+vectors will be close to one. So if the
+and that is called as the cosine
+similarity. So if cosine similarity is
+high between these vectors what that
+means is the vectors might be talking
+about something that are close to each
+other or something that are related with
+each other. On the other hand, if the
+cosine similarity is very poor, if it is
+zero or if it is negative, then the
+vectors may be regarding completely
+different ideas. So it makes sense to
+kind of consider the angle between these
+two vectors uh in deciding how much
+attention these vectors should pay to
+each other because ultimately the token
+which is coming from encoder and token
+which is coming from decoder are vectors
+that are residing in the same
+dimensional space and uh if it is in the
+language of quiry and key the quiry and
+key are residing in the same dimensional
+space and you are trying to take the dot
+product between them. So a simple way to
+compare these vectors is take a dot
+productduct between those two vectors.
+The dot product value will be a high
+positive number. If the angle between
+the vectors are small, if the angle
+between the vectors are 90°, the dot
+product will be exactly zero. If the
+angle between the vectors are 180°, the
+dot product will be a big negative
+number. And now if the vectors should
+pay attention to each big uh you know
+high attention to each other because
+they are semantically related to each
+other then naturally the dot product
+value will be a high positive number. So
+whenever we get a high positive number
+we can directly kind of use that
+positive number itself as the attention
+score. So just simply take dotproduct as
+the attention score. So I have a
+interactive lab uh here. I will share
+this link with you but essentially you
+can play with these vectors. So uh here
+we are doing the attention score
+calculation which is Q dot K. Q is the
+first vector, K is the second vector. In
+the language of large language models,
+this can be called as quiry and key. But
+we have not yet defined in this series
+what is query and what is key which we
+will look at in the next lecture. But
+for all practical purposes, if these are
+the two vectors that are attending to
+each other, obviously you can see that
+the attention score is proportional to
+uh how close these vectors are in terms
+of ang uh in terms of angles. So as you
+rotate this you will see attention score
+is highest when they are pointing in the
+same direction. So just feel free to
+play with this but these are this is
+very basic. But the problem with this
+attention score is the following. Uh the
+naive dot product produces scores that
+can result in
+highly saturated softmax values when we
+convert attention scores into attention
+weights. So first we have scores
+which are raw numbers right
+and then these scores are converted into
+probability distribution in the form of
+attention weights.
+And what are attention weights?
+Attention weights are basically
+resulting from soft max. So there is one
+idea that so here just look at this uh
+graph on the y-axis we have attention
+score value typical attention score size
+on x-axis we have dimensionality
+dimensionality meaning when you are
+taking dot product between two vectors
+what is the dimensionality of those
+vectors in this diagram actually I have
+shown two dimensional vectors but in
+reality vectors will be will not be
+living in two dimensional space they
+will be living in hundreds of dimensions
+a space that has hundreds of dimensions
+So
+as the dimensionality of the space
+increases when you go from 64dimensional
+space to 128 dimensional space to 256
+dimensional space what happens is the
+attention score which is resulting from
+the dotproduct of query and key the
+value the magnitude of that dot product
+keeps increasing. I'll show you vis I'll
+show you exactly with a Python script
+how this happens but basically and this
+is assuming you are randomly
+initializing the two vectors because
+when you are training the neural network
+the vectors will be random numbers. So
+when you randomly initialize the Q and K
+vectors and when you take the dot
+product the resulting dot product value
+will be proportionally increasing with
+dimensionality. But is it linearly
+proportional? No. The this number is
+proportional to square root of
+dimensionality.
+So if dimensionality increases from um
+64 like let's say dimensionality is
+initially one and let's say then later
+it became 64. So dimensionality
+increased by 64fold
+which means the magnitude of the
+resulting dot product will increase by
+square root of 64 which is 8. So that's
+the reason why when the x-axis increase
+to 64 from 1 yaxis increased to 8. So an
+order of mag an a factor of eight
+increase. So now you can imagine
+and and one more thing is these are raw
+attention scores. What happens to raw
+attention scores? But you might ask a
+question why is this a problem if
+attention scores increase in magnitude
+like this? Why is that an issue? So
+let's open this Google collab notebook.
+Uh I just want to show you some things.
+Okay. So first let me delete
+the current output.
+and let's connect. So this is a simple
+Google collab notebook where I am
+defining one query and so this is one
+query. So query is a random vector whose
+dimensionality is equal to the embedding
+space dimensionality. So initially I'm
+saying the embedding space
+dimensionality is one. So one
+dimensional vector. Okay for simplicity
+I'll increase this keys. However we have
+two keys. So that's the reason why here
+it is np.random.rand rand of 2 comma dk.
+2 comma dk means whatever is the
+dimensionality of the embedding space in
+that embedding space we are creating two
+vectors. So can you imagine how many
+attention scores will be there in this
+case is it one or is it two? There
+should be two attention scores right?
+The quiry dot key dot product between
+quir the quiry and the first key value
+and the dot product between query and
+the second key value. So you will have
+two attention scores and when you
+convert these two attention scores into
+attention weights. So the attention
+scores are nothing but dotproduct
+between query and transpose of key. Then
+attention weights are um no not that
+attention weights are basically
+attention scores passed through a
+softmax function. Now before passing uh
+through softmax function what if we
+scaled the attention scores by dividing
+the scores using square root of d. So
+here because the attention scores are
+increasing by square root of D
+proportional to square root of D. What
+if you divided the attention score the
+raw attention score by square root of D
+then ideally this should become like a
+straight line right? So when it when I
+say straight line what it means is the
+magnitude of the dot product between Q
+and K will not increase when the
+dimensionality increases. Okay, that is
+what we are trying to do. So let's first
+see the see this thing and then we will
+discuss the reason why this is a
+problem. So the dimensionality is one.
+You have one query. You have two keys
+which means you will have two attention
+scores. You are scaling the attention
+scores by dividing by square root of D.
+Then you are taking the soft max. In
+fact, you will be calculating soft max
+of scaled attention score and unscaleed
+attention score. And you will print
+them. Okay. So when I run the code, this
+will print a few things.
+So first query has shape 1 comma 1, key
+has shape 2, 1, 2, 1. Because you have
+two keys. The raw attention scores
+between them are the dotproduct between
+those two random vectors. So this is the
+the attention score which resulted from
+the dot product between quiry and key
+number one. This is the attention score
+which results from uh results from the
+dot product between query and key number
+two. In fact you know we could even
+print the u query and uh keys. So print
+q
+and maybe I can also print k. So you can
+see what the q and k looks like.
+So
+I will move this I'll move this print
+statement above so it can come before
+everything else is printed.
+Okay. So this is Q. It's just one single
+number. These are the K values random
+numbers. Okay. So the raw score
+basically this 42 is the dot product
+between this and this simply multiplied
+0.907 multiplied by 46 because here dot
+product is simple multiplication because
+the dimensionality is one currently. Uh
+so now the raw raw scores are like this
+two attention scores when you pass it
+through softmax um you get the attention
+weights and you can see that attention
+weights are summing up to one. The raw
+scores will not sum up to 1.42 +24 is
+not one but attention corresponding
+attention weights will sum up to 1.544
+plus455.
+Now the scale scores in this case is
+exactly same as raw scores. Why? Because
+square root of d is square root of 1. So
+scaling does not do anything in this
+case. Which means the attention weights
+calculated using scaled attention scores
+is not different from the normal
+attention weights without scaling. Okay.
+So it's 0.544 comma 0455. Now let's
+increase the dimensionality. Let's say
+my dimension space is four dimensional.
+Now if my space is four dimensional you
+can see this is K sorry this is Q. This
+is the first key and this is the second
+key. Now when we take dot product uh the
+dot product between query and the first
+key is 0 94. Quiry and the second key is
+42. And uh when you convert the raw
+scores into softmax this is the
+resulting softmax. Look at this 62 comma
+37.
+Now after scaling when we scale the raw
+scores we are dividing by square root of
+d. In this case the dimensionality is 4
+which means square root of 4 is 2. So 94
+will get divided by 2 which is 47.42 42
+will get will get divided by 2 which is
+21 and when you take soft max of these
+numbers it will become like.5643
+still you might be wondering the scaling
+by dividing by square root of d did not
+do much what's the big deal nothing is
+happening but you will see what's
+happening immediately so let's say now I
+don't want to print because when I
+increase the dimensionality the printed
+thing will be very big so let me remove
+the print part now I'll increase my
+dimensionality to 1,000 and you look at
+what happens
+now when I increase the dimensionality
+to 1,00 my raw scores are 252A 258 okay
+before scaling and look at what happens
+when I directly take the softmax of
+those unscaled scores so one value is.99
+the other one is 02
+basically uh this number this softmax
+number is completely dominating this
+this is becoming close to zero and this
+is becoming close to one can you imagine
+why this is happening why the softmax
+score is getting saturated like is
+it's getting saturated because think
+about what is softmax. Soft max is e ra
+to something divided by sigma e ra to
+all the numbers right so e ra to 258
+divided by sigma e ra to basically sum
+of e to 252 plus e ra to 258 e ra to 252
+is negligible compared to e ra to 258
+because e to 258 is a very big number e
+to 252 is very small number compared to
+e to 258. So what is happening is uh
+when the dimensionality is increasing
+these raw scores will keep on
+increasing. Why is that? When you're
+doing dot product you have you're you
+are taking dot product of lot more
+numbers. This time you are taking dot
+dot product of thousand pairs. Earlier
+you were taking dot product of only one
+pair when the dimensionality is one. Now
+you are taking dot product of thousand
+pairs which means there is a very likely
+very good chance that many of those thou
+many of those pairs will be you know
+positive numbers and those positive
+numbers will keep on adding up to
+produce a bigger raw score and if you
+directly take the softmax of raw score
+you get a saturated um softmax scores on
+the other hand when you scale here when
+you scale you are dividing by square
+root of d which is square root of 1,000
+which is roughly 30 something right So
+you are dividing 252 by 30 something
+which will result in 7 something. 258 is
+also divided by 30 something which will
+be 8 point something. So now if you take
+the soft max of these numbers the
+numbers are kind of better. It's not
+saturated numbers. Softmax is reflective
+of the the original attention scores
+because here the attention score says
+that kind of the weightage is kind of
+equal. But if you directly take softmax
+it says the weightage is completely
+unequal. It says this guy is completely
+dominating than this guy. But that's not
+true. Attention raw attention scores
+does not say that. They say the
+weightage is kind of equal. And here if
+you see this the softmass calculated
+using scaling after scaling you see the
+it's kind of equal 45% versus 54%age.
+Here it is 2% versus 99.7%age.
+Now this problem increases in magnitude
+when our let's say my dimensionality of
+the space is 4,96. Okay you will see the
+you'll see this becoming crazier. The
+raw scores are,032 versus,042. Kind of
+close to each other, right? The raw
+scores are kind of close to each other.
+But look at what happens when you don't
+scale. If you don't scale, the attention
+weights become weight becomes 3 * 10 ^
+of - 5, which is extremely close to 0.
+And this is 9.999. Basically, if you
+talk in terms of percentage, it's 99.996
+versus 0.003
+something like that. So uh so what the
+softmax is saying is these attention
+scores are such that this guy should be
+this is the dominant
+uh u score and and the probability
+distribution is such that 0.13
+versus 99.99996
+that is not good. On the other hand when
+you scale this time you take the square
+root of 4096 and then you scale the
+scale numbers are like this 14.13 and 14
+uh sorry 16.13 and 16.29 29 and look at
+the attention weights they are 46 and
+uh.53 basically 46 percentage and 53.9
+percentage much more sensible attention
+weights right so this is the reason why
+we are um doing scaling now think about
+it what happens if my attention weights
+are like this what is happening to my
+attention weights when you don't scale
+when you don't scale the attention
+weights are becoming it's it's kind of
+more and more resembling um one hot
+encodings
+So the way it works is let's say my
+ground truth is this
+ground truth
+is equal to 1 0 0. Okay.
+And let's say because we had saturated
+attention weights, my prediction became
+something like
+actually let me close a few tabs so that
+my writing is a bit smoother.
+Okay. Okay. And let's say the prediction
+is something like this
+0.99
+comma 0.5
+comma 0.005.
+Do you think in this case the loss will
+be high or loss will be low. So this is
+one example in which case you are let's
+say you're making the correct
+prediction. This is prediction number
+one and let's say prediction number two
+is this
+0.6 6 comma 0.2
+comma 0.2.
+In all the in both of these cases the
+probabilities add up to one. Uh
+prediction is saying that the first the
+the correct answer is let's say the
+token number one. Okay.
+But in which case do you think the loss
+will be higher? The loss will be
+obviously higher in prediction number
+two because prediction number one is
+like a highly confident correct
+prediction. Whereas prediction number
+two is not so confident correct
+prediction which means the loss will be
+higher when it corresponds to prediction
+number two and as a result gradient will
+be higher and if gradients are higher
+the network will get modified. Now
+imagine the process of training our
+neural network or training our large
+language model. When we are training
+let's say when our model makes a
+prediction in the beginning for the for
+the large language model ways to be
+modified
+we need the predictions to be not so
+confident prediction in the beginning
+but here look at what is happening the
+raw scores are not so confident scores
+754 728 741 739 those scores are almost
+similar to each other so it's a very
+underconfident raw score but look at
+what is happening because now we are
+taking softmax on these raw scores. This
+low confident prediction the softmax is
+converting it into a high confidence
+prediction. You see this the first one
+which is dominant 754 is the dominant
+one that is becoming 99.999 and
+remaining ones are close to zero and as
+a result what will happen is although in
+reality the prediction that is made is
+not very confident the resulting loss
+will become so low because the softmax
+will convert this low confidence
+prediction into a high confidence
+prediction. So that is the issue if you
+don't scale on the other hand if you do
+the scaling look at after scaling 31
+percentage 19 percentage 24 percentage
+24 percentage. So it's backed into a
+less confident prediction. So this is
+the primary reason why we have to do uh
+scaling by dividing by square root of d.
+I'll just show you visually one so that
+you are uh clear about this once more.
+So here you can see uh four tokens as
+the potential next tokens the down cat
+sat etc. So in fact here when we talk
+about softmax scores we can talk from
+two different perspectives. One is
+softmax probability scores corresponding
+to next token prediction or softmax
+scores resulting from attention weights
+attention scores converted into
+attention weights. Okay. So here we are
+primarily talking from the attention
+weights perspective but the same
+argument applies when we are talking
+about softmax scores corresponding to
+what should be picked as the next token.
+Okay. So in this case these are the raw
+raw numbers 2 413. Okay. And
+dimensionality is four. So 2 413 when
+you uh do not divide by square root of d
+look at the uh softmax distribution 09
+64 03.24. So the dominant one which is
+cat is becoming more dominant and as you
+increase the dimensionality you will see
+that cat will become more and more and
+more dominant. You see so after certain
+dimensionality this cat is completely
+getting getting saturated because here
+cat was the dominant one. Um in fact we
+can actually
+modify these numbers a little bit. So
+let's say uh the
+cat
+let's say they are all close to each
+other but only slight difference 2.5 and
+down is also two. So here in this case
+sat is dominating a little bit. So the
+is 16 cat is 16 sat is 20 and down is uh
+let's change down also to 16. In this
+case, SAT is dominating a little bit.
+But you can and that domination is not a
+problem. If dimensionality was low, if
+dimensionality was low, SAT will
+dominate but not by exceeding
+exceedingly or not by exceeding degree.
+But as the dimensionality of the
+embedding space increases the the
+saturation of softmax becomes so high
+that the sat this sat term when you
+convert softmax scores into softmax
+weights it'll become so dominant and
+this is not good for training our neural
+network or training our large language
+model. Now if you divide by square root
+of d you will see that softmax score is
+again back to or the attention weights
+are back to uh some a bit more sensible
+distribution. So this is why we divide
+by square root of d. So
+um the raw scores when you do not scale
+it takes an approach called as winner
+takes all meaning whichever is dominant
+whichever is winner completely starts
+dominating but when you scale it this
+problem can be fixed. Okay so this I
+have already discussed so I'm not going
+to spend a lot of time on this slide.
+Now just to take a recap of what we have
+done. So far uh in fact this lecture is
+almost ending. Uh in the last lecture
+and this lecture we discussed combined
+three attention mechanisms. First is
+additive attention. Additive attention
+is aka bad attention. V dotproduct with
+tan hyperbolic of W1s plus W2 H. So here
+ws you can consider as the one of them
+is the query the other one is the key
+and here it is additive because these
+two numbers are getting added in dot
+product attention you if it was dot
+product attention instead of doing this
+w1 s plus w2 h you will simply do s
+dotproduct with h in scale dot product
+attention you will do same thing s dot
+product with h divided by square root of
+t although here we are just using the
+language of query and key which is a
+more generalized language But
+essentially you take the dot product
+between those two vectors and take the
+square root of d. So uh just to recap
+where we are at in this course. We have
+only looked at this part so far which is
+the different attention score
+calculation mechanisms. We looked at
+additive mechanism dot product mechanism
+and scale dot product mechanism as and
+as you already might know scale dot
+product mechanism is by far the most
+popular and most frequently used. So in
+almost all the attention mechanisms that
+we will discuss from here on you will
+see that what it uses is additive dot
+product. Uh sorry my bad scaled dot
+product. Um and we are almost done with
+spending a lot of time on bucket number
+one. From the next lecture onwards we
+will move on to bucket number two and
+further buckets as we as we progress
+with the rest of the lectures in the
+series. So now we are in a good shape to
+discuss about self attention mechanism
+from the next lecture onwards. So
+uh the takeaway from this lecture is
+very clear. In the next lecture we will
+build self attention mechanism by hand
+from scratch. Uh and from today's
+lecture I will share the slides link
+with you. I'll also share this attention
+lab link and I'll also share the Google
+collab notebook link. So please go
+through them uh on your time. So I'll
+see you in the next lecture. Take care
+until then. Bye.

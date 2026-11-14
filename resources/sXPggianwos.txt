@@ -1,0 +1,1290 @@
+[Music]
+welcome back so in today's lecture we're
+going to talk about prompts right and
+you know when it comes to you know chat
+GPD kind of models large language models
+the first question which comes to our
+mind is how to write a prompt right what
+is what is going to be the optimal
+prompt for a specific model right so in
+this lecture we'll discuss different
+types of prompting techniques right uh
+how prompts affect the accuracy of the
+models right and how uh you know uh with
+the scaling with the increasing size of
+the models how it basically affects the
+uh you know the accuracy and you know
+how a specific prompt will be
+responsible for producing uh you know
+accuracy across different types of
+models
+we'll also discuss uh prom sensitivity
+right we'll see that most of these
+models are highly sensible uh to uh
+simple part verions of prompts right and
+that would affect the accuracy that
+would affect other aspects of the model
+and how we can contify them right so far
+we have discussed different preing
+strategies we have seen um encoder only
+models right we have seen models like B
+which is a pure encoder only model right
+and these models are pre-trained with an
+objective called mask language modeling
+right MLM we have seen models like
+GPT right which is a purely decoder only
+model right and these models are trained
+using um Auto regressive setup
+right or quaa language modeling this is
+called quaa language modeling or Auto
+regressive setup
+and there are other models like T5
+right but and they are encoder decoder
+models okay uh which are also trained uh
+uh with kind of Auto regressive setup
+where your input will be the uh will be
+fed to the decod to the encoder and
+decoder will predict the next word or
+decoder will predict you know um if your
+input if your input is part up if your
+input has noise the decoder decoder
+model will be able to essentially
+denoise your input right and um you know
+the B model came around 20 18 first GPT
+paper was written in 2018 right gpt1 and
+then uh gpt2 came in 2019 right gpt2 in
+2019 and then
+gpt3 in
+2020 right and the gpt3 paper showed
+that the model doesn't need need any
+fine tuning you just need to write
+prompts and the model will be able to
+understand your prompt okay we'll
+discuss all these things in this
+lecture okay so
+I strongly suggest you guys to read this
+wonderful survey paper this is a survey
+paper written by Graham nuik and his
+team from uh from CMU
+and this is uh you know this rightly
+nicely reflects the you know different
+prompting strategies and the kind of
+evolution of the overall you know prompt
+uh you know prompt as kind of a aspect
+overall how it evolves right how do we
+quantify different different different
+components of a prompt and so on and so
+for it's a very nice uh survey paper
+that I strongly recommend you to
+read uh okay
+so so you know there have been kind of
+uh we have seen we have witnessed
+that there has been a kind of War right
+among all these giant Industries right
+giant companies meta um openi and Google
+right they have been building larger and
+larger models with uh more and more
+parameters and so on and so forth so
+this is essentially a scaling War right
+you just increase the size of the models
+without changing the framework much and
+you see different you start seeing
+different emerging properties so one
+such emerging property is this prompt
+right
+so now this this slide this particular
+slide kind of gives you an overview of
+you know how uh this parameter size
+increases over time so earlier we had
+Elmo uh model which which was you know
+roughly 93 million parameters right then
+Bard came 110 M million parameters with
+12 layer Transformer bought base bought
+large 24 layers and you know 340 million
+parameters and so on and so forth and
+then the GPD series started coming in uh
+you know if you look at gpt3 different
+variations of gpt3 small medium large
+Excel right one 25 million parameters 12
+layers
+right uh you have 12 attention head
+right dimension of the attention head uh
+dimension of the Hidden state right and
+then
+bass size different different bass size
+and as you
+see as the model size increases the bass
+size also increases right and then your
+learning rate decreases so essentially
+uh you are training bigger and bigger
+models with more more iterations more
+number of times right whereas you know
+we have been talking about models with
+million size parameters then you know
+couple of billions one 1.7 billion 2 2.7
+billion and suddenly the gpt3 which came
+with a gigantic size of 175 billion
+parameters right this is kind of 100
+times uh larger than gbd3
+XL right and in terms of layers now you
+see there are 96 layers right 96 decoder
+layers right and look at the you know
+dimension of your hidden State this is
+the number of uh number of side 96
+heads and uh right and then um this is
+the dimension of every head bass size
+also increased extremely significantly
+right so earlier it was one 1 a now this
+is 3.2m and learning rate also decreased
+significantly right so you are
+essentially training the model more and
+more time uh for for more and more
+iterations so that the model will
+basically understand the data set at the
+same time if you look at the data so
+such a gigantic model uh you know
+automatically needs a lot of data set
+for training Elmo required approximately
+one 1 billion parameter uh 1 billion
+token size uh training set bought 3.3
+billion tokens right in your in the
+training uh training data robot
+approximately 30 billion
+tokens and then the GPT model right came
+with with um uh 300 billion tokens in
+the training set right so and all this
+data setes contributed to this 3 billion
+tokens right common crawl web test book
+Corpus and Wikipedia Corpus and you see
+the percentage of these data sets so
+both in terms of number of parameters as
+well as the number of tokens present in
+the training Set uh to uh pre-rain uh
+these gigantic models right now this is
+kind of gives you idea of the the model
+size um you know across different years
+starting from 2018 to 2022 you see
+models like Elmo B right GPT and the
+kind of a linear scale right it
+increases quite linearly with the time
+right so we have this Megatron touring
+uh model energy model 530 billion uh
+parameters models which is even you know
+even bigger than gpt3 model Okay so and
+GPT GPD for you know God knows how many
+parameters are there but uh you know it
+is it is huge right if if gpt3 so I got
+this figure from Twitter right if gpt3
+is this much GPD 4 will be this much
+right so when when we see Galaxy right
+we see our our Earth planet right and
+then the sun right it looks like this so
+if you look at if you compare between
+gpt3 gp4 you know basically you
+comparing between you know a planet like
+like like art right or you know whatever
+and then you have the
+sun okay but we don't know the exact
+number of parameters by the way this is
+a you know rough estimate somebody made
+on Twitter and I thought this figure is
+a nice kind of depiction to show a
+comparison between gpt3 and
+gp4 okay so what does the scaling law
+mean
+right what does the scaling mean okay so
+in the gpt3 paper so before gpt3 if you
+uh look at the Paradigm that we
+discussed so
+far so we have uh
+pre-training right so
+pre-train F
+tune and
+predict right so you have a
+model which is pre-trend on uh raw
+document raw Corpus this can be a
+encoder Bas pre-training or decoder Bas
+pre-training and then you fine-tune this
+model further for a task specific data
+set right so we discussed for example in
+case of T5 right you pre-train T5 uh on
+uh this uh corrupted uh tokens right and
+so basically you pass a corrupted uh
+sequence and you ask the model to predi
+the actual sequence and this is
+basically you know trying to learn the
+the overall syntactic and semantics of
+the language right and then you have
+many many tasks right the task can be
+let's say you know sentiment Common
+Sense reasoning summarization right uh
+chat chat and so on there are a bunch of
+you know um data sets that we use right
+uh for example you can use this flan
+data
+set although flan is specifically
+designed for instruction fine tuning but
+still you can use uh you know the data
+sets from flan to fine tune um the model
+right and then uh you do
+prediction okay so this is this is an
+advanced version of the the the old
+school machine learning Paradigm where
+you had uh where you did not have the
+concept of pre-training you had only the
+concept of training and then you know
+training and predict right you train the
+model and then you predict right but
+here you now you are you are
+incorporating a new Step which is called
+pre-training then you fine tune the fine
+tuning is similar to the old school
+training right you just update some of
+the parameters for your task and then
+you
+predict okay prediction or predictor in
+for so this has been the Paradigm till
+20
+2019 now this gpt3 paper came in 2020
+and they said you know this model is so
+big uh you do not need uh this model to
+to fine tune for your Downstream task
+right your model has been pre-trained
+right and your model knows the your
+model has been pre-trained on a gigantic
+data set so your model has come to know
+how to solve different
+tasks right now you have a downstream
+task uh which you want to which you want
+to perform which you want to solve right
+you do not need the model to fine tune
+to get fine-tuned for this specific task
+right what you need to do you just need
+to write a suitable prompt okay prompt
+is nothing but an instruction you write
+an English simple English instruction
+right assuming that this is a
+monolingual model right
+and the model will be able to respond to
+the instruction okay remember this
+specific instruction or this specific
+task uh which is there in your hand has
+this task may not have may not have been
+exposed osed to the model during the
+pre-training
+time right uh and they observed this and
+they as the name suggest language models
+are few short Learners and what is few
+short I will discuss later right so and
+they observed this in their paper and
+they they observed this wonderful
+phenomena and they call this phenomena
+uh phenomenon as an emerging property of
+the model and they were also very
+confused they surprised they were
+confused why suddenly this happened
+right what is there in the model that
+the model became so powerful that any
+kind of task that you want to solve the
+model is solving it right now of course
+the accuracy of these models may not be
+that that uh that high as compared to a
+finetune model right you have a
+fine-tune model for your task versus you
+have a pre-trend gigantic model which
+has not been fine-tuned but you write
+prompts and this model essentially
+follows your uh prompt properly and
+produces the output versus this output
+fine tune models output of course you
+may not be able to compare them right
+and this is not a fair way of way of
+comparing these two things because they
+are trained in a very different way but
+still without fine tuning you you you
+still you maybe you may be able to
+achieve let's say 70% of 80% of the
+accuracy of the fine tune model okay and
+that is huge because let's say when when
+it comes to a task um for which you do
+not know enough training data how do you
+find tune the model right you don't have
+enough training data to find tune the
+model but you now write prompts and your
+model will be able to solve this uh very
+efficiently um and uh that that may
+solve your purpose right but the
+question
+is you know how good the accuracy of
+this models right with respect to
+different prompts the first question the
+second question is as the size of the
+model increases right is this the case
+that you see this emerging phenomena
+this emerging property only after a
+certain threshold of the model size
+right or this is a property of a smaller
+size model also right can we get the
+similar uh prompt uh can we get the
+similar output with with the same prompt
+for a uh for a let's say 7 billion model
+versus a 175 billion model right um so
+these are the questions that we going to
+answer in today's lecture right okay so
+now as I mentioned uh traditional uh
+framework Right In traditional machine
+learning framework you fine tune your
+model with different examples so this is
+example one example two example three
+now you give these examples one by one
+and your gradient your uh parameters of
+the model get updated one by one right
+so so you feed one example of course you
+don't feed one example at a time you
+feed a batch of examples at a time and
+you update the gradient then then again
+you pass a batch of examples gradient
+will be updated and so on and so forth
+so in a normal fine tuning setup right
+your gradient the the parameters of some
+of the model uh the parameters of the
+model maybe maybe not all the parameters
+maybe some of the parameters will be
+updated during fine tuning right uh but
+in case of
+prompt you you your your model your your
+uh parameters are not updated at all
+right what you need to do you need to
+write prompt
+suitably right and there is no way to
+understand what is the optimal prompt
+for a specific model right you just have
+to try out multiple multiple uh prompts
+and see which prompt works better right
+you have to quantify what do you mean by
+better right of course there are some
+ways to automatically figure out uh uh
+you know suboptimal prompts maybe but
+still it is hely uh human driven right
+um human intervention is needed so these
+therefore you know these days prompt
+engineering uh has become one of the
+important uh Fields uh for recruitment
+for jobs for recruitment right okay
+so now we we're talking about we we are
+introducing a new term short learning
+zero short learning one short learning
+zero short prompts one short prompt um
+you know few short prompts and so on
+what is zero short prompt in zero short
+prompt let's say you want to your task
+is to translate an English sentence to a
+French sentence right so in your prompt
+you just write translate English to
+French right and the word that you want
+to translate cheese for example right
+and then you use some symbol so in this
+case let's say you you use this
+symbol nobody knows whether this symbol
+is suitable or this symbol is suitable
+or a dash is suitable nobody knows right
+you write this task you write so so this
+is called task description you write the
+task description and then the task that
+you want to perform and you ask the
+model to perform it
+right so no fine tuning is there this is
+just a prompt U uh you know in case of
+fine tuning in case of normal fine
+tuning uh you uh you you fine tune the
+model but here you are not fine tuning
+it
+uh here there are you know there are
+multiple questions that can come the
+first question is how to write this task
+description right so if if somebody
+writes let's say uh please translate the
+following English word to friends to to
+to French right that can also be a Tas
+description right so nobody knows how to
+write uh an appropriate task description
+and then how to also represent your task
+right whether I should use this you know
+equal symbol and Then followed by you
+know this greater than symbol or some
+other symbol that we should try out okay
+nobody
+knows okay
+so later on we will see that you know uh
+can we so so later on we will see how to
+quantify the sensitivity of of a prompt
+with respect to a model right let's say
+if I change this colon right to uh to
+arrow for example or this this symbol by
+a colon right what would be the impact
+of uh this to the accuracy and ideally
+your models should be robust that with
+small variations here and there in the
+syntactic structure of the of the of the
+prompt your model should not produce
+diverse accuracy right it should be
+consistent but nobody knows how to
+quantify this uh sensitivity so we we
+will discuss later how to quantify this
+okay okay so so this is zero short zero
+short means you are not given you are
+not you are not giving any example to
+the model right now in one sh you give
+an
+example so your task description is
+translate English to French right and
+this is one example this is your English
+word and this is your French word and
+then you ask that you ask your model to
+translate cheese right so when this
+prompt is processed right and remember
+all these things are happening uh you
+know in the in context setup right
+because you in in the in in context um
+setup you were writing the task
+description some delimeter uh you know
+example one delimeter and uh you know
+your your your task right is it one shot
+because now you are given uh you are
+giving one example to the
+model right you can give more examples
+two shot three short few short let's say
+in this case the same task description
+now you are given now you giving three
+examples to the model right the more you
+give examples to the model the model
+should be able to understand things
+properly but again there is no guarantee
+what is there is there is uh no
+there's no guarantee that what's going
+to be the optimal number of examples
+that one should give it should not be
+let's say it should not be 1,000
+examples right in your prompt right and
+you you also won't be able to write one
+1,000 examples in your prompt because
+the prompt length is also limited
+because let's say you know an LM can
+only be able to access uh you know a a
+prompt length of let's say let's say 4K
+or 10K right 10K tokens so you are not
+allowed to give so many examples in your
+prompt now remember if you have so many
+examples you should not go with a direct
+prompting approach you can fine tune the
+model and because now let's say you have
+1,000 examples or 2,000 examples you can
+think of fine tuning a few layers right
+later we'll talk about parameter
+efficient fine tuning there we will see
+we can fine tune something called the
+adapter layer a new layer that you can I
+mean you can add to the model and you
+can only fine-tune those adapter layers
+right if you have any examples if you
+don't have exam many examples you can uh
+do this uh zero shot few shot
+prompting okay
+so so as I mentioned many such examples
+will be fed to the model so this is your
+enter prompt the your task description
+some delimeter right your first example
+some delimeter second example some
+delimeter and so on and so forth and
+then the task that you want to perform
+and you ask the model to essentially
+keep generating tokens
+okay
+uh it it may look if if you guys are not
+aware of this it may look like a sci-fi
+movie uh because you know God knows how
+uh this is this actually happens because
+you know uh understanding how prompts
+work
+right is still not uh not fully
+understood right people have been
+studying things in our lab also we have
+been studying we have been trying to
+understand how you know different
+prompting strategies work in context
+learning works but it's not very clear
+the science behind this prompting
+technique is not very
+clear okay
+so all
+right so now let's look at this new
+paradigm pre-training fine tuning we
+have seen right and how does the new
+paradigm which is pre-training and
+prompting so a new paradigm has emerged
+called
+pre-training
+prompting and
+predict okay as opposed to so
+finetuning is not needed anymore it is
+reped by prompting
+okay okay so how do we check this
+uh you know zero short prompt one short
+prompt two short prompts right how is
+the accuracy of different different
+types of prompting techniques let's look
+at this and for this let us use this
+data set called the trivia QA data set
+it is a you
+know uh it's an open open book question
+answering data
+where you
+are your model is uh your model is asked
+you know about some of these questions
+like who was the pop deck uh Poppy's
+most uh you know most famous song and so
+on and so forth so you know there are
+these are all standard questions that
+you ask and trivia QA is a standard data
+set and on this data set now you have a
+you have a model you have two models one
+model you have two pre-train models one
+pre-end model has been fine-tuned on
+this specific big data and then you you
+uh basically use this for inference so
+this trivia Q data has been split into
+two parts one part is used for fine
+tuning other part is used for uh for
+prediction right so this is your fine
+tune s model state of the art model
+whereas your other model let's say GPT
+right um is not fine-tuned but you use
+in one case you use zero shot other case
+you use one shot and the other case you
+have few short 64 examples are given
+right so on the Y on the x- axis you are
+increasing the number of parameters of
+the
+model from .1 billion to 175 billion on
+the Y AIS you see the accuracy right so
+this is the accuracy of your fine tune
+model and you try to compare this with
+your non- fine tune promt based models
+as you
+see you know uh
+at the higher range 175 billion range
+the F shot
+model surpasses the fine tuning
+model right fine tuning needs a lot of
+data remember whereas for few shot you
+need only 64 in this case you need only
+64 uh you know examples to write the
+prompt but that model you know surpasses
+outperforms a fine tuned s right and
+that's it that is quite
+amazing in fact if you look at uh 13
+billion model which is much much you
+know smaller than a 75 billion model a
+13 billion Model A few short performance
+is also significantly comparable right
+to the fine tune model okay uh
+approximately 60% and here approximately
+68 69% accuracy in in fact if you look
+at
+the if you if you compare the green line
+and the yolow line right uh whatever
+yellow orange okay you see the
+difference is not that much right not
+that much okay so now let's understand
+what does this mean what does you know
+um accuracy of a few shot or one shot
+right models uh uh you know surpassing a
+fine tune model mean right now if you
+think of it
+carefully you know this particular this
+trivia QA data set right now the model
+has been trained on a gigantic web data
+so all the data which are there on the
+internet have been used to pre-train
+these models
+right and these questions are not very
+unknown questions right these questions
+may have appeared in different locations
+of this data set right now when the
+model was trained on the data the model
+must have been exposed to this sentences
+not necessarily in this question format
+but must have been exposed to the
+sentences during pre- turning
+time right now this is essentially now
+when this question comes during
+prompting the model needs to locate
+right that specific parameter and
+Trigger that parameter with it
+corresponds to this question although
+you know I can I'm I'm saying this so so
+easily right but this is not that easy
+remember this ultimately at the end of
+the day you have 175 billion parameter
+models right but what I'm trying to uh
+what I'm trying to uh hinting upon is
+that this data has already been exposed
+and the the questions that you were
+asking are actually from this data so it
+is
+not extremely surprising if the model
+produces right answers right what might
+have been surprising to us if if a
+question which is completely out of the
+book completely out of the data set has
+been asked and the model is able to uh
+accurately answer that question
+right but uh forming such a question as
+you understand is extremely difficult
+enormously difficult right it's not
+possible at all I mean given the fact
+that you do not know which data set has
+been used to train this model because
+all the recent models are all blackbox
+we don't know which data set has been
+used right which model parameters how
+many model parameters and so on and so
+forth okay
+so now if you look the training data 7%
+of the training data is in languages
+other than English uh only 7% data is in
+um other languages and remaining 93%
+data is in English right
+so when you want to do non-english kind
+of task let's say uh machine translation
+English to French right French to
+English English to German German to
+English English to Romanian Romanian to
+English right let's see what happens so
+this is my S model which is a supervised
+model right and these models
+are now this is supervised machine
+translation model this model has been
+Trend not PR trend on uh this this task
+separately whereas model like imbert
+right xlm these models are pre-trained
+and fine-tuned on these tasks right so
+this is
+supervised and this is pre-train plus
+fine tune and these models are only
+pre-trend okay zero shot one shot few
+shot Okay so so if you look at the
+result of course you don't expect that
+uh a pre-end model with few shots will
+beat a supervised model this is not
+possible you also should not expect that
+a few sh model will outperform a fine
+tune model right this is not happening
+also but
+uh if you look at the results very
+carefully English to French 30 7%
+accuracy 32% accuracy here 34% accuracy
+39% accuracy
+here right and uh and and uh by the way
+the scores reported here are not
+accuracy these scores are
+essentially blue score right there's
+something called Blue score u in machine
+translation that uh that was used to uh
+report the accuracy okay uh but numbers
+are important
+here 29.8
+29.7 here a few short model essentially
+beats uh fine tune model right 40.2
+40.6 right
+38.5 uh this is not doing good right
+39.9
+39.5
+38.6 very competitive okay
+so what I'm trying to say here is that
+although only 7% data is non- English
+right and there are so many languages
+right know Indian languages are also
+there not in great percentage but still
+there there in the data and there are so
+many you know languages across the
+world
+uh but still the model performs you know
+GPD model without fine tuning performs
+quite competitively right with a sort
+model so s supervised model and a fine
+tune model okay now look at
+the accuracy blue score versus the model
+parameter
+right on different machine translation
+task as you increase the size of the
+models from one from 0.1 billion to 175
+billion right let's say task like French
+to English this blue line right you see
+the increase right uh so uh all the dot
+lines correspond to translation from
+English to other language whereas solid
+lines correspond to translation from
+other language to English
+Okay so the the interesting part to note
+here is that there is no Plateau the
+Improvement is kind of uh monotonic
+right you still see
+you know kind of increasing Trend in
+terms of
+accuracy
+okay so this is
+interesting let's see some other task we
+have seen question answering trivia QA
+task we have seen machine translation
+now let's see uh you know
+comprehension comprehension QA task and
+this is an harder task is an hard harder
+than the previous QA
+task and
+here um
+you
+um uh you have
+uh data sets like uh CA right Squad
+Squad data you know is very famous right
+and you compare a fine tuned soda model
+fine tuned soda model with all the GPT
+models right uh here you
+see that accuracy is not very comparable
+right 90.7 85 is okay but 89.1 36
+74 44 93 69 not very comparable right so
+it seems
+that if the task is harder right uh all
+these models uh GPD models with
+prompting techniques essentially
+struggle okay so therefore fine tuning
+is still a better strategy if you have
+significant amount of data
+set okay so this is another
+plot where they uh where they reported
+the the glue score this is you know the
+glue Benchmark we talked about glue uh
+right glue super glue
+Benchmark and number of parameters on
+this axis number of and this is a glue
+score and Y and x- axis indicates the
+time right so you see as
+the and you have different models like
+Elmo gptt B
+uh GPT gpt1 gpt2 right Excel net
+Megatron LM of different size so the
+size increases quite
+exponentially and with the increasing
+with with with the increasing size right
+you also see that so this blue line
+corresponds to the parameters number of
+parameters is an exponential growth
+whereas
+uh accuracy is if you see the accuracy
+is quite linear
+right accuracy is quite linear glue
+score is uh linear it's ranging from 65
+to 95
+um right so so from here you may say
+that uh there is no guarantee that with
+the exponential increase of number of
+parameters the accuracy will also
+increase exponentially right if you
+compare let's
+say Megatron LM ver versus gpt2 two
+right accuracy is quite quite same this
+is approximately 85% whereas if you look
+at the model size this is
+gpt2 and uh and and and and Megatron is
+here right Mega so this is not Megatron
+this is I think this is Excel net right
+this is Excel net okay Megatron is here
+I guess
+okay uh but still right uh if you look
+at this point and this point accuracy
+wise not a great jump 85 to 90 whereas
+parameter size wise is a huge jump okay
+so uh it's not that easy right I mean if
+you just increase the number of
+parameters assuming that you know it
+will automatically uh produce good
+results this this may not be the
+case okay so what are the practical
+challenges let's see okay so such big
+models cannot be moved very easily right
+it's not like I will I will upload it on
+the cloud and you will download it
+easily right and you will run it on your
+machine it's not possible
+so is it possible that we have a pre-end
+model right and for different tasks I
+have specific prompts designed
+beforehand
+right and these prompts are are
+essentially indicatives of the tasks not
+the enter prompt but can we think of a
+pre prefix a prompt prefix right which
+will essentially uh um act as a
+descriptor of the model of the task
+right and can
+you basically you know uh train this
+separately for the task right so for
+task one let's for task a you have um um
+you have a prompt you have some sof
+prompt right task B you have some prompt
+Tas C you have some prompts and so on
+and so forth right let's see or you can
+what you what else you can think of you
+can think
+of uh four or three different models
+with three different apis right and
+people now just call these apis and get
+the output okay language model prompting
+is the rescue as I mentioned earlier
+right um You can use short few short now
+let's try to formally discuss what a
+prompt means right
+so a prompt is essentially an
+instruction to the model for performing
+a specific task by the model
+now the task can be right as simple as a
+Bo
+can what the B can fly right you just
+write B can Dash the model say the model
+will say that the B can fly or or let's
+say you know some sort some sort of QA
+type setup where you ask jdk is
+developed by Dash and the model returns
+Oracle or it can be summary so you write
+this is a super long text tldr so you
+ask the model to summarize this in one
+line and the model will read this and
+summarizes uh the the the text right so
+so on and so forth and see and and you
+see the proms are very diverse okay so
+let's look are the terminologies that we
+generally use and these are like very
+formal terminologies I don't think these
+are very important to remember but just
+for the sake of
+completion uh let us see
+so your input is X denoted by X your
+output is y let's say your input is a
+sentence that you want the model to find
+the translation for sorry the sentiment
+for right your input is a sentence let's
+say I love the
+and your output is positive sentiment or
+negative sentiment
+right you have a prompt
+function a prom function is also called
+prom
+template okay and it looks like
+this so This X is the input right
+overall it was a z movie so Z is another
+placeholder X is a placeholder Z is a
+placeholder X is for the input and Z is
+for the output
+right so let's say you have many
+examples right and you write in this way
+so I hate I hate this movie this is a
+input I hate this movie overall this was
+a bad movie I love this movie overall it
+was a good movie right and so on and so
+forth so you have the template you have
+inputs you have outputs you just you
+know uh replace the placeholder by the
+input and the placeholder Z by the
+output
+right
+uh so your prompt looks like
+this okay this is a field prompt I love
+the movie overall it was a bad movie
+right
+now when I say field right this here Z
+will be uh has been filled by the word
+bad okay it can be good it can be bad
+and
+you right so you uh feed this as your
+prompt to the model right and you ask
+the model to essentially feel this
+placeholder and your model will feel
+this by the word good which is the
+answered prompt okay and what are the
+answers answers can be good fantastic
+boring right you can also Define these
+answers in your
+prompts
+now let's look at the some of the flows
+right prompt addition answer prediction
+answer label mapping what does it
+mean so let's
+say your task is to uh predict the
+sentiment so you say that
+um or find
+the
+sentiment
+of the following right and
+colon and you have the template right X
+overall it was d right and you you write
+in this way
+um the
+movie was
+horrible overall
+it it it was
+a z
+movie
+okay okay
+and you give it to the
+model God knows what the model predicts
+right what the model produces let's say
+the model produces
+that
+yes it
+was
+indeed
+uh hard able
+movie
+okay okay
+now this is your prompt
+Edition this is your answer right but
+remember you have only three levels good
+fantastic and
+boring so your task is to
+map this answer to one of these labels
+right now in this case this will be
+boring
+this will be boring right so how to map
+this to this is also something that we
+need to figure out and this is called
+answer label mapping
+okay
+so by the way so today's uh models are
+very very sophisticated you don't need
+all these three components now I'm
+talking about models which were there in
+2020
+2021 they were not at they were not that
+great in terms of in in in terms of you
+know different prompts but you know that
+time you had to uh you you you had to
+have three different components
+right okay so for prompt addition you
+can figure out I mean you can think of
+templates right the one that I mentioned
+this is input this is template and this
+is your prompts right for answer
+prediction uh you know so this this is
+your answer that you obtained from from
+the model right and how do you map
+fantastic to positive is something that
+you want to uh that you want to decide
+so you can you can have another head
+here which will uh which will uh you
+know take this as your
+input and predict let's say two outputs
+um one of the two outputs positive and
+negative and so on and so forth
+right there are two types of prompts one
+is called field prompt
+uh other is called so so so one is
+called prefix prompt other is called
+close prompt in prefix prompt you add
+this output placeholder at the end of
+your
+sentence assuming that your model is an
+autor regressive model right your model
+will keep on generating wordss whereas
+close form your placeholder can come
+anywhere in between the sentence right
+so prefix prompt will be useful for GPT
+models and this kind of model proms will
+be useful for
+B
+right uh most of the prompts are hard
+prompts natural language instructions
+human readable instructions the problem
+with the hard prompt is that we do not
+know what's going to be the optimal
+prompt right so people move from hard
+prompt to more of a soft prompt right
+and how why hard prompt is is even in
+problematic let's look at this example
+here this are the so so this is an
+accuracy
+table
+where you write a prompt in in four
+different ways
+right so X is located in y again X and Y
+are placeholders if you write in this
+using this template you get 31% accuracy
+here accuracy is precision right if you
+write the same thing in a different way
+X is located in which city or which
+country or state why you get 19%
+accuracy right
+if you write it in this way X is located
+in which which country question mark in
+y right you get 51% accuracy nobody
+knows why this is
+happening right so the model models are
+so sensitive to different types of hard
+prompts that's why people thought that
+let us try to shift towards a soft
+prompt right where you have uh you know
+you have um prompts which which a human
+won't be able to read because these are
+vectors right prompts are going to be
+vectors and humans won't be able to read
+it but you know after all uh what
+matters is that um you know how the
+model performs it doesn't matter whether
+human reads or not but what matters is
+uh whether the model uh produces right
+answers or not
+okay okay so we are now moving from
+discrete prompt to The Continuous
+prompt and you during 2020 2020 2021
+there had been enormous efforts in you
+know designing manual prompts right uh
+mining prompts paraphrasing prompts
+gradient based search for hard prompts
+right people have people have tried out
+right um you know if you freeze most of
+the models only only keep some of the
+models parameters for your down
+Downstream task and you know given a set
+of words you ask the model you know uh
+to choose one of these words one by one
+and see how the gradient flows happens
+right and how the accuracy gets affected
+and so on right and then uh you you you
+decide which word is suitable for your
+heart prompt right
+and you know Auto prompting and so on
+and so forth but you know these things
+are not very suitable not very useful
+these days so uh so we are now moving to
+towards a continuous soft prompt right
+where we will uh essentially produce
+embeddings as prompts
+okay so we will discuss two ideas one is
+called prom tuning and the other is
+called prefix tuning okay in prom tuning
+what you
+do when you write the task
+description right in English right you
+prepended a set of parameters a
+parameter Vector for example right
+what's going to be the size of the
+vector is again a hyper parameter but
+you prepar a new parameter
+new set of parameters before the task
+before the task description so translate
+English to Hindi but before that you
+prepend
+right
+translate English to Hindi and then blah
+blah blah okay and but you have some
+parameters
+here now these parameters are randomly
+initialized right you can think of
+better installation techniques but I
+will show you later that random
+installation is good enough right and
+let's
+say you have
+a T5 model
+right okay this is encoder this is
+decoder and your output is a translation
+Hindi translation right you give it to
+the model OKAY the intire parameters all
+the parameters of the models are Frozen
+only this data parameters are unfrozen
+and when you so let's say you have a
+tiny data set for finding out the
+optimal parameters right
+here and this tiny data set is being
+used uh for f tuning right and here when
+I said fine tuning don't mix up with the
+actual fine tuning here fine tuning
+means means only you are fine tuning the
+the prepended embedding
+right
+so you compute a loss here
+this Lots gets back
+propagated end to end till the input n
+of the parameters will be updated only
+these parameters will be
+updated
+okay so this is called promp tuning and
+why this is important this is important
+because now let's say for translating
+English to Hindi you have one specific
+prompts short
+promps these are called short promps
+right let's say for for summarization
+you have another set of short promps
+which you which you basically fine tune
+for QA you have another set of short
+Proms and so on and so forth now you can
+actually share the short proms right
+from one computer to another computer
+very very easily because this is a small
+Vector right uh and and in this way you
+can essentially seeare the uh Entre
+model you just replicate the model you
+share the uh the the the prom parameters
+and this prom parameters act as task
+specific parameters and then you know uh
+then uh I mean as if these
+parameters uh correspond to uh this
+parameter the set of parameters
+corresponds to the task that you want to
+perform
+right now so this is prompt tuning
+2021 again around the same time 2021
+something called prefix tuning was Pro
+proposed the same idea the only
+difference is that in case of prefix uh
+tuning you add or you
+prepend the these parameters not
+only with the input but also with all
+the other
+layers so every layer has an additional
+parameter which is
+prepended right
+so you are increasing the number of
+parameters but that's okay because this
+parameter size is not a huge but when
+you find tune you only fine tune these
+parameters these prompt tuning prefix
+tunings also come under the overall the
+big umbrella of U parameter efficient F
+tuning we'll discuss later right
+parameter
+efficient fine
+tuning PFT
+okay and we will see later models like
+adapter you know adapter sort of
+different types let's say Laura right
+some of you have heard of these terms
+right Laura adura and so on and so for
+we discuss
+later okay
+so what we have learned we wanted to
+share our model with others right uh
+what we can do you can share uh the the
+prompts that we that we learned during
+the finetune process and these prompts
+are going to going to essentially
+describe the task that you want to
+perform of course you need to write uh
+suitable descriptions but these prompts
+will be will be uh will be suitable for
+the models to essentially understand the
+task
+okay let's look at some of the
+results x-axis number of
+parameters y AIS accuracy score and here
+the use this super glue Benchmark right
+we discussed
+earlier
+uh blue line is prompt manual prompt
+Design This is
+manual orange line is model tuning you
+fine tune the model right remember F
+when I say fine tuning this is full fine
+tuning and green line is prompt tuning
+it can be prefix right prom tuning I
+mean PR prefix tuning promp tuning we
+discussed right this is uh that kind of
+model so manual prompt uh manual
+prompting is not a great idea in terms
+of accuracy as you see
+here of course full fine tuning is the
+best but the green line which is prom
+tuning comes in between full fine tuning
+and manual manual tuning right uh with
+the increasing size of the model
+parameters
+prom tuning matches the output of a of a
+full fine tuning this is very important
+right Remember full fine tuning you need
+to fine tune a lot of parameters where
+in uh prompt tuning you need to only
+fine tune a few parameters right so with
+the increasing size of the models uh you
+may be able to get same accuracy as that
+of uh full fine tune model
+okay okay and you see here a kind of a
+variance
+right it basically indicates that this
+accuracy is not stable right so at the
+middle zone right in this Zone accuracy
+uh can vary if you change the prompt um
+I mean if you change
+the uh you know the the data right the
+task your accuracy may
+vary okay let's look at the
+length so I said that you need to
+prepare something right let's say you
+prepare
+um uh only one
+embedding versus five embeddings 20
+embeddings 100 embeddings and 150
+embeddings okay with the increasing size
+of the models let's see what happens
+okay one embedding is not a very good
+idea right uh five embedding is better
+than one embedding right but between 20
+between choosing 20 among 20 100 150 you
+see his lines are almost the same so
+there is no point in choosing there's no
+point in adding 150 parameters 150 uh
+tokens
+right uh as a prompt you can just add 20
+or 30 uh additional tokens uh that is
+good enough for your
+model so I talked about initial ing this
+parameters right so this experiment said
+that if you randomly initialize this uh
+prompt parameters
+versus you you use some sampled
+vocabulary you let's say choose some
+words which you feel are suitable for
+this prompt and you take the
+corresponding embeddings uh from let's
+say what two V or glove and you you
+initialize
+this what happens and if you if you are
+even you know uh
+uh more advanced you want to take more
+if you want to take class labels right
+the labels that you want to predict as
+your uh prompts right what will happen
+so small models of course sampled
+vocabulary or class levels are quite
+better than random initialization but
+for bigger models doesn't matter right
+you can start with random initialization
+initializations it will produce the same
+output as of the uh you know uh as has
+that of the sample vocabulary and you
+know class labels uh that you can use
+right the problems with S prompting is
+that it's not at all user friendly you
+will not get to know what's what what
+has happened in these parameters these
+are not interpretable therefore hard
+promps although they they are not very
+uh good solution but hard promps are
+still chosen as default uh default for
+writing promps okay in the next uh
+module
+subm module I would say I will discuss a
+few Advanced prompting techniques and
+then we will discuss the way to uh you
+know measure the sensitivity of a prompt
+okay thank you
+[Music]

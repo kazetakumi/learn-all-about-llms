@@ -1,0 +1,1354 @@
+Okay, so welcome again. This is the
+continuation of the previous lecture.
+We started discussing language model.
+Right? Last class we discussed n-gram
+language model. I specifically bigram
+language model we focused on bigram
+language model and we looked at how we
+compute bigram language model.
+Basically,
+you know, in any bigram language
+language model what what we do we
+we compute two counts, right? The count
+of
+the count of the bigram, which is w i
+minus one w i, and the count of the
+unigram. Right? w i minus one. Right?
+And we also discussed
+we also observed that in a in a normal
+bigram kind of language model
+what we do, we first compute a bigram
+matrix. Right? Which is which consist of
+unigram cross unigram kind of
+rows are unigrams and columns are also
+unigrams, right? Rows are essentially
+vocabulary words, columns are also
+vocabulary words, right? And we every
+every entry in that matrix indicates the
+bigram count.
+Right? We also observed that
+although the matrix is asymmetric, but
+the the sum of rows for a particular
+entry and the sum of columns of a
+particular entry is is the same. Okay?
+We also discussed
+smoothing techniques. We started with a
+simple add-one smoothing, right?
+Where we
+basically blindly added one to all the
+entries
+of the bigram matrix, right?
+And when we add plus one to all the
+entries, right? What does it mean?
+What does it mean? Let's say the Let's
+say the earlier count was two, now the
+count is three. Earlier count was zero,
+now the count is one. What does it mean?
+It basically means that I have
+encountered that bigram one additional
+time,
+right? Than the count that I
+that I had earlier.
+Okay?
+And we also observed that because of
+this we I mean when we add plus one to
+the numerator, we had to add plus mod V,
+right? To the denominator. And what is
+this mod V?
+Mod V is the size of the vocabulary.
+Right? And this was needed because
+essentially this is a conditional
+probability and we we have to make sure
+that the sum of this conditional
+probability should be one.
+And we also discussed that
+you know, this kind of smoothing
+techniques
+have some problems because
+what happened is that
+those counts which are very high,
+right? Those counts will become very
+very low. Let's say 600 will become 300,
+right? 500 will become 100 and so on and
+so forth. I mentioned also in the last
+class that this is essentially about
+stealing money from from the rich and
+distributing to the poor.
+So today we will discuss and
+two advanced smoothing techniques,
+right? Which will address the problems
+that we had earlier in in advanced
+smoothing, right? Add case smoothing,
+Laplace smoothing.
+All right. So advanced smoothing
+algorithms and we will look at two
+algorithms today, Good-Turing and
+Kneser-Ney or Kneser-Ney, right? Some
+Some people pronounce it as Kneser-Ney.
+Some people pronounce it as Kneser-Ney.
+Okay?
+So
+So what is the intuition here? The
+intuition is
+we use the count of things
+we have seen once
+to estimate the count of things we have
+never seen.
+Okay, this is the intuition. Let's look
+at it with an example.
+We define a concept of frequency of
+frequencies, right? What is a frequency
+of frequency?
+NC
+we denote this by NC. NC is the
+frequency of frequency C.
+Right? Let's assume that this is our
+corpus, right? Rohan I am I am Rohan. I
+like to play. How many times the word I
+appear the token I appear three times,
+Rohan two times, am two times, like one
+times, and so on and so forth, right?
+So, what is N1?
+Frequency of one. Frequency of count one
+here.
+What is N1 here? Three.
+What is N2 here? Two.
+Frequency of count two. What is N3 here?
+One.
+Right? Frequency of frequencies.
+Okay. Now,
+what Good-Turing smoothing intuition
+What What is the intuition behind
+Good-Turing smoothing technique? The
+intuition is that
+we look at the count of one,
+right? Count of count one to estimate
+the count of two.
+Right? Let's see.
+So, let's assume that
+you know, you are you are
+you are bird watching in let's say Jim
+Corbett National Park, and
+these are the birds that that you have
+already observed, right? 10 flamingos,
+two kingfisher, one Indian roller,
+woodpecker, peacock, and so on and so
+forth, right? There are eight data 18
+birds that you have observed so far.
+Right?
+So, if I ask you, what is the
+probability that the next bird that you
+are going to see
+is woodpecker.
+What is the probability?
+1 by 18, right? And this is maximum
+likelihood estimate. What is maximum
+likelihood estimate? Maximum likelihood
+estimate says that
+the the the best probability that you
+can you can derive from the observation.
+And the best probability is 1 by 18 here
+for woodpecker, right? So, maximum
+likelihood likelihood estimate for
+woodpecker is 1 by 18.
+If I ask you, what is the probability
+that the next bird that you are going to
+observe is purple heron, say for
+example,
+a new species altogether.
+According to the maximum likelihood
+estimate, this would be zero. 0 by 18,
+right? But, what Good-Turing will say,
+the Good-Turing estimate will say that
+in order to estimate
+the count of zero, I will look at the
+count of one.
+Right?
+So, how many count one is there? What is
+N1?
+Three, right? So, to estimate this,
+I will use N1,
+right? And based on that, I will measure
+the probability.
+So, this will be N1
+by
+total birds, 18.
+So, 3 by 18.
+Okay? So, in order to come in order to
+measure the cases
+where the the actual count is zero, I
+will look at the count of one and then
+measure the probability.
+So, if this is 3 by 18, if I if I ask
+you again the same question, what is the
+probability that the next bird is going
+to be woodpecker?
+What will be the count?
+Would that still be 1 by 18?
+Would that still be 1/18?
+It is not. Why it is not? Because we
+already subtracted, we already took some
+probability mass from 1/18
+in order to compute this C by 18.
+This is no longer be This will no longer
+be 1/18, right? This will be less than
+1/18.
+Right? What would be the value of the
+modified count for this? We will
+basically
+discuss.
+Okay. So,
+so the good-turing probability says that
+things with zero frequency,
+the probability of those things with
+zero frequency is N1 N1 by N, right? So,
+in case of purple heron as I mentioned,
+the maximum likelihood estimate says
+that this is zero, but the good-turing
+estimate says that this is 3/18.
+For the other cases,
+this is going to be the modified count.
+The modified count C star
+will be C + 1
+times times N C + 1 by N C.
+So, to let's say to estimate to estimate
+the case where C equals to three, for
+example, I will look at
+C
+3 + 1 N4 by N3.
+To estimate the case
+for C equals to two, I look at 2 + 1
+N3
+by N2.
+Okay?
+Now, let's look at the probability of
+woodpecker.
+So, according to the maximum likelihood
+estimate, this was earlier 1/18.
+Now, this is going to be C + 1 1 + 1. C
+equals to one here, and N2 by N1.
+Right? So, 2 * 1 by 3 because N N2 N2 is
+uh in two is one.
+Right? Look at here.
+In two is one.
+There's only one
+count two.
+Right? And what is N1? N1 is three.
+So two times one by three
+two by three. Two by three is the
+modified count.
+What is the probability? two by three by
+18
+because the total
+board that you have observed so far is
+18. So the modified probability is one
+by 27.
+The earlier probability was one by 18.
+Now this is one by 27. This is lower
+than the previous one.
+Right?
+Right? And I'm not going in the
+going in going to the
+theoretical details of this. If you do
+the theory, if you do some math, math is
+very easy. If you do the math,
+uh it will always
+uh guarantee that it will basically
+follow all the probability rules.
+Sum should be one and so on and so
+forth.
+Very simple idea. This is Good-Turing
+estimate.
+So So these are the numbers before
+Good-Turing estimate.
+Zero count, one count, two, three, four,
+five, six, seven, eight. And these are
+the modified count after Good-Turing
+estimate. So earlier it was zero. Now
+this is some number, some non-negligible
+number, 0.0000270.
+Earlier it was one. Now this is 0.446.
+The count which was two earlier, now the
+count is 1.26. The count which was three
+earlier, now this is 2.24.
+Now look at the difference between these
+and add-one smoothing, the one that I
+discussed earlier. Right? Add-one
+Add-one smoothing after add-one
+smoothing we saw that the count
+uh the the modified count is very very
+different from the original count.
+Right? But if you
+Look at here carefully. This is not very
+different.
+After after after good Turing estimate,
+the count is not very different from the
+previous one.
+But you still you still make sure that
+there is no zero.
+Zero is replaced by some number.
+Okay? Now, if you look at this thing
+very carefully, the numbers very
+carefully,
+although we did some tricks, but now if
+you look at the number very carefully,
+this is essentially
+the modified count is essentially the
+original count minus
+.75 roughly.
+Roughly .75.
+Right? The modified count is original
+count minus roughly .75.
+Okay?
+If this is the case,
+then why can't we just discount an
+absolute number?
+Let's say .75.
+From the bigram from the bigram count.
+And let's see what happens.
+Okay, why do we need to do all these
+things? Ultimately, if if it is only a
+discount of .75, then why do we need
+this math? We just
+discount some some constant D from the
+count, and then we again
+uh modify the count. Okay?
+So
+So, this is called the absolute
+discounting interpolation.
+In the absolute discounting
+interpolation,
+what we do,
+so this is So, so C of
+W I minus one W I
+by C of W I minus one.
+This is the actual probability that we
+are interested in, right? Now, I'm
+saying that you
+you discount some factor D
+from the bigram count.
+Right? Because we observe that this
+essentially 0.75.
+You discount some factor, right? And
+since this is this is some sort of
+interpolation, if you remember
+interpolation, back off interpolation I
+mentioned last class,
+interpolation is what? Let's say if we
+if we if we are looking at bigram
+probability, interpolation says that you
+basically come up with something which
+is a combination of bigram and unigram.
+Right? Here also, now this corresponds
+to bigram and this corresponds to
+unigram.
+What is P of WI?
+P of WI is the probability, unigram
+probability of WI.
+What is WI? WI is the second word in the
+bigram. WI-1 WI. Right? Unigram
+probability. And we can easily measure
+the unigram probability from the corpus.
+How?
+Let's say unigram probability of book uh
+book, the word book. We look at all the
+occurrences of book and you divide it by
+the total number of uh
+the tokens.
+Right? And what is this lambda?
+Lambda is essentially again some sort of
+uh
+hyper parameter, whatever, right? That
+you can tune.
+Right? Lambda can be a fixed value.
+Lambda can be
+can be a function of the unigram itself.
+In this case, in this particular
+formula, here lambda is a function of
+the unigram itself.
+And how do you how do you measure this
+function? We have this held out set,
+validation set, and we run this thing
+multiple times
+and we decide the value of lambda.
+So,
+but this is not that easy, right? This
+is not that easy. The reason is
+if you look at the unigram count, this P
+of WI,
+right?
+Cases like stop words, right? A, I, so
+let's say pronouns, right? Articles,
+right? A, the, and right? You'll see a
+lot of unigram counts. Right? So,
+therefore, for stop words, frequently
+occurring words, the unigram count count
+will always be very high.
+Okay?
+So, in in uh
+in uh in the next uh
+uh
+in the next uh
+method that we're going to discuss,
+Kneser Ney and Neyzer Ney,
+there what we'll see, instead of looking
+at or instead of measuring the unigram
+probability, we will measure something
+called a continuation probability of a
+unigram.
+We'll measure the continuation
+probability of a unigram.
+What is a continuation probability of a
+unigram?
+We all understood what is a unigram
+probability, right?
+And you also understood the problems of
+unigram probability.
+Okay?
+Now, let's say
+there is a document which is related to
+the US, right? Where the word
+uh Los Angeles, right? Appears so many
+times, many many times in the document.
+Right?
+So, then obviously, the word Angeles,
+right? Will have high frequency, high
+unigram count.
+Right? So, whenever you essentially
+sample some number some word from the
+unigram distribution, it is highly
+likely that the word Angeles will be
+will be sampled.
+Right?
+But in this in this continuation
+probability, what we will measure, we
+will measure
+the number of unique bigrams. Please
+listen to this very carefully. Number of
+unique bigrams
+that this particular unigram completes.
+Number of unique bigrams
+that the given unigram
+which is under consideration completes.
+Okay?
+And what is the intuition again? Again,
+the intuition goes back to the Shannon's
+Shannon's guessing game, right?
+Let's say
+Let's say if you if I ask you
+uh this this sequence, "My breakfast is
+incomplete with without a cup of dash."
+Right?
+Without a cup of dash.
+If you use a unigram count, unigram
+probability, you will see that the word
+angelus has high high high high
+probability than the word coffee.
+So, but if you sample angelus here, if
+you if you add here, this is not going
+to be a correct answer.
+Right? But if you look at it very
+carefully, the word angelus. So, the
+angelus, so this word
+appears only with the word loss
+most of the times.
+So, how many unique bigrams it
+completes?
+Only one.
+Whereas the word coffee
+appears with many other words. Hot
+coffee, cold coffee, regular coffee,
+morning coffee, breakfast coffee, and so
+on and so forth.
+So, instead of measuring the unigram
+count, we will measure something called
+the continuation probability of a
+unigram, right? Which says, "How likely
+is W to appear as a novel continuation?"
+Right? So, we will look at all
+all possible
+all possible W X's.
+Right? All possible W X's which is
+completed by the word W.
+So, let's say W1W,
+W2W, W3W, dot dot dot, right? W NW. So,
+the novel continuation count of the the
+the unigram W is essentially N.
+Okay?
+So, this is the
+continuation probability of a of a
+unigram.
+Look at the numerator very carefully.
+Right? We are interested in all those
+bigrams
+wi - 1 w
+whose count is greater than zero.
+Right? And how many such wis are there?
+More More of this set. So, you're
+interested in all those w wi - 1 such
+that count of this is greater than zero.
+So, this The cardinality of this set
+will be the numerator.
+Will be the count of novel
+continuations.
+What is the denominator?
+What is the denominator? What do you
+think?
+What should be the denominator?
+Mhm?
+Number of?
+Unique bigrams. Very good. Number of
+unique bigrams irrespective of the
+appearance of w.
+Right? If you look at the denominator
+here, count of
+count of again, count of all the So,
+count of all the bigrams.
+So,
+this is basically the set of all the
+bigrams whose count is greater than
+zero.
+Out of all the bigrams, how many unique
+bigrams are completed
+by the unigram w?
+Clear?
+If you do that,
+the probability of the word Angeles will
+be lower than the probability of the
+word coffee.
+Clear?
+So, this is the idea idea of Kneser-Ney
+uh smoothing. Okay? So, we replace the
+unigram probability by the continuation
+probability.
+Right?
+And And here, if you look at the
+numerator,
+what is this? This says max of
+max of
+count minus D.
+So, D is the absolute discount, right?
+Which was motivated by the previous one,
+0.75.
+So, the count minus this absolute
+discount D,
+{comma} zero, because it may happen that
+the number is negative.
+The count is If the count is zero, then
+zero minus let's say D is 0.75. It will
+be negative.
+Should not be negative. So, max of these
+two,
+right? By the count of unigram.
+Now, can somebody tell me how to
+determine the value of this
+uh
+lambda?
+Let's say
+uh uh
+Yeah. So, in in this particular formula,
+lambda is a function of W I minus one,
+right?
+Remember, this is a probability.
+Okay? I already discounted something
+from the first component. I discounted D
+from the first component. Right? So, how
+many discounts have happened so far
+for a particular W I minus one?
+Again, think of the bigram table, okay?
+Row Each row is basically W I minus one.
+And column is W I.
+Right? Bigram table, W I minus one W I.
+Now, for every W I minus one, we need to
+make sure that the sum should be one.
+Right?
+Now, tell me, if I discount minus D,
+if I discount D
+from the from the bigram count,
+we need to adjust somewhere.
+We need to adjust this so that the
+probability should be one.
+Think about it. Think about it. You're
+almost there.
+You're almost there.
+So for for which entries for which
+entries this discount is applied?
+Now think about the row, right? There
+are some entries which are
+There are some entries which are
+non-zero.
+There are some entries which are zero.
+So this D will only be applied to where?
+Non-zero.
+Right? Non-zero and those whose whose
+value is greater than D.
+Greater than D, right?
+So
+I mean this is again an
+approximate I mean
+this should be D, right? But again,
+assume that this this is very small
+number.
+So for those cases whose count is
+greater than D,
+right? We will discount something from
+there, right? And what is going to be
+the numerator denominator? Numerator is
+D. What is the denominator?
+Mhm? Count of?
+What is this count of W I minus one?
+Unigram count of previous word in terms
+of the table can someone can you tell me
+in terms of the row?
+Huh?
+The count of basically the sum of sum of
+values of the row.
+Right? Yeah.
+Okay. So the numerator would be D times
+the mode of the set
+for which this condition is applied by
+the total count.
+You got this part is discounted and this
+part is adjusted here.
+Okay. And and if you do the math, you'll
+see that this is this will always
+guarantee that this is one.
+Okay, now most important part. Uh so
+this was about smoothing. There are
+other smoothing techniques also, but uh
+generally we follow these three most
+smoothing techniques.
+Uh add one smoothing at at K smoothing,
+Laplace smoothing, and uh good Turing,
+and Kneser-Ney.
+The most important part here is how to
+evaluate a language model.
+Let's say you have a Let's say you have
+come up with the language model which is
+a five-gram language model. My language
+model is three-gram language model.
+Right? How do you know that yours is
+better than my method?
+What do you think?
+What do you think?
+So
+the language model, right? When we
+evaluate a language model, there are two
+ways to evaluate a language model.
+One is
+called extrinsic evaluation.
+Extrinsic evaluation, the other is
+intrinsic evaluation.
+What is extrinsic evaluation? Extrinsic
+evaluation is also called task-based
+evaluation.
+Task-based
+evaluation.
+Okay?
+Let's say this is a language model
+L1, and this is language model L2.
+I mentioned in the first in in in in the
+last lecture that um
+we use this language model for
+downstream tasks. The task can be
+machine translation, task can be speech
+recognition, task can be spell
+correction, spelling correction, right?
+Let's say
+you have the task machine translation,
+right? For which you apply a language
+model. You
+You use a language model. And machine
+translation method model, let's say, is
+evaluated based on some metrics. Let's
+say the metric is blue. Blue is a a
+score that we generally use to evaluate
+the quality of a machine translation
+engine.
+Okay?
+So, what we'll do, I will feed the
+output of L1
+to machine translation model and see the
+value of blue score.
+Similarly, I feed the value of output of
+L2 and see the score. Right? And we will
+see which one is better.
+Okay? So, I will feed the output of L1.
+I will feed the output of L2 separately
+in isolation and we'll see for which
+for which language model the machine
+translation engine will perform better.
+And then I will say that, "Okay, let's
+say L2 is better than L1." Or vice
+versa.
+It's a task-based evaluation. What are
+the problems in task-based which
+task-based evaluation? What do you
+think?
+Right. So, if the quality of the machine
+translation model is not good, then you
+won't be able to essentially assess the
+actual performance of L1 and L2.
+What is the second problem?
+What is the second problem?
+The second problem is that
+it is not very clear which task we
+should choose.
+Right? There are plenty of tasks. There
+are thousands of tasks.
+Right? Where
+language model can be applied.
+Right? Whether to choose machine
+translation or speech recognition system
+or what, right? It's not very clear.
+So, what we do generally, we generally
+consider 10 12 different tasks and we
+see if a language model outperforms
+other language models across majority of
+the task, then we say that
+that language model is better.
+Okay? The The third problem is that
+this extrinsic task
+machine translation, speech recognition
+they are time-taking.
+They themselves are time-taking because
+they Let's say they are neural models.
+Right? So, if you had to choose between
+L1 and L2, you will have you you you you
+may need to wait for 7 days to see the
+performance of this downstream task, and
+then you have to decide which one is
+better. Let's say Let's say you have you
+don't have time, right? You have to
+choose very quickly among L1 and L2,
+right? You you you can't use this kind
+of models.
+This kind of framework, right?
+So, we have to have some ways to
+intrinsically
+or implicitly
+measure
+the quality of a language model.
+Okay?
+So,
+right?
+And for that,
+what we use we use a metric called
+perplexity.
+Okay?
+Again, the motivation behind perplexity
+comes from the Shannon's guessing game,
+character guessing game, word guessing
+game. Okay?
+If I ask you
+this
+this sentence, I always order pizza with
+cheese and dash.
+What would be the answer?
+Mushroom maybe.
+Cheese and mushroom, or cheese with and
+what?
+Corn, right?
+Something like that, right? You you you
+you you I mean the
+the set of vocabulary from where you
+choose the answer would be limited.
+Maybe five words or 10 words. Or 15
+words, not more than that.
+But if I ask you, I wrote a dash.
+Right? You see that the size of the
+vocabulary would be much much uh
+you know, longer.
+What does it mean?
+It means if I give you more context
+if I give you more context, then the
+language model should be able to predict
+things very easily.
+It is all about guessing game, okay?
+So, let me first define perplexity, and
+then I'll tell you the intuition behind
+perplexity, okay? So, what is the
+definition of perplexity?
+Uh
+the definition of perplexity is very
+simple. So, let's assume that this is
+your test set W1 W2. In your test test
+set, there are N tokens.
+You already have a training set,
+right? Based on the training set, you
+already uh
+you you have already come up with the
+language model. You have already
+developed the language model. There's a
+language model L1, language model L2,
+right? Now, you are given a test set,
+which consist of these tokens,
+sequence of sentences, right?
+Complete incomplete sentences.
+What I do, I measure the probability of
+this
+of the sequence of sentences based on L1
+separately and based on L2 separately.
+Right? Now, based on the probability, I
+will define the the this metric for
+perplexity.
+What is perplexity? Perplexity
+is de- denoted by PP
+of a sequence of tokens 1 to N
+is
+1 by
+N-th root of
+P of
+W1 W2 {dot} {dot} {dot} WN.
+This is same as
+P of
+W1 W2 {dot} {dot} {dot} WN to the power
+minus one by n
+agreed?
+Agreed?
+What does it mean?
+If a language model produces
+high probability,
+right? The perplexity would be
+low.
+Okay?
+If it produces high probability, the
+perplexity would be low.
+Now, if a if a language model is a
+bigram language model, then this would
+be same as How do you compute this one?
+If it's bigram language model
+P of W1 times P of W2 given W1 times P
+of W3 given W2 dot dot dot P of WN given
+WN minus 1 whole to the power minus 1 by
+n.
+If it is unigram, then P of W1 times P
+of W2 dot dot dot P of WN whole to the
+power minus 1 by n.
+Right? And we'll see that the language
+model which produces lower value,
+lower perplexity, will be considered as
+a better model.
+Now, why suddenly this metric? Why this
+1 by n and you know, n-th root and so
+on, right?
+For the time being, forget about this
+n-th Forget about this 1 by n, right? 1
+by this
+this 1 by this probability. Let's assume
+that this is a simply P of W1 W2 dot dot
+dot WN, right? To the power or n-th root
+of this. n-th root of this probability.
+So, what is this? n-th root of this This
+one is what?
+Geometric mean, right? This is geometric
+mean.
+The inverse geometric mean.
+We know the geometric mean, right?
+Arithmetic mean, geometric mean.
+Right?
+Now, why suddenly this?
+There's a very interesting connection
+between perplexity and entropy.
+Right? And we'll derive this thing here.
+Okay.
+So,
+we all know what is entropy.
+So, entropy let's say
+there is an event X.
+Right?
+Entropy of this This is Shannon's
+entropy. Okay? Entropy of this event X,
+let's say there are there are uh there
+are n number of outcomes.
+Right? And each outcome has certain
+probability. Right? So, this is
+essentially sum of
+sum of p p p i or whatever p x i
+log of
+p x i
+minus
+Okay? And what is this x i? x i is one
+outcome of x.
+Right? There are n number of such
+outcomes.
+Okay? Now, if the outcome is uniform,
+right? Let's say there are n trials
+there are n trials and and let's say
+there are c outcomes c possible outcomes
+and each outcome appears equally equal
+number of times.
+c by n or n by c.
+Right? Whereas if the outcome is biased,
+whose entropy would be high?
+Entropy is a measure of randomness,
+right? Whose entropy would be high?
+Uniform, right? We all know this famous
+plot.
+Right?
+This is p and this is h. When uh the
+probability is same
+for all the outcomes, the entropy is
+maximum.
+Right?
+All right. So, uh we all know entropy.
+Now, we will uh
+Now, for a sentence for for for a
+language, specifically for a language.
+A language is
+language essentially is denoted by a
+sentence, right? Or a sequence of
+tokens, right? So, how do we measure the
+How do we How do we measure the entropy
+of a sequence of tokens?
+Now, remember this. Here there's a
+random random variable which indicates
+the outcome of an event. Now, here what
+is a random variable?
+Hm?
+A random variable indicates a sequence
+of words.
+Right? And how do you measure this
+entropy here? This is This is same as
+uh minus of right? Sum of let's say
+P of
+W1, W2, dot dot dot WN, right? Log of
+log of
+P of
+Right?
+And this is for all such sequence of
+all all such sequence of uh
+sequence of words who which belongs to
+the language in
+Isn't it?
+You all agree with this equation?
+Right?
+Now, what we define, we define entropy
+rate. Why we define entropy rate?
+Because this is an entropy of a
+sequence.
+We need to define an entropy of a word.
+Of a token, right? So, we define
+something called entropy rate.
+Entropy rate
+or
+per word
+entropy.
+Right? What is entropy rate of forward
+entropy? This is basically one by n of
+this h.
+Why? Because there are n words.
+This is a total entropy. Forward entropy
+is one by n
+of this. Simple.
+Right?
+So, this will be
+-1 by n
+summation of p
+log p.
+Okay?
+This is entropy rate.
+Now, think about it.
+I'm only considering those cases
+those sentences or those sequences whose
+length is m.
+Right? But, in a language, in a
+document, there are sentences, there are
+there are sequences of multiple size.
+Right? Some sequences will be
+will have length of five, some some will
+have length of six, some have 10, and so
+on and so forth.
+And but here, we are only considering
+those sequences whose length is m.
+Right? So, how do we generalize it? We
+generalize it using
+this um
+using this um
+limit theory. Right? We say that
+limit
+n tends to infinity
+right? 1 by n
+p of this
+log
+p of this.
+Okay?
+So, remember here, language is a
+stochastic process. Right? Language is a
+stochastic process. What's the
+stochastic process? It it generates uh
+uh tokens. So, language generate
+generates tokens based on some some
+distribution. Right? And the
+distribution is something which we do
+not know. That p is a distribution that
+we do not know.
+Okay?
+Okay. So,
+So, this is the entropy rate. Okay? And
+we denote this entropy rate by H of L.
+Now H of L is this one.
+So far so good.
+Now we will apply a theorem. Again, I
+will not go into details of the theorem.
+This is called the Shannon
+This is called Shannon-McMillan
+Shannon-McMillan-
+Breiman theorem.
+Okay?
+The Shannon-McMillan-Breiman theorem
+says if the stochastic process is
+regular
+What is a regular stochastic process?
+It should be stationary and ergodic.
+Again, I will not go into the details of
+this, right? If a process is a is a
+regular process, right? I can
+approximate this.
+I don't need I I I I don't need a lot of
+sentences, right? I need a sentence
+whose length is significantly large.
+I don't need to basically take the sum
+over all sentences. I can approximate it
+by a sentence whose length is
+significantly large. Meaning, it can be
+approximated to
+limit
+n tends to infinity
+log of
+Right?
+log of um
+w1 w2 {dot} {dot} {dot} wn and again
+this p of this p is also here.
+What I did? I just removed the
+summation.
+I only removed the summation. Because
+this summation says that let us consider
+all the sentences, right? Of different
+lengths and so on and so forth. Now
+using this theorem I said, "No, I will
+not consider all the sentences. I'll
+consider only that sentence Well, one
+sentence whose length is significantly
+long.
+Okay?
+And
+I will this is minus.
+Okay? And I will also assume that the
+probability of of this sentence
+is 1 by n.
+Okay, now these are Now, if you're not
+convinced by this, I strongly suggest
+that you you go through this theorem and
+you want to this is a very standard
+theorem in in in information science,
+information theory.
+Okay?
+So, this boils down
+This boils down to limit
+n tends to infinity 1 by n
+log of
+w1 w2 dot dot dot wn.
+Huh? Happy P P. Yes, P. Sorry. P.
+Of course, P.
+Okay?
+Now,
+I define another concept, cross entropy.
+Entropy we know.
+This is entropy.
+What is cross entropy?
+What is cross entropy?
+When do we need cross entropy?
+Let's say there are two events.
+There are two random variables
+indicating two different events.
+Right? And let's say you want to you
+want to measure the closeness or
+difference or some sort of similarity
+between two events, right? Whether one
+one event is independent of other events
+and so on and so forth.
+In language,
+nobody knows what is the actual
+probability or the gold probability of a
+of of generating a word. Nobody knows.
+If you knew what is the gold probability
+of generating a language, then you would
+have solved the language generation
+problem. Nobody knows how a language is
+generated.
+Right? We We approximate this process
+using language model. We say that look,
+we will we will design a language model
+which will try to mimic the way language
+is generated.
+You get my point? Right? So, we will
+define something called cross entropy
+here. Cross entropy between
+between the actual way a language is
+generated L and our model M.
+Okay?
+And And And And what is the uh
+cross entropy formula?
+Uh
+sum of
+below sum of P of
+uh
+uh P L P L of let's say X I, right? Log
+of
+P M
+of X I, right? What is P L? P L is the
+probability obtained from the language
+from the language itself assuming that
+we know the oracle.
+We have access to the oracle, whereas P
+M is the probability obtained from the
+model. Let's say the model is a bigram
+model or trigram model.
+And this is cross entropy.
+Right?
+Again, if you apply this
+Shannon-McMillan-Breiman
+theorem, you will you can you can
+approximate this.
+Again, I mean, from here we we will we
+will consider uh power entropy, sorry,
+uh entropy rate or power word entropy,
+right? 1 by n 1 by n then limit and so
+on and so forth. We apply all these
+things, all the tricks that we applied
+here.
+So, if we
+apply this formula, if we apply the
+theorem again, the theorem says that the
+cross entropy
+cross entropy can be written as limit in
+tends to infinity minus one by n
+log of
+p m
+I mean in our case x i is essentially
+what? w one w two dot dot dot w n
+Okay?
+So cross entropy has a very nice
+property by the way. Do you know that
+cross entropy has a bound?
+The original entropy h of p
+is the lower bound of the cross entropy
+p of h of
+let's say
+or l
+And you can prove this very easily.
+Can you prove this?
+Can you prove this theorem?
+Can you prove this theorem? h of l
+is bounded by h of
+l comma m. What is l? l is the true uh
+the the the the oracle language
+right? Event. Or a m and and what is m?
+m is a model. Right?
+Can you prove this?
+What is h of l? h of l is let's say
+minus
+Right?
+log of
+p i right? If you If you replace p i by
+p i by m i times m i
+Right?
+So
+minus p i
+log of m i
+minus
+Right?
+Uh p i
+log of
+p i by m i.
+What is this?
+This is cross entropy.
+This is h
+l
+m. And what is this by the way? p i log
+p i m i
+Let's see.
+What is this?
+This is scale divergence.
+This is scale divergence between p i and
+m i, p and m.
+Right? So, h of l is essentially h of
+l
+m minus
+KL divergence of l and m.
+So, it means that h of l is less than
+equals to this.
+Now, let's try to understand at least
+intuitively try to understand this this
+this equation, right? What it says? It
+says that the entrop What is What is h
+of l?
+h of l is the entropy of the true event
+l, which you do not know.
+Language, right? What is h l {comma} m?
+It's a cross entropy between the
+language and the model.
+And what is the scale divergence? Scale
+divergence is the difference between l
+and m.
+Right?
+So, if you reduce the difference between
+language and the language model
+the language model will come closer to
+the language.
+All right. So, we have seen what is um
+Okay, well, just forget about all the
+theories, okay? Let's focus on this
+part. Let's focus on
+uh
+just focus on maybe uh this part.
+Okay?
+Okay? And
+again, to simplify this, you ignore the
+limit because when you consider only one
+sentence whose length is infinite, we
+can ignore the limit also.
+Right? Only this part is there. 1 by
+1 minus 1 by n log of p.
+Right?
+Now, my claim is
+perplexity pp
+is 2 to the power
+entropy.
+This is my claim.
+Okay? Now, let's see. We know the
+formula of perplexity already. We have
+seen the formula of perplexity. Now,
+what is this h? H we have seen this is
+minus 1 by n log of p of w1 w2 dot dot
+dot dot wn.
+Right? So, you move this to the power of
+probability.
+Okay? Then this log and two will vanish
+because it's the power of two.
+Uh base is two. So, this is going to be
+p of w1 w2 dot dot dot wn to the power
+minus 1 by n.
+Right? Now,
+pause and ponder. Think about it.
+What is entropy? Entropy intuitively
+entropy says
+the average number of bits required
+to encode an information.
+Right?
+Log of What is What is log of 1 by pi?
+What is minus log of pi?
+What is minus log of pi?
+Number of bits required. Minimum number
+of bits required to encode.
+Pi log of pi is what?
+Minus pi log of pi is what?
+Expected number of bits required.
+Because pi is essentially the
+probability of that outcome.
+Right? So, entropy says that what is the
+expected number of bits required to
+encode an information?
+Number of bits. What is two to the power
+number of bits indicating?
+Let's say the number of bits is three.
+What is two to the power three?
+Number of possible cases, number of
+possible words that you can generate
+with three bits.
+Right? So, entropy says then what the
+So, the perplexity is what is the number
+of possible possible words that you can
+generate.
+Okay? Now, assume that you have a
+sequence of sequence of tokens and you
+want to estimate what is going to be the
+next word.
+If If a language model's entropy is
+high,
+if the language model's entropy is high,
+so two to the power that will also be
+very high.
+That means That means there are a lot of
+There are lots of possible candidates
+that can come there.
+If a language model's entropy is low,
+that means your your possible set of
+words is also low.
+That means you're you're more uncert-
+you're more certain about the the next
+token.
+Clear?
+Okay? So, someone can say that why do we
+need perplexity? I can use entropy. I
+can use entropy as a measure of
+as a measure for evaluation.
+But entropy Entropy and perplexity are
+proportional.
+Right?
+If I use entropy as a measure for
+evaluation, it doesn't make much sense.
+Intuitively, if I say that, "Okay, the
+average number of bits
+is three for this language model." What
+What does it mean?
+Versus if I say that for this language
+model
+this language model can generate eight
+possible
+tokens for the next word, versus this
+language model can generate three
+possible tokens for the next word. This
+makes more sense.
+You can say that okay, next the the
+second language model is better than the
+first language model because the second
+language model is more certain.
+Clear?
+So, this is the beauty of perplexity.
+Let's look at some of the problems of
+statistical language model.
+We discussed n-gram models.
+We discussed
+uh smoothing techniques. We discussed
+evaluation measures, right?
+So, n-gram models the major problem is
+this fixed window size because I have to
+I have to choose the window and based on
+that I have to measure the count and so
+on. What would be the size of the window
+is not very clear.
+The second problem is that
+uh
+you know
+as the number of bigrams increases, this
+matrix size will increase, right? Even
+if you do a lot of smoothing, you will
+still see that there are lots of small
+value zero counts and so on and so
+forth.
+It is very bad
+in handling
+uh out of vocabulary words, OOV. I
+mentioned one technique last last day,
+but that technique is also not that
+great given the you know the amount of
+new words coming in every day.
+Right?
+And uh of course, it is computationally
+very expensive to create or to to come
+up with this kind of n-gram
+this this bigram table, bigram or
+trigram table assuming that you have a
+trillion size corpus.
+Right?
+So,
+so what is what is needed? We we need
+some sort of better understanding of
+some sort of
+representation which understand the
+context properly, right? We will also
+look at how we we make the entire thing
+scalable and so on and so forth. Thank
+you.

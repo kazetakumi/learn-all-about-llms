@@ -1,0 +1,864 @@
+Hi, welcome to a new lecture series from
+Vishwara. This lecture series is about
+the attention family.
+I have named it as attention family
+simply because there are many different
+types of attentions that are existing
+that has been proposed by different
+papers and different models in the
+literature.
+You may have heard of scaled dot product
+attention. You may have heard of masked
+attention.
+There are many other attention types,
+group query attention, ring attention,
+paged attention.
+Uh we have flash attention.
+And many more. And literally if you try
+to count the number of different types
+of attentions, you will see that there
+are easily more than 50 plus reasonably
+famous
+types of attentions that have been
+introduced by different papers. So hence
+I have put the name the attention family
+to capture all of these under one
+umbrella or under one roof.
+So this lecture series is to give you a
+very good idea about not just the
+attention that was introduced in the
+attention is all you need paper,
+but also to introduce you to how people
+have come up with different types of
+attention mechanisms that are more
+efficient, faster, etc.
+And I also want to not just lay down
+upon many different attention mechanisms
+in front of you because that will not
+probably teach you how to think of your
+own attention mechanism. If you want to
+design something of your own.
+From first principles, how can you think
+about how to build an attention
+mechanism that may improve a certain a
+very specific aspect, right?
+So this lecture series is about
+giving you first of all an idea of all
+the different types of attention
+mechanism, trying to bucket them in very
+specific categories, teaching you what
+those buckets are, and trying to
+implement some of these attention
+mechanisms by hand, on code, etc.
+And at the end of it, you should feel
+comfortable
+to probably think of some aspects that
+you could improve yourself, right?
+So, my name is Dr. Sridhar Panat. I am
+one of the three co-founders of Visual
+AI Labs. I'm a PhD from MIT and a
+graduate from IIT Madras.
+So, this lecture series is purely
+dedicated to all of all of you, whether
+you are a student or industry
+professional.
+If you want to master attention
+mechanism completely end to end.
+I have been wanting to conduct a series
+like this for a very long time and now
+I'm glad that I have managed to put this
+together.
+I'm not exactly sure the total number of
+lectures that will be there in this
+series, but I suspect it will be easily
+more than
+10 or 12 lectures, but maybe much more
+than that also because I'm not yet sure
+whether I'll be combining,
+you know, discussing about a few
+different attention mechanisms into one
+single lecture or whether I'll split it
+into multiple lectures that I have not
+decided yet. But I'll show you the
+different attention mechanisms that we
+will be discussing from a deep
+theoretical perspective and also from a
+practical perspective in this lecture.
+So, in this slide, I'm just showing you
+simply three models, Llama 3, Deep Seek
+V3, and Kimmy Linear model.
+And here you can see three terms, GQA,
+Rope, Causal, MLA, Rope Flash Attention,
+KDA, 321 Hybrid, and NoP.
+So, GQA stands for Group Query
+Attention. Rope is Rotary Positional
+Embedding. Causal Attention. MLA stands
+for Multi-Head Lighted Attention. KDA is
+Kimmy Delta Attention. NoP is No
+Positional
+Embedding.
+So, basically, if you look at any model
+from literature or any popular model
+from,
+you know, industries,
+you will see that certain components
+might be different. Like that you might
+find two different models that may use
+causal attention and group query
+attention, but instead of rotary
+position embedding uh some model might
+use sinusoidal position embedding,
+right? So, or here you can see some
+models might use multi-head latent
+attention. Some other models may not use
+multi-head latent attention.
+So, first of all, what are these things?
+What is group query attention? What is
+multi-head latent attention?
+Why is it used? What is flash attention?
+Is flash attention fundamentally
+changing something within that attention
+architecture itself or is it coming at
+the time of implementation when you when
+you try to implement this for inference
+in GPU?
+What is paged attention? What is Kimi
+Delta attention? There are so many
+questions, right? Simply because at the
+moment maybe for many of you these are
+just terms or maybe you are familiar
+with some of these architectures, I mean
+some of these attention types, but not
+every single one of them.
+So, I just want to show you one slide
+which may
+make you feel a little bit
+uncomfortable, but I'm just going to lay
+down a bunch of names, okay? These are
+simply jargons which may intimidate you
+a little bit, but please don't worry
+about it. I'm just showing you what all
+things we might cover overall as part of
+this series, but in a very structured
+way.
+So, flash attention, paged attention,
+sliding window attention, sinusoidal
+embedding,
+causal masking, cross attention,
+bidirectional attention,
+linear attention, Badanov attention,
+which is very old, uh the attention that
+is used in Swin Transformer, the window,
+uh then deformable rotary position
+embedding, DeltaNet, gra-
+group query attention,
+then uh lot of them, uh Kimi Delta
+attention, scale dot product,
+uh then multi-head attention itself, and
+I'm just showing you around I think 35
+or 37 different names here.
+Ring attention, self-attention,
+multi-head latent attention,
+lot of names, okay? I'm sure like you
+have maybe heard of half of them. Maybe
+many of the names themselves are very
+new.
+And when a new paper comes out tomorrow,
+I'm sure they will introduce something
+new in terms of attention mechanism and
+I'm sure it's going to improve some
+aspect of
+uh either inference or maybe it is going
+to improve um
+the um
+the ability to have long-range um
+attention in a better way. Maybe it will
+uh reduce the
+um compute but increase the needed
+memory. So, there are many many
+different concepts.
+So, firstly the question that we have to
+ask ourselves is first of all, is it
+worth learning all of this?
+Second, if we if we are really
+interested in understanding all the
+different attention mechanisms,
+how exactly can we can we bucket them?
+Because clearly these are not
+stand-alone mechanisms, right? There are
+some things similar between these
+mechanisms and um
+there are there are maybe
+boxes in which we can fit these
+attention mechanisms. So, maybe a better
+way to learn about these mechanisms is
+to understand what are those boxes. So,
+in today's lecture, today's is purely an
+introductory lecture. I'm not going to
+teach you any specific attention
+mechanism in today's lecture. However,
+uh my my goal is to lay out what you can
+expect in the upcoming lectures in this
+series um
+as far as different attention mechanisms
+are concerned.
+So, I want you to have a very very good
+look at this image
+where I'm showing you seven buckets in
+which we will be discussing about
+different attention mechanisms.
+Sometimes
+uh when you compare two different
+attention mechanisms, there may be
+difference uh or or similarity
+across more than one bucket, okay? And
+I'll show you what these buckets are.
+And even if you don't fully understand
+uh some of these terms, it's completely
+okay today because I'll be anyway
+starting from the next lecture from the
+very basics. So, don't worry about
+understanding every single thing, every
+single jargon that I'm mentioning in
+today's lecture.
+First is about scoring. This is the
+first bucket.
+So, scoring means when we calculate or
+compute the attention score, how is it
+computed? There are many different ways
+in which we can compute the attention
+score. So, the first bucket
+in which we'll be classifying the
+different attention mechanisms will be
+based on scoring.
+Second is connectivity, meaning which
+tokens are allowed to look at which
+other tokens. So,
+uh and there are many different
+attention mechanisms based on this um
+connectivity between tokens.
+Third is uh the attention heads
+themselves. How are the heads arranged?
+Is it uh multi-head attention or is it
+something else?
+Um then, if we have KV cache, how big is
+the cache itself? And if you don't know
+KV cache, again, don't worry, we'll be
+discussing about that. But, this is the
+third bucket. This is about the
+attention heads themselves.
+Fourth is we You might have heard that
+the complexity of computation of
+attention mechanisms scales with the
+square of number of tokens. Because the
+attention weights matrix, which we will
+anyway discuss in the upcoming lecture,
+even if you are not familiar with that,
+it scales with the total number of uh
+with the square of total number of
+tokens. So, that's the reason why here
+we say quadratic. So, you may often hear
+the term
+n squared,
+n raised to two.
+Uh n squared because if you have n
+number of tokens,
+uh each token will become query. All of
+those tokens will also become uh key.
+The query and key has to um you know,
+have to take dot product between queries
+and keys. And the total number of such
+dot products will be equal to uh n
+multiplied by n, which is equal to n
+squared. So, it is quadratic complexity.
+However, there are attention mechanisms
+which have managed to bring down the
+complexity to sub-quadratic. So, it
+won't be n raised to two, it will be n
+raised to something less than two.
+So, there are some attention mechanisms
+we can bucket into the category of
+sub-quadratic.
+Then, based on implementation, actual
+implementation um
+in terms of GPU implementation, there
+are differences. Uh there are different
+different attention mechanisms. Uh for
+example, flash attention is a very good
+uh example how you implement it in
+practice. So, that is the fifth bucket.
+Sixth bucket is about
+the position information, like how
+attention knows in what order tokens are
+existing. There are many attention
+mechanisms where we don't embed position
+information. Many other attention
+mechanisms have naive learnable position
+embedding. Many of them have sinusoidal
+position embedding. Many of them have
+rotary position embedding. So, there are
+many different mechanisms through which
+we inject position information into the
+attention uh mechanism itself. And
+finally, is the attention mechanism
+belonging to text domain, video domain,
+uh image domain, or let's say audio
+domain. To which domain are we adapting
+this attention mechanism? Obviously, if
+you are thinking about attention
+mechanism between text and uh images,
+there are differences because image
+definitely has a spatial structure,
+right? A 2D If If you're looking at an
+ex- by um a black and white image, it
+definitely has a 2D structure, which
+means there is there has to be some
+difference in the way attention
+mechanism is implemented for an image
+versus um
+a text a sequence of uh text tokens. So,
+that is the seventh bucket.
+So, now when we categorize attention
+mechanism, maybe some of them will fall
+in multiple of these buckets. So, we may
+have attention mechanism that is falling
+uh that is common um
+that has buckets number one, two, and
+three common between them, but maybe
+bucket number four, five, and six four,
+five, six, and seven for that when you
+compare those two attention mechanisms.
+Maybe there are attention mechanisms
+where out of these seven buckets, six of
+them are similar. Uh six categories are
+exactly the same, but the seventh one is
+completely different. So, that is how we
+should ideally be able to visualize
+attention mechanisms. More details you
+will understand as we go through the
+lectures. And today also I will show you
+uh a couple of architectures where the
+um buckets themselves differ a little
+little bit.
+Let's move on to the next slide.
+So, if you really think about what the
+attention mechanism is
+trying to improve. When I say attention
+mechanism, the attention mechanism
+mechanisms proposed in new and new
+papers, when a new paper come comes out
+tomorrow, it will try to improve one of
+these things.
+It will try to improve what is being
+computed, meaning how exactly are we
+computing the attention score between
+tokens.
+That will definitely be one aspect that
+will be improved, and that will belong
+to the bucket number one and two.
+So, if you go back to bucket number one
+and two,
+first one is about scoring, second is
+about connectivities. So, first scoring
+means the raw attention score.
+Connectivity means which tokens are
+allowed to attend to which other tokens.
+We'll We will visualize this and discuss
+this in detail in upcoming lectures. So,
+don't worry about not being able to
+fully visualize. I'm just laying out the
+structure of the course.
+Um then, if you think about cost, there
+is compute cost, there is memory cost.
+So, there are certain attention
+mechanisms which will tremendously
+improve, let's say, the compute cost. KV
+cache is a great example. And uh bucket
+wise, it will belong to bucket number
+three and four.
+Then, some of the attention mechanisms
+will simply try to improve the
+implementation. For example, when we are
+performing inference using GPU, uh that
+inference could be much faster. So,
+flash attention is a great example. You
+may have heard of page attention, also.
+Then, we have um
+the order and the input. So, order and
+the input means
+order is are we injecting position
+information, or are we injecting the
+order in which tokens are appearing
+uh in the sequence? Are we injecting
+that information into the attention? And
+input is what is the input type? Are we
+having image, text, or graph? There is
+also graph attention. So, it could be
+that also. Um or is it video, right?
+So,
+if you really
+can come up with an improvement in even
+one of these aspects,
+um
+apart from what people have already
+done, then we can say that you have come
+up with a completely new attention
+mechanism. So, my hope is that towards
+the end of this lecture series, all of
+us will be comfortable thinking about
+um new attention mechanisms. I'm not
+saying that it's a low-hanging fruit,
+obviously not, because many people are
+working in this field, and it's uh
+already there are many attention
+mechanisms that people have tried, but
+yet at least we can have a better mental
+map of how this whole field is looking
+like.
+So, if you take a very specific example
+of Llama 3, okay?
+You can see that it is making some very
+specific choices. Let me just open the
+drawing.
+So, in terms of scoring attention score,
+it is using scaled dot product
+attention, which is very standard. I'm
+not saying this is something extremely
+special, but there is naive dot product,
+there is just additive scoring is there,
+so
+it could have taken any of these two
+also, but obviously, as we all know,
+scale dot product is the probably the
+best scoring method.
+Then Llama 3 has causal attention, which
+means the future tokens the current
+query can only see keys from up until
+that point. It cannot look into the keys
+from the future. So, it's using causal
+masking, basically masked
+self-attention.
+Then we have attention heads, so Llama 3
+is using grouped query attention.
+Then it uses rotary position embedding,
+rope, right? So, that is a position
+information, but it could also be
+sinusoidal Alibi, or it could be
+a simple naive learnable position
+embedding. It could be anything. Then
+finally, in the implementation part,
+it's using flash attention. So, now if
+you look at these 1 2 3 five aspects,
+okay?
+Llama 3 is following aspect like
+from scoring it's following this aspect
+from mask part it's following this
+aspect causal. If you look at the
+attention heads part it's following
+group query attention, position
+embedding wise rotary position
+embedding, and kernel implementation
+wise flash attention. And that is how
+the llama structure is.
+However, there could be some other
+attention mechanism where instead of
+rotary position embedding maybe it's
+sinusoidal position embedding. And
+obviously that is not the only
+difference between architectures, okay?
+Then total number of trainable
+parameters could be different.
+The number of um
+parallel attention heads could be
+different. The number of attention
+blocks in series could be different. So,
+there could be many differences between
+architectures, but at a fundamental
+level
+um
+these items themselves could be
+different between two different
+architectures.
+All right.
+Now, if you were to compare let's say
+these three models,
+I'm just showing you the seven aspects
+which I discussed. So, if you compare
+llama 3 versus deep seek V3 versus Kim E
+linear model.
+And if we compare these three across the
+seven buckets which I mentioned. So,
+seven buckets are scoring
+how attention score is calculated,
+connectivity which tokens are allowed to
+attend which which other tokens, heads
+and KV cache, sub whether it is sub
+quadratic or not, how the actual GPU
+implementation looks like, whether how
+position embed position information is
+injected and in what domain whether it
+is text or image.
+You can see that there are some
+similarities between llama 3, deep seek
+V3, and Kim E linear. For example, the
+domain is text domain. So, the bucket
+number seven is common.
+Um then llama 3 and deep seek V3 the it
+is using rope rotary position embedding,
+but there is a difference. So, this deep
+seek V3 used deep decoupled rope rotary
+position embedding which we will discuss
+in the later part of the lecture series.
+Similarly, if you look at
+implementation, you can see some
+similarity both Llama 3 and DeepSeek V3
+also use flash attention.
+Then
+uh if you look at DeepSeek V3 versus Kim
+linear, you can see that they both use
+multi-head latent attention. And if you
+look at the connectivity, meaning which
+tokens are allowed to attend which, all
+of them use causal attention or masked
+attention, which is very common. And
+obviously, scoring-wise, meaning the
+attention score themselves when you
+calculate, all of them are using scale
+dot product dot product attention. So,
+you can see that the bucket number one
+and two are and seven are exactly the
+same across these three models, but the
+rest of the buckets are slightly
+different or completely different,
+right? So, if you try to understand the
+difference in attention mechanisms or
+difference in architectures in this way,
+you will you'll have a much easier
+time kind of
+understanding about different models.
+So, if if tomorrow a new model comes
+out, you will not feel intimidated about
+the fact that, "Oh, it's doing something
+different." That won't be an issue
+because you'll be able to
+categorize it into one of these buckets.
+That That feature will be part of one of
+these buckets.
+So, now before we start, you might have
+one question. Okay, if you are a
+complete beginner who has no idea what
+an attention mechanism even is, you have
+not read the attention is all you need
+paper or you're not familiar with this
+this field at all.
+Is this something which you can follow?
+So, I just want to address that that
+question. So, I assume that there will
+be two sets of people who will be
+following this lecture series. First set
+of people will be people who are very
+familiar with deep learning, basically
+people who are familiar with neural
+networks, who know what is
+So, basically, who who are familiar
+familiar with everything except
+transformer architecture. You may or may
+not know transformer architecture, but
+you are kind of familiar with neural
+network architecture, backpropagation,
+what is a multi-layer perceptron?
+Um
+What is a vector embedding? What is a
+soft max operation? So, some of these
+basics, right? So, if you are at this
+level or a level before this, I would
+highly recommend you to start from the
+very first video. Very first video
+meaning next video onwards because there
+I will be starting with the very
+fundamentals or foundations of attention
+mechanism.
+However, there is also a good chance
+that you might belong to a bucket where
+you are already familiar with the
+transformer architecture. You You don't
+need a lecture on what is attention
+mechanism. You don't probably need a
+lecture on KV cache. Maybe you an
+attention on what is scale dot product
+attention. So, when you look at the
+formula,
+um
+context vector as a function of query
+key and value is equal to soft max of
+query dot key transpose divided by
+square root of D multiplied by value.
+That equation, if you are very familiar
+with that equation, a few lectures in
+this series you will be able to
+comfortably skip.
+Okay. So, um and that you will easily
+understand with the without going
+through the lecture. If you just look at
+the title of the lecture, you will
+understand whether you are familiar with
+that topic or not. If you are completely
+familiar, feel free to skip that topic
+and move ahead to later lectures.
+Otherwise, I recommend you to start from
+the very first lecture itself.
+And what all things are we going to
+cover roughly?
+I'm not saying that exactly this will be
+the order in which I'll be covering, but
+more or less this will be the order.
+So, I plan to cover the foundations in
+the first one or two lectures
+where we will build attention mechanism
+itself from scratch.
+Then
+I want to have some discussions about
+position information, how attention
+mechanism learns about position
+information. I'm 100% sure
+a good fraction of people watching this
+video are already familiar with this.
+So, if you want to have want to have a
+refresher, go through those lectures
+which I will be releasing after this.
+But if you don't want that refresher,
+completely feel free to skip it.
+Then I want to have a um
+a lecture on KV cache, which is very
+important. I will also discuss about
+sparse attentions. I will discuss about
+um
+linear models like recurrent neural
+network. I'll discuss about attention
+from the context of implementation on
+GPU, which is where we will discuss
+about flash attention.
+Then uh towards the last part of the
+series, I will also discuss about um
+beyond text. Beyond text meaning images,
+videos, graphs. Uh how the
+multi-modality comes into the picture
+when it comes to attention mechanism.
+And every single time, whenever we are
+discussing about any concept, we will
+try to map it into the seven buckets
+which I have mentioned. Okay? So, this
+is going to be the structure of the
+lecture series.
+Uh and the first module, in the first
+module I'll be covering the attention
+mechanism itself, uh starting from
+Bahdanau attention, how uh people
+thought about attention mechanism even
+before the attention is all you need
+paper, and how things completely changed
+uh when attention is all you need paper
+was introduced. And we will also discuss
+whether someone else had introduced
+something even before that paper. So,
+this will lay out the foundations for
+those of you who are who are kind of
+feeling intimidated by the fact that
+your your foundations regarding
+attention mechanism itself is not very
+strong. So, if that is the case, these
+lectures will cover it for you.
+Then in the lectures two and three, as I
+mentioned, I'll be uh I don't want to
+call it as lectures two and three. I
+will I would rather call it as modules
+two and three. The reason is
+uh I may take more than one lecture per
+module. So, uh I will I will rather keep
+the nomenclature as module two and three
+as of now. So, I will cover about uh
+position, how position information is
+injected, how KV cache is implemented,
+the practical concerns with respect to
+KV cache memory um consumption versus
+how it improves compute, etc. We will
+also discuss during these lectures page
+attention, multi uh multi-head latent
+attention, group query attention, etc.
+And
+uh
+then and of course during these
+discussions we will also refer to the
+corresponding models which introduce
+these um mechanisms for the first time.
+And other popular models are that are
+famously implementing them even till
+date.
+Then uh we will discuss in the modules
+four and five how people figured out to
+reduce the complexity from n squared to
+something less than n raised to two. So
+the full attention uh map is basically n
+squared of n squared complexity because
+as I mentioned n queries and n keys you
+you have to take dot product between
+each and every single one of them. So n
+times n n squared that is the
+complexity. But there are attention
+mechanisms like sparse attention which
+reduces the complexity which is which is
+extremely important when it comes to
+implementing attention in let's say
+videos because videos have lot of
+frames. If you are implementing
+attention with n squared complexity you
+will
+like uh the the scale of computation
+that is required will be something which
+no compute no uh machine can handle.
+So we will discuss some architectures
+which try to uh reduce the complexity.
+We will discuss about uh sparse
+attention. We will discuss about uh
+linear delta attention etc. and a few
+more different architectures.
+Then
+in the last three modules we will uh
+discuss about on GPU implementation
+meaning um flash attention. We will
+discuss based attention, a ring
+attention. We will discuss about
+attention mechanism that was implemented
+uh in papers like Swin Transformer.
+Uh it was very very interesting actually
+the way they managed to reduce the
+complexity without too much hurting the
+long range dependency between tokens.
+Then we will also discuss about graph
+attention. So these things will be
+covered in the last three modules. So I
+have set the modules in a very specific
+order so that the complexity is
+increasing from uh initial lectures and
+it it goes on increasing towards the
+later part of the lecture. So if you
+follow the lectures in the sequential
+order you you find it very easy.
+And I'm also planning to construct uh
+interactive websites using which you
+can, you know, you can interact and you
+can plug and play numbers and you can
+understand
+whatever concept we are covering in an
+even better way. So, I'll be sharing
+those links also with you.
+So, as I mentioned, there are two ways
+to go through this lecture series.
+One way is skip what you already know,
+only follow what you don't know. Um but
+there is there is that maybe you may
+have knowledge gaps which you have not
+identified. So, even if you feel like
+you have understood something
+thoroughly, maybe there are knowledge
+gaps, so revising will not hurt. So,
+what I personally recommend is go
+through the
+videos
+sequentially. So, as I mentioned, each
+like the total number of videos, it's a
+little bit variable, but I'm hoping that
+each video it each video actually won't
+be half an hour, it might be longer than
+that. So, although I have initially
+written here roughly 25 30 like I wanted
+to keep it under 30 minutes. Now that I
+think of it, each video can be over 30
+minutes also. So, please don't hold this
+against me.
+Um but I recommend you to go through
+every single video in the sequential
+order and you will benefit from it a
+lot.
+And these are the kind of mechanisms
+that we will cover and this 1 2 3 4 5 6
+7 is not the
+lecture series sequence. This is just
+the bucketing from the scoring bucket,
+from the connectivity bucket, from the
+heads and KB bucket, subquadratic bucket
+and the remaining three buckets. There
+are different attention mechanisms which
+primarily fall into or different
+concepts which primarily fall into each
+of these buckets. So, we will discuss
+these also along the way.
+And um
+um this is the only image that I want
+you to, um you know, store in your head
+or just take a screenshot and keep it
+keep it handy. Whenever you hear about a
+new attention mechanism at the end of
+this lecture series, my hope is that you
+will be able to immediately connect with
+it and say, "Oh, this architecture is
+different from this other architecture
+in terms of bucket number two and bucket
+number six. So, if you are able to
+visualize in that way, I'll be very
+happy and I'll feel very successful in
+this attempt at teaching the attention
+mechanism family to you.
+So, in the next video we'll be covering
+the very basics of attention mechanism,
+how it evolved including Badanov
+attention.
+I have covered it in another lecture
+series previously last year. However, I
+still feel like in the context of this
+lecture series, it's completely worth it
+going through that. So, in the next
+video we'll be
+covering the very basics of how
+attention mechanism even came into
+existence.
+And every single lecture probably won't
+have a coding part, but in many lectures
+there will be coding part. So, I'll be
+also sharing the Google Colab notebooks
+with you. So, I may or may not code
+everything from scratch because if I
+code from scratch, things will prolong
+and maybe the lectures will increase its
+duration to 1 and 1/2 hours, etc. So,
+I'll I'll decide it on the go. In some
+lectures, I may code certain modules
+from scratch. In some lectures, I will
+have code already written. I will just
+give you a proper walk through and you
+can also go through the code
+sequentially block by block once I share
+the code with you.
+And I'll also be sharing of course the
+lecture slides with you so that you can
+go through them on your own time.
+So, that's all I wanted to
+cover in today's introductory lecture. I
+am really looking forward to seeing you
+follow
+very rigorously and and truly understand
+attention mechanism in and out and in
+future, I hope some of you will be able
+to come up with
+some some better aspects when it comes
+to attention mechanism implementation or
+the even the basic attention score
+calculation or some aspect. I hope
+you'll be able to propose something new
+or even write a new paper,
+submit it into some workshop or
+conference and let's see.
+So, that's my hope and um
+all the best and I'm looking forward to
+seeing you in the future lectures. Thank
+you so much. Bye.

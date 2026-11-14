@@ -1,0 +1,1978 @@
+Hi, welcome back to a new lecture A from
+the Attention Family lecture series.
+First of all, I must say that there has
+been a longer than
+ideal break between the last lecture in
+this series and the current lecture.
+I want to be
+or putting out lectures for this
+particular course a bit more frequently,
+especially because now the topics are
+becoming more and more interesting and
+the foundations are laid out very well.
+So today's lecture focus is on rope
+which is rotary position and wedding and
+alibi, alibi for
+attention with linear bias. And in the
+last part of the lecture, we will see
+how we can handle
+token sequence length longer than what
+was encountered during the training
+without affecting how the position
+information is being injected into the
+into the attention mechanism. So these
+three points are the core focus of
+today's lecture.
+And needless to say, out of this rotary
+position embedding is the is probably
+the most popular concept. So we'll be
+spending
+quite a bit of time on that.
+So with that, welcome to the lecture.
+So a quick recap of what we learned in
+the last lecture. What we have been
+looking at in the last lecture was also
+position embeddings, but in a different
+way. We discussed about learned position
+embeddings. We discussed about
+sinusoidal position embeddings, which
+are not learned. These are parameters,
+position embedding values which will
+simply depend on the position itself and
+the
+the dimensionality of the or the the
+actual dimension of that particular
+vector that is being added.
+Then relative position embedding also we
+looked at, meaning what is the distance
+between
+query and key tokens. So we looked at
+these three ideas in the last lecture.
+In fact, in today's lecture, the alibi,
+which is
+attention with linear bias, is also
+somewhat like relative position
+embedding. So we will see the the
+similarity between the other relative
+position embeddings which you learned in
+the last lecture and you will see how
+very close to that is today's relative
+position embedding which is Alibi.
+So,
+now referring back to the figure that we
+have been referring back to in this
+lecture series the seven buckets. So, we
+are still in this bucket and after this
+from the next lecture onwards we will be
+moving we will be moving on to the
+bucket number three. Although we have
+already looked at the bucket number
+three when we discussed multi-head
+attention, but we will be moving into KV
+cache in the next lecture onwards. So,
+today's lecture will be kind of one of
+the last lectures where we will spend
+spend some time on position injection
+position information injection into the
+attention mechanism.
+So, we have divided the lecture this
+lecture into three parts. The first part
+is about a rope or rotary position
+embedding which is famously used in many
+many
+open source models that we know about
+llama models, mistral, queen models,
+gamma
+from Google and deep seek V3 models.
+They all famously use rotary position
+embedding. So, this is very very
+important concept.
+Something which is probably less famous
+or less frequently used with which is
+attention with linear biases.
+We will also discuss about it and it's
+it's only being used in a handful of
+models like bloom, MPT etc.
+But the reason why I want to talk about
+attention with linear bias is because of
+its simplicity. The name sounds a little
+bit complex, but it's actually very very
+simple. I I'll show you how attention is
+modified with linear biases.
+In the third part we will see how we can
+extend rotary position embedding to
+token sequences of length longer than
+what was encountered during training.
+Because the length the length that your
+attention mechanism or your LLM
+encountered during training is important
+because whatever length it encountered
+for those lengths it would have learned
+position embeddings.
+If it's a learned position embedding or
+even if it's rotary position embedding
+the LLM would have been exposed to those
+rotary position embeddings for typical
+lengths of sequences that it would have
+encountered during training.
+However,
+during inference if it producing a long
+sequence of tokens,
+we have to know how
+the positional information can be
+injected in such cases also and how such
+long sequences can be handled.
+So we will see that in the third part of
+today's lecture. So these are the three
+divisions of today's lecture.
+Now let us move on to the first part
+which is rotary position embedding or
+rope.
+The key difference between rotary
+position embedding and the way we have
+been implementing
+uh position embedding is the following.
+In the previous lecture, in majority of
+the cases, we were adding a vector. We
+had a position information vector
+corresponding to let say token number M.
+So [clears throat] if XM is the is the
+main
+input embedding
+and to this
+input embedding at position M, we are
+injecting a vector of the same size. We
+are adding a vector of the same size
+basically and this is the position
+vector corresponding to the uh
+position M in token sequence.
+And as a result, now when we calculate
+query keys and values using the query
+weights matrix, key weights matrix and
+value weights matrix, we have now QKV
+values in which position information is
+already there.
+Rope is a bit different. In rotary
+position embedding, we don't modify the
+the original embeddings.
+So first the original embedding XM,
+let's say M is the embedding at position
+M in the token sequence,
+converted into query using query weights
+matrix.
+And now let's say this query is
+attending to a key
+and say that the key was produced uh
+because big uh using a
+input embedding at position N which we
+call as X underscore N.
+So X N again projected using key weights
+matrix will produce the corresponding
+key.
+So now this query let's say is attending
+to this key.
+What is actually done in rotary position
+embedding is these vectors, this query
+vector and key vector, they are rotated
+by a certain amount.
+The amount by which the vector is
+rotated will depend on its position M.
+And it's not a simple rotation. The
+rotation actually happens in
+two dimensions.
+Now you might ask but actually my vector
+is not living in two dimensions. So how
+how do you say that the rotation
+primarily happens in two dimensions?
+What does that mean?
+We will see that in a moment.
+But basically
+the vector Q and vector K are rotated,
+but it's not a pure rotation in in that
+multi-dimensional space. There is a
+there is one small nuance like regarding
+how the rotation is implemented. We will
+see that.
+But just understand that position
+information is not injected at the token
+level. It is injected at the query and
+key level.
+So now the query is a modified query
+corresponding to position M. Key is a
+modified key corresponding to position
+N.
+Value however is not changed. You don't
+rotate the value vector simply because
+query and key are what are responsible
+for calculating the attention scores.
+And in attention score calculation is
+where the the the relative position
+information or the position between
+query and key matters really, right?
+So that's the reason why we don't modify
+the value vector. Anyways, the final
+context vector that is produced is a
+attention weighted sum of value vectors.
+So value vector is anyway going to be
+taken with different weights and those
+weights to determine those weights
+we need queries and keys and to
+have the information that oh
+this key is three positions behind query
+or this key is
+15 positions behind query. To have that
+information you have to inject the the
+position information into queries and
+keys depending on where the
+the token sequence position of the input
+embedding was. So this is the basic
+idea. Now let us look at the detail of
+how exactly position information is
+being injected.
+So firstly, just understand that assume
+that our query matrix query vector is a
+two-dimensional vector, okay? So I told
+earlier in the previous slide that the
+rotation happens in two dimensions. So
+for simplicity, let us also assume that
+our query vector is a two-dimensional
+vector. So this the query vector 1 ,
+0.5.
+Now this query vector could be at
+different places, right? This query
+vector could be corresponding to token
+sequence position number zero, meaning
+it is the it is the query vector which
+was produced because of the very first
+input embedding
+or it could be at position number one,
+position number two etc etc.
+So if the query vector is at position
+number zero and this is the vector 1 ,
+0.5. So this is one on x axis and this
+is 0.5 on y axis.
+In this case
+the rotation angle
+is zero.
+I will show you the exact mathematical
+calculation that leads to this, but
+before that I just want to give you an
+intuition.
+If the position was one, the rotation
+angle will be 30 degree. If the position
+was two, what do we mean by position was
+one, position was two etc etc?
+The position of the input embedding
+in the token sequence
+which resulted in this query. So if the
+if let say this query was corresponding
+to the word the
+or the word maybe cat or whatever. I
+just taking a word.
+Now this word is converted into input
+embedding and this input embedding is
+converted into query and now we are
+figuring out how to rotate this query.
+So depending on where the position of my
+token is in the sequence
+the rotation amount will vary.
+So the
+further the position of the
+token from the starting point, the more
+the angle of rotation. So that's the
+first thing that you should note, okay?
+The vector is rotated by an angle
+proportional to how far away it is from
+position number zero.
+Position number zero is kept as such.
+Position ones, twos, three etc are
+rotated by a certain amount. Now
+obviously you can see that once you
+reach position number 12 or something
+like that, you will finish almost like a
+full rotation.
+Okay?
+But then
+you should ask the question, okay if
+that is what is happening
+how do we ensure that the position
+the the position the position
+information that is being injected,
+whether it is unique or not? Because we
+to inject the unique position
+information to our vectors. We will see
+that in a moment.
+But, but this much just
+try to wrap your head around. You are
+rotating the query vector which should
+not change its magnitude. Magnitude in
+all these cases should remain fixed.
+Now, if it is in
+2D,
+we should also think about how the
+rotation is being implemented. I'll come
+to that in a moment. But before that
+just look at
+what happens when you perform this
+rotation
+to the relative angle between two
+vectors corresponding to query and key,
+because this query and key is going to
+perform dot product between each other
+to produce the attention the raw
+attention score. Okay?
+So let's say the query vector is at
+position two, key vector is at position
+four
+in in example number one.
+Now in this case, there is a certain
+angle between the query and key vector,
+right?
+Let's say this is the initial angle
+between query and key vector itself is
+this much.
+In this case, the distance n minus m, so
+where n is the position of the key and m
+is the position of query is four minus
+two is equal to two.
+And if you take the dot product between
+these two vectors,
+it will be let's say it's some value
+0.623 which is
+this vector multiplied the magnitude of
+this vector multiplied by the magnitude
+of this vector
+multiplied by cosine of angle between
+them.
+Now
+even if this the these two vectors were
+at two different another set of
+positions, let's say position 10 and 12
+respectively,
+in those cases also the relative
+difference in position between the query
+and key is the same.
+So here
+the position of key with respect to
+query was two positions
+ahead.
+Here also position of query with respect
+to key is two positions ahead.
+But
+if query is at position number two
+and key is at position number four,
+we know that the amount by which these
+are rotated would be different, right?
+So originally they would they would be
+vectors which are not rotated, but
+because one was at position number two
+and another was at position number four,
+they would have been rotated.
+And this rotation will result in an
+angle between them. That angle will
+determine the ultimate dot product angle
+along with the magnitude. In any case,
+magnitude is not going to change because
+of rotation. Angle is going to change
+because of rotation.
+However,
+the relative angle between these two
+vectors will remain the same as long as
+the position difference between query
+and key also remains the same.
+So if the query is at is at position
+number two and key is at four, the
+relative angle between is the same and
+as long as magnitude is untouched
+because only rotation is being applied,
+the dot product remains the same.
+Same thing goes if the query is at
+position 10 and key is at position 12.
+The difference between those positions
+is two.
+And because of that, although the the
+directions in which these vectors are
+pointing will be different because in
+these two cases the vectors are pointing
+in completely different directions,
+but the dot product still remains the
+same. Why? Because the angle between
+them remains the same.
+The magnitude of key is not changed.
+Magnitude of query is not changed. This
+applies for any other position also. If
+query is at two,
+this does not apply for cases where the
+position difference between query and
+key are different. So if you are looking
+at any other key value,
+the any other key vector
+corresponding to some other token, that
+key vector would be rotated by a
+different amount. Or let's say the same
+key the same token which got projected
+into the key space was present instead
+of at position number four, it was
+presented at position number five.
+What that means is since the since the
+vector at position number five is
+rotated more, the angle between query
+and key would be more. So in this case
+the angle between query and key
+is bigger than the angle between query
+and key in this case.
+And now because of this, when you take
+the dot product, the dot product value
+will be much smaller, specifically
+because in this case you can see the
+vectors are almost orthogonally pointing
+to each other.
+So this is how the dot product value
+between query and key can be influenced
+even if their actual magnitudes are not
+changing but their angles are changing.
+Now
+if two vectors if if a query and key are
+having a relative position difference,
+then it doesn't matter whether the
+relative position difference is because
+they are at from positions four and two
+or 12 and 10 etc.
+As long as the relative position
+difference between remains the same, the
+dot product also remains the same,
+provided the we are we are talking about
+the same
+key and same query originating from the
+same input embedding. Okay? So
+understand this much.
+Now from a mathematical perspective also
+we can try to see why this is the case,
+why only the the relative angle matters
+between the
+query key and that's the reason why this
+is a relative position embedding.
+Now let's try to understand rope in a
+little bit little bit of more detail. So
+imagine that our token sequence is the
+cats sat on the mat.
+So we have totally six tokens. So
+position zero
+till position five.
+Now remember one of the things that
+which I mentioned earlier, the rotation
+happens in two dimensions. But then you
+should ask the question, I deliberately
+took a simpler example to explain that.
+I deliberately took a two-dimensional
+vector which could only have rotated
+anyway in in the two-dimensional plane.
+But what if the vector was
+three-dimensional or four-dimensional or
+16-dimensional?
+How does the rotation happen in that
+case? So that is what we are going to
+answer now and also create a visual
+intuition of how rope applies to
+different tokens.
+So now now what we are going to figure
+out is how much each of these tokens are
+going to be rotated when a rope is
+implemented. By the way, token is what
+is not going to get rotated. The queries
+and keys are going to get rotated. Okay?
+Tokens themselves will not get rotated.
+Once they get projected into the Q K
+space, that's when rotation happens.
+Now a 2D rotation matrix is like this,
+cos theta minus sin theta, sin theta cos
+theta.
+So you apply whatever value of theta you
+want to
+and that will tell you how much the
+rotation angle would be. R of theta
+which is the rotation angle will depend
+on this matrix applied on any
+any vector. So assume that the vector is
+a unit vector. This will simply give you
+the the rotated
+vector.
+And you can tell based on
+the the value of theta, how much the
+vector would have rotated, but the
+input to this matrix, I mean, this
+matrix is finally a transformation
+matrix which will multiply with another
+vector.
+The output of this will be the rotated
+new vector. So if I if let's say theta
+is zero and let's say my original vector
+is this green vector pointing in this
+direction
+that vector
+if theta is zero, that vector is not
+going to move.
+Now if theta is 90 degree, the vector
+should ideally be here
+and the matrix you will you should be
+able to see. Now the vector is one comma
+point three five
+and once I apply the rotation
+transformation, the transformation is R
+theta multiplied by V
+and result is again a vector living in
+the same dimensional space. Now if I
+increase this value to 90 degree
+my transformation matrix will be cos of
+90 is zero, minus sign 90 is minus one
+sign 90 is one
+cos 90 is zero. So zero minus one one
+zero. That will be my rotation
+transformation matrix
+which will convert my
+vector into something like minus point
+three five comma one.
+So this is the simple rotation
+transformation matrix.
+Now
+what is the
+angle by which a given
+vector is rotated and how do we keep the
+dimensionality constant?
+So let's say I have a vector whose
+dimensionality is four. So let's say
+query vector is this.
+Let's say my Q is equal to
+one
+two
+three
+four.
+Okay?
+Now this is a four dimensional vector.
+And I also have to say this query vector
+belongs to a token at position number
+something, right? I have to say the
+value of M. Assume that the value of M
+is equal to zero
+which means this is the query vector
+corresponding to the very first token.
+Now let's see how this is going to be
+rotated.
+The way this is going to be rotated is
+you pick the first two
+dimensions. First two dimensions are 1,
+2.
+You take the second one. Second is 3, 4,
+right?
+So you rotate
+this assuming that this is a vector
+living in 2D space. So a vector living
+in 2D space whose value is 1, 2.
+What does a 1, 2 look like? 1, 2 will
+look like
+this is one and this is two.
+Actually, let's not take m equal to zero
+because at m equal to zero there is no
+rotation, right? Let's take m equal to
+one.
+This is 1, 2.
+Similarly, I have another vector which
+is 3, 4.
+3, 4 is this is 1, 2, 3.
+This is 1, 2, 3, 4. So this is now the
+second vector
+3, 4.
+Now actually I have only one query, but
+the first pair of dimensions which I can
+call as something where theta is equal
+to zero.
+The first pair of dimensions
+I consider it as a 2D vector.
+The second pair
+of dimensions which is basically these
+values 3, 4. Of course, the values can
+be anything, okay? It could be 7,
+15.5, -3.4, 5.7, whatever.
+The second pair I'll call as theta equal
+to one.
+So this is the theta equal to zero pair.
+This is the theta equal to one pair.
+Maybe I'll call it as theta one.
+Now are these different vectors?
+These are the
+two different pairs of dimensions of the
+same query vector whose position is m.
+So m equal to one.
+So position m equal to one in both of
+these cases.
+Okay?
+Now the question is how much is this
+going to get rotated? How much is this
+going to get rotated? And after this
+kind of a rotation, how do we ensure
+that the value of
+the magnitude of Q does not change?
+So actually the rotation is being
+applied in two in two dimensional plane
+along the Z axis. So Z axis acts as the
+axis. Z axis is pointing outside the
+plane of the paper.
+That is where rotation is being applied
+to in pairs of dimensions of a given
+query vector or a given key vector.
+Now the question is when these pairs are
+rotated,
+what ensures that the dimension the the
+magnitude of query does not change?
+Let's answer that question first.
+So let's think about it. If if Q was
+equal to X1 comma X2 comma X3 comma X4.
+Okay?
+Let's say this was my query vector.
+I should put it in in in square bracket
+just to be consistent.
+So a four dimensional query vector.
+Now after rotation, let's say the
+transformed query vector is
+X1 prime comma X2 prime
+comma X3 prime
+comma X4 prime, correct?
+This is what happens to my query vector
+after transformation.
+How do I know that the the magnitude of
+Q and Q prime are the same? First of
+all, what is magnitude of Q or let's say
+what's the square of magnitude of Q? It
+is
+or maybe magnitude itself. It is X1
+square plus
+X2 square
+right?
+Pen is actually
+become a bit slow.
+Plus X3 square
+plus
+X4 square.
+This is my
+this is the and and square root of this
+is the magnitude of my
+Q vector, correct?
+What about magnitude of my Q Q prime
+vector, which is the resulting query
+vector after my rotary position
+embedding?
+It will be the same thing except it is
+X1 prime square
+plus
+X2 prime square
+plus
+X3 prime square
+plus
+X4 prime square.
+Yeah?
+So this is my magnitude of the
+transformed query vector after rotary
+position embedding.
+Now how do I know these two are equal?
+These two are equal because
+the pair X1 and X2 I am rotating.
+If X1 and X2 I am I am only applying
+rotation to
+to X1 and X2 if I'm only applying
+rotation, the magnitude of X1 comma X2
+as a vector should not change.
+Which means X1 square plus X2 square
+should be same as X1 prime square plus
+X2 prime square. So the magnitude of
+this pair
+is exactly same as
+magnitude of this pair.
+Similarly the next pair which I took,
+which was X3 comma X4
+that after rotation it will become X3
+prime comma X4 prime.
+But their magnitude is also not changing
+because X3 comma X4 as a
+pair I am taking it as the X and Y
+dimension of my 2D vector and I am
+rotating it, which means X3 prime square
+plus X4 prime square
+has a certain magnitude and that
+magnitude has to be exactly equal to X3
+X3 square plus X4 square.
+So essentially if I am because I am
+taking vectors in these pairs, I mean
+pairs of dimensions and I am rotating
+only
+a pair of a dimension at once,
+the overall magnitude of my query vector
+does not change. So the first thing that
+you should understand is this.
+One more question you could ask is if
+there is a fifth dimension, what happens
+to that dimension?
+If it's an odd number of dimensions,
+there will be one dimension remaining
+after pairing each pairs of dimensions.
+So the remaining one will go unrotated.
+there is an x4, x4 will not become
+sorry, if there is an x5, it will not
+become xy prime. It will simply stay as
+x5 because in one dimensions there is no
+rotation, right? You you don't you there
+is no way you can rotate a 1D vector.
+It's just a
+there is only one number.
+Whenever we talk about these rotations,
+we are talking about two dimensions. Now
+let's come back to our case.
+If our query resulted from token which
+was in position m equal to one
+and let's say it's a four dimensional
+vector and now I'm pairing my
+dimensions. So this is pair number one
+which is called as theta equal to zero.
+This is the pair number two, theta equal
+to one
+and m equal to one in both of these
+cases because both of these pairs are
+coming from my query which was living in
+position number one.
+How much are these going vectors going
+to be rotated by? That can be easily
+found out by a simple formula. The
+formula is this
+base raised to minus 2i by d where d is
+the dimensionality of my embedding. In
+our case, the dimensionality is four,
+four dimensional query vector.
+I is the pair number. So I in our case
+I will be zero
+or one
+and base will be a large number like for
+example 10,000. So if I take the example
+of eight dimensional vector, so assume
+that my query is an eight dimensional
+vector.
+There are totally four pairs, right? So
+I will I can go from zero, one, two,
+three the value of I.
+So if I take my first pair which will be
+position zero the the dimension zero and
+dimension one
+and of course the the angle by which
+this is rotated will also depend on the
+position, not just the value of the
+theta i.
+The final value of rotation is a
+multiple of theta i and theta i is what
+we are currently talking about. So
+multiple of theta i meaning m multiplied
+by theta i where m is the position.
+Okay? So assume that
+we have not fixed our value of m. Let's
+just find out how how much
+my dimension number zero comma one,
+dimension number, dimension pair number
+you know one comma two sorry zero comma
+one
+two comma three four comma five etc. how
+much are they going to be rotated first
+of all and then if they were in position
+number zero or position number one
+position number two how much are they
+going to get rotated so assume that our
+position is
+m equal to zero
+okay so I'm switching my example just to
+be consistent with my interactive
+website then we can come back to this
+example if we want to
+but assume that I'm considering position
+where m equal to zero
+if m equal to zero
+my total rotation angle is going to be
+zero in all the cases it doesn't matter
+which pair I'm am I considering whether
+I'm considering pair number i equal to
+zero or i equal to one or i equal to two
+in all those cases the rotation is going
+to be zero zero angle
+the only reason why you see these
+vectors being shown in different
+positions is because these two
+dimensions can be pointing in different
+directions initially
+but whatever wherever they are pointing
+to
+that will not change I mean the the the
+there won't be any rotation applied if m
+is m is equal to zero
+so basically
+a query that resulted from
+the very first token
+that will not be rotated any of the
+dimension pairs of that query will not
+be rotated
+what about if I was at position number
+one
+the same set of pairs so in each the
+dimension pairs are d zero comma d one
+how many are there d zero comma d one d
+two comma d three d four comma d five d
+six comma d seven right so I have eight
+dimensions starting from d zero till d
+seven I'm pairing those dimensions and
+those pairs I'm rotating so consider the
+first pair
+d zero comma d one how much is it going
+to get rotated if I if my m equal to
+zero
+the rotation value will be zero
+what if my m equal to one
+the rotation value will be
+one radian
+what if m equal to two it will be two
+radian if m equal to three it's three
+radian so the rotation value
+is dependent on position
+so the same dimension number zero comma
+one
+if it is corresponding to a query at
+position number zero, it won't rotate.
+If it is position number one, it will
+rotate by one radian. Else two radian,
+three radian, four radian, etc.
+proportional to the value of that. That
+is what's happening here.
+And what if it was position number one?
+Sorry, the pair number
+I equal to one, which is D2 comma D3.
+This pair will not rotate that much. So
+here if I change my M, see the value by
+which it is rotating is not as
+as rapid as my previous example.
+If what if my value my my dimensions
+were D2 D4 comma D5?
+They will rotate even lesser.
+See even lesser.
+Now by this logic
+the dimensions which are coming later
+will rotate lesser and lesser for the
+same token position. So if my token
+position was one
+which vector will get rotated more? This
+vector
+pair or this vector coming from the
+second dimension pair?
+So basically this vector is coming
+because of dimension D0 comma D1.
+This one, the vector number one. The
+vector number two is coming because of
+my dimension pair D2 comma
+D2 comma D3, right?
+Which one is going to get rotated more?
+The first guy is going to get rotated
+more.
+Why? Because of this formula. The
+formula is 10,000 raised to minus two I
+by eight. In our case it will be let say
+if the base remains as 10,000, it will
+be 10,000 raised to minus two I by four
+because dimensionality is four.
+Now assume that dimensionality is eight.
+In that case what is 10,000 raised to
+minus two I by eight the value of I is
+zero.
+If the value of I is zero, this exponent
+will be equal to 10,000 raised to minus
+zero,
+right? One by 10,000 raised to zero,
+which is equal to one. So theta I
+will be equal to one if the value of I
+is zero. So theta zero is basically one.
+What about theta one? Theta one will be
+10,000 raised to minus two by eight,
+which is 10,000 raised to minus one by
+four
+which is
+0.1
+yeah
+not 10,000 raised to my
+not 10,000 raised to 1/4 10,000 raised
+to -1/4 so 10,000 raised to -1/4 is
+1/
+10,000 raised to 1/4 and what is 10,000
+10,000 is 2/
+I mean 10k this is 10k and 10,000 10,000
+is what 10,000 is 10 raised to 4 right
+so 10 raised to 4
+raised to
+10,000 raised to -2/8 is 1/10,000 raised
+to
+4 raised to 1/4
+so which will be 1/ 10 raised to 4
+raised to
+1/4 which is equal to
+1/10 raised to 1
+which is 0.1
+so basically theta i
+is equal to
+10,000
+raised to -
+2i
+by d
+so here in our example if the base was
+10,000 my theta 0 for theta 0
+the rotation would be
+10,000 raised to
+minus 2 * 0 so because this is theta 0 -
+2 * 0
+divided by 4
+that is equal to
+1/10,000 raised to 0 which is 1/1 equal
+to 1
+so that will be theta 0 so here theta 0
+value will be equal to 1 which will be
+multiplied by 1 so the rotation angle
+will be equal to 1
+1 radian in this case
+okay now we said that this guy rotates
+more than this guy which means the value
+of rotation of the
+second vector should be less than 1
+radian correct we'll see let's calculate
+how much is that going to be
+how much is that going to be? That will
+be
+theta one
+is equal to
+1000 raised to
+minus
+two i where the value of i is equal to
+one
+divided by four
+which is
+one by
+10 raised to
+four
+times
+two by four
+which is equal to one by 100
+and what is that 0.01
+so this
+will be rotated only by so this vector
+will only be rotated by 0.
+01 radians
+now if I had now this is because in our
+case we chose a base like 10,000 if my
+base I could I could have chosen a base
+of 1000
+or 100 in our case because my
+dimensionality is very small
+but as my dimensionality increases we
+have to choose a bigger base
+now this is the case where m equal to
+one what if my m was two
+[clears throat] or m was four
+if m was four my rotation would have
+been four radians
+for this for this vector
+and here it would have been 0.04 radians
+if m was equal to four
+so the rotation angle is directly
+proportional to the value of m
+and it also depends on which pair of
+dimensions am I considering within the
+same vector okay
+so now if I play this animation once
+more if I go if I show you this
+zoom out
+then then you you should you should be
+able to see how the rotation changes so
+just look at these this these four pairs
+what are these four pairs basically the
+four pairs of
+vectors corresponding to my eight
+dimensional query or key embedding okay
+if my position increases
+see this
+the first pair rotates the most second
+pair rotates lesser third pair again
+lesser fourth pair barely moves
+it is actually changing The value is
+slowly changing. This guy is slowly
+changing, but
+it barely moves.
+Now similarly,
+this I already showed you like
+the later pair is so if I'm considering
+pair D6 and D7,
+even when I change this, the radians are
+changing very little. So it's very
+minuscule change that is happening to
+this blue vector. That blue vector is
+same as this guy.
+Versus if I equal to two, the red vector
+I'm focusing on is this vector. It it
+moves a little bit more. See, it
+slightly moves. You can see it.
+Versus if I equal to one, it is this
+purple vector which is same as this pair
+one, which is D two comma D3.
+And that changes a lot depending on
+where my position is, position of the
+token is.
+And if if it is I equal to one, it
+changes, it moves fastest.
+So now
+this is basically how the position
+embedding looks like. Position embedding
+the the
+rotation transformation looks like that
+is applied to
+our query vector. So query vector and
+key vectors are not being entirely
+rotated, but their pairs of dimensions
+are being rotated. And because every
+pair is being rotated, the overall
+magnitude also does not change. Okay?
+And you will see some kind of similarity
+with sinusoidal and cosine embeddings
+also because in sinusoidal and cosine
+embeddings, the the ones that are coming
+at the earlier position, the pairs of
+dimensions coming in the earlier
+position, they had a higher frequency.
+They were changing faster. Later ones
+were changing at a lower frequency.
+Something very similar you can see
+happening here also. Except here we are
+not adding a sine or cosine position
+embedding. We are rather rotating.
+Okay? So this is rotation position
+embedding in a very very small nutshell.
+And you can also see why the rotation
+transformation affects the final dot
+products because finally when queries
+and keys are getting affected, what is
+going to get affected? The dot product
+query dot key transpose. That is what is
+going to get affected, right? And that
+is how the effect of this
+rotation transformation going to be seen
+in the downstream.
+So,
+what kinds of queries and keys are
+actually going to get affected?
+The ones that are
+let say
+separated by the same set of tokens.
+Let say query number four compared
+against key number two
+versus query number six compared against
+key number four.
+As long as the query and key raw query
+and key values are the same,
+right? And as long as the position
+difference between them remains the
+same, the dot product also remains the
+same.
+That's because of this property of
+rotation transformation. When you apply
+the rotation transformation where the
+transformation angle is m theta
+in one case and n theta in another case.
+Finally, when you take query dot product
+with key transpose,
+that transformation the the it's a it's
+a the resulting transformation which we
+can call as r of n minus m theta.
+It's only a it's only a function of n
+minus m where n is the position of the
+query. Sorry,
+n is the position of the key and m is
+the position of the query.
+So, as long as the position difference
+between query and key remains the same
+and as long as query and key raw values
+also remain the same,
+the dot product does not change.
+Okay?
+So, we can see that here. So, the dot
+product is
+uh
+uh this the the raw dot product score is
+minus 7.7310.
+Here also it's minus 0.7310.
+Here also it's minus 0.7310 provided the
+original tokens are the same. So, let's
+say the query
+query is corresponding to token cat, key
+is corresponding to token mat. That has
+to be the same. Obviously, when query
+and key tokens themselves change, it
+doesn't matter if the position
+difference between them do change or do
+not change. Okay? Here we are talking
+about the case where query is
+originating from one particular token.
+So, in this case it's cat. Key is
+originating from another token mat.
+And we are talking about
+how far away these tokens are.
+Cat and mat are separated by
+three tokens. In that case, does it
+matter whether their absolute positions
+are four comma one or five comma two or
+seven comma four four etc? It doesn't
+matter as far as query dot key dot
+product is concerned. That's what I'm
+showing you here.
+So in one case the
+cat is at position zero and match is at
+position three. They are converted to
+queries and keys. The query is basically
+this 2D vector, key is this
+2D vector their position difference is
+equal to three and the resulting dot
+product is minus point seven three one
+zero.
+Another case
+my position is different.
+The raw vectors will remain the same
+because raw vectors are independent of
+the position but after rotation my
+vectors changed right because here you
+can see that
+the the rotation transformation that is
+applied depends on their actual
+positions.
+However
+since the relative position difference
+between them remains the same which is n
+minus m is equal to three
+even when the position of cat and
+position of mat absolutely changed
+the dot product score did not change. It
+remains as minus point seven three one.
+So this is in a nutshell what happens in
+a rotary position embedding okay. So
+that is exactly what I'm showing you in
+this slide also. So I already talked to
+you about this.
+So
+this this graph the pair number zero
+rotates
+faster. So here each sinusoidal
+completion
+remarks that I have completed one
+rotation
+and then the rotation repeats but even
+if this rotation repeats for pair zero
+even if the even if it completes one 360
+degree
+360 degree of rotation more frequently
+that is not true for pair one. Pair one
+is less frequent. Pair two is even less
+frequent. Pair three is even less
+frequent. So there is no chance that the
+the
+resulting query vector or resulting key
+vector
+will look exactly the same
+at you know different positions. That
+that won't happen because the pair zero
+is being rotated is being rotated at
+much faster frequency than pair one than
+pair two than pair three.
+So at different positions at different
+absolute positions
+you can be
+you can be assured that the um
+query vector will look different.
+However, if the relative position
+between query and key does not change
+and if the actual query and key vectors,
+the the original vectors themselves
+remain the same,
+then after rotation their dot product is
+not going to change, okay? It's very
+simple. So now you can understand when I
+say pair zero rotates by 100 radian,
+pair one rotates by 10 radian, pair two
+by one radian, pair three by 0.1 radian,
+you know where this comes from. It comes
+from
+10 10,000 raised to minus two i by d
+and
+whatever these values are, those values
+will be also multiplied by the value of
+m which is the
+position of the token. So this this
+number will be multiplied by
+the value of the position of the token,
+okay?
+So that is what is rotary position
+embedding in a nutshell. So this is
+applied in many models, deep seek v3,
+llama models etc and it's probably one
+of the most popular position embedding
+mechanisms.
+Now let us look at the next second part
+of this lecture In fact, this is going
+to be very easy.
+You will have very very easy time
+understanding although the name might
+appear a bit unfamiliar.
+So stands for attention with linear
+biases. So linear biases, let's see what
+that is, okay?
+Assume that we have calculated the
+attention score.
+The goal is to understand how much these
+attention scores are going to be
+modified. We are not going to modify
+query or key, rather we are going to
+modify the dot product between query and
+key. So the dot product between query
+and key is the raw attention score.
+The question is
+how much are we modifying this raw
+attention score?
+So the raw attention score is modified
+based on two things, two parameters. One
+is what is the distance between query
+and key?
+Second is which attention head are we
+looking at? So if we have let say eight
+attention heads,
+okay?
+We define a parameter called slope. So
+attention head number one will have a
+slope of one by two. Attention head
+number eight will have a slope of one by
+256. So you can see that it's going in
+multiples of one by two. So one by two
+times one by two is one by four. One by
+four times one by two is one by
+Like that you can see it's going in
+multiples of 1/2.
+You will also understand soon enough why
+this is done. So what is done is if I'm
+considering a attention head number one,
+my slope is 1/2. So this number is 1/2.
+Now let us look at i minus j. i minus j
+is the relative position between
+query and key, okay?
+So say my query is corresponding to
+or rather my yeah my query is
+corresponding to token number two
+and key is also corresponding to token
+number two.
+In that case i minus j will be zero. So
+it doesn't matter what the slope is.
+So if query and key are corresponding to
+the same token,
+no matter which attention head we are
+looking at, i minus j value is zero,
+which means the modifications that we
+are bringing to the query dot key dot
+product is zero. So that's the reason
+why in both of these heads, in head
+number one and in head number eight, all
+the column elements are zeros.
+Okay?
+Not the column, my bad. All the diagonal
+elements are zeros.
+Now why are these masked elements zeros?
+Because
+since we are
+preventing
+queries from looking into the future,
+the queries are anyways not attending to
+the future keys. Queries are only going
+to attend to itself or the
+keys corresponding to past tokens. Now
+if
+query is
+the token number
+two
+and key is token number one.
+So if query is token number two, q i
+where value of i is equal to two.
+So query is token number two and key is
+token number one, okay? And key is token
+number v one means k j value of j is
+equal to one.
+What is i minus j in that case? In this
+case i minus j is two minus one which is
+equal to one.
+Slope is 1/2. So the modifications
+modification that we are bringing to
+that particular query dot key dot
+product is minus 1/2 multiplied by one
+which is minus 0.5.
+And that is this.
+So for all query key pairs where the
+distance between them is minus one,
+basically query looking at the key key
+corresponding to the token which was
+before.
+For all those cases
+for head number one the modification
+that I will bring to query dot key dot
+product will be minus 0.5 which is why
+all these guys
+will be minus 0.5. Why?
+Because the first is query number one
+query number two and key number one.
+This is query number three and key
+number two. This is query four and key
+three.
+Query five and key four. Query six and
+key five.
+In all those cases the value of i minus
+j is two minus one it's basically one.
+It's not two minus one it can be two
+minus one three minus two four minus
+three five minus four etc.
+Similarly if it is query three and key
+one
+it's three minus one
+four minus two
+five minus three six minus four etc.
+which is also getting multiplied by the
+slope. Slope is one by two right? So one
+by two multiplied by
+my basically and minus sign is also
+there. So minus one by two multiplied by
+two which is minus one.
+So all these values will be minus one.
+Fairly easy right? I hope you are
+understanding. Very very easy.
+Now these are the numbers by which the
+original query dot key dot product is
+being modified by.
+If this was head number eight instead of
+slope being one by two the slope will be
+one by 256.
+So basically if you look at which
+which dot products are getting going to
+get modified the most
+the dot products
+were corresponding to head number one
+will get modified the most. In head
+number two the modification will be very
+less.
+Now what are the consequences of this
+kind of a operation? You can easily see
+that by looking at this next slide.
+Assume that my attention weights are all
+such that they are equal.
+My attention weights are equal so that
+my final
+if you if I look at any row in my
+attention weights matrix
+the the row values are such that they
+are all equal. So after softmax, the
+values
+will be like will they all will add up
+to one and the probability distribution
+will be like flat.
+So assume that I have I'm looking at
+query as the
+sixth
+query number six
+and key token is
+variable. So I have passed six tokens to
+pass five tokens and itself to look at.
+So key number one, key two, key three,
+key four, key five, key six
+dot product with query number six and
+assume that the raw dot product yielded
+exact same values for simplicity, okay?
+And then I took the softmax. So now
+these are the numbers. After softmax,
+I'll have 0.167.
+If you add all of this up, you'll get
+one.
+Now this is the case where I don't have
+any kind of alibi or any kind of
+attention with linear bias. Why is it
+linear bias by the way? It's linear bias
+because this value
+is linearly changing with the it's it's
+linear with respect to the difference
+between the position of the key and
+query tokens.
+Okay?
+Now
+what if I had a bias?
+What if I had linear bias and if it is
+head number one?
+How do you think this graph will get
+modified? I'll show you the graph, but I
+before that I want you to think.
+Do you think the graph will remain the
+same?
+Or do you think the graph will get
+modified such that these values will
+become higher? Like do you think the
+graph will become
+something like this?
+Or
+do you think the graph will become
+something like this
+approximately?
+Or do you think the graph will become
+graph will change
+if I'm looking at head number one? So so
+let me ask you
+two questions by drawing the graph here.
+Let me first delete this.
+Okay?
+So I want to talk to you about head
+number one
+and head number eight.
+I'm going to show you two graphs.
+My raw query and key values are like
+this and let's say after
+modification, I have four possibilities.
+One is
+a graph that looks like this.
+Another is a graph that looks like this.
+Then
+another is a graph
+that looks like
+this.
+And another is a graph that looks like
+this.
+The main difference is here there is a
+rapid difference between values. Here
+also there is a rapid difference between
+values. In these two cases, the value
+differences are less, you know,
+significant.
+Which one do you think corresponds to
+head number one? And let me call this as
+A B C D.
+These graphs as A B C D.
+If I implement attention with linear
+bias,
+let and let's say I'm talking about head
+number one,
+how will this graph get modified? Will
+it say exactly like that? That could be
+the fifth option, A B C D E. E is it
+will look exactly like this after adding
+attention with linear bias.
+How will the head number one look like?
+Will it look like A B C D or E?
+Think about it.
+We are applying a bias which is negative
+number, right? Negative of slope of
+uh negative of slope multiplied by I
+minus J.
+Okay? Now I minus J and that value is
+always going to be negative because
+query is always going to look at tokens,
+keys behind, right?
+So the I minus J value is always going
+to be positive. Negative of slope
+multiplied by I minus J is always be
+going to be a negative number, right?
+The negative number added to which of
+these key dot query dot key dot products
+will be the biggest?
+The biggest one will be wherever the i
+minus j value is the biggest.
+Here what is the value of j?
+Or rather what's the value of i? The
+value of i is six.
+What's the in which case is the i minus
+j value the biggest?
+When the j is equal to one, right?
+Which means if my query if my query is
+anyway six, right? i value is not going
+to change. Key is if the key value is
+one,
+in that case
+I'm going to apply the biggest negative
+linear bias.
+So after applying the biggest linear
+negative bias,
+this graph might come down a little bit.
+This will not come down that much.
+This will not come down that much. This
+will not come down that much.
+This will not come down that much and
+this will not even get modified. This is
+how the change is going to be
+before softmax, before softmax. Then
+when I apply softmax,
+right?
+Or let me just draw it in a slightly
+slightly different way. Let me just
+So this something like this. This will
+get modified like this, like this, like
+this, like this, like this and then
+we'll apply softmax. So actual
+modification is
+going to happen to the raw q dot k
+values before we apply the softmax,
+okay? But here I'm drawing it on the
+softmax values themselves. That's not
+correct. Actually,
+there will be some raw values which are
+also equal.
+That's why the softmax in this example
+became equal.
+Those raw values will be modified
+and which raw value will get modified
+the most? The first one because it's the
+it is the it's the basically the key
+number one and query number six that
+will get negatively biased the most and
+then if you take the softmax the the the
+biggest value will dominate.
+So head number one will look like c
+after change
+the graph c.
+Head number eight
+will get modified very little because
+the slope of head number eight is one by
+256 instead of one by two.
+So head number eight will also have a
+shape like this but the will not be as
+pronounced. So head number eight will
+look like D.
+This is what is going to happen.
+I'll show you the exact graphs after
+deleting this.
+So head number one
+will look something like this where
+there is a very dominant number and all
+these numbers will add up to one.
+The the reason why such domination is
+happening because this guy gets modified
+the least. Rest of the guys will get
+modified by pushing. They will get
+pushed down. Then if you apply softmax
+on top of it, whichever was the dominant
+one will dominate them dominate more.
+The head which is
+head number eight,
+the first guy will still be the lowest
+0.165. Last guy will be highest, but the
+difference between their height will be
+very less.
+Okay. Now if you think about what is the
+purpose of this, the purpose of this is
+if in head number one if attention
+weights are now distributed like this,
+right?
+Think about what what is happening.
+The attention weight is distributed such
+that
+you are giving more importance to the
+tokens closer to query.
+These are the these three tokens are
+closer to query token, right? Token
+number the key number four, key number
+five, key number six. They are closest
+to query number six.
+So you are giving more weightage to
+kind of the region close to query.
+In head number eight, you are not doing
+that. You are you are kind of giving
+equal weightage to all the tokens. That
+is what is essentially what's happening.
+Now obviously in reality you will not
+have query. key. product which is like
+uniform like this. They will be
+non-uniform. But if I take a uniform
+example like this, you can
+it's easy for me to show you what this
+alibi is actually doing. So alibi what
+it is doing is it is teaching different
+attention heads to pay attention in
+different ways. It will teach head
+number one to pay more focus to
+nearby the queries. It will teach head
+number eight to pay equal attention to
+all the
+between between query and all the keys
+even if the key is far away.
+And this is very nicely being
+implemented in the of a linear negative
+uh bias that is added to attention
+scores. That is why it is called a li
+by, attention with linear bias. Okay?
+So this is very simple. This is exactly
+what Ali by is.
+And this was implemented in uh
+a couple of architectures which I showed
+you earlier.
+Now let's look at the last part of
+today's lecture, how to
+make us handle, make the model handle
+larger or longer context which it it
+could not
+see during its training.
+So third part is about if my training
+data set was such that the context
+window size is 4,096 tokens and during
+inference I want to handle bigger
+context windows like 16,384
+or
+much bigger context window.
+How do we do this? Because in training
+if my context window size was 4,096
+the position embeddings that I have
+injected, no matter what position
+embedding I use,
+would have been typically of maximum
+that size, maximum 4,096 size, right?
+Because there is no no token beyond
+that.
+So that kind of position embeddings my
+training would have never encountered.
+So if my training is such that it my
+model is optimized for that many
+different positions,
+how do I make it fit
+a context window size that is four times
+bigger?
+The technique is very very simple.
+Okay?
+Okay, first let let me show you what
+this graph is showing. So if it is
+rotary position embedding, we know that
+the
+the m theta which is the angle of
+rotation will
+be changing based based on the value of
+m. And if I only have 4,096 positions,
+my m will go from 0 to 409
+4095.
+So based on that, if I plot cosine of m
+theta for any given pair, it will look
+like a look a look like a graph like
+this.
+Yeah?
+As m increases, I mean there will be a
+as m increases, at some point of m you
+will encounter
+a new cosine of m theta value. And if my
+values of m are ranging from 0 to 4095.
+I would have encountered many of these
+angle, many of these M theta angles
+during my training data.
+However, I would not have encountered
+something which is coming at position
+number 10,000. If it is position number
+10,000, my value of M will be
+9,999.
+So that cosine of
+9,999 times theta I would not have ever
+encountered in my training data.
+So if my training data if my inference
+data set size is such that my token
+context window size is 16,000
+versus training is only 4,000,
+everything beyond this, whatever is
+shown in this yellow color
+are positions
+that was never encountered in training.
+So how do we use the trained position
+embedding vectors? If I have trained
+position embedding vectors, how do I
+make it fit for this kind of context
+window?
+So what we can do is something very
+simple. We could do a linear
+interpolation. What I mean by that is
+if I have positions running from 0 to
+16,384
+and if my training data range was 0 to
+4,096
+I can simply linearly interpolate and
+say my 16,384th
+item
+okay
+is similar to the position number 4,096.
+Then everything in between I can
+linearly interpolate.
+So something at position number 100 will
+be equivalent to position number 25
+because position number 100 is in a
+sequence of tokens which is 16,004 times
+that of my training range.
+So if I have a item which is during at
+inference if something is at position
+number 100
+it's as if it is in my training range at
+position number 25, 1/4 the size.
+So this was proposed by a paper from
+Meta.
+Now instead of linear interpolation,
+there are other things we could do. We
+could do non-linear interpolation. So
+instead of interpreting
+instead of mapping linearly, oh,
+position number 16,384 is 4,096. The
+middle position 8,192 is 2,048. Instead
+of such linear interpolation, we could
+do non-linear interpolations also. I
+will actually show you one graph and you
+will understand exactly what this
+non-linear interpolation is.
+So, linear interpolation means position
+number uh that the new position will be
+simply
+the
+uh
+the
+current position divided by
+how big our context window is related to
+relative to uh
+our original context window size. So, if
+the original context window size is
+uh 1/4
+as big as that of our inference context
+window size,
+then every token
+position will be
+1/4 of his 1/4 uh it will be divided by
+a factor of four, right? So, if my
+context window size is 100 during
+training
+and in during inference, I have to
+manage 400 tokens.
+Any position which I pick from here, if
+I call it as PI,
+it will be divided by a factor of four.
+So, if my 400th position will be equal
+to 100, my 200th position will be equal
+to equivalent to 50, right? So, any any
+position will be divided by a factor of
+four.
+Now,
+that is why here it is shown as
+0.25 that the factor of multiplication
+of my position is basically 0.25 because
+it's 1/4 0.25 and that same factor of
+multiplication is used for
+all the tokens in my position.
+If it is non-linear,
+it shows like this blue color curve
+where
+if my position is
+if my if my token is at a position which
+is coming later. For example, my model
+can definitely handle position number
+uh 1 2 3 etc. up to 99, right? So, I
+would I could say that okay, my model is
+actually finding it difficult to handle
+positions beyond 100.
+So, every position until 0 to 50,
+I will not multiply it by a factor like
+0.25. I may multiply it by a factor like
+0.9 or or 0.8 etc. some bigger numbers.
+And as I reach numbers beyond 100, so if
+it is if it is let say a number like 200
+I may multiply it by
+0.
+four
+so that this becomes 80
+80 is still below 100
+and as I get closer to 400
+the 400 item I have to multiply by a
+factor of what 0.25 right only then it
+will fit my position size of 100 which
+was encountered during training
+so the last item I will try to multiply
+by 0.25 which is why this blue color
+curve is such that
+my last item
+will get multiplied by 0.25 so here the
+reason why I'm talking about 0.25 is
+assuming that my context window size has
+quadrupled during inference okay if it
+is only doubled instead of 0.25 we will
+be talking about 0.5 that's only
+difference
+so this is called NTK aware
+position
+multiplication
+neural tangent kernel is the NTK's full
+form but basically it's a theory which
+which which
+which is at the base of this particular
+style of position
+position I would say multiplication
+factor
+another one is called a it's a weird
+name called yarn
+yarn simply stands for yet another rope
+extension and they have very
+conveniently picked the last letter n
+extensions n as the yarn's n
+it's like a weird acronym anyways yarn
+is this blue color or purple color curve
+and you know what's happening in this
+purple color curve what they're saying
+is
+for initial bunch of positions like for
+example if I have 100 positions from
+position one to 30 I don't I won't make
+any change
+so positions one to 30 in my 400 item
+item my 400
+context window items I will not bring
+any change
+but from 30 to 400 I have to somehow
+scale it down right because the I I I
+cannot have positions from 100 to 400
+all my position values have to stay
+within 100
+but I can decide whether
+I for the first 99 items I will use the
+positions as such
+And for the rest 301 items,
+I can try to shrink it to to the last,
+you know,
+positions positions like
+99.1, 99.2 etc etc and the very last
+item can be mapped into 100. I hope I
+hope what I'm saying you are able to
+visualize.
+Let me just show you once more.
+I have position zero
+one etc after 99, right? This is my
+original training data, but I now I am
+having inference where I have
+context window size of
+not just
+100
+but up to 400.
+So basically this
+versus this
+something 4x bigger.
+Now I could say I will map zero to zero
+and one to 0.25 and four to one. The
+fourth item will be equal to one such
+that the 400th item or rather 390 this
+should not be 400. This should be 399
+which is the 400th item that will be
+mapped into the 100th item. This is one
+thing which I could do which is pure
+linear transformation.
+Or I can say the first 50 or first 50
+items over here
+these first 50 items
+I will one to one map into the first 50
+items here. So the first 50 positions
+are unchanged. I don't divide or
+multiply by anything.
+The rest 350 items I could linearly or
+non-linearly interpolate to the rest of
+the items. So the yarn is essentially
+something very similar to that.
+In yarn the first bunch of items, first
+bunch of positions I keep almost
+untouched.
+Remaining items in a non-linear way I
+will map into my with with almost like
+an exponential decay.
+I will I will map into my
+position embeddings which was used in
+the training data.
+So this is how you can kind of expand
+your context window, the context window
+of your model,
+by tricking the model
+into saying,
+okay, I have I have to handle the
+context window size of 4x,
+but I will modify its position
+embeddings. I'll modify its position
+embedding so that I'll treat 400
+position as position number 100. I'll
+treat I can treat 200 position as
+position number 50 and I'll treat
+position number zero in the new sequence
+as position number zero in the in my
+training sequence. Very similar to that.
+This is very in very simple words
+a way to increase your context window
+size, okay?
+Now, these are some of the real models
+which which we use as some of these
+position embeddings.
+So Bloom is one of the very few models
+which use Alibi,
+Llama, Quen, Deep Seek models all
+extensively use rotary position
+embedding
+and some of them extend their context
+window. Some of them do not extend their
+context window. So, for example, Bloom
+Llama 2, Llama 3, etc. They do not
+extend their context window.
+Rest of them try to extend their context
+window. Although the original training
+context window size was 8,000,
+these guys try to increase the context
+window size to 100 120k 8k.
+Quen 2.5 also increases their context
+window size significantly using yarn.
+Yet another rotary position embedding
+extension.
+Or is that a correct exact full form?
+The full form is very weird.
+I mean, short form is very weird. Yet
+another rotary position embedding
+extension, right? Basically, you are
+extending rotary position embedding to
+positions which was not encountered
+during training.
+The position these were the training
+lengths lengths of the I mean, context
+window sizes during training and these
+are the context window sizes if you are
+extending during inference.
+Fairly fairly interesting concept,
+right? So that brings us to the end of
+today's lecture. We are we have wound up
+rope, Alibi and context extension
+and this brings us to a very very strong
+position now to discuss much more
+involved concepts.
+So takeaway is very clear. I don't want
+to repeat this, but next lecture onwards
+will be focusing on I think bucket
+number
+three or four which is about keys and
+values. So we'll now be
+extensively focusing on
+key value caching and more complex
+attention mechanisms which will help us
+perform inference much faster.
+The next lecture will be about keys and
+values. Why why why we are talking about
+key value cache?
+Why not cache queries themselves? So why
+is it not query key cache or query value
+cache or why is it not QKV cache? Why is
+it KV cache?
+So and and what's the intuition behind
+this? And
+how does it improve the performance? How
+does KV cache improve the performance of
+inference engineering during inference
+engineering? All of this we'll discuss
+in the next lecture.
+So thank you so much. See you again in
+the next lecture. Bye.

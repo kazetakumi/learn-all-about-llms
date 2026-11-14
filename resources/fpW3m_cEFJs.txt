@@ -1,0 +1,1385 @@
+[Music]
+So as we all know this LLMs are
+basically blackbox systems at least we
+perceive them as blackbox systems. We
+should know how LM work to actually use
+it in real world settings because there
+are issues with safety, there are issues
+with all these buyers and stuff. So if
+if we don't know how this works, we
+cannot actually u use it u as a safe and
+trustable system.
+So for any system to be uh deployed in a
+real world scale the control should be
+at our hand
+right. So the field of NLP
+interpretability is actually quite nent
+compared to uh the whole history of NLP.
+Um so NLP dates back to a long ago since
+I think you can talk about Eliza and
+stuff like
+that but this NLP inter mainly started
+around 2016 maybe I shouldn't use the
+word started but actually started to
+gain traction around 2016 when uh
+researchers were primarily studying uh
+recurrent architectures like LSTN and
+how they function and interestingly
+enough In 2017 transformer was released.
+So when this field of interpretability
+was growing transformer drops in
+transformers we don't understand how
+they works we just know the
+architecture. So this coincidence kind
+of led to a boom in this
+interpretability community. So much so
+that in 2018 the first blackbox NLP
+workshop was held in an
+conference and uh as it drops it becomes
+one of the popular conferences of
+uh as more and more uh works started to
+come
+included this new uh track called
+interpretability analysis in their
+conference.
+So if we broadly classify the
+interpretability techniques uh obviously
+it's tough to classify interpretability
+techniques but uh mostly we see there
+are two broad categorizations one is
+behavior localization another is
+information decoding. So in behavior
+localization what we do is we try to
+localize the behavior of each
+component right. So if you remember in
+the last lecture we were talking about
+this uh residual stream perspective of
+transformers where we saw how we kind of
+disentangled the uh the role of each of
+the component and try to localize how
+each component is contributing towards
+the output. In information decoding, uh
+our goal is to
+uh kind of uh decode or kind of learn or
+kind of interpret from the information
+within the model say the hidden states
+or the
+activations how these activations or
+hidden states contributes towards a
+particular tasks. So in behavior
+localization uh there are two main
+categories. one in input attribution
+which kind of tries to model what is the
+role of a particular input token towards
+the generation of a particular output.
+In model component attribution as the
+name suggests the role is to understand
+how a particular model component
+influences the
+output and we will uh see different
+categories of it like logic attribution
+probably we will not discuss about logic
+attribution we will discuss about causal
+interferences and circuit analysis.
+We'll also discuss about probing. we'll
+discuss about decoding in vocabulary
+space and if time permits we'll uh look
+into dictionary
+learning. Okay. So before this new era
+of
+uh kind of which uh this interpretively
+field kind of boomed initially people
+were also using more simple simpler
+techniques I would say like distribution
+semantics and representational
+similarity like we all know when this
+what to dropped there is this notion of
+vector space analogy where we say key um
+the embedding of say king is to queen is
+proportional to man is two. It will get
+give woman and that was a kind of start
+of interpretability using vector space
+uh analogical reasoning what was
+happening within the vector
+space. Then just like in computer vision
+people use salency maps and stuff like
+that which are easy to visualize. Uh in
+interpretability a normal choice was
+attention maps. So uh people were trying
+to visualize attention maps to see um
+which tokens are receiving the more
+attention which kind of translates to a
+particular output.
+Then there was neuro analysis. Uh so
+basically which we will talk in a maybe
+a different uh test but actually it's
+the same concept. Neuron analysis
+basically analyzing how a particular
+neuron is responsible for the um output
+and component analysis and probing we
+will see next.
+So first discuss let's discuss about
+probing because uh I think this is the
+most simplest uh technique one can use
+to start with
+interpretability. So what probing does
+is suppose you have
+a any model it's a n layer transformers
+model let us
+as we want to understand what a
+particular layer learns what kind of
+information it contains. So what we do
+is we train a classifier on top of the
+hidden state of the
+layer. Let's let us name the classifier
+G which maps the hidden state of the
+Lith layer to some feature level. Now
+this feature label is for some
+linguistic task which we want to
+understand. For example, suppose we have
+a B model. We want to understand how B
+encodes the syntactic and semantic
+understanding of a task. So what we will
+do is to understand the syntax part of
+speech tagging is a good proxy. So part
+of speech tagging can be chosen as our
+probe task and we can train a classifier
+which will try to predict the part of
+speech tags from the hidden state of a
+layer and similarly we can design probes
+for semantic information like say core
+reference resolution or task task like
+that.
+So what is essentially a proclassifier
+doing? If we look into it carefully,
+what is trying to model is the um mutual
+information between
+the hidden state and the random variable
+which are the properties of Z. So
+suppose this Z random variable
+represents the information required to
+uh assess the part of speech tag and H
+capital H is the random variable which
+denotes the representations of the
+hidden state. So if there is any mutual
+information. So if we go back a little
+bit. So what does mutual information
+say? Like if we say mutual information
+between X and Y two random variables, it
+will say how much information can we
+tell about X if we know Y. Right? How
+much Y can give information about X.
+Similarly in this case we are trying to
+see how much a hidden state can give us
+information about a separate task zed uh
+which can be any linguistic task like
+speech
+tag. So this is the basic motivation of
+probe task that is uh when we train a
+classifier we are trying to predict a
+property of the input text based on the
+representation h as I said so we are
+trying to see if the property is encoded
+somewhere within it right if we cannot
+train the classifier now if we cannot
+train the classifier there there can be
+two cases either there is no information
+or there can be a nonlinear information
+maybe we need a more sophic classifier
+maybe we need a deeper MLP for
+that. So that is so that is where one of
+the uh kind
+of uh challenges of probing comes in. So
+before going to that uh as I discussed
+uh the approach of probing is uh for
+every layer you freeze the layer. So you
+don't fine-tune or train the layers the
+model is freezed you only train the
+classifier to predict a linguistic
+property.
+So the question is should I use simple
+probes or should I use complex probes?
+By simple probes we mean say a two-layer
+MLP. By complex probes say we mean a 15
+layer MLP. So suppose I have a task I
+use a probe of layer 2 MLP of layer 2. I
+train it. I see uh there is no
+improvement uh in the sense the accuracy
+is very low on the particular task part
+of speech tag. But when I use a complex
+probe I see suddenly the accuracy
+increases. So what do I say? Do I say
+the model contains the information or is
+it the property of the probe or the uh
+which helps in that accuracy. So this is
+a very um challenging thing of probing
+and that's why u in one of the papers
+they proposed the idea of control tasks.
+So what control task do is suppose your
+probe is part of speech tagging. This is
+your probe
+task. Now you define a control task
+which is basically for every token you
+define a random number. Suppose there
+are 40 part of speech tags.
+Right? Now you have labels from 0 to 39
+and you randomly label
+the tokens from 0 to
+39. So for this example the cat ran
+quickly. I suppose randomly label cat as
+37 quickly and dog as 15 randa as 10 and
+something like that. So this information
+has no structure in it. So ideally an
+MLP shouldn't be able to learn this
+because this is randomized. The only way
+an MLP can do good at it is through
+memorization. So this is what I
+discussed like how to design the control
+task. This CV is basically your
+randomized um any kind of randomized
+task and you uh for X I2T you just label
+this randomly. Right? Now look at this.
+Uh this is basically a real world
+example from part of speech tagging from
+a paper. Just look at the accuracy. When
+I use a two-layer MLP, the control task
+accuracy is somewhere around
+35%. But the part of speech task which
+is our probing task, the accuracy is
+around some
+85%. I increase the MLP units gradually
+and I make it 1,000 MLP units. Suddenly
+the uh control task accuracy jumps up to
+86%. And this is around this also
+increases from 85% to around
+92%. But look at the difference. This
+difference we call it
+selectivity. So possibly what is
+happening here is the MLP is memorizing
+the levels.
+So ideally the probe uh classifier
+should be such that its accuracy on the
+control task is low and its accuracy on
+the probe task is high that is your
+selectivity is high. So this is one of
+the way to control that
+challenge. So this was before all like
+2020 21 before 2020 this was where
+people was doing and suddenly in 2020
+this terms drops in which we call
+mechanistic interpretability which is
+kind of going very famous these days
+people are working on it lot of people
+are working on it primarily because it
+doesn't require a lot of computition
+resources to start with so academicians
+a lot of academicians are working on it
+uh I myself am working on it so I'm
+myself a criminal this but uh so the
+question is is it a new paradigm or are
+we just pouring the old wine in a new
+bottle? Are you just naming it a new
+thing? So uh there's an interesting
+paper uh in this year's EMLP. This is a
+position paper. The paper's name is
+mechanistic. So what is mechanistic? We
+don't really know what is mechanistic.
+No one defines what is mechanistic.
+But interestingly uh the authors uh
+actually classify the the works which
+call themselves mechanistic
+interpretability works can be primarily
+categorized into four categories. One is
+the narrow technical definition. By
+mechanistic interpretability as a very
+narrow term what people mean is causal
+mechanisms that is they try to interpret
+what caused a particular output. What
+model component actually caused a
+particular output. What is the causal
+mechanism of the model? That is the most
+narrow
+definition. In a more broader field, any
+research that uh uses the internals of
+the models, uses the activations and the
+weights and try to interpret from it,
+people call it
+mechanistic. From a cultural point of
+view, on the other hand, there is this
+bunch of people who call themselves that
+we are the MI community. uh and then the
+papers coming out from them are mostly
+in the uh mechanistic interpretability
+uh uh line of works. Interestingly
+enough uh a lot of criticisms has been
+there uh of this MI community. Many
+people argue that uh people who are
+working in MI community uh they don't
+really site the previous CL stuff
+computational linguistic stuff which
+were there already maybe in a different
+name just like probing it was there from
+around 2016 but uh it is kind of
+reinvented in the mechanistic
+interpretability era and uh the most
+broader cultural definitions is you do
+any interpretability in AI you call that
+mechanistic interpretability the paper
+cells. Uh so yeah so but what is
+mechanistic interpretability then how do
+you know interpretability is mechanistic
+interpretability or not how do you tell
+it? So the interesting words which comes
+here is the reverse engineer.
+The first paper which uh talks about
+mechanistic interpretability in the
+context of transformer language models
+uh is from anthropic and that is the
+paper we were discussing in the previous
+class kind of uh this mathematical
+framework of transformer circuits where
+they call this residual stream
+perspective and stuff like that. So
+there they define um the field of
+mechanistic interpretability as
+attempting to reverse engineer the
+computations of a
+transformer. The mechanistic
+interpretability community has grown and
+now ICML 2024 had a great mechanistic
+interability workshop and they use the
+similar terminologies. They basically we
+are trying to reverse engineer the
+algorithms implemented by neural
+networks into human understandable
+mechanisms.
+So maybe this is the definition we can
+go go
+with. So how does this term mechanistic
+interpretability
+emerged? So let us uh go a step back and
+look into general science. So when we
+talk about general science, when we talk
+about complex systems, how do you
+understand how do scientists understand
+how a complex system work? How do we
+understand how a uh material performs?
+whether a material is electrical, how is
+the electrical conductivity of the
+material, how do we analyze it? We go
+into the atoms, study the atoms, uh look
+at its uh enthalpy, entropy and stuff
+like that. And from that we predict what
+is the electrical property, what is the
+magnetic conductivity and stuff like
+that. Uh
+similarly so basically this is zooming
+in we are going into the model looking
+at the atoms looking at the electrons
+what is the uh enthal enthalpy stuff
+like that and predicting is its
+different uh materialistic properties.
+Similarly neural networks at the end of
+the complex systems. So let us take a
+leaf out of the book of science and look
+into the atoms of neural networks. So
+what are neural network consist of? What
+are the atoms of neural networks? they
+are
+neurons. So this is the key idea behind
+mechanistic interpretability. We look at
+the atoms of the neural networks. We
+look at the neurons and kind of try to
+reverse engineer how that output may
+have
+happened. This is not a concept which
+was first used in NLP. This again is
+something we borrow from vision. Right?
+So they have taken transformer from us.
+We take something from them. Uh so Chris
+Ola when he was at uh OpenAI he he
+actually coined this term mechanistic
+interpretability and when he started
+looking into CNN uh networks like ResNet
+to understand uh what kind of neurons
+actually
+uh contribute towards a certain um
+pattern matching or stuff like
+that and the same paper the paper's name
+is zoom in and introduction to circuits
+this uh term circuit was introduced
+which we already uh introduced in the
+last
+class. The circuit is basically a
+computational subgraph of a neural
+network. What is a computational
+subgraph? So basically the neurons acts
+at the
+nodes and the weights which uh transfers
+the activations or the output of one
+neuron to the
+other they act at the edges. So we can
+represent any neural network as a
+computation graph and circuits are
+basically a subgraph of this which
+contributes towards a particular task.
+The hypothesis is that for a particular
+task not all neurons are required. Only
+a part of the neurons in the network
+actually contributes towards a for a
+particular task. We will see
+how. Look at this example. This is
+called a car detecting neuron. Right? So
+the role of this neuron is is to detect
+whether the uh images image is a car or
+not. So they kind of found that this
+neuron helps in detecting the car. But
+there's a catch in here. When you give
+the windows of the car, the upper part
+of the neurot excites. This is basically
+a collection. And this kind of a uh you
+can consider it as a map like a filter
+in convolution.
+Right? When you give the car body almost
+the whole neuron excites but the bottom
+uh part of the neuron or the map or the
+filter excites the most. When you give
+the wheels the upper part is inhibited
+and the bottom is excited. What does
+this tells us? This tells us that a
+particular neuron is not encoding a only
+single property rather it is uh encoding
+multiple properties of the input. For
+example, here it is looking at the
+windows, car body and the wheels. All
+three are handled by single neuron.
+Right? So when uh we try to interpret
+why the output is say a car it detects
+it is a car say. So why it does
+that? We cannot segregate that this
+neuron is responsible for the wheel
+part. This neuron is responsible the car
+body. We cannot segregate that and that
+is a major problem. That's why these
+neurons are called polysemantic
+neurons and this is a big challenge when
+we do uh this kind of interpretability
+that a single neurons captures multiple
+properties. So we cannot distangle them
+as humans. we cannot understand how this
+happens. So there were three claims in
+this paper uh they made. First is
+features. So features acts are the
+fundamental units of neural networks.
+Just like cells in a human body,
+features are the fundamental units in a
+neural network. Circuits are basically
+features connected by weights. And uh
+universality claims that analogous
+features and circuits form across models
+and task. This is a very uh ambitious
+claim I would say because uh a lot of
+criticism of mechanistic interpretive
+research has been the lack of
+generalizability across models and task.
+So that is still a
+challenge. So now moving from computer
+vision to NLP. So first let us
+understand what is an IOI task. IOI
+stands for indirect object
+identification. So suppose I give you a
+sentence. John and
+Mary went to the
+market. John
+gave the pen
+to. So here
+uh you have to the model has to predict
+the task is to predict what should come
+here. So basically from the sentence we
+can understand that Mary should come in
+this place. So Mary is basically called
+a indirect
+object and a task of the model is to
+predict this indirect object or to
+identify the indirect
+object. So
+um this paper interpretability in the
+wild they first tried to find circuits
+in GPD2 for these II tasks.
+So uh as you can see there's a similar
+sentence when Mary and John went to the
+store John gave a drink too and to
+predict the next
+one and this orange uh whatever color
+you are seeing these components actually
+look into the circuit but we will see
+how circuits work and stuff like that
+we'll go into that. So how will you find
+circuit? So basically there are three
+steps we'll go on them one by one. First
+is you have to isolate a particular
+task. You have to observe a behavior and
+create a data set that repro reproduces
+the behavior in question and define a
+metric. How do you measure the
+performance of the task? Let's look at
+an example. For example, in this II
+task, the metric can be the logic
+difference between John and Mary, the
+two uh objects in the uh input prompt.
+Right? So whether it is predicting John
+or Mary, the logic difference can act as
+a performance of the model. And there
+are different kind of tasks like dock
+string which tries to predict key what
+is the next parameter from the um input
+function. There is this treasure tasks
+uh which are basically a kind of
+compiler and there's a induction task
+which
+uh which the task is to basically
+predict the next token where the token
+already arrives before in the similar
+context.
+So these are some of the typical tasks
+which are used for uh circuit
+identification in uh mechanistic
+interpretability. The second step is to
+define the scope of the interpretation.
+Like I said we will construct
+computation graphs. So what will be the
+nodes of those computation graphs? Are
+those be attention heads? are those MLP
+MLPS or they are more uh complex in the
+sense are they the residual stream state
+after certain layers. So what is the
+granularity in which you are going to
+break down the
+model. So that is your scope of
+interpretation. Uh obviously you will
+represent the model as a computational
+directed asyclic graph and uh as I said
+what is the abstraction level? In fact,
+you can go into more granular level. Uh,
+choose query key and value activations
+as separate nodes and work with
+that. The step three is the uh most I
+would say interesting or most critical
+for finding circuits. So u if I go a
+little back. So the step three is you
+have to perform a series of extensive
+patching experiments. we will see what
+is patching is and try to prune uh the
+unnecessary or the not useful components
+in the computational graph. So we end up
+with the subgraph which actually is
+important for the task in
+hand. So we call this activation
+patching. What activation patching does
+is for every node in the graph, for the
+activation of every node in the graph,
+it overrides the activation value using
+a corrupted
+activation and runs a forward pass
+through the model and compare the output
+values for the clean run and the
+corrupted run. We will see
+how. So suppose we have a statement John
+and Mary. We make it corrupt by changing
+a single token John with
+Bob. Right? And we see how the output
+logits
+differ. For a more uh real world
+example, consider that the clean run
+is the Eiffel Tower is in right. So the
+output should be
+Paris and the corrupt run is we just
+replace the Eiffel Tower with
+Colossium.
+Now we do two forward passes initially.
+One with the clean run that is the
+Eiffel Tower is in with this input set
+of input tokens. We do a forward pass.
+uh we get a uh logic for say the clean
+run u output is R and the corruptor
+output is Rdash. So we get a logit for R
+and a logit for Rdash with the clean run
+right. Similarly we do with the
+corruptor and get the
+logit and now we patch each of the
+components. For example, suppose we want
+to see key whether the attention head
+whether the say fifth attention head of
+the first layer. So we denote it as
+A1.5. So it is the attention of the
+first layer fifth head whether it is a
+part of the circuit which is responsible
+for the task or not. What we do
+is we have this corrupt run right. we
+replace
+the A15 of corrupt with A15 of
+clean and see how much the change in the
+logits happen.
+So basically if we replace the corrupted
+input patching with the clean input
+patching the idea is the logits of R
+dash or R prime should
+decrease and that of R should increase
+gradually if it is important. If not
+they will remain the same. So how will
+we measure this? So basically what we
+want to measure is the logit difference
+between R and Rash in each case. In this
+case the logit of Paris and the logit of
+Rome. Right? Let us uh take an
+example. Suppose uh this is
+my Paris output and this is my
+uh Rome output.
+Right? So uh the activation here is say
+a dash. This is our component of
+interest for now. Forget just imagine we
+are working with a single component and
+we are here the activation is a right.
+We have already cached
+this. Now for a patch run what we do is
+this for the corrupt run remains the
+same in the patch run. What we do is
+only in place of a we replace it with a
+bar we replace it with a. Okay. So
+suppose this input
+is x i up to here and here it is x1
+prime. So this is x1 prime. Everything
+comes the same only we change the
+activation at a particular
+component and we check how much the
+logic difference
+varies. If this logic difference is
+greater than a threshold, we will see we
+will say that this component is
+important. If it is close to zero, we'll
+prune this from the graph and say this
+is not important for the task at
+hand. So based on this idea, this SEDC
+algorithm was proposed which is
+basically an automatic circuit discovery
+algorithm. So what it does is suppose
+you have a computational graph G. it it
+first sorts the graph in reverse
+topological order. So we start from the
+output and move towards the
+input. That's how we prune it. And then
+for every
+component, we remove the candidate edge
+and see here they are using scale
+divergence. So this is basically a
+choice. You can either use scale
+divergence or you can use logic
+difference. It's up to you based on the
+task at hand. So they are using the kale
+divergence between the probability
+distributions when we use G and when we
+remove one H from G which is H new H new
+is basically when you remove one H from
+G check the distribution you keep it
+check the distribution. This removal is
+basically patching
+right. And when you do this iteratively
+uh at the end of the algorithm you are
+left with a
+subgraph. As you can see this is a very
+computationally expensive algorithm. If
+we go for each uh computational graph
+like for every component of the
+computational graph one by one do
+activation patching. So for activation
+patching how many runs do you require?
+Just imagine one is the complete forward
+pass through the clean. One is the
+complete forward pass using the
+corrupted and again for every component
+you do patching and do a forward pass.
+Two patching. So if there are n
+components apart from those two forward
+passes for every n component you have to
+patch and do a forward pass and it's
+basically a huge number of forward
+passes through a model which is very
+expensive.
+what can be an alternative solution to
+it. So uh this is basically a
+representation of what we already talked
+about in SD server as example of a
+circuit. Maybe I should have so
+alternate attribution patching. What
+attribution patching tries to do is is
+tries to approximate
+uh this u difference uh I we will see
+how as a linear approximation let's see
+how suppose uh we have a model which
+models I is the input space the clean
+input space and L is our uh logit space
+and we have a specific activation uh
+which goes from I to an activation space
+A
+Right. So what we were doing is
+activation patching
+was for a output M. So the output M
+right. We have this model patched model
+where we are running with this R is our
+corrupted input and A is the
+activation which we will patch.
+Right? So this M and we were measuring
+it using a matrix using any metric P.
+This P can be logic difference. This P
+can be K divergence. That is based on
+our choice. And we were iteratively
+replacing this A with the clean
+activation AC. Right?
+So this P
+MA I comma A what is it? Let us
+understand. This is the our model. This
+is the clean input and this is the
+activation. Let us represent it as a
+function f a i comma
+i. So our logic difference this is
+basically a log this p is logic
+difference for now forget dimension.
+This is a logic difference between the
+clean output and the corrupted output
+logits.
+Right? So this function
+basically represents that logic
+difference based on your
+input and the activation you are trying
+to patch right. So if for attention head
+fifth attention head of the first layer
+you're trying to see whether it is
+important or not previously we were
+doing patching and then doing a forward
+pass. Now without doing the forward pass
+can we approximate that that logic
+difference because ultimately what we're
+doing is we are thresholding on the
+logic difference and pruning it right so
+this FA what we were doing let us go
+step by step right we were first taking
+the corrupted activation corrupted input
+right and it had an
+activation and we were replacing this
+activation with the clean activation
+That is what we were doing and we were
+checking what was this FA and we were
+thresholding on it. Right? So basically
+we were interested
+in the difference between this FA when
+we have
+a corrupted activation and a clean
+activation.
+Now tell us extension of f(x) for at a
+point a at a point where x is fx is
+differentiable can be written as f a
+plus fd a by 1 factorial into x - a plus
+f dash a by 2 factorial into x - a² plus
+dot.
+So if this difference x - a is small
+enough if this difference is small we
+generally neglect this higher order
+terms as they go towards zero.
+Now the assumption is that when you
+alter just a single uh activation within
+the model there a single attention
+head typically for a big model like GPT2
+which is a sufficiently big model the
+the difference between the activation
+should not be should not be much it's
+not of very high order that you will
+blow up right it's typically it's very
+small so we can approximate it linearly.
+This is basically a linear
+approximation. So this f a
+x ignore the r because the input is the
+same in both cases. We are patching the
+activations. Remember the input is the
+same. So f a x can be written as for at
+any point a can be written as fa
+plus d fa by d a into x -
+a. Right?
+Now, now what activation we are
+patching? We are patching the activation
+of the So what is this A? This A is our
+activation which we will patch with
+another activation. So our activation is
+from the corrupted input R. Whatever
+activation A we are getting. So this A
+is basically a R. R is remember the
+corrupted input the colosium is
+right. So f a x can be written as f a
+r plus d fa by d a x - a
+r or f a
+x over
+here minus f a a
+r is basically d fa by d
+a at a = a r into x minus a
+r. Now what we are interested in, we are
+interested in how the logic difference
+changes when we replace a r with ac the
+clean activation. So if we put x is
+equal to the clean
+activation then this term becomes f a a
+c. So this becomes a c. So f a c minus f
+a a r. This is the term we were
+interested in. we were previously doing
+using a forward pass. Now if we assume
+that uh these are small numbers these
+are doesn't change a lot for a single
+token. So what it becomes
+is we have a
+approximation for this difference we
+were previously doing using a full
+forward pass. Now let's see how many
+forward passes this leads. Obviously you
+need one forward pass for the clean run
+and one for the corrupted run. So two
+forward passes you
+need. After two forward passes you
+already have this AC c minus a for every
+component.
+Right? What remains is the derivative of
+this function with respect to a the
+activation. So this can be done by
+single back propagation right for the
+activation uh the derivative of this
+function with respect to each activation
+can be done by single backdrop using
+this fa as the kind of loss function
+right so this attribution patching works
+with two forward pass and one single
+backdrop so instead of n forward passes
+it is doable in a single backdrop so
+it's kind of reduces the computation
+complexity by a lot But the challenge is
+here is this only works number one when
+you change a single token. Uh you cannot
+change multiple token and stuff like
+that. Second is you are working with a
+lower granular granular level. It's like
+attention heads. If you work with say
+residual streams after a layer after the
+whole layer or after two layers then
+this approximation that this x minus a
+will be very less may not hold.
+So these are some of the uh things you
+have to keep in mind that this the main
+assumption over here is that the
+activations don't change much when we
+patch a single token at a certain
+granularity level but uh this scales
+well and um as I said it can be done
+with single clean forward pass corrupted
+forward pass and a corrupted backward
+pass and it's scalable. So uh that is
+the positives of attribution patching.
+So now we have covered causal
+interventions, activation patching,
+attribution patching and discussed u how
+do you find circuits uh automatically
+right?
+Okay. Now what are some the uses? How do
+you use this in the real world? Uh are
+there some works which use this and find
+something? It turns out there are a lot
+of works but I chose two of them. um two
+two such uh works which are related to
+the topics already discussed in the
+course. One is induction
+heads. So this induction head is said to
+be one of the primary source of
+incontext
+learning. What induction head does is
+what is induction head? Induction is
+head is basically a circuit. What kind
+of circuits? It consists of two heads.
+The first
+head attends the previous token. What
+does it mean? Suppose you have a
+sequence A B to do a A, right? So you
+have to predict the next token. The
+input is A
+B A and you have to predict the next
+token, right? So those were you of you
+who are doing project one uh this is
+something you were looking into,
+right? The task of the first head is to
+look in at the previous token. So for
+predicting this token, the previous
+token is a the so the first head looks
+where is this a present elsewhere in the
+context, right? And the second head uses
+the information to find tokens preceded
+by the present token. So you have to
+predict this
+token. The first head goes and finds
+what's the previous token and the next
+token what it does is it copies the next
+uh whatever is present next token is
+present for the output. It's kind of a
+bagram searching you may say. So they
+found at least in the two-layer
+attention only modules. So a typical uh
+way of doing mechanistic
+interpretibility starting with toy
+models. You play around with toy models,
+find some phenomena and look whether it
+works for logical models or not. So what
+they find is uh this is again from the
+anthropic team. So what they find is
+this induction heads implement such a
+pattern copying behavior
+right example uh this is an uh input
+from Harry Potter
+and the context Mr. and Mrs. Dlay of the
+something something something and
+then again here Derslay was uh arriving.
+So it was seen that uh for when we are
+dealing with this token
+earth for predicting lay the attention
+heads were looking into uh the similar
+uh previous token earth. So this uh red
+actually says you what is the attention
+is where the attention is on and then
+other head is uh looking into lay right.
+So there are a lot of examples maybe you
+can go through the article and see it's
+a long article but uh this example kind
+of is one example where it illustrates
+key look this is happening what we
+hypothesize what we see by algorithmic
+tasks basically they prove it using
+algorithmic task and then show look for
+even for um this kind of natural
+language inputs same thing is happening
+right we also uh in one of the lectures
+studied about emerging properties is
+where uh after a certain point suddenly
+incontext learning emerges. It so
+happens that uh this incontext learning
+score is basically the defined at the
+loss at the 50th token minus loss at the
+500th token. Now you may say what is it?
+How does it uh qualify to be a
+performance for induction uh for in
+context score? So the assumption is that
+when you are taking on the loss for the
+prediction of the 500 token suppose this
+is a 512
+uh input context length. So 500 token is
+almost toward the end of the
+context. So when you are predicting the
+500 token the model has already seen
+almost the whole context. So if in
+context learning works this loss should
+be
+low compared to predicting the 50th
+token when it is toward the start of the
+context it has not seen much uh in
+context learning of course cannot happen
+because it has not seen anything in the
+context. So if in context learning
+really happens uh this 500 token loss
+prediction loss should be low when you
+use a one layer model remember a one
+layer model cannot have attention head
+from two layers so induction circuits
+cannot emerge we see that this score
+this L50 minus
+L500 is
+almost parallel to the
+x-axis compared to when we do two layer
+and three layer and other more layer
+models after a certain point after some
+2.5 into 10 ^ 9 training tokens suddenly
+this loss
+drops and the interesting thing is at
+the same time the emergence of the
+induction heads comes up in this phase
+of loss dropping. So though we uh in
+other lectures we say that look
+emergence is dependent on uh this matrix
+you choose maybe I am uh kind of
+contradicting that but uh what we see is
+uh at least in case of incontext
+learning the emergence of the induction
+heads and the this sudden decrease in
+loss happens at the same uh training
+time. So the uh how do you measure that
+uh these induction heads are emerging?
+We measure it using something called
+prefix matching score. So basically we
+see u whether it matches with the prefix
+or not in simple terms. Uh it's just the
+attention weight for the prefix and the
+difference between that right the
+fraction of the
+attention. And the second work uh is
+from our lab at I Delhi where uh we
+worked on the mechanistic understanding
+of COD. It was the first work which
+talked about how do you uh interpret
+coot from mechanistic point of view. Um
+so this was recently published in TMLR
+and there what we saw was that uh for a
+particular task when we are doing coot
+uh there are three subtask the model is
+kind of algorithmically doing the first
+is the decision to give which uh this is
+basically a fiction and ontology data
+set. So uh this data set doesn't make
+sense. It's just the entities are
+randomized kind of a thing. It's like a
+is b is c is a is c or not true or false
+that kind of a inductive reasoning uh
+based on some fictional ontologies.
+Right? So for that uh what we saw was
+there are three subtask. Subtask one
+where the model has to make the decision
+which entity to choose. subtask two
+where it just copies from the context
+similar to induction heads it copies
+from the context uh suppose it chooses
+max and then for the subress to it will
+search where is max okay here is max
+then we'll copy is a lampus and the
+third is this induction induction here
+not in the sense of induction head it is
+kind of induction reasoning where it has
+a entity and a kind of uh suffix to it
+uh something a reason associated ated
+with it. You have to it has to reason
+whether uh given a entity and its role
+for two entities but cannot reason from
+two statements. Right? There are three
+subtasks which have been
+implemented and u to give a brief
+overview. We see that there are multiple
+neural pathways that uh that are
+deployed to uh basically compute the
+answer and basically there is a
+functional rift in the model in between
+where the first half of the head is
+first half of the models is more uh
+associated with moving the information
+within the residual stream and second
+half of the model is more about coming
+up with the answers. There are more to
+it uh about the which attention is does
+what we should give a read to the paper
+to
+study. Uh next what I said uh in
+that classification of interpretability
+techniques was decoding in the
+vocabulary space. So what does that
+mean? So this is another again easier
+technique of doing interpretability. Um
+when you have a intermediate residual
+stream state XL and unembedding matrix W
+view u what this logit lens does is it
+simply projects this uh hidden state XL
+into the vocabulary space by multiplying
+with W group. So suppose you multiply W
+group with XL what it will give is your
+distribution over the uh vocabulary when
+you take max right. So basically what it
+tells is how uh or what tokens are kind
+of pushed at each layer of the model. So
+you can understand at what hidden state
+the model is pushing which tokens in the
+vocabulary uh and how this kind of tells
+you how a particular output is gradually
+forming within the model as the input as
+a forward pass
+happens. Uh interesting enough this is
+also applied to vision language models
+where uh given the input images um you
+have to generate some caption or stuff
+like that and uh they use the unmbedding
+metrics at each point to see uh at each
+layer how much is uh each pixel
+categorized into. So suppose each pixel
+you have to categorize into couch and
+table. So when you apply the unmbedding
+matrix it kind of tells you okay uh this
+part of the image contains couchion
+table this part of the image contains
+cat and things like that you can
+gradually understand whether when you
+break because image is also kind of
+tokenized when you give it to fix vision
+language models. So it tells you how
+each token is treated within the model
+and this can further be used for editing
+uh region language models which we will
+not go into in this lecture.
+One more um uh tool in this category
+of projecting in the vocabulary space is
+path scopes released recently by Google.
+So patch scopes basically gives you a
+more generalized framework for probing.
+Uh so for probing what we were doing was
+we're taking a single
+model we were applying a classifier on
+top of that say class the classifier is
+f and trying to predict our output zed
+right so here there is a single model m
+and a single activation or single layer
+whatever you call it. Pascopes makes it
+more generalized. More generalized in
+the sense it uses two
+models model M and model M
+dash. Now suppose you want to interpret
+what what this particular activation
+stores uh which were previously seeing
+the mutual information between X and Z.
+We were seeing in probing a similar
+thing. um it applies a function f on it
+and patches this um output of f into the
+token of the next model a different
+model right so for example why I say
+this is a generalized case of probing so
+if I have m equal to m ddash right this
+function is say identity
+function and this layer where you patch
+it if it is in the last layer last layer
+L then it's basically probing because
+when it's the same model here and
+here you patch it from layer L to layer
+L to layer capital L which capital L is
+the last layer then the last layer if
+you patch it what it will do is after
+that it will just apply uh the unbedding
+matrix link
+so that is what logit lens
+And similar thing you can do with uh for
+a probing classifier like here we are
+not training it different differently.
+So this is kind of a more uh broader
+view of probing in the sense you know
+you don't need to train it but you are
+looking into what information does that
+the uh objective is the same to look
+into what information does that state
+contain but you don't need to train a
+classifier. So from these passcodes um
+when m equal to mdash and this layer l
+in the second model ldash is equal to
+last layer it becomes logic lens. There
+is interesting use cases of this
+passcopes like you may ask when we we
+may use a different model. Suppose we
+have a model which is not powerful
+enough
+right. So from the first model suppose
+we have a input the largest river of
+India is Ganges something like that
+right now what we do is we want to test
+whether a particular activation can
+extract the entity information within
+the
+importer so what we do is suppose here
+from the first model we take the
+activation corresponding to India right
+for the second model the input prompt is
+different. It can be different. It's
+your choice. For logic lens, it would be
+the same. But suppose uh the input prom
+for the second model, this suppose this
+is a more powerful model. The input from
+the second model is suppose the largest
+city of X is right. So the
+largest city of X is this is the input
+prompt to model M dash over here. And
+the input prompt to here was the largest
+river of
+India
+is right. Now what we do is we take the
+input
+activation not input activation
+activation for a particular layer say AL
+from this model right and we patch it.
+Suppose we apply a function f to adjust
+for the uh model sizes and stuff like
+that and we patch it over
+uh in place of x. So X had an
+activation we passed it with this
+AL and we try to see whether the model
+can give the right output or not as a
+answer like we already know the largest
+city of India is something something and
+uh we want to compare whether that
+output say the gold output is C. We want
+to compare that the output which this
+gives after patching AL whether it is
+same as C or not. If it can that means
+this model M in its activation AL was
+storing entity information of India. It
+is capturing India. If it is not then it
+is not storing entity information. So in
+this way uh this can be a extended
+thing. One more thing which is
+dictionary learning. I will just uh give
+a brief overview of it in five minutes
+and then we'll wrap up.
+So uh one thing which I told initially
+was this poly semanticity that every
+neuron has multiple concepts within it
+which we don't really
+understand. So these are not
+interpretable human these are not human
+interpretable at least. So um there is
+this thing called linear representation
+hypothesis. U maybe you can go and read
+it uh later but I will give the brief
+intuition behind it. So it says that
+interpretable features are represented
+represented as linear directions in the
+some latent space whether it can be an
+embedding space or whatever and when u
+these features are activated only when
+uh the embeddings you have align with
+these directions. So suppose you have a
+basis ve you have a space and you have a
+basis within that basis you have this
+feature vectors pointing to some linear
+directions right so now you give an
+input the features are only activated if
+your input embedding is aligned with
+these feature
+vectors this is linear representation
+hypothesis basically right and uh
+because there are
+superposition individual features may
+not be informative Because there are a
+lot of thing I do gave an example of car
+detector neuron it was very hard to
+disentangle the representations within
+the
+space. So there is this concept of
+privileged basis but privileged basis
+basically tells is is incentivizes the
+features to align with the basis
+dimension. The normal basis which we see
+in word embeddings or transform residual
+stream there is no incentive there is no
+explicit in incentive for the features
+to be aligned with the basis they can be
+different like this can be your basis
+and these are your features they're not
+may not be aligned but privilege basis
+uh explicitly kind of guarantees that
+the feature will be aligned to the basis
+vector and this is what happens in
+transformer MLPS and also in conjun
+neurons And from there this comes these
+concepts of inductive biases and stuff
+like that. Right? And uh in the super
+position
+hypothesis we see key features can't
+align with the basis. Why? Because the
+model embeds more features than the
+dimension of the subspace. So suppose
+it's a 500 12dimensional vector
+activation and the number of features
+which are embedded in it is say,000. So
+how can the features align with the
+basis if it is more than uh the number
+of uh the dimension of the subspace? It
+can't. So here where sparse
+autoenccoders comes in it is also called
+dictionary
+learning. So what it does is for every
+activation X right the sparse
+autoenccoders up projects it into a
+intermediate activation
+fix. So this is the encoder W
+encoder. So when you multiply
+X with the encoder matrix sum it over
+all I add at the basis whatever you want
+and this gives you
+FIX. The dimension of this FIX is higher
+right and this DI is basically your
+decoder. Um so this fiix then it passes
+through a decoder and this reconstruct X
+prime. So how do you train this parse
+out encoders? So the idea is this fiix
+has a higher dimension than X
+right? So how do you train the
+autoenccoders? You give the
+reconstruction loss and you explicitly
+uh give a penalty
+uh over the
+uh L1 norm of f1 fi. So basically we are
+giving a penalty on the magnitude of f_i
+uh so that uh f_si is less that is some
+components of f_i tends to zero ensuring
+it is parse right this this is basically
+spar ensuring sparity sparity loss and
+this is the reconstruction loss just
+like we train autoenccoder so clearly
+the training of autoenccoders is
+completely
+unsupervised. So what uh is done is just
+uh for an example suppose the activation
+is 512 dimension uh it is the features
+the sparse features learned to sparse
+autoenccoders can go like in the paper
+we're talking about towards monanticity
+there they go up to 1 lakh 31,000 so
+that is appro 256 times of 512 so when
+you go into such a large subspace the
+chances like MLP normally locks this
+privileged basis. So now um the features
+have a chance to at least align with the
+basis
+vectors right uh the idea is if it
+aligns with the basis vectors uh the
+features are embedded we can maybe
+interpret it we can dis disentangle them
+uh so this is what is done in sparse
+order encoders to give an example
+um they kind of extracted millions of
+features this was claude three set model
+for the claw three sonnet model. They
+extracted the features which
+um which affects each part different
+kinds of uh properties in the output
+like bias, like uh different kind of
+hateful comments and things like that.
+And they identified the features where
+each feature contributes to a particular
+property of the output. And they showed
+that the obviously this is again very
+computationally expensive. If you have a
+lot of uh power there, computational
+power then all you can do it. But uh
+they identified this feature
+uh which was responsible for gender bias
+right. Uh after this they disentangle
+them, learn the sparse of encoders and
+um do all the stuff. they
+identify that this feature is
+responsible for gender bias and they
+manually then increase or decrease the
+specific feature or maybe remove that
+and then they see that uh this biases in
+the output are controlled by controlling
+this feature. So though this is still a
+very nice and field uh it's like uh 2023
+paper I guess end of 2023 start of 2024
+or if I'm not wrong it is May 2024 paper
+so it is very national field is just
+starting but SAS seem to have a lot of
+promise in them for um learning human
+interpretable features and controlling
+them for uh bas uh for basically AI
+safety it. So with this uh I will stop.
+Thank you.
+[Music]

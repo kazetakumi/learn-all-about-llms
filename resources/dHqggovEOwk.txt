@@ -1,0 +1,1103 @@
+[Music]
+hi everyone in this tutorial we'll be
+discussing uh kind of introduction to
+hugging F Library so hugging f is a very
+uh useful Library when we uh work with
+the basically the Transformers based
+model mostly the Transformers based
+model
+all these models open source models data
+sets are have available on something
+called hugging F Hub so we will see how
+we can use this hug F library to load
+the models to fine-tune them using some
+toy examples how to load the data sets
+and how to use it for inference so let's
+start so uh here um that um package in
+huging phas which deals with
+Transformers business models is called
+Transformers and there's a package
+called data sets which deals with all
+the open source data sets so we need to
+First install them let's first look at
+the whole pipeline whole um flow of how
+we process input so first we have this
+raw text say this course is amazing and
+then we have a tokenization algorithm
+which breaks the text into some tokens
+and map it to some numbers right so this
+numbers represent a token right so this
+course is amazing suppose we apply some
+token algorithm say like by P coding or
+something sentence space tokenization
+something like that and it Maps it to a
+sequence of tokens and tokens are
+represented as numbers right so these
+tokens numbers are basically kind of
+dictionary mapping only right nothing
+else so one1 say this tells is this is a
+token and its number is one1 something
+like that
+so we have then a list of input
+IDs and then these are passed on to the
+model so the when the model gets the
+input IDs which is a list of token
+numbers what it does it it goes to its
+embedding Matrix does a look up so the
+embedding dimension of the token is
+already stored in the embedding Matrix
+of the pre-trend model right if it is
+not pre-trained if we are looking to
+train it from scratch then
+initialization is some random
+initialization or some informed
+initialization like zier initialization
+or something like that and then uh when
+you train the model um these embeddings
+are also updated embeddings of the token
+are also updated so for now let us
+assume that the model is pre
+Trend so when she pass the input IDs the
+model Maps the token IDs to token
+embeddings and then the token edings are
+uh passed onto the model po encoding is
+added in cas of Transformers and
+whatever the model architecture is there
+whether it's a encoder decoder model
+it's a decod and only model whether it's
+a encod and only model uh it is
+processed accordingly uh we have already
+seen in a lecture in I guess one or two
+weeks ago that how do you implement
+Transformers from scratch using pip
+torch right there we saw how within the
+model how a Transformer layer is
+implemented right we saw every component
+of it multi positional encoding layer
+normalization encoder block decoder
+block we saw all that so now we are
+putting all this together into a single
+model right and there are simple
+variations within the model like say um
+gpd2 doesn't use rotationally rotary
+positional encoding or rope whereas Lama
+uses rope mistal uses sliding window
+attention so there are all these slight
+variations in the architecture in the
+kind of attention they used like Lama
+uses group query attention so all these
+variations are there but let us assume
+that within the model um we have a kind
+of a function a module which textes the
+input IDs Maps it to the embedding add
+the whatever position encoding is
+defined for that
+model processes it and a final output is
+a logits logits over the vocabulary
+token so Suppose there are um
+32,000 tokens in the vocabulary of a
+model right so then the output will be
+set a series of Logics over these 32,000
+tokens and then it is passed from the S
+Max so short Max maps this 32,000 logits
+into a probability distribution over the
+32,000 tokens right so it will say okay
+say token um I has
+probability 3 token this has
+probability. 2 and just like that there
+is a probity distribution over the whole
+vocabulary set and then you can do some
+post processing so if you are uh so to
+start with we will take the example of
+the sentiment classification task and
+try to do sentiment classification using
+a encoder only model like B right we
+will use robot here so robot just think
+of it as a variation of B right the
+architecture is same as bot right so we
+have already discussed that Ma B is
+trained using Mas language modeling and
+so what b does is it gives you a
+representation of an input sentence
+right and then you can you can train
+some linear layers on top of the on top
+of but to do any classification task or
+anything you want to do with the
+sentence representation
+right so this is the flow so once you
+have the a sentence representation uh
+you can use it to make some predictions
+or stuff like that
+right so let us now load the model and
+tokenizer right so uh there is something
+in Transformer Library called Auto
+tokenizer so what Auto teizer does is
+when you give the model path right we'll
+see where does the model path comes from
+when you give the model path it
+automatically it has some kind of
+dictionary defined so it automatically
+looks into what kind what tokenizer is
+trained for that model right so during
+pre trining uh there is a particular
+tokenizer tokenization algorithm use so
+when you're doing inference you need to
+do this use the same tokenization
+algorithm so tokenizer Auto tokenizer
+handles this you can also explicitly say
+like for here using say Robata so you
+can explicitly Define whater need to use
+but autot toer makes our job
+easy and we have Auto model which
+again takes in the path and loads the uh
+corresponding model in that path so Auto
+model again does a job at relas here you
+could have expressly defined it and here
+you write what the task so the form is
+that you write Auto model and then you
+write for and the task you are trying to
+do it can be sequence classification it
+can be MK language modeling it can be
+causal language modeling so it can be
+Auto model for causal LM it can be Auto
+model for mask LM it can be Auto model
+for sequence classification so it's Auto
+model for the task you have
+right and you initialize the tokenizer
+as token is Aizer do from PR so from PR
+is a method defined in the Aizer class
+so do from PR and then you pass the path
+to the model so the question is where do
+you get the path to this model from
+right so normally uh in the web if you
+search
+hugging face
+hubs right you will have this hugging
+fist Hub so there you can get list of
+all models right so if you go to model
+so you can see the task you can filter
+by task you can see the data sets you
+can see the models and all things like
+that suppose you do want to do natural
+language processing task of text
+classification then if you go to models
+you have all these models right and uh
+we will be using one model which is
+trend on robot so you can search here
+right you can search uh robot
+sentiment robot a large English right so
+we'll be using this model so this model
+has been uh trained on uh sentiment
+analysis task roboti basically is
+architecture is same as B and it's trend
+on English so how can you use this model
+just go to this use this model feature
+in Transformer libraries and there you
+can see that okay so this is what you
+need to do you need to tokenizer so this
+is what you need to do says Hing face so
+just copy that you just paste that and
+this is what we have done here
+right so that's how you can search a
+model from Hub and uh use it uh in your
+code right so running it we just load
+some binary files uh corresponding to
+the model uh so it will takes it takes
+some time so let it uh load all the
+files and let us proceed
+right so how does it um as you said what
+are the steps let us think step by step
+now right so the first thing is you
+tokenize so suppose you have input
+sentence I am excited to learn about
+Transformers so what you does is you
+first the input the tokenizer right and
+this return tensors is equal to PT what
+it does it it says that okay return the
+output in the form of py to tensors if
+you if you don't write it it doesn't
+return as tensors it returns as normal
+list and then outputs to get the outputs
+you pass the uh model the unpacked list
+of tokenized input we'll see this in
+more detail and then the prediction is
+basically um whatever Logics you have
+you take the max of that and map it to
+the label negative or positive right so
+this is U what okay what is do is not
+defined maybe I'm not run this okay now
+it should be
+fine so Tor was not import imported so
+now it should be fine so now if we do
+Tor or sort Max on the outputs so you
+get this logic so it says okay I'm
+excited to learn about Transformers if
+you look at the sentiment of it the
+there's a 0.12% probability that is
+negative and A99 88% probability that's
+the positive right so that's what is
+done so let us look at step by step now
+so this is the input the input was I
+excited to learn about Transformers so
+when I pass it onto token tokenizer
+right the tokenized output is like that
+0 100 437 so these are the list of token
+numbers as I said and attention mask if
+you remember we uh discussed in our
+Transformers from scratch um tutorial
+that the attention mask there are two
+kinds of things it handles so when it's
+in the encoder side handles whether um
+you have a padding token or not if you
+have a padding token the attention mask
+will be zero there if you have a future
+like for causal language modeling when
+you are doing decoder in the decoder
+side there the attention mask will tell
+you whether to mask the future tokens or
+not right so for the future tokens for a
+current token all the future tokens will
+be zeroed out so when you give s Max it
+gets minus it first within the
+implementation we makes zero to minus
+infinity in the attention scores and
+then applying s Max makes it zero um
+attention in the attention Matrix
+basically
+right so this is a tokenized outputs and
+then when a model outputs are when you
+pass on to the model so what is the
+output the logit over the whatever
+distribution you have so this is a model
+for sequence classification so we
+already have a
+two-dimensional um output linear layer
+so it outputs a two- dimensional Vector
+two dimensional object right so it's
+outputs a tensor which is two
+dimensional because it's a sentiment
+Robata right and then the prediction is
+AR Max of that the Logics
+right so now we will basically divide
+this uh lecture or tutorial into two
+three parts first the first part we'll
+look at tokenizers right so tokenizer
+like as I said you can
+either just import autot tokenizer and
+play with it or you can explicitly say
+okay this model I know uses distal B
+tokenizer so here we are using the
+distal B model so distal B is basically
+the architecture is same as but it's
+trained with knowledge distillation from
+a larger B model right so think of it as
+simple bot so b t b so it's a encoder
+only model right mask language modeling
+pre-training objective
+yeah so connect with whatever you you
+already learned in the previous weeks so
+this B is encod only
+model so you can either use the distal
+bir tokenizer or you can just tell the
+token Auto tokenizer and just pass it
+right so you can see that okay there are
+some tokens there are special tokens
+like pad token an token an handles
+unknown words in the vocabulary so if
+there is some token which is unknown
+then that's how it handled there is a
+you'll see the classifier you Prov
+um during the bir lecture you saw that
+what does the classification token do
+the classification token is a token
+added in front of the um input sentence
+so it captures the representation of the
+whole sentence so we can use the
+representation of this classification
+token only to classify the sentence or
+do any kind of classification task on
+the sentence right separate token
+separates and two sentences so it's
+generally at towards the end of the
+sentence and mask is basically masking
+the
+forward tokens um if you do some
+generation task things like that
+right so now suppose we have the input
+string nptl is great right so I pass the
+input token input sentence the raw input
+sentence to
+tokenizer so during tokenization if you
+say return tensal to PT what it does
+is look now it makes so if we remove it
+right if we remove this it was just list
+and if we add return tensors what it
+does is it just converts it into pyos
+tensors right so that's a
+difference so the attention must tells
+you okay you need to attend to all
+tokens there is no special token so
+whether you do tokenized inputs. input
+IDs or so this tokenized inputs is
+basically a dictionary right so
+tokenization when you pass on to the
+input string on the tokenizer it runs a
+dictionary uh one key of the dictionary
+is input IDs and another key is
+attention mask so you can access the
+input ID is just to like access any
+value in the
+dictionary and then um you can Define
+okay what is the classification token ID
+the classification token ID is used to
+the classification token as I said is
+used to um do any kind of classification
+task so classification token contains
+this whole sentence representation and
+un separated token separat to sentences
+right so so first the tokenizer what it
+does is tokenizes into a list of numbers
+token
+numbers and then we have the input IDs
+right so we are seeing what is the
+step and then what the tokenizer does is
+so you have nptl is great it first
+tokenizes it into n PTL is great that
+kind of tokenization breaking then what
+it does is it adds a in case of
+tokenizer over here what it does is it
+adds a CLS token at the front and a
+separated token at the end
+right so we can see this so this is a
+steps so the first this is a start
+sentence and P is great when you
+tokenize it it tokenize into n PT eel is
+great right so these are some uh special
+tokens which handle and then it is
+converted to to this tokens are ConEd to
+IDs so n is 487 so you can easily check
+right you can easily check
+that
+tokenizer do
+decode and you can pass
+on um the input ID right you can pass on
+the input ID is say
+487 right this is a 487 so it should
+give l n right 487 is corresponding to n
+similarly if you pass on
+say
+328 right so what should 328 give it is
+the exclamation mark so you can just see
+it look it's the exclamation mark so
+just like that and in fact you can check
+what is the size of the um vocabulary of
+a tokenizer right you can just do get
+vocab and just make the take the length
+of G program then you can see okay so
+there are
+50,2 65 tokens in the distill bir
+tokenizer right so distill bir tokenizer
+can handle 50, 265 tokens so that's how
+you can U see what are the number of
+tokens in a um particular tokenizer how
+much known tokens are there
+right so these are steps of the
+tokenizer so once you have the converted
+the tokens to IDs what the but tokenizer
+does is is adds a zero this zero
+corresponds to again you can see that
+over here as I said
+tokenizer do
+decode what is a zero zero is basically
+our classification token so
+classification token or the start of
+sentence you can also see it as start of
+sentence this acts as a classification
+token and this um two is our separated
+token so that's a kind of end of the
+sentence kind of a thing so that these
+two are added to the start there is the
+classification token towards the end
+that is the separate
+token and that is the final tokenized
+sentence
+right so if we do we already discussed
+that if you do return tenses to PT the
+input IDs and the attention mask instead
+of a list are returned as a TOS tensor
+right in fact you can pass a batch of
+inputs to the tokenizer so instead of
+passing a single sentence you can pass
+three sentences so that's how training
+works like right there is a batches of
+sentences passed together so that is how
+we um exploit the parallel processing
+power of gpus right we pass inputs as
+batches so you can pass three sentences
+say nptl is great learning Transformers
+is fun we will learn about rhf next week
+so there are three sentences and um we
+do padding equal to true but what
+padding equal to True does is we already
+discussed in the Transformers tutorial
+on implementing using python so padding
+what it does is if the number if the
+three sentences suppose in this case
+there are three sentences so one
+sentence is smaller than the other so
+the smaller sentence will be padded with
+uh pad token IDs which we will set here
+zero so the pad token ID is zero say so
+then it will be padded with zeros at the
+end to ensure that all senten in the
+batch of the same length and what
+tration do is we Define a max length if
+any sentence after tokenization is
+greater than the max length right number
+of tokens is greater than the Max L it
+truns to the max length so that's what
+padding and tokenization do so uh just
+see here the pad token ID uh is set to
+zero over here and if we run
+this see the pad token is pad and it is
+pad token ID is set to one over here
+okay so here the pad token ID is set to
+one it's not zero it's one but that's so
+fine it can be anything it can be zero
+it can be one um it can be two it can be
+3,000 anything but it is token as a
+dependent kind of a thing right
+so after padding what happens is you see
+so this was our sentence nptl is great
+right there is this initial CLS and
+there is this two separator and this one
+are padded so the largest sentence is
+the last sentence we learn about RF next
+week so there is no padding over here
+there is no one ID token right and just
+look at the attention must now so in the
+first sentence there are three ones
+right towards the end right and
+attention M does it places zero in place
+of the pad tokens so it tells the model
+okay these are the special tokens
+unnecessary you don't need to pay
+attention to this while processing right
+so this uh reduces the noise during
+training and also the unnecessary
+computations uh for using these tokens
+right this
+is so uh okay these are after
+tokenization this is tokenization of
+batch and you can batch decode so you
+can just pass on whatever output the
+tokenizer gives as a part as as a matrix
+whether the rows are corresponding to
+each input
+examples and when you batch decode this
+is what you get so CLS so if you bash
+decode um okay so this is what you get
+this is a start of the sentence okay
+this is basically CLS nptl is great end
+of the sentence basically separator and
+then three pads three pad tokens right
+similarly Landing transform is fun is
+there a CLS there is a separator there
+are four pad tokens and similarly U
+there is no padding in the last sentence
+because it's the maximum sentence length
+so when you do simple batch decoding you
+have all these special tokens shown in
+your output but if you just pass on an
+argument skip special tokens equal to
+True during the decoding then uh during
+output it skips the all pad tokens CLS
+tokens separate skips and this just
+gives the raw text
+right so this is
+tokenization so this is the first part
+right so if we go back to our image we
+have already dealt now that how do you
+tokenize the raw text into input ID the
+second part is passing it to the model
+now we'll tackle
+models so as I said that uh it's
+generally Auto how do what is the name
+of the module which handles that it is
+auto model what is the name of the class
+you can say Auto model for task name so
+Auto model for sequence classification
+Auto model for cool LM like
+that or you can explicitly say instead
+of Auto model ke we are using distal bir
+here so you are saying okay it is distal
+bir for sequence classification is a
+dist bir for M we can say like
+that so this diagram kind of illustrates
+um how does the A model architecture
+look like you have a model input you
+have the embedding layer over here and
+then you have all these layers so in
+case of encoder only model there are n
+stacked encoder layers right and then
+you have the hidden
+states which comes up to the layer and
+there is a head the head is basically a
+kind of fit forward layer or some linear
+layer fit forward Network MLP or a
+single linear layer which just
+maps from the output vocabulary
+Dimension to the say you are doing
+classification on two classes so it maps
+from say one24 to two output Dimension
+to number of classes for class and then
+there's the final model output so that's
+how this whole model architecture looks
+like and as I said it is generally star
+star can be Auto model so star for the
+task name star for mm star for sequence
+classification in place of star you can
+just keep Auto model or you can keep the
+explicit name of the model like distal
+Bard like
+gpd2 right um like
+T5 and things like that so
+yeah so how do you load the model I
+already said you just need to Define
+that class right you will in in Make an
+instance of this class like Auto model
+for Signal classification and then
+there's a method Dot from PR and you
+pass on the U path how do you get the
+path if you have stored it in your local
+some checkpoint you already stored your
+local uh environment you just give the
+local path if you don't have it stored
+you um get it from hugging face Hub
+right and uh when you are doing sequence
+classification for these models you need
+also need to to tell what is the
+dimension of the head how many level are
+we expecting as the output right so this
+is how you uh load the model and then
+what are the inputs to the model the
+input is after tokenization that is the
+input what is the output of the model
+you just pass on so what what should you
+pass to the model you should pass to the
+model the input IDs which
+are achieved after tokenization and the
+attention M to tell which tokens to
+ignore during attention computation you
+can either tell it itly input ID is to
+model input input ID ATT mass of this or
+you can just do a simple star star model
+inputs so what star star model inputs
+does is model inputs a dictionary so
+star star basically unpacks the
+dictionary and uh the corresponding
+arguments are passed on are maed on uh
+accordingly
+right so you can just print the model
+inputs and the model outputs and just to
+check uh this is the disc this is the
+distribution over the labels okay so
+this uh hugging chest Transformer models
+Works a very this is basically in the
+back end this is a py to right this all
+everything is written in the py so this
+works very well with pyo modules okay
+these are basically just pyos modules
+renamed in some classes right so they
+have inherited the nn. module class and
+written their own classes just like we
+did for Transformers uh when we
+implemented Transformers in scratch in a
+previous tutorial so huging pH also done
+that so this works very easily with pyto
+training Loops so we already know how do
+you train a model using pyour right so
+uh you have a actual Target level
+defined you have a loss defined right so
+here suppose we use the cross entropy
+loss so cross entropy loss between the
+model output Logics and the level right
+and then you get the loss you do
+backward pass so what does it so how do
+you um train a model so you have a model
+defined right in P what do you do you
+train a model defined you define a loss
+function okay I want to do cross entropy
+loss between the model outputs and
+Logics uh you define Optimizer right
+Optimizer s up and you pass on you
+specify the parameters what is the
+learning rate of the optimizer steps
+what is if you have want to have any we
+DK or not and you pass on the model
+parameters to the optimizer then what
+does the training Loop do you first
+initiate the model right you take a
+input batch you pass the input batch to
+the model the model gives some output
+right you calculate the loss between the
+model output and the gold outputs which
+you already have as levels right then uh
+you do Optimizer do zero grad so it
+ensures that the gradient uh in all
+tensors is set to zero right then you do
+Optimizer do step so what does Optimizer
+step do it does a single step of
+updation right uh so before optimiz the
+step you need to calculate the gradient
+so for that you do loss. backward so
+first you have Optimizer zero grad then
+we do loss do backward right so l so
+Optimizer zero grad sets the gradient of
+each to zero then when you do loss do
+backward what it does is takes the loss
+and do a single back propagation so the
+back propagation now populates the
+gradient field right so every tensor
+have this GR field right is defined a
+gradient function and there the gradient
+is stored within each tensor the tensor
+is basically an
+object so uh this gradient for each
+tensor after doing back pration is stor
+and then when you do optimiz Optimizer
+do step it updates the trainable weights
+uh as whatever the the equation of the
+optimizer is it can be a simple gradient
+descent stasic gradient descent so it
+can be simply the parameter minus Ita it
+is a learning rate into gradient of that
+parameter it can be simple like that or
+it can be more complicated in terms of
+momentum and W Decay and things like
+that so this is how it
+works so you can just do l. backward to
+see uh uh to do a single step of uh
+backprop and you can also print the LW
+uh using this cross entropy in fact when
+you you do model a single forward pass
+to the model huging has automatically
+computes the loss so if you pass this
+model inputs to the model the model
+outputs if you see is already have this
+loss computed you can see right so it
+makes our job hugging face makes a job a
+little easier by implementing class on
+this pyos modeles and which gives uh the
+loss already as a part of the model
+output object
+right now one thing which is very um
+good with this
+uh Transformer module of hugging phas is
+that you can access uh like every inner
+component of the model so so you have
+this model so setting this model. eval
+sets it into a non-training mode so it
+set the re grad equal to false right so
+now there is no gradient computation so
+that's what ts. no grad also does so
+when you pass the model inputs the model
+you can access the hidden state so if
+you print the model output outut right
+this is the model output if you print it
+right what you see is I can maybe show
+you a little bit so is a big model
+output and if I go on top of it right it
+look at
+this the hidden State per layer is 1A 8A
+768 attention head size is this all
+right and U just look at here so the B
+model output what do you have you have
+the all the hidden states which are
+computed for each layer after each layer
+and also we have the attentions computed
+for each head right so you already have
+that uh in the model
+output right so this is the tokens you
+already said yes so in in fact you can
+just see the number of layers and the
+number of heads in the model um so
+easier to do that can be just go to
+model. config and just you can say
+in the distal but model has six layers
+so six encoder blocks right and if you
+do n
+heads it says 12 so each layer has 12
+attention heads and in fact you can
+access these heads of each layer and
+print the attention Matrix which is
+computed by each head when you do a
+forward pass so maybe you can look at
+the code it's very simple um we just
+take the attention Matrix which is
+computed by each head and just plot it
+using a hit map in uh P plot right uh
+the number of this will give you the
+number of layers in the X and the number
+of heads at uh number of layers in the y
+axis and number of heads in the xaxis
+that's fine so now we will just look at
+a simple task of finetuning till now we
+saw uh how do you load a model how do
+you um use tokenizers and um how do
+models process the inputs and how can
+you access the internals like the
+attentions and um hidden States uh in a
+model now we'll see how can you find a
+model U on some particular data set for
+for this purpose um we are using a data
+set called Financial F bank right so uh
+you can also find this data set on
+hugging face Hub right if you go to
+hugging face Hub if you go to data sets
+and just search by
+financial fres bank right
+Finance phrase
+bank so there this data set we are using
+right so we using this data
+set so uh the way to load data set is
+just to use the load data set function
+after loading if we print what is data
+set is so data set is basically an
+instance of the class data dict and it
+says that uh it is a trend split which
+you using uh each example has within the
+data set has two features a sentence and
+a label and there are two to six four
+examples basically within a data set uh
+we Define a trunet function which
+basically restricts the size of each
+sentence to maximum 50 tokens uh we take
+128 random examples from 2264 and use it
+as a trend set and um some 32 examples
+we use for validation split so we split
+that data set into two parts training
+and validation so this is a very
+standard practice in ml right and like
+this we can see that what the first say
+10 sentences look like so if we run the
+whole of this and
+then run this okay so this is the first
+10 sentence so an example sentence is
+suppose um the combined capital of these
+funds is expected to be 100 million to
+150 million Euros so this is kind of
+financial sentence and this one label
+indicates that it's a neutral two
+indicates is positive and zero indicates
+is negative
+right so this is how the data set now
+looks like sentences followed by the
+levels right then uh what do you do for
+each example in the data set we need to
+tokenize it right so we Define so there
+is something called map so in inside the
+map you can define a Lambda function uh
+you must be aware of Lambda functions in
+Python um and what the Lambda function
+do does is so the argument to the Lambda
+function is each example right so we
+pass through the tokenizer the sentence
+component of this example uh with pring
+and truncation and uh we use a batch
+size of 16 so when we the data set
+through this l through this L defined
+Lambda function uh it is first tokenized
+and then it is batched uh that is 16
+sentences or 16 tokenized sentences are
+put in each batch
+right then we remove some columns and
+just format the data set uh so that now
+the data set how does after removing the
+so what do we do we remove the sentence
+column because we don't need the raw
+sentence now because we already have the
+tokenized
+input IDs right and we rame some columns
+and the the format is set to touch so
+all are like down pyot tensors right so
+now how does the data set look like so
+now the data set looks like we have the
+levels in the form of py tensors we have
+the input IDs so there are a 16 input
+IDs in each batch in 16 list of input ID
+in Bat so if you see the first two
+examples uh this is one sentence input
+ID zeros are the PED Tok tokens and
+another and this attention marks tells
+you so this is how we have R now and
+there is something called Data loader in
+torch which you already know which
+basically passes this batches of data
+fit this batches of data into the model
+while training
+right now how do you train it uh we
+already discussed in the pyto tutorial
+and also in this tutorial I was telling
+you that what you do we Define Optimizer
+you define a learning l scheder and for
+each EPO what do you do you do the
+model. train that is now you set the
+request grad equal to true for all
+parameters and for the batches you first
+pass the batch to the model uh init
+initialize the gradient of the tenses to
+be zero and then do a back Prof right
+and optimiz the step updates the uh
+weights using the gradient computed by
+the back Prof and then learning shoulder
+if there is a word de stuff stuff like
+that and then you can evaluate so this
+is how this is a standard pyos training
+room right you can pause and maybe see
+this code again um but this is a
+standard py training Loop which you must
+be very familiar with by now
+right okay so that's how you train the
+model using p TCH but then hugging face
+provides something more powerful it's
+provid something called a trainer class
+right so the trainer class uh will be
+enough to handle most of the is um fine
+tuning uh training works right so for
+trainer class what do you need so you
+again load the data set and this small
+data set you just have that Trend test
+split and similarly we Define this um
+Lambda function where is tokenized right
+so after tokenization you need to
+specify your training arguments right so
+for for using the trainer class of
+huging so what do you need to specify
+for training arguments you need to
+specify the batch size so per device we
+are using one GPU here you can there can
+be eight gpus right running parallel so
+that's what this per device thing does
+and then you don't need to specify the
+number of training epochs the evaluation
+strategy basically calculates the
+validation score for each um epoke right
+and then how do you say what is the
+learning rate and things like that um so
+in the trainer class you pass the model
+and all these training arguments you
+have defined right and then
+um you basically pass um the tokenizer
+and what is the compute matrics you want
+to do so I won't run this because it
+takes a little bit of time for that
+right so I won't run this here you can
+just pause the code pause the video um
+type the code and then run it yourself
+right so uh this is what the trainer
+module does right now uh you can also
+specify some call backs like some checks
+on the validation accuracy and maybe
+early stop your training or things like
+that you can add that using trainer. add
+callback right like early stopping call
+back patience equal to one because you
+can wait for one EPO maybe to see if
+validation accuracy is decreasing or not
+and if it's continuously decreasing for
+two oks you can stop and there is some
+threshold you can so you can maybe read
+the add call
+back documentation bit if you want to
+use the early stopping functionalities
+and then if you call trainer. train uh
+so I have already run that in in this
+way you you are told the validation loss
+and the accuracy corresponding to it and
+um the evaluation is also pretty simple
+you just do trainer. evaluate um and it
+will automatically evaluate on the
+validation data if you want to predict
+on some data you just do trainer.
+predict and pass the test set right so
+in the evaluation metric over here in
+the trainer function if you remember
+over in the trainer argument in the
+evaluation strategy uh you already
+specified EPO and over here compute
+metrics you already specify the metric
+on which you need to uh you want to
+evaluate on
+right so uh the evaluation and the
+prediction is also made pretty simple
+using the trainer module I I strongly
+suggest that you go to the documentation
+hugging F documentation of hugging f
+trainer it's very simple you just search
+hugging P trainer right and you will be
+directed to this trainer module so you
+go through this uh documentation once to
+make yourself familiar with all the
+parameters it takes in and how do you
+use that right it will be really helpful
+you can pause the video and run this
+yourself on your collab notebook right
+so after prediction you get the results
+and stuff
+right now before ending uh so all these
+things we did till now right
+so like this you you can have a test
+example you can just load the finetune
+model which you have saved during
+training so you checkpointing the stuff
+so here if you see again uh we wrote
+that load based model at end isal to
+true and SE strategy equal to so we we
+are saving this the checkpoints were
+being saved so after 80 we Saed a
+checkpoint so we can you can load that
+in this way that from pre-trend you then
+specify the local path as I said if you
+have a local path you can specify that
+and then pass the input string to the
+tokenizer and you can predict and see so
+these are all using the um encod and
+only model now how do you use a decod
+only model say you are only use you want
+to just generate stuff right generate
+text so there also it's pretty the same
+pretty much the same they also uh you
+need to specify Auto model for but now
+the task is just caal LM right so so
+caal LM is basically the task of next
+dren prediction so you just load the
+auto model for caal LM class and there
+from pretend you can specify any decod
+only model suppose we use gpd2 over here
+or say dist gpd2
+right and then how do you uh basically
+pass on the generate so there is some
+function called model. generate So
+within the model generate what do you
+pass you pass the tokenized prompt
+unpacked tokenized prompt so first you
+suppose once upon a time is your prompt
+so in you tokenize the Once Upon a
+prompt thing so this gpd2 tokenizer is
+basically autot tokenizer from pretend
+gb2 like similar very similar to what we
+did for uh decoder only model only
+difference is the model loading during
+model loading to specify Auto model for
+caal
+right so uh you just do model. generate
+pass on to the tokenized input itties uh
+what maximum length how many maximum
+tokens you want to generate so I just
+rested to 50 and this do sample equal to
+True basically does sampling so it
+doesn't if you do do sample equal to
+false it does grided decoding so we have
+already discussed grid decoding right so
+here I do do sample equal to true and
+top p is equal to 0.9 so we have already
+discussed nucleus sampling or top P
+sampling right so they are specify you
+can also specify the temperature
+parameter instead of top P you can
+specify temperature equal to3 you can
+specify um instead of top you can also
+use top K sampling like top K is equal
+to something according to what you want
+it to be so here I do nuclear sampling
+and there I basically generate 10
+possible completions of Once Upon a Time
+right so um if I like once upon a time
+if you of such great uncertainty for
+that reason the truth of this matter or
+something the gpd2 is generating so this
+is basically a um sentence completion
+task where you give a prompt and you
+expect uh the model to complete uh The
+Prompt or generate something based on
+the prompt right
+now there is something called pipeline
+in uh huging so the
+pipeline function or the pipeline class
+basically automates the your whole
+pipeline for a particular task for some
+some popular task like suppose we are
+dealing with task of sentiment analysis
+so hugging face has already a full
+pipeline written for sentiment analysis
+so you just take the pipeline class you
+call the pipeline class you pass the
+argument the task name and the model
+right so suppose the task name here is H
+analysis and the model is say sentiment
+Robata right so you pass that into the
+pipeline and then you can simply to this
+object sentiment analysis which an
+instance of the class pipeline uh
+defined using the class name and the
+model you can simply pass the sentence
+and get its predicted output right uh so
+there are many pipelines defined for
+many popular task but generally since
+when we do research we Define our own
+task and things like that these are not
+always useful but when you are doing
+some uh fast coding want to get your
+things up there is some already very
+well defined task you want to test upon
+uh you want to really fast then this
+pipeline function becomes really handy
+right and uh to end with we I will also
+show you the mass language modeling so
+so for causal language modeling task we
+were loading Auto model for causal for
+Mass language modeling what will be it
+it's very simple very trivial Auto model
+for M TM right so they are also the
+tokenizer you call suppose you using B
+so you call the but organizer and the
+auto model for masterm from pretend you
+just give the but Bas case whatever path
+you have and what is the mass language
+modeling objective the mass language
+modeling objective is within your input
+sentence or prompt whatever you call it
+there is a mask token right now uh the
+task of mass language modeling is to
+predict uh possible uh tokens in place
+of the mass token right so basically
+where there is a mass token uh the Mass
+language model will give you a
+probability distribution as output over
+the set of vocabulary tokens so suppose
+The Prompt is I am M to learn about
+huging pH and uh the pipeline is fill
+mask so fill mask is the task now right
+and you give the model B B base case and
+then if you pass the model The Prompt
+then what do what does the model output
+the model outputs a score that is a
+probability for each possible token so
+there are the top five tokens are
+printed so this is the mass language
+modeling task and you can also do it
+manually instead of using the pipeline
+you can also do it manually using the
+the soft Max over the output LS okay so
+this was a kind of a brief tutorial on
+hugging face to learn more you should
+really go and check out the uh their
+documentation and read through
+documentation and get yourself familiar
+with the uh different classes and
+methods in Huggy Fest so thank you and I
+hope you're enjoying the course so happy
+learning
+n
+[Music]

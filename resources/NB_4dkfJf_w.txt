@@ -1,0 +1,1168 @@
+[Music]
+hello everyone uh welcome back so we
+were discussing different pre- tring
+strategies and last lecture we discussed
+U you know uh preing and encoder only
+model specifically we discussed the bot
+model right so in today's class we will
+focus on two other preening strategies
+one is U encoder decoder only models
+right models like T T5 bot so b a t this
+is another another model right this is
+not b r t b t Bard and at the same time
+we'll also discuss decoder only models
+right uh which include chat DBT all GPD
+series models llama models and decoder
+only models are essentially very popular
+so so encoder only model as I discussed
+this was discussed in the last class we
+saw that uh a new preing strategy called
+mask language
+model this was used in BD where you
+essentially mask some of the tokens in
+the input and you ask the model to
+predict those mask tokens right this is
+a self-supervised approach you don't
+need any label data for training right
+and being an encoder model it
+essentially uh I mean the B model can
+can essentially look at all the tokens
+present in the input uh no it is not an
+auto regressive model right so the ENT
+in input is is exposed to the model and
+you uh you basically do a sale pattion
+through sale pention you look at all the
+tokens right present in the input and
+based on that you predict uh the mass
+tokens right on the other hand encoder
+decoder model that we discussed here
+that we disc discussing today's class we
+have this encoder component right and
+the decoder component and we will see
+how you can you can best use both the
+encoder part and the decoder part right
+during
+preing and then we will also discuss
+decoder only model now in the decoder
+only model as the name suggest the
+decoder part if you remember in the
+Transformer class we discussed it's a
+it's an auto regressive Model Auto
+regressive component in the sense like
+uh when you when you predict a word at
+the T location you only have access to
+tokens still t plus till till T minus 1
+location right you don't have you don't
+have access to tokens after T location
+right
+so we will see how uh you know this Auto
+regressive uh style of uh uh
+pre-training essentially helps the deor
+only model learn things right and and
+this set of models right are very
+popular these days people realize over
+the times that encoder only model is not
+a right solution for for uh for a
+generative task right uh because a
+generative task requires Auto regressive
+setup right whereas in an encoder
+decoder model right as you require both
+the encoder part and the decoder part it
+requires a lot of memory it requires a
+lot of parameters right uh you can do
+all these generative task through
+encoder decoder model together right but
+decoder model makes more sense both in
+terms of parameters as well as the setup
+right Auto regressive model setup itself
+is suitable for uh you know next token
+generation right and parameter of course
+parameter wise uh you need half of the
+parameters uh than the decoder incoder
+decoder model
+right okay so we'll focus on
+this and we'll discuss
+this m language model as I mentioned uh
+B
+model it's a bir directional model
+meaning that uh you have access to
+tokens in the right direction as well as
+in the left direction right but what is
+required for an encoder decoder model to
+essentially predict a sequence right
+encoder decoder architecture you you you
+should remember this is
+a vanilla Transformer model right you
+have uh again a quick recap input
+positional encoding right you you have
+position encoding then you add
+positional encoding and the
+input right input embedding and
+then in the encoder part you have
+multiple blocks in number of blocks
+let's say six blocks or 12 blocks every
+block has a multi-ad attention and a
+feed forward uh layer
+right this is the FN fit forward layer
+right and this is uh this is unmasked
+right multi-ad attention and in
+between feed forward and multi attention
+you have ADD Norm layer and uh uh and
+the resal connection right in the
+decoder part you again have multiple
+decoder blocks each block consist of a
+mask uh multi-head attention right mask
+in the sense like
+as I mentioned earlier uh the when you
+process the T token the tokens Fe are
+after T token are all masked right and
+then usually you know the usual fit
+forward Network in between fit forward
+and mask multi-ad attention you have a
+cross attention layer so this is cross
+cross multi-head
+attention
+and this through this cross attention
+you essentially uh the decoder component
+the decoder block um you know attends to
+the outputs of the encoder block
+right
+so this is the usual setup right and
+then you repeat this block in number of
+times
+so now we see that in this kind of
+encoder decoder setup how do we pretend
+uh this model
+Okay so
+the objective is still remember the
+objective is still language modeling
+right next word prediction can be an
+objective the objective can also be
+let's say uh sentence classification for
+example right so let's
+see so this is my encoder block okay
+these are the inputs there are t number
+of inputs and these inputs are called
+prefix right now this prefix can be an
+instruction let's say the instruction
+can be summarize this sentence right or
+the instruction can be find the
+sentiment of the sentence right so it
+can be an instruction followed by the
+input let's say in case of summarization
+you know the instruction is summarize
+the foll following document colon and
+this is the document that you want to
+summarize right the ENT thing
+will be fed to the encoder model right
+and after the encoder block you will
+will get hidden representation H1 H2 dot
+dot dot
+HT in the decoder block when you
+pre-train your model right let's say for
+a task specific uh pre-training right
+you also have the
+summary okay so you give the summary
+here so y1 Y2 Y3 dot dot dot YT plus M
+this indicates the
+summary and your objective is
+next word prediction right so so at this
+stage you predict what is going to come
+at the second stage at this stage you
+predict what's going to come in the
+third stage and so on and so forth so in
+your decoder
+block the input is y1 Y2 Y3 dot dot dot
+this is my input and my input is the
+hidden state that you optained uh from
+the uh encoder block right and when you
+get uh you know at the end of the
+decoder block you get the representation
+of the Hidden state representation here
+right you pass it through a s Max right
+so this is my hidden state
+representation of the decoder block you
+pass it through S Max and the sort Max
+is going to give you the uh probability
+distribution over the token and that's
+going to be your output so this is
+pretty much uh same as the vanila
+Transformer model the vanilla
+Transformer model was proposed for for
+machine translation where the input was
+let's say an English sentence and the
+output was a Hindi sentence or output
+was a Spanish sentence right and and and
+and this was the usual way of uh you
+know uh pretending the Transformer
+model so
+now we will see what additional
+component we can we can change in the
+preening architecture and we will
+specifically discuss two models one is
+the T5 model other is the bought model P
+or bot model right now whatever we
+discuss so far here in this slide I said
+that um there's a task the task is let's
+say summarization right or let's say the
+task is machine
+translation right so for this task you
+need a lot of human data human label
+data isn't it but now the question is we
+have seen in case of bth
+model we did not require a label data it
+was a self-supervised approach you you
+basically had a running test and you
+mask some of the tokens in the running
+testt and you wanted the model to pred
+those running those Mark uh tokens right
+so the question
+is in the in the incoder decoder model
+how can we use lab unlabeled data
+because label data is very difficult to
+collect right and then how do we force
+the model to attend to all the inputs
+right because your output is y your
+input is X right your input is your
+input is fed uh your your your input is
+going to be fed to the uh encoder
+model
+and your decoder model should be able to
+attend to all your uh all your encoder
+uh inputs
+right
+so let's see so in case of b b a r t the
+full form is by D and auto regressive
+Transformer uh as the name suggest it
+essentially leverages the B directional
+part which was there in
+B and the auto regressive part which is
+going to be there in GPT we'll discuss
+today right so it leverages both the
+schools okay
+so and remember we we should be able to
+use unlabel data okay so what is the
+idea here given an input sentence you
+you corrupt that input you inject noise
+to that input and you ask the model to
+essentially predict the the the right
+sentence the correct sentence right so
+the question is how do you corrupt
+it there are multiple corruption
+multiple corruption approaches that uh
+they suggested these are called noisy
+instances for example uh let's say your
+input is a b CDE e right what you do you
+mask some of the uh tokens uh similar to
+bot right and you ask the model to
+predit those mask sentence right so your
+in your
+encoder your input is the m uh Tokens
+The Mask set of tokens and your decoder
+the output is going to be the actual uh
+set of tokens right so this is one uh
+strategy the second strategy can be you
+uh you can uh basically you can permute
+right so your sequence is a b CDE e you
+suffle uh the tokens it can be d e a b c
+for example
+right and you ask the model to predict
+the actual sequence the third one can be
+rotation right so a b CDE e so CDE e a b
+this is one rotation you can again
+rotate right you keep on rotating
+uh to obtain different uh inputs and
+your output will be the original one
+right and these are very similar because
+these uh strategies consider the entire
+sequence and then some sometimes mask it
+sometimes rotate it sometimes permute it
+right but the length of the input
+Remains the Same okay they also tried
+out with token deletion where you delete
+some of the tokens you see here you
+delete
+B uh D if right and you ask the model to
+predict those tokens okay but remember
+here since this is an autor regressive
+model right you you ask the model to
+basically predict uh all the tokens not
+the M tokens or not the tokens that you
+have deleted right so in your
+incoder your input is going to be
+AC for this
+and your decoder the output is going to
+be a b CDE e your it is not that your
+output will be B and D
+only
+okay
+now this is called token deletion they
+also tried an extreme approach where
+they essentially you know mask not a
+single token but a sequence of tokens a
+consecutive sequence of tokens for
+example as you see here A B CDE e f AB B
+CDE e uh was the original uh sequence
+you mask b c together right U so
+sometimes you mask two tokens sometimes
+you mask one token and so on and so
+forth and what they said is
+that there is a distribution from the
+distribution they basically sampled uh
+the size of this masking right sometimes
+if the size is one you just sample one
+token you just mask one token if the
+size is three you mask three consecutive
+tokens and so on and so forth so so they
+randomly chose some of the positions
+right and they they sample a number from
+the distribution and that sample is
+going to tell you that what's the going
+what's going to be the size of the
+tokens that you are musking right
+so nothing fancy this is just a way of
+doing pre-training as opposed to the
+uh you know a sort of supervised
+pre-training which was used in
+Transformer model where you need you
+basically needed uh the label data so
+here you don't need any label data as
+such
+okay okay
+so this is my encoder okay this is my
+input let's say that here I mean you can
+use permute uh mask right this this
+should be mask right or delete right and
+you ask uh the model to predict the
+sequence
+okay so this is B let's look at the
+difference between B and B so in case of
+uh you know the bird model which is an
+you know enod only B directional model
+you ask your model to predict the mass
+tokens right in case of Bot you ask your
+model to predict all the tokens right uh
+it it uses encoder it it uses encoder
+decoder so double parameters right and
+so on and so forth so that's
+it okay
+so the pre-rain is pre-end the model
+Preen the encoder decoder model in this
+way uh injecting noise and asking the
+decoder model to basically predict the
+clean version they fine tune the model
+uh on Downstream task right so once you
+pre-train you can now think of a pre-ra
+model which knows uh the language in
+general then you fine tune they fine
+tuned it by the way you can also pre you
+can also use pre model for your
+Downstream task without fine tuning it
+right and we'll see uh the GPT paper
+right gpt3 paper which
+came in 2020 they showed that you don't
+need to basically fine tune your model
+for Downstream task nevertheless on the
+summarization data set they fine tune
+the model on a news article uh uh news
+news Corpus and it turned out to be
+really
+effective uh
+it also showed that you don't need a lot
+of data set you need only a few
+summaries for fine tuning as compared to
+a normal sequence to sequence models
+let's say you know lstm um or a normal
+squ I mean lstm gr kind of models which
+require a lot of data for f tuning here
+since your model is already pre-trend
+you don't need to fine tune uh you know
+that
+much so here is an
+output of the bot model this is the
+document that was given for
+summarization and this is the summary
+that was obtained from the model okay
+so around the same time when the bot
+model was proposed right uh Google they
+also came up with a method called T5
+same time within I think within a gap of
+one week or two weeks right and T5 is
+also a also an encoder decoder model it
+is called text to text transfer
+Transformer right and this is actually a
+you know this is a very very uh I would
+say ambitious model right um what they
+said is that
+uh we map all the NLP tasks right any
+task that you can think of not nly NLP
+right any task that you can think of you
+map or you can realize any task as a
+text to text transfer problem it is very
+difficult to digest right but bear with
+me we will essentially discuss uh the
+the techniques uh there is no fancy
+technique behind this the same encoder
+decoder model the same corruption
+technique that that is that was proposed
+in B but remember uh B was proposed by
+uh uh by by Facebook and T5 was proposed
+by Google around the same time right
+kind of similar
+approach but they said that first of all
+you don't need any fine tuning as such
+right you pre-train on millions of tasks
+right
+and these tasks are all supervised tasks
+it's so T5 data set is not T5 T5
+training approach is not uh an
+unsupervised approach as such okay but
+the Crux of the method is that every
+problem can be m to a Tex to test
+problem right for
+example let's say you want to translate
+an English sentence to a German so what
+you do in your encoder you write this
+prompt that translate English to German
+right uh it's your this is your prefix
+right and then this is the sentence and
+your output will be this one the German
+version of it right
+so your input will be this sentence
+right in the encoder and your output
+will be this sentence in the
+decoder but you see here there is a task
+instruction task
+prefix which was not
+there in case of B right B's pretending
+method was very different now this is
+the second task Cola sentence what is
+Cola Cola is a so so Cola is a task
+Corpus of linguistics acceptability so
+it basically checks whether a sentence
+an input sentence is linguistically
+acceptable or not for example the course
+is jumping well is it an acceptable
+sentence
+no so your input is the task instruction
+and the sentence and your output is
+acceptable or not acceptable right your
+input is so the next task is uh checking
+whether two sentences are similar or not
+right stsb task sentence one is uh the
+Rhino grazed on the grass sentence two a
+rhino is grazing in the field now
+whether they are similar or not and you
+give a score right it is not yes or no
+it's a score now think about
+it your output here
+3.8 is essentially a string so you are
+forcing your model to produce three
+period
+8 right you are not priting a number you
+basically printing a string and coing
+raffle uh the first author of this paper
+so he said in one of his talks that you
+know believe believe him believe believe
+on this uh this framework it actually
+works okay
+so the fourth task can be summarization
+you write summarize and the entire
+sentence right um the state authorities
+dispatched emergency crw Tuesday to to
+survey the damage after an onslaught of
+several weather in Mississippi and dot
+dot dot there are other tokens as well
+and your model should be able to uh
+summarize
+this so you can still digest these three
+tasks but it is difficult to digest how
+a text to text model can produce a
+number nevertheless they said that if
+you give instructions if you write
+instructions and then
+the task is itself U and you force the
+model to produce the output in your in
+your pre turning time your model should
+be able to to do that so you do this pre
+turning now for your Downstream task if
+you have data you want to find un it
+right and your model should be able to
+produce
+so normal encod decod architecture right
+uh encoder blocks decoder blocks right
+uh nothing fancy here here no uh change
+in the framework the vanilla Transformer
+model was used
+here so for
+the pre-training right so when you
+pre-train this is your uh you know um
+your uh I mean there are different tasks
+and your in your preing what you do this
+is very similar to uh the bo kind of
+pre-training where you you basically
+give a uh give a sentence as a input and
+then you mask some of the sentences
+right uh with different
+length so you replace different lens
+spans right with with some unique
+placeholder the placeholder can be the
+mass tokens
+right right and these tokens are called
+Sentinel tokens these tokens are part of
+your vocabulary remember this right so
+in case of
+B in case of B you only use the single
+token called
+mask as a sentinel token but here you
+are using different tokens for different
+masking right when you mask let's say
+for invitation you have a token when you
+mask last you have another token so and
+and the number of times you mask an
+input you will have that many of
+Sentinel tokens right so you are you
+basically increasing the vocabulary but
+that's fine okay and as opposed to B
+where we we were to produce the Entre
+input in the decoder output right and
+not the mask the mask inputs but here
+the mask tokens here you that your task
+is to only produce the mask spans right
+if your input is
+this thank you X me to your party y week
+you will produce this kind of outputs X
+for invitation y
+you know uh last and then you know Z can
+be your uh end of sentence Sentinel or
+you know some some other Sentinal tokens
+right so you are only
+producing the token or the span which
+was masked uh in your input you were not
+producing something like
+this
+thank
+you X
+for
+inviting right inviting
+me
+to your why last right uh
+week you don't need to produce predict
+the interre sequence okay that's the
+difference okay so for training they
+collected a lot of for a lot of
+documents from the web right they use
+this common crawl web scripper right
+there's a nonprofit organization they
+they periodically scrape the internet
+right and as you may imagine internet or
+internet data has a lot of garbage lot
+of noise so they basically you know they
+did a series of pre-processing to remove
+uh noise from the input pre-processing
+include removing uh lines with which did
+not end with the terminal punctuation
+they only returned uh the English text
+right they removed all non-english text
+right they also removed you know uh uh
+those tokens which look like
+placeholders they removed the codes
+right HTML codes JavaScript codes from
+the documents when you scrape a website
+right there are many HTML tags
+JavaScript tags right we which they
+essentially removed and they removed
+many duplicate texts right uh they call
+the clean Corpus C4 Corpus and this is
+publicly available right a colosal
+cleaned version of common crawled common
+craw wave wave craw Corpus right uh
+there are C there are four
+C's so
+C4 Corpus was was collected for training
+right so this is their pre-training
+setup they use um you know a b size
+encoder decoder uh Transformer right it
+can be six layer encoder six layer
+decoder right they they basically wanted
+to compare with B remember when B was
+proposed right B was proposed one year
+before T5 one one year before T5 and at
+that time everyone essentially was
+behind B right they were trying to
+defeat they were trying to outperform Bo
+so in order
+to make a comparable model they took a
+Bo size encoder decoder model right and
+they added uh different D noising
+objectives right panning different uh so
+masking different spans you can also
+think of rotation whatever permutation
+and so on the use C4 data and they pre
+this they pre on this and then they fine
+tune on a series of tasks right they
+fine tune it on the glue task okay now
+glue is a benchmark glue is a very
+standard NLP Benchmark which contains
+many tasks right for example one task is
+called Cola as I mentioned Cola is
+Corpus of linguistic acceptability where
+given an input you uh your output will
+be whether this is acceptable or not the
+second task is sst2 this is a sentiment
+analysis task movie sentiment positive
+negative neutral mrpc this is uh a
+paraphrased basically whether B is a
+paraphrasing of a or not stsb uh you
+know there are two sentences A and B
+whether they are similar or not and and
+and you produce a number right qqp this
+is again whether uh two questions are
+similar or not mln mm this is
+essentially an inment whether whether a
+intels b or a contradicts b or or so on
+qli is a typical question answering
+Benchmark RTE whether again inment
+whether a ints b or not and uh w w NL
+which is a sentence B replaces sentence
+is ambigu ambiguous pronoun with one of
+the nouns is this the correct noun or
+not these are all typical uh NLP task
+that were there when the blue Benchmark
+was uh you know was released and glue
+glue is actually you know very standard
+Benchmark even even till date right so
+they tried with glue right they also
+took CNN daily mail Corpus this is a
+corpus for summarization right uh mostly
+abstractive summarization
+right they took the squad data this is a
+question answering data released by
+Stanford they also use super glue so
+glue and super glue are the standard
+Benchmark there are many other Benchmark
+these days like big bench is another
+Benchmark now super glue is even tougher
+than the glue right so super glue has
+this many tasks and these tasks are
+really tough right even for human being
+uh for example recognizing textual
+inment multi sentence reading
+comprehension uh question answering
+reading comprehension test and you know
+a lot of other difficult questions
+difficult task right so they took glue
+CNN delil Squad super glue and three
+different machine translation data sets
+right W nt4 15 so this is English to
+Dutch English to German machine
+translation is English to French machine
+translation this is English to Romanian
+machine translation and these are these
+data sets were ALS also very popular at
+the time this is also popular these days
+uh this is this machine translation uh
+Workshop this Workshop is conducted
+every year and they release keep on
+releasing these kind of data sets Okay
+after fine tuning they reported the
+accuracy at every checkpoint right so uh
+at a part let's say checkpoint after
+after this many steps after this many
+steps after this finished these are
+different checkpoints at Che at that
+checkpoint what is the accuracy this
+this is basically model selection uh you
+know but this is not a very good
+approach but it is useful sometimes to
+understand you know whether over the
+iterations uh whether the model is
+getting improved or not right let's look
+at a series of results okay and here I
+will only show you some of the important
+results but um if you look at the paper
+T5 paper I think this is 50 pages paper
+very long paper there are a series of
+results right reported in the paper very
+extensive uh empirical observations
+right um a lot of uh lot of abolition
+studies and stuff like that but you know
+you can easily imagine the amount of
+resources thatle that Google has and
+only companies like Google can do this
+kind of research you know having their
+uh GPU access TPU access because it
+really requires a lot of compute a
+really lot of
+compute nevertheless so the Baseline
+average is their model if you f tune on
+glue and taste on glue right this is the
+accuracy this is CNN delil Squad right
+Super Glue by the way in glue there are
+multiple tasks right I think that they
+took only one task for this super glue
+also they took one task or I don't
+exactly remember maybe maybe they took
+one task uh for the for reporting the
+number or I think they took an average
+then report reported the average I don't
+exactly remember and then you know this
+uh Missing translation data sets
+Baseline results whenever you see the
+Bold numbers this bold numbers indicate
+that the accuracy is within the standard
+deviation they also reported the
+standard deviation here right if
+something is bold it means that number B
+since they did it multiple times right
+so the number reported number is uh is
+the reported number Falls within the
+standard deviation mean plus minus
+standard deviation uh
+range and
+they tested their model with no
+pre-training right uh you just do fine
+tuning on a specific task you don't need
+you don't need to do this mask uh
+pre-training uh uh phrase you don't need
+to do uh the mask rainning right what
+you do you take uh a glue Benchmark
+let's say you train on that task and
+taste it on the task right a pure uh
+supervised machine learning method right
+and this is the number they
+reported what are the major observations
+the first observation is that as I
+mentioned B was the best Baseline that
+time right and they showed that the glue
+and the squad data sets their results
+are quite comparable with B okay they
+also showed that if you don't do
+pre-training your numbers are pretty
+Less Pretty lesser pretty lower than uh
+your pre-training followed by fine
+tuning right so pre-training is actually
+needed
+now uh without pre trining if you do uh
+training and then predict right for all
+the tasks your model performs uh the
+Baseline significantly right you see
+this except for this English to French
+task machine translation task and you
+see here the numbers are quite close and
+the they they argued by saying that the
+English to French uh machine translation
+data set was the largest one among other
+machine translation data set it was
+large it was L enough that you don't
+really need any pre-training as such if
+you do normal training on the data set
+that will give you enough signal about
+uh this task because of the size of the
+data set if you don't have that much of
+data you need preing the C4 data the
+size is uh 745 GB the filter data right
+I I mentioned right a series of uh
+filtration techniques were applied if
+you don't filter it if you just you know
+uh you take the cross called C4 data
+which is 6 terab of size you see that
+with clean data versus unclean data
+right the accuracy is not at all
+comparable right uh sometimes comparable
+sometimes not comparable uh right as you
+see here accuracy accuracy improves by
+2% 3% if you clean this right so
+cleaning is important compact data is
+important and uh pre-training on the
+indom dat is always helpful right so
+they checked with three different
+architectures right they compared their
+methods with the standard encoder
+decoder model that they also use Auto
+regressive model right next prediction
+model language modeling task you see the
+attention head here now this guy is
+attending to all the previous guys look
+at this one this guy is attending
+to right only the previous tokens so
+this is typical Auto regressive setup
+GPD kind of
+setup
+and and this is a new model it's called
+prefix language model right in prefix
+language model what you
+do uh your input is this right one part
+of your attention is unmasked other part
+is other part of your attention is
+masked right your attention Matrix may
+look like this right now this is this is
+unmasked and this is
+masked this part is
+masked okay so this will act
+as B and this will act as GPT but the
+difference here is that there's no
+encoder decoder there's only one
+stack right there's only one layer stack
+it's not like this
+one stack one part is is acting as an
+encoder model and the other part is
+acting as an incoder decoder model okay
+this is called prefix
+LM now this is the figure that I
+mentioned okay uh in case of encoder
+only model the entire uh token sequence
+is visible to you in case of caal Model
+Auto regressive model right you have
+access to one part you don't have access
+to other part in case of causal prefix
+model the prefix model that I mentioned
+one part is completely exposed other
+part is basically Auto regressive
+okay okay
+so now let's look at the experiments
+right uh with encoder decoder model Den
+noising objective two p number of
+parameters P for encoder P for decoder
+right now this cost is number of flops
+floating Point operations uh per
+second this is the result right now
+let's compare
+so okay so if
+you think of another model where it is
+also encoder decoder but all the
+parameters are
+shared right the sale pention is also
+shared the feed forward is also shared
+everything is shared right but you have
+two two stacks so you need half of the
+parameters p number of parameters right
+you
+see let's first understand the
+experimental setup okay then we'll
+analyze the result the third one is
+encoder decoder six layers uh this is
+again denoising objective but here there
+are six layers in encoder six layers in
+decoder I think in in this setup there
+was there were 12
+layers the fourth one is language
+modeling Auto regressive setup
+right decoder
+only the fifth one is prefix Elm
+right uh you have all this uh tasks
+right for the super glue you only these
+numbers are reported for the
+classification task only
+okay okay so what are the objectives
+what are the
+takeaways the first
+takeaway is that six layers versus 12
+layers right this is 12 layer this is
+six layer okay the performance
+drops right so if you if you uh make the
+number of number of parameters
+half it hurts your performance if you
+compare shared encoder decoder and
+prefix uh LM right performance on
+encoder decoder with shared parameter is
+almost on par with prefix right you see
+numbers are quite close sometimes
+sometimes worse sometimes better right
+but one
+part but of course encoder decoder model
+the the the the model is always always
+better right always better than other
+models
+okay okay
+so for pre-training as I mentioned they
+also did they did many experiments right
+now for pre-training uh strategy they
+use uh different types of strategies one
+is a board style Den noising where you
+uh Den noise where you basically uh you
+know add some of the uh you you you
+replace tokens by mask right for example
+your input is thank you mask mask me to
+your party and your um output would be
+thank you for inviting me to your party
+now here interesting point is that you
+sometimes also corrupt uh you you
+replace a token by another token for
+example Apple week and your task is to
+pred this as last week right prefix
+language modeling objective if you do
+right for example uh your input is thank
+you for inviting your output will be me
+for your party last week you basically
+predict the next set of sequences
+reshuffling as I mentioned in case of
+Bot right um your input is let's say
+your output should be thank you for
+inviting me to your party last week your
+input can be party me for your two last
+last fun and blah blah blah
+right replace uh spans this is span
+corruption you um you just you know you
+know you you span you corrupt an ENT
+span the span is for inviting for
+example and you you replace it by by a
+sentinel token you drop some of the
+tokens this is again another object
+another uh you know another objective
+that was used in B you drop some of the
+tokens and you ask the models to predict
+those tokens
+okay all right so
+if you look at the experiment right
+prefix language model uh this is uh
+right and then then uh so this is kind
+of this one
+okay where this is exposed to you and
+this is something that you want to
+predict reshuffling b style mask
+language modeling replace uh corrupted
+span and then drop drop corrupted token
+right and you see
+here that um you know most cases
+um if you look at glue the the you know
+dropping an enter uh token helps right
+uh here also this this is better uh this
+is better right in case of super glue I
+think replace corruptor span actually
+works better right and you know these
+numbers are quite comparable as this is
+better right so most cases as you can
+see right this sometimes this is better
+so there is no
+clear-cut answer which strategy is
+better but they you know they did many
+experiments as I mentioned and they
+concluded that replace the corrupted
+span right this one and drop the
+corrupted token right these are more
+appealing than other tokens now the the
+other strategies the reason is that the
+the other reason is that when you drop
+tokens your length will decrease right
+you need to produce uh less number of
+tokens
+isn't it so uh therefore this will also
+help you speeding up the training
+process okay so now we discuss decoder
+only
+models decoder only models as you can
+imagine right uh
+the strategy is not very new here right
+you don't need any any any input
+corruption as such right you are given a
+sequence of
+tokens
+and you predict what's going to the next
+token very simple right uh generative
+model that calculates the probability of
+the language right and this is the auto
+regressive language modeling uh
+objective that I mentioned I think
+thousand times uh in this
+course this is the input
+you pred the next token you essentially
+produce a distribution right over the
+tokens and um that's going to be your
+output then you samples token from the
+distribution you can think of it as a
+classification problem because uh now
+given mod V where V is the size of the
+vocabulary you have mod V number of
+tokens in your vocabulary essentially
+your task would be to classify you
+basically choose one of the labels you
+can think of tokens as labels you choose
+one of the L levels from the mod V
+number of
+levels okay
+so this is your input right it's a
+decoder only block right you produce uh
+the hidden State your hidden state will
+be fed to a linear layer right which
+will produce a distribution s Max of
+course linear layer followed by S Max it
+will produce a distribution from the
+distribution you sample okay so nothing
+fancy here quick comparison in case of
+board which was an encoder only model
+your input was X1 X2 dot do dot x i
+minus one x i + one and this was
+something that you that you masked
+right and you ask the model to to
+predict that mass token in case of GPT
+or decoder only model right your input
+is X X1 X2 do do do x i minus one and
+you you have to predict
+XI okay so the architecture is simple
+right and gpt1 the first GPT paper was
+published in
+2018
+right they use normal Transformer
+decoder 12 layers right 117 million
+parameters right right remember 2018 we
+are talking about parameters in terms of
+millions right 760 Dimension hidden
+State the dimension of each hidden state
+is
+768 uh 3072 dimensional feed forward
+hiden State hidden layers bite pair
+encoding was used we discussed bite pair
+encoding
+before uh with this P of marges and they
+used this uh book Corpus which had
+around uh 7,000 unit books this this is
+gpt1 gpt2 was proposed just the next
+year
+2019 what's the difference the
+difference
+is they use uh layer normalization in
+between uh different subblocks right
+layer Norm we discussed earlier their
+vocabulary is now extended to um
+50,000 Contex size is now increased from
+512 to
+1024 right now your data is a new data
+which is a common craw data that the
+same data that was used in T5 eight
+Minal documents right and of course
+minus Wikipedia so this is gpg2 and they
+showed that if you do unsupervised
+multitask learning it basically
+helps
+so in gpt2 they focused more on the
+generation task right and
+um and uh as opposed to gpt1
+and they showed that gpt2 starts
+producing more uh humanik uh uh
+sentences right if you write these as
+your input and you ask the model to
+essentially uh keep on generating tokens
+to fill out uh the remaining part so
+this is your input and these These are
+going to be your tokens that that you
+will essentially
+generate cost wise quick
+comparison I'm not very sure about this
+I took this thing from this link right
+uh B base cost was 500 USD I think with
+single pre-training run right the large
+reord
+$77,000 whereas gpt2 it it basically
+needed approximately
+$24,000 then came GPD 3 in 2020 right
+and the if you look at the training P
+flop per day whatever right right um
+significantly High GPT gpt3 small medium
+large Excel many version GB3 2.7 billion
+right and this is T T5 statistics this
+is B statistics so
+gpt3 the major difference is the
+parameter so we are talking about we
+were talking about uh gpt2 with only 1.5
+billion parameter now this is 175
+billion 100 times larger than gpt2 right
+96
+layers 96 heads in s patent in in s
+pention uh component uh 12,000
+dimensional vectors right and you know
+this is the rough estimate of the cost
+that was
+taken so three major so three major GPD
+models GPT 1 2 3 parameter as you see
+increased drastically number number of
+layers increased drastically data set
+also increased drastically the size
+increased drastically in gpd1 they
+started focusing on they said that that
+this is the first large scale uh you
+know decoder only
+model gpt2 they they you know came up
+with this idea called zero shot learning
+right with larger larger training and
+gp3 they observed this in context
+learning right uh you write examples
+we'll talk about in context learning
+later right you just you don't need to
+fine tune the
+model you write examples the model will
+be able to understand the task and and
+they said this is the emerging property
+right you know at at that time they were
+not very sure why this is happening
+right uh you know it's very difficult to
+understand
+dissect then came gp4 in 20 uh in 2023 I
+guess 23
+yeah
+um this is a mystery because this is a
+blackbox model right after gpt3 they
+stopped releasing the the architecture
+right open AI uh open AI uh was no
+longer
+open that time right and
+U the exact size is not very clear but
+if you look at the cost the uh part
+token cost this increase quite
+significantly both in terms of inputs
+and
+outputs uh 15 to 30 times costlier than
+gpt3 uh this itself gives an
+indication that how big is the model
+right or what's the the amount of amount
+of training amount of cost that was
+incurred to train this model so uh now
+gp4 is not only about pre-training right
+there are many many additional things
+right for example instruction fine
+tuning
+we'll discuss later instruction fine
+tuning so in through instruction fine
+tuning you you teach your model how to
+follow instructions and then they use
+something
+called rhf reinforcement learning from
+Human feedback this is again something
+that we'll discuss later okay so uh
+today's
+GPD nobody knows what's there right but
+we can only assume that uh you know
+pre-training followed by C of fine
+tuning uh in instruction fine tuning
+right uh different types of alignments
+and so on and so forth llama the same
+thing the Llama is open source you can
+still look at models parameters there is
+Lama one two Lama 3 is still available
+right different parameters Dimensions
+increasing Dimension number of heads
+increasing number of heads right and
+they use b b pair encoding this is also
+something that we discussed
+earlier okay and they use rout rotary
+position coding this is also
+discussed and the data set that he used
+is common crawl GitHub data Wikipedia
+data books data and so on okay all right
+so this is about uh
+GPT decoder only model what is coming
+next so in the next week we'll talk
+about instruction F tuning right after
+preing this is the step that we do right
+we are we are now we are discussing how
+you can also design your own own uh you
+know own language model right you do
+pre-training then you do instruction
+fine tuning and then you can you align
+your model with human feedback through
+rhf and then you know uh and then your
+model should be should be ready uh to
+understand the instruction okay all
+right with this I stop and next week
+we'll discuss the last part thank you
+[Music]

@@ -1,0 +1,1091 @@
+[Music]
+uh this is the third lecture of uh the
+llm course okay and today we are going
+to discuss uh language model so the
+course is about large language model let
+us first discuss what is language model
+maybe this lecture and the next lecture
+half of the next lecture we'll try to
+finish language model the statistical
+language model part of it and then we
+move to the uh the concepts of what
+embedding and then uh neural language
+model okay okay now let's move to the
+topic uh statistical language
+model okay
+so so the idea of language model goes
+back to um early
+1950s okay when Claud sannon sannon is
+the right you know Shannon's entropy
+right information Theory so goes back to
+1950 when sannon uh introduced this game
+called the character guessing game so so
+he was essentially playing this game
+with uh his wife right and uh basically
+the idea is that you give a sequence of
+characters and you ask the other person
+to guess what is going to be the next
+character okay and it turned out that uh
+you know his wife actually uh guessed
+all the characters quite easily right uh
+and when I talk about characters English
+characters there are 26 characters plus
+space is another character so 27
+characters right so most cases it turned
+out that uh the wife essentially uh so
+she was able to gaze the next character
+in three to four attempts right the
+worst case she took eight to nine
+attempts but most cases on an average
+she took three to four attempts to
+essentially gu the next character okay
+if you look at the number very carefully
+three or four right let's say four right
+it has a very interesting relation with
+the entropy of um of English language
+right we all know what is s entropy
+right what is s entropy by the way what
+is
+entropy
+huh number of random guests measure of
+Randomness okay
+average information
+okay anything
+else measure of Randomness okay how do
+you how do you measure
+it right and uh if you think of this x
+right uh as the character right and PX
+let's assume that all these characters
+are equally likely there are 27
+characters right so this PX is 1 by 27
+right so if you if you do this math you
+see that this is is essentially uh uh uh
+same as 4.3
+4.2 right why I mentioned this because
+you'll see at the end of this chapter
+when I talk about perplexity right
+perplexity is a measure uh is is a
+metric to use the uh uh I perplexity
+used is used to evaluate a language
+model we will see that there's a very
+nice relation between perplexity and
+entropy okay nevertheless so this is all
+about uh guessing the next character
+guessing the next word right and we we
+essentially guess words almost every day
+in our life can can somebody tell me
+where we use this guessing game but not
+we maybe the tool or maybe some some
+system some
+model right so when we type something on
+Google search query right we see this
+Auto completion right the Google search
+engine actually shows uh possible words
+that can come after the character after
+the sequence of
+words so this is word prediction game
+right so let's look at this example I
+like pizza with lots of Dash right so it
+can be cheese can be corn can be tree
+also right we have a already mentioned
+there's a concept of vocabulary we
+already have a vocabulary where there
+are there are words possible words taken
+from the Corpus right so any word from
+the vocabulary can essentially come
+here okay
+but if the language model is good enough
+the language model will say that the
+probability that the word cheese will
+come here right is higher than the
+probability of corn coming here and than
+the uh probability of tree coming here
+right
+so application wise as I mentioned there
+are lots of applications uh one of the
+applications is the speech speech
+recognition let's say let's say if you
+say that I bought fresh mangoes from the
+market right let's say somebody spoke
+something and you recorded it and now
+you translate it right and people like
+uh I mean I mean non-native English
+speakers right they their speaking is
+very different and if you translate uh
+the speech to a text it may happen that
+you you you mistakenly uh consider
+Market as Mar or kit right or let's say
+if you have this sentence I love eating
+spicy samosa uh you can translate it to
+eyes Lain spy C Sam o SAS says right
+like that so if you have a language
+model your language model will say that
+the probability of this uh sentence is
+higher than the probability of this
+sentence right and that information can
+basically be useful for Speech to Text
+uh translation okay similarly machine
+translation machine translation deals
+with translating U you know uh
+translating from one language to another
+language right let's say if you are
+confused between this let's say heavy
+rainfall or a big rainfall right uh Big
+Brother large brother right so the model
+should be able to say that heavy
+rainfall is uh highly likely than big
+rainfall or the the Festival of Lights
+is highly likely than the Festival of
+lamps right and so on and so forth
+remember here we are not only looking at
+syntax but also semantics right lights
+and lamps are quite synonymous right but
+in the context in the context of the
+festival of light is highly likely than
+lamp right similarly family gathering is
+highly likely than family meetings
+maybe okay so therefore often times we
+we say that language model is is so
+simple but language model often times
+captures not only the grammar but
+world's knowledge okay it is also used
+in spell checking uh natural language
+generation and so on so forth there are
+lots of applications right machine
+translations I mentioned this is one
+application let's say you are
+translating English to Hindi right uh
+here you can use machine translation uh
+language model let's say you are using
+uh uh I mean let's say you are uh
+checking the spelling correction in in
+in uh tools like grammarly right you see
+the language model can be used here of
+course XB is a language model therefore
+uh it uses uh the statist not
+statistical language model but the the
+concept of language model uh underline
+the framework
+okay so let's define Language model
+language model is the probability
+distribution over a sequence of tokens
+very simple definition probability
+distribution over a sequence of tokens
+the sequence of tokens Can Be sequence
+of characters sequence of words sequence
+of subwords sequence of numbers it can
+be
+anything right so W1 W2 do dot do WN
+there are in number of tokens right uh
+we measure the probability of the
+sequence so this is uh this is same as
+because this is a joint probability okay
+we can essentially unfold it using chain
+Rule and then this is going to be P of
+W1 * P of W2 given W1 time P of W3 given
+W1 W2 right time dot dot dot dot P of w
+n given W1 do do do w n minus
+one right so these are all conditional
+probabilities and these probabilities
+are conditioned on the context so the
+first component is conditioned on a
+unigram W1 this is conditioned on a
+Byram and this is conditioned on N minus
+one G uh so this is an example the
+monsoon season has begun so you can
+essentially computed using chain rule
+this is the chain rule I already
+mentioned okay okay so so now the
+question is how do you let's say how do
+you measure this probability probability
+of monsoon given the or probability of
+season uh given the
+monsoon what do you think you were
+already given a corpus it's a
+significantly larger size Corpus right
+so how do you measure this probability
+so very simple you you the you first
+measure the count of the
+monsoon this is going to be the
+denominator and the numerator would be
+count of the monsoon
+season right so out of all the cases
+where the phrase the monsoon appears how
+many cases essentially the term uh
+season follows the
+monsoon right very simple but the
+problem here is that as we increase the
+size of the context right so this is our
+context as we increase the length of the
+cont context it would be very difficult
+to find even a single appearance of the
+context in the
+Corpus think of this this one
+right okay so the numerator is the
+monsoon season has
+begun sorry the denominator so now the
+the numerator the numerator is the
+monsoon season season has begun that's
+the numerator and the denominator is the
+monsoon season
+has and this is in fact small context if
+if the sentence is longer then the
+context size would also be longer isn't
+it right so this count is going to be
+zero or whatever Infinity right so if
+one if if in this probability if one
+component is zero then the ENT the ENT
+probability is going to be
+zero right this is the
+problem okay so to add address this
+problem let's see what we can do can I
+can can we make some assumption okay so
+the assumption that we make here is the
+mark of assumption some of you have some
+of you have taken automat Theory right
+or some other Theory where we have seen
+a mark of process fin State automata and
+so on and so forth right what is the
+mark of assumption what is what is uh
+let's say A first order Mark of
+assumption can somebody tell me
+the first order Mark of assumption says
+that so so Mark of Mark of process as we
+all know there are this is a state space
+model right there are states uh states
+are connected through uh through
+transition Transitions and these
+transitions uh different transitions of
+probabilities right so you start from s
+this is let's say S1 S2 a States S3 is4
+our states let's say this is the start
+State This is the End state for example
+right
+and and let's say you are you are at
+this state and you are confused whether
+you you want to move to this
+direction or you want to move to this
+direction or through this
+direction okay uh so best option is that
+you look at all the states that you have
+traversed through so far right and then
+you make a decision right but storing
+the entire sequence of previous states
+that you have that you have already
+encountered
+would be computationally expensive
+because you have to store everything
+right so here you make some assumption
+you we say that okay instead of looking
+at all previous States let's look at
+only the previous one or the previous
+two right or the previous three and so
+on and so forth right so the first tot
+Mark assumption says that uh the
+transition probability is only dependent
+on the previous
+state right second order previous two
+states last two states and so on and so
+for
+right here also we say that uh when we
+measure this probability let's say this
+probability okay we will not look at the
+entire context but we'll only look at
+previous two words last two words last
+three words and so on and so
+forth right so this is Mark of
+assumption right and uh depending on the
+number of words number of previous words
+that you that you consider to measure
+the probability we will will essentially
+call this assumption as unigram
+assumption Byram assumption trigram
+assumption right forr assumption and so
+on and so
+forth if it if it is an unigram
+assumption it means all the words are
+independent so the monsoon rain has
+begun probability of the sequence is is
+equal to probability of the times
+probability of monsoon time times
+probability of has times priority of
+beun this is called unigram assumption
+unigram assumption is equivalent to zero
+order Mark of
+process right where it is not dependent
+on the state at
+all okay
+so we we take this we make this
+assumptions Ingram assumptions Ingram is
+equivalent to uh uh in gram is
+equivalent to n minus one uh Mark of
+assumption right order Mark of
+assumption okay
+so so if we take unigram assumption then
+this is essentially same as the
+multiplication of all the unigram
+probabilities IFR assumption then we
+will only look at the previous word
+right if it's a trigram assumption then
+we look at last two words and so on and
+so forth okay so so then this is this is
+equivalent
+to this is equivalent to in case of so
+if you measure this conditional
+probabilities in case of unigram this is
+equivalent to P
+of beun right in case of Byram this is
+equivalent to P of beun uh given has yes
+if it is trigram this is uh begun uh
+given uh season has right and so on and
+so
+forth so we are now restricting our
+context size context length right if we
+restrict the context length what would
+happen it is highly likely that you will
+encounter the context in the given
+Corpus right so it is less likely that
+you will see a zero
+occurrence okay now here is a question
+think about it very carefully so uni
+assumption says that all the words are
+independent of each
+other right but English in English I
+mean in all the other languages also
+words are not independent at all right
+now as you move from unigram to Byram to
+Tri gam to 4 G to 5 G what actually
+happens is that you capture more context
+more context means more grammar better
+grammar right so it is obvious that as
+we move on right we we would be able to
+capture better grammar and the English
+that you generate if you use language
+model to generate something you
+basically generate better
+English but at the same time the
+probability is also going to be
+zero less like yeah High highly likely
+right so it's a trade-off if you move to
+this direction to the lower order of
+Mark of chain Mark of assumption then uh
+the probability is not going to be zero
+but the English will be essentially uh
+meaningless if you move to this
+direction English will be better but the
+probability is going to be zero I
+mean like likely wise so we try to
+restrict ourself to uh you know
+somewhere between three to 4 so
+generally 3 G uh or 4 G is a right uh
+choice for language model
+okay
+okay
+so let's let's now focus on Bagram
+because Bagram is something which uh you
+can
+easily understand right so let's let's
+assume that our language model that that
+you focusing on is a Byram language
+model okay so how do we how do we
+measure this probability we need uh the
+Byram count in the
+numerator right count of x x i x i -1a x
+i by count of X IUS one right so Byram
+count by unigram
+count clear Byram count by unigram count
+uh probability of monsoon given the
+right probability of uh the monsoon by
+probability of the right so Byram count
+and uh sorry count Byram count and
+unigram
+count right so to do this we need a
+table of Byram counts and unigram count
+okay so this is a Byram count table and
+this table is essentially constructed
+from the document we are given a huge
+Corpus assume that you are given a huge
+Corpus you basically Traverse through
+the document you create the vocabulary
+right and this is a Byram count table
+where rows are vocabulary entries
+columns are also vocabulary entries this
+is a square Matrix
+clear now each of these entries
+indicates the Byram count so h27
+indicates uh the number of times the
+phrase I want appears in the
+document this is asymmetric okay this is
+not want I this is I want
+Count okay now this indicates how many
+times the phrase to it appears in the
+document
+obviously you ask why this is five I
+I right why this is five what do you
+think say sometimes when we let's say
+let's let's assume that this document is
+essentially a translation from speech to
+text right and if somebody fumbles so I
+I I right so this is just an error but
+uh there can be many such errors
+okay okay so so this is the Byram count
+and this is the the unigram count
+unigram count is very simple we look at
+all vocabulary entries and we see how
+many times can somebody tell
+me from the Byram
+count can we guess the unigram count yes
+how summ
+of okay the next question is what do you
+think from this in this table if you
+look at a single row right some of the
+entries of this row is it equal to the
+sum of entries of the of the
+column exha let's assume that this is
+exhaustive let's not let's not focus on
+the numbers here it's just a sample
+number table right let's assume that you
+have this the the the actual Byram table
+right where those are entries columns
+are entries and uh it's a and every
+entry indicates the the
+count what do you
+think so what do you think the sum of
+these entries would would it be same as
+the sum of these entries
+no are you
+sure yes how many of you think that this
+is not not the same
+how many of you think that this is the
+same don't
+hesitate so the answer is yes okay so
+the answer is yes sum of rows sum of row
+entries for a particular row would be
+same as the sum of column entries for
+the particular uh entry right now think
+about it
+why okay so let me let me explain why
+okay
+so although this is is a this is not a
+symmetric
+Matrix right but think about it the word
+I right appears with uh so let's say you
+are interested in W1 W2 this is the this
+is the template of the Byram okay and
+this row entries indicate those cases
+where I I appears as the first word
+which is W1
+right all possible cases where W1 is
+basically is basically I right now look
+at this one
+here this is all possible cases where I
+is essentially the second word in the
+Bagram right if I is the second word in
+the Bagram so the first
+word can be anything in the document in
+the in the in the vocabulary list
+yes now right now tell me a case tell me
+a can you think of a case right or can
+you think of a of of a Byram which is
+not considered in rows but considered in
+columns or vice versa
+yes very good so first and last word
+right but
+remember start of a token start of a
+sentence is also a token and end of a
+sentence is also a also token in the
+vocabulary right so there there will be
+a row which corresponds to start of a
+sentence there will be a row which
+corresponds to the end of a
+sentence that
+case right so some would be same
+wonderful okay okay let's move
+on so from the Byram table and the
+unigram table now we can we can just uh
+you know take the ratio of this and this
+right and we get the Byram uh
+probability table so this is the Byram
+probability table where the numerator is
+the Byram count and the denominator is
+the unigram count
+okay look at this table very
+carefully this is a subset of the table
+now think of a million size vocabulary
+million cross million Matrix right most
+of the entries are
+zero most of the entries are going to be
+zero n in fact in this specific Corpus
+this ble Resturant project
+99.95% entries are
+zero okay this is the number that this
+is not a number that I'm making it right
+this is a number that was already proven
+99.95% entries are zero in this Byram
+Matrix okay this is so
+sparse
+now what what is the let's try to
+understand the meaning of this zero
+entries
+the zero entries are those which never
+appeared together in the document right
+it doesn't mean that those Zer zero
+entries are invalid
+entries okay let me give an
+example let's say in your document the
+word
+enjoyed right appeared with the uh the
+the the set of words like the movie
+injured the food the game enjoyed the
+vacation right so if you if you draw
+this D this Matrix you see that uh let's
+say trigram trigram Matrix you see that
+enjoyed and these this trigrams their
+entries are non
+zero but in the test set suddenly you
+see enjoed the
+Festival in your test set which was not
+there in the document in your training
+document so if you look at the Byram
+table the corresponding entry enjoyed
+the festival corresponding entries will
+will be zero right but this should not
+have been zero because this is a valid
+valid uh
+phrase right but it is not the case that
+all the zeros actually qualify for this
+meaning it is not the case that all the
+zeros are all the zeros can be uh
+grammatically correct or syntactic
+semantically correct phrase right of
+course most of the zeros are meaningless
+right for example
+if you look at here right e
+want each want can never appear side by
+side two verbs can never appear side by
+side
+uh food food want again never
+appears so this Byram table actually
+tells you tells a lot of
+things although it's a very it's it's it
+looks like a statistical table right but
+it also indicates many important aspects
+for example if let's say if you see that
+um uh let's say um uh let's say Chinese
+food right Chinese food you see the
+probability is quite high 0.52 right uh
+uh let's say one two is 66 so one two if
+you see the entry uh the probability is
+66 for one two you you can you can say
+that you know this is so so one to is is
+essentially a
+grammatically it is basically something
+something it is talking about
+grammar right whereas Chinese food
+Chinese food appears a lot of times in
+document it basically indicate some sort
+of Wall's knowledge
+right what about uh let's say two
+food two food is
+zero can you can you think of can you
+imagine a sentence where two food
+appears
+huh I can't express my love to food okay
+what else I went to Food
+St okay to food I went to Food stall
+right so the number is
+zero and this zero is called contingent
+zero why this is contingent zero the
+contingent zero means uh it will be hard
+for you to think of a sentence where two
+food
+appears if I if if I ask you to think of
+a sentence where Chinese food appears
+right you can easily think of a sentence
+where Chinese food appears but if I ask
+you to think of a sentence where where
+uh where uh uh you know
+where two food the backround two food
+appears you will you will pause and
+think of a sentence then you uh then you
+maybe then you articulate okay
+so this is called contingent
+zero okay so the other problem of Ingram
+language model is that this long range
+dependency okay so if you look at this
+sentence here the project which he had
+been working on for months was finally
+approved by the committee okay now here
+approved is referring to the uh to the
+noun
+project right but if you take a prr
+language model Byram language model
+trigram language model so and if you ask
+the tri trigram language model to
+predict let's say this is the context
+till this
+part and you ask the language model a
+trigram language model or a forr
+language model then what is going to the
+next
+word it will fail
+miserably because last four
+words can't determine the the word
+approved okay look at the last four
+words on or or four months four months
+comma or mons comma was finally right
+now the language model will be able to
+say that next word is going to be
+approved right so if you had a language
+model whose context size is 10 for
+example right or 12 for example then the
+language model may be able to guess the
+next word as approved but you know the
+other problem problem right count
+zero so we'll see when we we'll talk
+about rnm specifically uh uh you know
+lstm or gr kind of models we see this
+kind of these kind of long range
+dependencies are addressed right by this
+kind of GED uh recurrent neural
+network any
+query okay so we already have seen how
+to estimate these probabilities
+conditional probabilities we use uh
+maximum like maximum likely likelihood
+estimate em and EM says that you know if
+you want to predi this condition
+probability you essentially uh this this
+is the best possible probability
+estimate that you can you can think of
+right given a particular document
+okay
+so I already mentioned about the
+limitations of uh this ml estimate in
+graub language model is that if you have
+an unknown uh uh phrase which never
+appeared in the training set right but
+it's a valid phrase you will see uh in
+the test set it is going to produce a
+zero probability right in fact there are
+cases
+where where the test where the wordss or
+the tokens in the test sentence right
+they are not part of the vocabulary at
+all remember the vocabulary is
+constructed from the training set you
+have a training set right you scan the
+training set you created the
+vocabulary right now A Taste set is
+independent of the training set it may
+appear it may happen that a taste set
+right one phrase or one word is
+completely unknown let's say LOL right I
+mentioned last day all the social media
+languages right then what what what you
+do if it appears in the training set
+right and if the entries are zero in the
+training set you you can do some tricks
+and then you can adjust but if if if it
+never appears in the training set then
+in the Matrix that you constructed there
+there is no
+entry right then what do you
+do what do you
+think what do you
+think so this kind of case is called
+o out of vocabulary uh token
+right so out of vocabulary tokens are
+those tokens which are there which are
+present in the test set but not in the
+training set therefore this is not
+present in the Byram table or trigram
+table right so how do you deal with this
+this kind of uh uh
+words what do you
+think so I'm asking I'm asking those who
+have not who have never taken NLP
+course what do you
+think how do you deal with this
+um unknown
+words and then you create a separate
+dictionary for the unknown words with
+the unknown words or
+what and then
+what
+sear where do search it it never appears
+in the training set yes
+okay oh okay that's a very good
+suggestion okay so what what he's saying
+is that let's say uh the unknown word is
+LOL right which essentially is used as a
+replacement of whatever laugh at loud or
+whatever right so um it's a funny kind
+of phrase right so you look at the
+context where the similar words appear
+in the training set and maybe you use
+that as a proxy for the probability of
+LOL it's a good idea but what we
+generally do is that now remember for
+all these things to to to basically
+check the similarity and other stuff
+right you need tools you need ex
+external thesis like wnet right or some
+other means by which you can say that
+this is similar to this right so so
+statistically when I when you talk about
+statistical inference we so statistical
+inference is independent of any tool
+see predict what can come it is LOL
+don't use the L so so what what so what
+you are saying is that um you look at
+the context
+right so you look at the context and you
+see what are the other words which
+appeared after the context in the
+training training set right and use you
+use it at a proxy of that like basically
+the task is to predict which is next to
+so instead of this task we create a new
+task to First predict what could be at
+the place of L1 and then using that
+another okay okay that's a good
+suggestion but what we do in general is
+that we uh so while creating this
+vocabulary right we also maintain
+another list which is uh which is which
+we call as leigon
+what's a Le what is a lexicon a lexicon
+is a subset of
+vocabulary right and in the Lexicon we
+generally store those tokens which which
+have a certain which which have a
+frequency above certain
+threshold right let's say you s all the
+tokens based on the frequency right and
+let's say the cut off of the frequency
+is five or six so you consider all the
+other tokens whose frequency is below
+five
+right as a proxy of
+unknown clear so from from your training
+set now you have a lexicon and the
+vocabulary minus lexicon that subset
+acts as an unknown
+token right so in your Byram count Byram
+table now you instead of instead of uh
+entries which are there in the
+vocabulary now we have entries which are
+there in the Lexicon plus an entry which
+is unknown Unk an right we use the token
+Unk right and and and what is this an
+this an essentially constitutes all this
+an corresponds to all the entries of the
+vocabulary whose frequency is below the
+threshold right now whenever you
+encounter a new token in a test set
+right you first uh F uh the prob
+corresponding to an from the training
+set and you you use this uh to measure
+the probability any question
+yeah yeah we losing the information
+yes yes yes we are losing the
+information but uh I mean that's the
+simplest option that we can think of so
+can't we also preserve the which so then
+the probability game will change
+remember the probability needs to be one
+and so on and so forth right so that
+also needs to be satisfied it's a
+probability
+okay okay let's move
+on so uh let's say you first scan the
+enter document right and you basically
+noted the frequency of all the tokens in
+the document right you s all the tokens
+based on the frequency you fix a
+threshold let's say threshold is five
+right you consider all the all those
+tokens whose frequency is below five as
+an right now you have a single token
+called an right and the other other
+lexon entries are also there in the
+Bagram Bagram table and then you do the
+similar kind of measurement that we did
+ear
+yes that's a very good question so uh uh
+it it also depends on the application
+right so in general what we do uh in
+general we consider
+cat and cats as two different variations
+and we keep those entries separately in
+the in the vram so these are tokens
+these are not types right so the
+difference these are two different vocal
+words
+yes uh but then then you also need to
+consider the combination
+right ca
+ca yeah that can also be possible so so
+what What chan is saying is that uh uh
+uh you know along with the vocabulary
+words right you also consider the
+characters and the combination of
+characters as tokens right and you put
+put everything to the to the Byram table
+right and let let the count be zero
+right and when we do the normalization
+we take care of the the way we
+essentially take care of the zero
+entries that can also be possible of
+course but the problem is that maybe a
+POS
+possible problem would be the the the
+number of combinations that that you
+have would be significantly large and
+then the uh size would be
+yeah yeah yeah yeah yeah yeah yeah
+exactly so I mean I mean as I mentioned
+it depends on the application most cases
+we consider cat and cats as two
+different entries in the uh in the in
+the Matrix but uh some cases we we first
+do some sort of stemming and then uh
+consider okay let's move on let's now
+discuss some the smoothing techniques
+okay so why do we need smoothing because
+we have already seen The Matrix is quite
+sparse right 99% entries are
+zero and uh we need to smooth uh
+smoothing it somehow the simple way of
+of smoothing is that you blindly add
+plus one to all the entries in the Byram
+table right this is a Byram table you
+add one to all the entries in the table
+right if you do that what would happen
+so now you so this is called add one
+estimate it's a new smoothing Technique
+we add one to the to the
+numerator if we add one to the numerator
+right let's say you you add one here you
+add one to all the byrams remember Byram
+Byram count is a numerator in your
+probability
+right you need to make sure that
+that the condition probability meaning P
+of in this case let's let's look at the
+first row P of I given x x can be
+anything here right sum of this should
+be
+one right and and so this is essentially
+count of count of x i by count of
+X so you added one to the numerator so
+far right if you add one to the
+numerator then the probability would
+exit uh basically cross
+one so we need some sort of adjustment
+here right what would be the
+adjustment so think about it right so
+when you add plus one to all the entries
+here how many ones you are
+adding for for every entry let's say for
+for entry I how many ones you are adding
+number of columns and number of columns
+is same as number of vocabulary right so
+if the vocabulary size is indicated by V
+then you are adding V once right so if
+you normalize
+it right by by V meaning if I if you
+just add V to the denominator then this
+is going to be
+one clear
+okay so this is called ADV one smothing
+right uh uh one is just a number you can
+add 0. five you can add 0 2 you can add
+three four five right so in general it
+is called add K smoothing right so you
+add K to the numerator
+and KV to the
+denominator clear
+okay so after this once you once you did
+this so the resultant count would
+change think about it this is your
+probability and you you you you just
+made an adjustment to the
+probability okay so this is your
+probability so because of this the Byram
+count will change right now let's look
+at the resultant Byram count so so this
+is so this is essentially same as your
+new Byram count which is C star and the
+old unigram count because I did not
+change the unigram remember this I only
+change the Byram
+table right I only change the Byram
+table unigram table unigram table
+Remains the
+Same so so C star is my resultant Byram
+count right so if you do the math so C
+star is essentially going to be this
+times the unigram so this this will come
+here unigram count okay
+so
+uh this is your new Byram count
+table just look at this table and
+remember try to remember the table
+briefly okay and also and and what is
+this this is this is the table after
+adding one
+okay and this is the this was the
+initial table so this was the initial
+Byram count table you see lot of zeros
+right and this is my new Byram count
+table okay let's compare these two ta
+side by
+side so earlier all the zeros there are
+lots of zeros now you see there is no
+zero here right but there are some
+issues what is the issue the issue is
+that let's look at some of the high
+count high frequency words right 827 it
+is now
+527
+right uh 608 it is now
+238 right 686 this is
+430 a massive
+drop right so you know this ad one
+smothing essentially I mean in a funny
+funny way we say that it essentially
+steals the property from Rich and
+distributes it among
+poor okay so but the pro problem is that
+we have so many poor people in the in
+our society that even if you steal
+something from RE you'll have to steal a
+lot right so the high count will be
+reduced significantly whereas the low
+count look look at this one five
+five will remain almost the same
+3.8
+right so middle income people they are
+not
+affected okay so uh but this is problem
+this is a problem why is this a problem
+because now the actual count uh you know
+uh is not reflected properly in the
+resultant Matrix right this is the
+problem of Advan smoothing so to address
+this we will discuss more Advanced
+moving
+techniques okay so so this is the add
+case moving that we discussed so far we
+added K to the numerator and K into V to
+the denominator right so if you think of
+K into V right as
+M right so then then K is essentially M
+by
+V right so we replace K by K by m * 1 by
+V by the way I'm misusing the notation
+actually so in my notation V is the size
+of the vocabulary and in this slide in
+notice in the slide V is the set okay
+mod V is the
+size okay so what I'm doing now I'm
+replacing K uh V by m so now K is going
+to be M by V so I now I replace K by m
+into 1 by V and
+and and KV by m right now if you look at
+it
+carefully this one by V is
+what one by V is essentially the case
+where this is It's
+uniform right all the vocabulary words
+are equally likely
+right but so essentially what we are
+doing we are essentially adding uh
+uniform basically uniform some sort of
+uniform probability to the to the
+numerator with some constant M right so
+instead of this what you can do you can
+think of you can replace this by a
+probability a un a unigram
+probability instead of making it uniform
+now you essentially replace it by uh
+unigram
+probability because this uniform this
+uniform 1 by V 1 by V is same for all
+the vocabulary
+words isn't it it is same for all the
+vocabulary words but that that that
+should not that should not have happened
+right so now what I'm saying is that let
+us replace this by pwi what is pwi pwi
+is something that we are you're
+predicting now this probability is
+dependent on the current what that you
+are
+considering okay so and and then how do
+you measure this Ag and uh uh sorry M
+and K we can measure M and K using the
+held out data set the validation data
+set and you can
+essentially do hyper parameter tuning
+yes P of w is a un probability from the
+Corpus
+right okay so
+a bit more uh Advanced method although
+they are also very simple can be a back
+off and interpolation right in back of
+smoothing what we do let's say we are
+interested in trigram probability right
+and we saw the trigram probability zero
+so we basically back off and we move to
+Byram
+probability right and we see the Byram
+is also zero then we move to unigram
+probability and so on and so forth some
+sort of approximation
+remember this appro approximation may
+not result in a true a true probability
+value remember this this may result in
+some number which may not satisfy the
+probability rule right but still in a
+larger context it's it is still
+useful interpolation is another approach
+interpolation says that let's say you
+are interested in trigram model right
+probability of w n given w nus1 w nus 2
+a diagram model right so this is in
+interpolation this is essentially a
+combination a linear combination of
+trigram probability Byram probability
+and unigram probability right with
+certain certain constants Lambda 1
+Lambda 2 Lambda 3 such that sum of
+Lambda should be one again you see this
+is p hat this is not a
+probability clear
+okay now you can again think of more
+advanced version where you say that uh
+instead of this raw probability count
+right I make this probability dependent
+on the
+context okay so now this Lambda 1 Lambda
+2 Lambda 3 are not a normal constraints
+these are functions of these are
+functions on the uh the functions of the
+context
+you see Lambda 1 Lambda 2 Lambda 3 these
+are functions from the
+context this is the context and this is
+a this is a function you can make it
+more complicated and so on and so forth
+okay so we we stop here okay and uh next
+day we'll discuss two Advanced moving
+techniques one is uh a good Turing
+method the second one is ner name method
+right and then we'll talk about
+perplexity and we'll see how perplexity
+is linked to uh entropy specifically
+cross entropy okay thank you
+[Music]

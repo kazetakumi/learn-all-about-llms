@@ -1,0 +1,654 @@
+[Music]
+so welcome back uh so we were discussing
+uh different prompting techniques we saw
+in the last lecture how to write uh
+prompts right um what are the what are
+the components of a prompt right what's
+promp prompt template how it affects the
+accuracy how the accuracy of the
+model increases with the increasing size
+of the model parameters for different
+types of prompts and so on right so now
+Dis Let's discuss different Advanced
+prompting
+techniques so in 2022 people realized
+that if you just write few
+short prompts like let's say let's take
+a math reasoning question let say moit
+has five tennis balls he buys two more
+cans of tennis ball balls each can has
+three tennis balls how many tennis balls
+does he have now this is a question and
+this is your answer then so this is your
+one shot right and you ask this question
+a cafeteria had 23 apples if they used
+20 to make lunch and brought six more
+how many apples do they have the output
+you expect is uh is nine but the model
+produces
+27 because the model has been exposed to
+a pair which is a question and answer
+question and the answer the final answer
+but the model doesn't know how to reason
+about it right so so this is your
+standard prompt but if you instead of
+writing this if you had written in this
+way this is your ex this this is your
+question and these are the steps so moit
+started with five balls two can of three
+tennis balls 5 + 6 = to 11 the answer is
+11 so this is your example okay then you
+um give this question right cafeteria
+had blah blah blah and you see that the
+model will not only produce the right
+answer but also the
+steps right required to produce this
+answer and the new this new prompting
+technique is called The Chain of Thought
+prompting coot what are the thoughts
+here the thoughts
+are let's say in this case the first
+thought is the cafeteria had 23 apples
+originally the second thought is they
+used 20 to make lunch the third thought
+is so they had 23 minus 20 = to 3 and so
+on these are the
+steps and this essentially mimics the
+way are human things right now
+surprisingly in the coot paper they also
+showed that if you don't have any
+example right you want to do it in a
+zero short
+manner you just write think let's think
+step by step okay write let's
+think
+step by step and then your and then your
+question that you want to
+solve then also you see that the model
+will be able to decompose uh the
+problems uh you know into steps and then
+each of the steps will be solved one by
+one
+okay
+so after Chain of Thought prompting uh
+people also suggested something called
+Chain of Thought with self consistency
+here the idea is that uh you ask the
+same question to the models multiple
+times and as all these llms are
+stochastic right some of you know that
+these models are called stochastic
+parrot right why parrot because this
+models mimic right um so the way a parot
+mimics
+what the parot learns here also the
+model mimics what the model learns
+during the preing step
+right they are not they're not able to
+invent something new that's that's why
+they are called parrot and stoas stic
+because they are not deterministic uh
+you know the the answers are always uh
+different for uh for different instances
+of a single prompt so you give the
+question which you want to
+solve this is one set of thoughts
+this is another set of thoughts this is
+another set of thoughts right you have
+multiple sets of thoughts at different
+instances for a specific uh
+question right and then you have some
+sort of voting mechanism right let's say
+this chain produced output nine this
+chain also produced output nine this
+chain also produce they's say this CH
+produces the output uh 24 and so on and
+so forth you have some V mechanism based
+on the voting you choose one of the
+thoughts one of the sequence of thoughts
+right and of course this is not as
+simple you if you if you want to look at
+the paper they they also had you know
+some sort of um uh you know uh a module
+which decides which uh which chain one
+should essentially
+pick consecutively
+uh the next model was proposed which is
+called tree of thoughts right so in tree
+of thoughts the idea is
+that it's kind of a branch and bound
+right so you start with uh a step and
+then you explore all possible substeps
+right now you look at you take one of
+the substeps substeps you further
+explore this and you keep on doing this
+thing so you basically produce the
+entire tree right where each branch
+right from root to Leaf uh would be
+would be your hypothesis right would be
+your uh your uh your
+thought okay so
+here you need three components one is
+called branching other is called scoring
+other is called backtracking so
+branching module is responsible for
+deciding whether I should Branch uh I
+should split it into different branches
+or not
+scoring uh
+module evaluates a particular Branch
+right uh
+and decides whether and then there's a
+module called backtracking it decides
+whether I should backtrack to the the
+the previous right the the the previous
+node and then you know I should further
+Branch out or not let's let's look at
+this example so this is called this this
+uh famous mathematics question called
+24
+uh 24 uh G 24 games I don't remember the
+exact name but the idea is that you were
+G given
+uh numbers right let's say four numbers
+and you have to come up with ways to to
+uh uh to essentially result the number
+24 okay let's say you are given 4 9 10
+13 now what are the operations that you
+can do to obtain 24
+right remember when you do some
+operations between a pair of numbers
+let's say you do addition and 4 + 9
+which will result in 13 now 13 will
+become one of the candidates into your
+uh uh into your possible numbers right
+so so in this case let's say you start
+with 4 9 10 13 right you have one branch
+which suggest you to subtract four from
+10 so you have 10 minus 4 = to 6 right
+so you have exhausted 10 you have
+exhausted four so what else is remaining
+you have the remaining numbers 9 133 and
+the six that you
+obtain right so you
+can't use a number multiple times by the
+way okay so the the numbers which are
+left are 6 9 and
+13 now next step can be again
+subtraction 19 uh 13 minus 9 which will
+result in
+four so what are the numbers which are
+left six and four right right The Next
+Step can be 4 * 6 which will uh result
+in 24 now this can be one successful
+Branch right you know you can also think
+of other branches for example you can
+say that okay I start with U 4 plus line
+9 which will produce 13 and then you you
+right you you you you further Branch out
+this thing so you see here that
+uh you need a module which will decide
+whether to Branch out do not you need a
+module which will evaluate the quality
+right whether right whether um you are
+going to the right direction or not
+right and you need something which will
+help you backtrack let's say you you you
+you have decided something you have you
+have ended up generating something which
+you feel which your scoring function
+feels that is not correct now you have
+to backtrack this is same as branch and
+bound kind of uh algorithmic
+setup Okay so
+this
+scoring uh backtracking branching these
+are different modules right as you see
+here uh and and these are different
+language models by the way okay for
+example here you see that the scoring uh
+module says that you have already
+generated
+36 right there is no way to obtain 24
+with this such a big number so you stop
+here if you stop right if your scoring
+module says that you you should stop
+here you can stop and you can start
+backtracking okay this is tree of
+thoughts now the obvious choice is
+that from Chain of Thought you have tree
+of thoughts what next graph of thoughts
+right in graph of
+thoughts the idea is that uh you know
+you have uh you see
+here here here in graph of thoughts your
+chains your all these chains are
+connected right as you see uh you know
+this
+um green uh green circles indicate that
+your your your scoring module says that
+this is a positive score whereas uh you
+know this kind of circle indicates that
+this is unscored and red circle
+indicates that this is a negative score
+right so here also you start with uh an
+initial thought and then you Branch out
+you can backtrack you can refine you can
+use you can reuse some of the existing
+thoughts and so on and so forth okay so
+you need an aggregator which will decide
+whether two thoughts can be combined or
+not like like
+this so chain of thoughts one single
+thought one single chain of
+thoughts chain of thoughts with
+consistency self consistency you have
+multiple chain of
+thoughts Tre of thoughts right now you
+have the cap capacity to essentially
+backtrack
+okay
+um and you can score each of these
+thoughts and then graph of thoughts all
+these thoughts are connected okay and
+these are some of the advanced prompting
+techniques that people use so far we
+have seen these models can take multiple
+types of prompts but as I mentioned
+earlier that they are highly sensitive
+to prompts right if you change prompts
+here and there you will see the the
+output of the models will change
+drastically now now so along with
+accuracy there is another Factor called
+sensitivity which also is which also
+corresponds to
+robustness this needs to be measured
+right so how do you measure the given a
+data and the
+model can we measure how sensitive the
+model is with respect to the data okay
+this is something that we we will not
+discuss let's say you take Lama 3
+instruct model right ABB instruct model
+and
+you ask the model that how much are you
+familiar with principles of Buddhism
+right and it will say that Buddhism is a
+philosophy and spiritual practice that's
+originated in Ancient India and blah
+blah blah right you ask the same
+question again how much do you
+understand Buddhism almost the same
+question right but this time it says
+that point
+1% right just kidding I'm not a Buddhist
+scholar either right you see my
+intention was to ask the same thing
+repeatedly but this time in the model
+thought that kind of I was
+joking so this is something that you
+want to pre prevent because if this
+happens model will not become robust
+okay
+so so the question that we're asking is
+by the way this is this is the research
+that we have done in our lab okay very
+recently the question that we are asking
+is whether accuracy is a is only a good
+measure or not so far we have been only
+talking about accuracy right with the
+increasing size of the model how
+accuracy impacts and so on and so forth
+right and you see here
+that you know models like Lama 3 Jimma
+mistal 7 billion instruct right on
+across different task mlu human eval GSM
+8K these are all different reasoning
+task right uh people always report the
+accuracy okay but we said that accuracy
+is not enough you also need to report
+the sensitivity of the
+model okay how do we quantify
+sensitivity okay so when we say
+sensitivity uh and accuracy two things
+should be considered side by side okay
+let's say I ask the model do you know
+the capital of India the model says the
+capital of India is Delhi okay you again
+Ask I'm not sure what the capital of
+India is do you know the model says yes
+the capital of India is delh right you
+see the model model keeps on producing
+the correct answer and
+consistently on the other hand if you
+see that a model if you ask the model
+that do you know the capital of India
+model says yes I'm not sure about the
+capital of India do you know this
+yes can you please tell me whether Delhi
+is capital of India or not yes right so
+every time the model answers yes
+so this is consistent the model is
+consistent but not accurate right so you
+have Model
+A whose accuracy is 85% but sensitivity
+is also very high 60% if the model is
+more sensitive to prompts the model is
+Bann so you want to decrease the
+sensitivity of the model right model B
+accuracy is 75% lower than Model A but
+sensitivity is pretty low 20% so you
+should prefer model B over Model A
+because accuracy is almost comparable
+but sensitivity wise model B is much
+more robust uh than Model A right
+so so we need a holistic measure to
+capture prompt sensitivity of language
+models
+for a more comprehensive evaluation of
+language
+models so how to measure the
+sensitivity
+so so this is our question right given a
+prompt along with its intent preserving
+variants right the intent of the
+variance of the prom should be should
+remain the same and the corresponding
+set of responses generated by the
+model how do we measure the sensitivity
+of the language model on the given
+prompt right to quantify this we came up
+with a new index called
+posix so posix is a new uh you know new
+index to measure the prompt sensitivity
+of a model okay and it's very very easy
+to install you just do peep install
+right peep install prompt sensitivity
+index you'll be able to install it so
+it's the code is very
+handy and this is the paper it's
+a it's a collaboration it's a
+collaborative work with Adobe uh Adobe
+Delhi okay so so so what do I mean by
+intent preserving prompt right intent
+preserving intent preserved variations
+so let's
+say the question is what is the capital
+of India okay and your your variations
+of your promps are what city serves as
+the capital of India can you tell me the
+capital capital city of India where is
+the capital of India located what is the
+name of India's capital can you provide
+the name of India's capital these are
+all different paraphrases of the same
+prompt and you see the intent of the
+prompt Remains the Same across all the
+paraphrases
+right and the hope is that if the model
+is is non sensitive is is not sensitive
+is robust it should always produce the
+same answer for all these variations
+so in the matric the posis matric the
+posic the the matric wants to capture
+the this four different aspects right so
+how do you know that the metrix that we
+propose is actually of good quality or
+not right
+so we check whether the Matrix whether
+the matric um you know captures response
+diversity whether the metric captures
+response distribution entropy whether it
+captures semantic coherence and whether
+it captures VAR variance in confidence
+I'll discuss all these things one by one
+okay what is response
+diversity so given the prompt and
+different variations I would like to see
+how the responses obtained by the model
+obtained from the model vary right let's
+say Model A A Lama 38b and model B
+mistal 7 billion instruct model
+for different variations Model A
+produces different answers so the the
+same question right the answers are
+almost the correct but some cases for
+example
+here along with the answer the model
+also produced the
+question a new question which is the
+following uh is the largest city in
+Delhi by area nobody knows why the model
+produces this
+right this is not
+expected whereas if you if you look at
+mral B for all these different
+variations m b is quite consistent in
+terms of producing uh you know answers
+of course in one case you know it
+produces weird like kind of uh McQ
+answers I don't know why but you know
+still the answer is quite consistent so
+he you can say that model B is more
+consistent than Model A so Model A is
+more sensitive than model B more
+sensitivity is bad
+okay this is called response diversity
+or response diversity
+yes let's say there are two models with
+same response diversity right Model A
+also produces two different responses
+model B also produces two different
+responses right now how do you quantify
+how do you quantify which one is better
+the next one is called response
+distribution entropy right
+you look
+at the entropy of the
+responses okay what does it mean let's
+say have a prompt p and you have five
+different variations of the prompt right
+P1 P2 P3 P4
+P5 model
+one let's say this it's a maths
+reasoning question you you want the
+model to produce a number let's say
+model one produces 2 2
+2 2 3 right model two produces 2
+2
+3 4
+5
+right which one is more
+sensitive which one is more robust which
+one is more sensitive so response
+diversity response distribution entropy
+says that why don't you compute the
+entropy of the sequence and this
+sequence right this is bad this is still
+okay right if you look at the entropy
+entropy of this sequence will be
+lower and entropy of this sequence will
+be higher if a models response
+distribution entropy is higher the model
+is more sensitive which is bad right you
+see
+here uh right uh the model produces the
+four
+different responses but this response
+has been produced multiple times whereas
+other three responses have not been
+produced that many that many of times
+right whereas for B things are all the
+same so this entropy is high this
+entropy is low and this is more
+sensitive this is less sensitive
+okay semantic
+coherence I want that the responses that
+are generated by the model should be
+coherent should be semantically same if
+you look at the cosine simility between
+the embeddings of the responses should
+be the same right so higher the semantic
+similarity between responses lower the
+sensitivity lower the semantic
+similarity higher the sensitivity okay
+and you want the semantic similarity
+should to be higher in order to prod
+produce a robust model okay so the
+fourth one is variance of
+confidence assuming
+that the response diversity is same for
+both the models the distribution entropy
+is same for both the models the semantic
+coherence is same for both the models
+what
+else you check the confidence how
+confident the model was to produce those
+responses right and you look at the
+variance right and how do do that simple
+idea you look at log likelihood of the
+responses
+right higher the variance right higher
+the variance in terms of log likelihood
+higher the sensitivity okay and uh you
+know what the model
+is so now let's look at our assumption
+so we have discussed four criteria based
+on which we will judge the quality of
+our metric
+right uh let's look at the Assumption so
+what do you want to
+achieve let's say I want my model to
+produce so for two different variations
+of the prompt let's say the prompt is
+one variation is can you tell me the
+capital city of India what is the
+capital city of
+India for two different variations of
+the model the model the the probability
+that the model will produce let's say
+answer one this is answer one should be
+the same
+answer one is the star right what I'm
+saying what I just said let me rephrase
+again this prompt given this prompt and
+the paraphrase version of The Prompt the
+probability that both the both this
+given both the prompts the model will
+generate the same
+answer should be the same it can be
+answer one or it can be answer two but
+the probability will be the same this is
+our assumption okay let us now discuss
+the metric posits
+okay you are given a data D you are
+given a model M okay
+and you have different uh intent
+preserving variations of the prompt
+which ised by x capital x
+set and the corresponding responses for
+different prompts is y okay so
+sensitivity of the model m
+on these different variations
+X is captured
+by look at only this part what is this
+probability of the model generating a
+specific response YJ given XI and
+generating the same response YJ given
+XJ right this is
+Xi this is XJ right and this is
+uh this is my
+y given a y I look at I take a pair of
+intent preserving prompts and I check
+the
+probability okay you fix y not given you
+fix y you look at the two variations of
+the prompt you measure the probability
+and you take the ratio and we
+expect that if they are the same if they
+are the same uh it means that the model
+is robust is less sensitive right and it
+is this quantity is normalized by the
+length of the
+response right and you have all possible
+pairs so you do
+this for
+uh uh specific model M right and the
+specific set of prompts right and then
+you have the entire data right you have
+many other prompts now remember this is
+one you take one prompt and you have
+different variations of the prompt you
+have many such prompts
+right and D is nothing but the prompt
+data set the promt data set okay and you
+essentially sum sum them up and then you
+normalize it by the number of such data
+points right the four criteria I
+mentioned
+earlier look at this
+number of unique responses increases the
+model is bad sensitivity should increase
+here this number our PHS score is also
+increasing the entropy is getting bigger
+and bigger the model is getting worse
+and worse right and sensitivity is also
+increasing right so this essentially
+indicates that our metric is actually
+correct right cosine similarity
+increases meaning the models tend to
+produce similar answers meaning
+sensitivity is less our value is
+decreasing um confidence variation
+increases model is
+bad and
+um posy score is also increasing okay we
+tested across all different variations
+right a huge experimental setup was
+there there are
+three different types of models Lama
+mistal and and and uh um uh you know um
+their so Lama Mr and Almo and
+their uh Chad version and instruct uh
+version base version and chat version
+and we you know we had different
+different experiments I'm not going to
+details of this but bottomline story is
+that there is no clear-cut evidence that
+with the increasing size of the model
+right the sensitivity increases or not
+in fact we have seen certain cases that
+here let's
+say uh base versus chat right base
+versus chat there is no guarantee that a
+chat model instruct instru instruction
+find tring model will be less sensitive
+right there's no
+guarantee similarly we have checked with
+uh zero short few short setup and so so
+adding few short example
+may help but uh you
+know most cases it reduces the uh
+sensitivity that is good okay so that's
+that's it uh we
+discussed Advanced prompting techniques
+how to capture the sensitivity of a
+prompt right uh and
+uh we also discussed uh different
+prompting uh templates in the previous
+lecture we discussed different prompting
+prompt template templates and so on and
+so forth
+so in the next lecture we will start
+discussing
+uh uh alignment techniques right
+reinforcement learning from Human
+feedback method now we are moving
+towards the design of chat gbd kind of
+model we'll discuss what the other
+components that were used apart from
+pre-training fine tuning instruct fine
+tuning what else was used to build uh
+the CH GPD kind of model okay thank you
+[Music]

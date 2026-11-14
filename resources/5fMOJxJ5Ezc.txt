@@ -1,0 +1,475 @@
+[Music]
+hello everyone in today's class we will
+discuss sequence to sequence modeling in
+the last class we discussed RNN methods
+Advanced RNN methods lstm Gru and so on
+and so forth right we have seen how GED
+uh getting mechanism uh can address the
+vanishing gradient problem
+right we will see how RNN can be used in
+the other types of problems like
+sequence to sequence uh labeling
+problems right okay let's get started so
+sequence to sequence
+models we are we are discussing those
+things which were proposed in in
+2015 2016 right uh right so in sequence
+to sequence model what what is a
+sequence to sequence problem a sequence
+to sequence problem is you you are given
+a sequence and the output would also be
+a
+sequence right let's say machine
+translation you are given a Hindi
+sentence and the output would be English
+sentence uh let's say summarization you
+are given a longer document and your
+task would be to uh basically generate a
+shter document right these are all
+sequence to sequence uh problems right
+it can be many to many it can be many to
+one it can be uh one to many and so on
+and so forth many to many sequence to
+sequence model sequence to sequence the
+term can also be abbreviated as s to
+se okay so many to many SE tose problems
+uh include summarization dialogue right
+uh many to one what do you
+think many to many to one set to se
+problem can
+be
+classification classification
+or no
+huh uh in so it's not a sequence to
+sequence as such because ultimately are
+generating a label but I mean you can
+think of it as sequence to sequence it
+also depends on the way you map
+it what is one to
+many example of one too
+many no speech is a SE sequence to
+sequence speech
+generation music generation what's the
+input
+in input will be a prompt right or so
+that's that that that is many to
+many what about uh image
+captioning your input is an image and
+output is a text a
+sequence
+h of course you can say that uh you know
+I can I can basically flatten the image
+make a matrix or whatever right that
+will be a many to many but high level
+this is one to
+many okay so let's look at this machine
+machine translation uh problem for the
+time
+being in a sequence to sequence model
+what we do since there are two sequences
+involved input and output we will use
+two rnns right one RNN will process the
+uh the input another RNN will process
+the output okay let's say this is the
+this is the FR sentence uh I'm not able
+to pronounce it at all I don't know fren
+uh French let's say this is the French
+sentence and you use a simple RNN right
+to encode the the sequence and let's say
+this is the last hidden
+state right and this is your output the
+output the the translated version of
+this F sentence is he he hit me with a
+p okay so the last state of the previous
+uh
+RNN will be Fade to the first state of
+the output RNN and the remaining process
+will follow now if you look at this
+thing very carefully where is the loss
+we are Computing so we Computing the
+loss at the output hidden State at the
+output RNN this is the output RNN right
+now look at the time stamp so here let's
+say when you allow so this is the input
+right ideally uh you know the first
+input of the first hidden state will be
+a start symbol right and it should be
+able to generate the next uh next word
+which is
+he right now you pass this he to the
+next a state it will generate something
+last day I mentioned uh something called
+teacher forcing right what is a teacher
+forcing in teacher forcing i instead of
+feeding he let's here the model generat
+C
+so ideally I should Feit C and then I I
+will see what the next word is going to
+be right this is a normal process but in
+in teacher forcing I will feed the
+actual input right for example even if
+it generate C I will feed he uh in the
+next St right which is kind of a
+cheating but uh this is it I mean it was
+it turned out to be much more effective
+in at least training the model during
+inference you you can't you can't do
+this but during training you can
+do okay
+so at this stage you'll have some uh
+error at this stage some error and so on
+and so forth right look at this so here
+you have an error J1 error J2 j3 j4 J5
+dot dot dot j7 right and the total error
+is basically sum of this this is the
+total error and you normalize it by the
+number of uh number of output tokens T
+okay and then when you back prop when
+you do back propagation right so this
+loss will affect all the hidden States
+this is end to end training this is
+called end to end
+training end to endend
+training okay so this error will be back
+propagated and all the hidden states in
+the decoder as well as encoder will be
+updated so the input RNN is called in
+coder and the output RN is called
+decoder this is end to end training
+clear okay and how do we do this back
+propagation we'll use bptt back
+propagation through
+time okay now if you think of this uh
+sequence to sequence problem carefully
+this is essentially a conditional
+language model why this is a conditional
+language model what is what is it
+conditioned on
+it is conditioned on the
+input right so X let's say x is the
+input here input is the in case of
+machine translation input is a French
+sentence and the output is the English
+sentence right so you are basically
+Computing this
+probability so this is now if you think
+of Y as y1 Y2 Y3 dot dot dot so the
+first probability that you are Computing
+at the first hidden state right what is
+the input there the input is the final
+final hidden state of the encoder right
+so that is
+X but you have already processed the
+enter input sentence right so
+probability of y1 given
+X the next one this
+one what is this one this is probability
+of Y2 given X and
+y1 right and so on and so forth
+the last one the last word will be
+probability of YT given y1 Y2 y Y3 dot
+dot dot YT minus one and
+X right so conditioned on the generation
+the tokens that you have generated so
+far and the input
+token
+okay
+so now when we decode this how do we
+decode this during the inference stage
+can somebody tell me let's say the model
+has been trained okay how the model is
+trained I I think it is I think it is
+clear right how the model is trained we
+will we will do uh we'll do teacher
+forcing right and we will compute the
+loss at every time stamp right and then
+we backrop the entire loss end to end
+okay and you do it for all the machine
+translation
+pairs now during the inference stage
+what you do you are given a now since
+there there are two in RNN encoder and
+decoder how many weight matrices are
+there so in encoder how many weights are
+there there are there is this
+W right there is this we e and there's
+this U so U is not there in the encoder
+U is there or not what is
+U the U Matrix was the linear uh the
+linear projection Matrix right that is
+not the in in the encoder because in
+because at the encoder stage you are not
+predicting
+anything so you need a wh and a
+w what is we W is the weight Matrix
+corresponding to the
+embeddings and at the decoder stage what
+are the uh matrices W Dash w e Dash and
+U okay and these matrices are
+are trained are learned during the
+training
+time remember uh the embeddings right
+the embeddings that you are uh uh you
+are using here are different because
+input is a French sentence output is an
+English sentence the embeddings are
+different right let's say if it is a
+let's say if it is
+a summarization problem then the
+embeddings will be same because the
+languages are same okay language is same
+okay
+so now during the inference time what
+we'll do uh we are given the uh F
+sentence we pass it through the encoder
+right we will use this matrices this
+using these matrices we will get the
+final hidden state of the encoder right
+that hidden state will be given to the
+decoder and in the decoder I already
+know wh Dash and we e Dash right so
+based on that I will generate the this
+this hidden State the first hidden state
+of decoder right and then I pass it
+through this uh linear layer U followed
+by nonlinearity it will project it to a
+1 million dimensional Vector 1 million
+is the size of the
+vocabulary right now so it will project
+it will project it to a 1 billion
+dimensional proability Vector then you
+sample one token from the probability
+right and uh the hope is that the token
+which has maximum probability will be
+sampled so let's say you sampled
+heat okay and then you uh Fe feed here
+it will generate heat you you feed so
+when I say I feed he to the next layer
+what does it
+mean it means I feed the embedding of he
+to wh
+the wh Dash is the same for all the uh
+tokens that you are generating in the
+deod in a GED decoding
+strategy instead of sampling uh uh the
+token based on the probability I will
+choose the token which has the maximum
+probability I will not do any
+sampling okay this is GED
+decoding so what is the problem with G
+GED decoding
+the problem is that let's say if you
+um if you made a mistake at any point
+you won't be able to recover it let's
+say you wanted to generate I heit uh so
+you wanted to generate he he hit me with
+a p so you generated he and then you
+generated heat and suddenly you
+generated a but you should have
+generated
+me isn't it you won't be able to back
+track because it has already been
+generated the a will be Fade to the next
+St and in the next St uh something else
+will be
+generated this is the problem with gitty
+decoding right now now tell me uh what
+do you think like uh how do you address
+this problem is it possible to do some
+sort of exhaustive search to address
+this problem so instead of now think
+about it instead of generating one token
+at a
+time right if I could have generated V
+number of tokens what is v v is 1
+million right I generated all V number
+of tokens now again for for each of this
+V tokens that I've generated I pass it
+to the next layer it will generate again
+V tokens and so on and so forth right V
+tokens and so on and so forth is it
+possible to do that it is not possible
+to do that and let's say if it is
+possible to do what would be the
+complexity there are t number of time
+stamps in the decoding state right stage
+and let's say V number of V number of
+possible tokens that you can generate
+how many how many uh how many possible
+branches you need to keep track B to
+T right B to T this is extremely
+exhaustive okay so how to then uh solve
+this problem let's not make it that
+exhaustive let's let's squeeze it as as
+much as we can and to to basically
+squeeze the entire thing we use
+something called beam
+search Okay in beam search what we do
+the beam search is the idea of beam
+search is very same as the exhaustive
+search only difference is that instead
+of keeping track of V possible options I
+will only keep keep track of K possible
+options where K is the size of the beam
+right it means that instead of
+generating only one token as we did for
+gitty decoding or V tokens and as we did
+for um for uh exhaustive search I will
+generate K tokens K can be five or
+10 whatever you set the value of
+K okay
+so at every stage at every stage here
+let's say I generate K tokens now from
+each of these K tokens I further
+generate K tokens and so on and so forth
+so complexity is still significantly
+High complexity is still K to the T
+isn't it but K is much much smaller than
+V right and you can decide the value of
+K okay
+so now what we do now think about it you
+you generate a token here at time T
+right you generated a k number of tokens
+right token one token two k number of
+tokens here
+okay and from each of these tokens you
+again further generate K number of
+tokens and so on and so forth right and
+then you stop at certain point right
+when do we stop when do we stop the
+decoding uh decoding
+phase when we
+stop I give a FR sentence when this
+decoding stage will
+stop when it generates a token called
+EOD there are two tokens special tokens
+start and uh EOD end of sentence or
+whatever end of
+decoding
+EOD right P stop
+basically right so this is one way of
+basically stopping the decoding phase
+there are other ways
+also so each of these branches right so
+let's say this Branch will lead to end
+of end of
+token uh this Branch will also uh lead
+to end of token this this Branch will
+also lead to end of token so there are
+multiple branches right each of these
+branches is called
+hypothesis why hypothesis because we do
+not know which of this hypothesis is
+correct which of these branches is
+correct therefore this is called
+hypothesis
+right so now which hypothesis I will
+choose at the
+end I'll choose a hypothesis whose score
+would be higher and how to measure this
+score
+the score is essentially the log
+probability of the sequence that we have
+generated so far clear so two things I
+mentioned one is the value of K right we
+decide a k and then every hypothesis
+will will will be assigned a
+score okay now let's look at example
+this is an example so a beam starts of
+size
+two I start with this special token
+start this is the decoding stage in
+inference time decoding stage inference
+time not the training time remember
+this let's say the value of K is two so
+I generate I I I have generated two
+tokens I and
+he right and what is this probability
+this log probability how do we get this
+probability we we will get the
+probability from the
+distribution isn't it because we have
+this linear layer and then soft Max
+right we we we'll get the probility the
+distribution now we take the log
+probability log probability basically we
+sum all the log probabilities which is
+same as multiplying all the
+probabilities now since this is
+probability it will range between 0 to
+one the log of this will be
+negative right so all these negative
+numbers will be added and I will choose
+that hypothesis whose value is maximum
+Which is less negative uh here
+the the score till this point is 7 -.
+7-9 which one I will
+choose which one I choose I don't need
+to choose because the value of K is
+already two right let's explore this
+further now from a from he the next two
+tokens Can Be heat and
+St right from I the next tokens Can Be
+was and
+got so till this part part what is the
+probability so at this stage the
+probability is uh the probability of
+this plus the previous
+one right so the total probability is
+minus 1.7 here the total probability is
+- 2.9 - 1.6 - 1.8 so out of
+this how many we choose we choose only
+two so which which two we'll choose we
+will choose the the the highest one
+right two two two maximum one so one is
+minus 1.7 the other is minus
+1.6 right and then we explore
+further a it so heat will generate
+further from heat I generate a and me
+from was I will generate heat and Stark
+and so on and so forth here again from
+this four I will decide
+two right now look at here this branch
+is gone
+right now only I'm exploring the top
+Branch from each of these again I'll
+generate two right and so on and so
+forth again this two will be selected
+from this two I will generate two from
+each right this two will be selected and
+this right let's assume that here after
+this uh the
+EOD uh is
+generated okay so so among this among
+this which one is the maximum the
+maximum one is this one minus 4.3 then I
+will backtrack and this is the
+backtracked right so I will generate
+this the problem here
+is longer
+hypothesis will be
+penalized shorter hypothesis will be
+will be given more Advantage why if it's
+a longer hypothesis then you keep on
+adding multiple minuses or basically you
+are multiplying so many probabilities
+which will lead to uh you know lower
+probability value let's say you had one
+hypothesis where there are only two
+tokens versus you have an hypothesis
+where there are 10 tokens so which one
+will be preferred let's say both these
+hypothesis were successfully led to a
+end of
+token
+right which will be preferred the
+shorter will be preferred because of
+this one right so what I do here
+we will um normalize the score by the
+number of tokens it has
+generated so if a longer token is
+generated right I will normalize it by
+the number of tokens sorted token again
+number of tokens that will nullify the
+this one thank you
+[Music]

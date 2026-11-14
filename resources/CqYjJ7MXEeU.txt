@@ -1,0 +1,1387 @@
+[Music]
+hello everyone welcome to the tutorial
+session today we'll be covering the
+fundamental concepts of pyo so pyo is a
+open-source deep learning framework that
+allows us to uh build and train deep
+learning models so today we'll first
+start with uh understanding the key
+components of py touch which are uh
+tensors autograd and once we done with
+that then we'll discuss uh how what is
+the typical uh pyo pipeline that we
+should follow when uh in order to build
+a deep learning framework and to train
+it and we'll do so by implementing a
+very basic neural network one more uh
+General um uh note that I would like to
+State at the beginning is it's always a
+good practice to uh visit the page
+documentation so uh so so pyo is uh
+always evolving it's an evolving open
+source deep learning library so uh it's
+it's a good practice to keep yourself
+updated with whatever is happening uh
+and with that having said that let's get
+started with the tutorial so uh one good
+thing about collab is uh the py to
+library is already pre-installed in
+collab so we can simply uh start uh by U
+importing torch once we have done that
+let's quickly check the version of
+pytorch
+So currently when I'm recording this
+session the py version is 2.5.1 but as I
+mentioned py to keeps on evolving so
+maybe when you are watching this uh
+tutorial session there might be a
+different more updated version of py to
+and maybe you can encounter some errors
+there could be some changes in the
+functionalities and uh utilities that
+pyo is following in that version so
+again kindly refer to the pyo
+documentation anytime you feel stuck
+with anything
+uh now uh tensors are the uh are the
+backbone of py to it allows us to do
+anything and everything almost anything
+and everything in pyot so uh we'll first
+get started by uh looking at how to
+create tensors so uh first uh let us
+create a
+tensor so if we create a tensor by uh
+passing uh any like a list or a numeric
+value through the method to. tensor so
+here we pass the single numeric number
+one and when we pass it through to
+torch.
+tensor that gives us a tensor this
+tensor tensor one which is a scaler and
+it has zero Dimension as we can see here
+so in order to uh find the uh the
+dimension of a tensor we can either use
+this endm attribute or we can also use
+the dim method we'll see that in a while
+um next is what we can do is we can
+stack up a collection of numbers in a
+list and when we pass that to a tensor
+to torch. tensor method that gives us
+another tensor but this time the tensor
+would be a one-dimensional tensor and uh
+popularly this is known as a vector uh
+so next what we can do is we can stack
+up vectors which are one onedimensional
+tensors and that would give us uh two D
+tensors which are also known as M
+matrices so which we can see over here
+so let's run these and till now we have
+created a scalar we have created a
+vector and and we have created a matrix
+so so when we dealing with tensors a
+very important concept which we should
+be thorough with is the dimension and
+shape of the tensor so um let's uh let's
+take a while to understand these
+Concepts so first let's uh so if we look
+at these so let's look at the vector and
+the Matrix so first if we start by
+looking at this tensor so one way to
+understand what is the number of
+dimensions of a tensor is to look at the
+number of square brackets which is
+present at one end of the tensor so here
+we see there's one square bracket so the
+dimension of the tensor is also one
+whereas if we look at this uh this uh
+Matrix so here we have two square
+brackets and that gives us the dimension
+of two so in py uh uh to find the
+dimension of a tensor we can either use
+the nrim attribute or we can use the dim
+method uh also another concept is is
+that of shape so when we uh we can find
+the shape of a tensor using the again
+the shape attribute either by using the
+shape attribute or by using the dot dot
+size method here one thing that I would
+like to highlight is that uh shape or
+size of a tensor uh tells us how the
+elements are arranged in uh arranged
+across different dimensions in the
+tensor and also uh the number of
+elements in the torch dot sides object
+object that we obtain is the same as the
+number of Dimension the tensor has so
+here this tensor has Dimension two and
+there are also two elements in the torch
+do size object each saying what are the
+number of elements in each of the
+dimension in pi torch uh indexing starts
+from zero so since there are two
+Dimensions this tensor would have
+dimensions 0o and one so this two is
+nothing but the number of elements in
+the zero Dimension and this three is the
+number of elements in the First
+Dimension so how can we understand
+understand that so this outermost square
+bracket that we can see in the tensor
+this is the 08 Dimension within that we
+can see there's this one there's this
+Vector this 1D tensor and another one so
+that gives us two so there are two
+elements in z d so correspondingly we
+have this number two over here now
+inside each of these vectors okay or
+these 1D tensors that I just highlighted
+there are three more elements so here's
+0 17 here's 4 2 4 uh so that means that
+there are three elements in the First
+Dimension uh so having discussed this uh
+till now we were only uh seeing how to
+like we were manually supplying data in
+toss. tens and we were creating the
+tensor that are alternate ways to create
+tensors as well so let's look at that so
+uh in all these cases all we need to do
+is we need to supply the size of the
+tensor that we want so here we are
+initializing the size to be 3A 4 just
+for an example
+uh first we can create a torch. empty
+tensor so that would give us a tensor of
+the uh size that we just mentioned and
+all the values would be uninitialized in
+this
+tensor another way is to create a random
+tensor where all the values in the
+tensor would be a random number between
+0o and one according to the uniform
+distribution um we can also create
+constant tensors using torch. zos and
+torch.
+ons using these methods and that would
+uh respectively give us a tensor full of
+zeros and a tensor full of
+ones uh next uh we can check the data
+type of a tensor using the dot dtype
+attribute so here we again creating a
+random tensor uh of a desired shape and
+when we uh when we check the data type
+of the tensor we seen that the data type
+is float.
+32 so in P torch the uh default data
+type for tensors uh which which with
+float values is float. 32 uh now we can
+also like specify when we creating this
+tensor we can specify what data type we
+want the tensor to be so here here we
+are creating a random tensor using the
+torch. ran method we specifying the size
+and then here we specifying the uh data
+type over here so we we want now the
+tensor to be uh of data type float float
+16 so uh when we when we print the
+tensor we see over here so this tensor
+and now has data type float 16 now
+having created a tensor we can also
+change this data type so torch uh sorry
+tensor 4 uh originally had data type Flo
+32 we just saw now I can use uh the type
+method and now I can pass torch. double
+this will change the data type of the
+tensor from floor 32 to floor 64 so
+float so torch. double and torch. 64 are
+the same uh same data type
+uh next we can also create a tensor from
+npay array uh so in so first let's
+create an Umpire array so here we are
+simply creating an ire
+array uh next uh there are two ways
+which in which we can uh create the
+tensor so one is we can use stor Dot
+from numai method uh here we can simply
+pass the numai AR and we'll get a answer
+another way is as we saw as the the
+method that we were using all these VES
+so which is torch. tensor we can again
+pass the array over
+here and that would give us uh a tensor
+corresponding to the numai array so as
+we can see this was the numai array this
+is the tensor created using uh the torch
+Dot from numai method and this is the
+tensor use created using uh torch do
+tensor method so both gives us tensors
+uh however there's a there's a small
+distinction that I would like to
+highlight over here between both of
+these
+methods so uh let's first look at this
+so we take the um uh the array the
+example array numai array we multiply
+each of its elements by three now when
+we print the tensors we see that the
+tensor which got created using the Toge
+do from numai method that also gets
+updated however the tensor which U which
+got created using the Toge do tensor
+method Remains the Same so this implies
+that whenever you're using this method
+to. from numpy method then the numpy
+array and the tensor created they share
+the same memory so whatever operation
+you perform in one tensor will get
+reflected in the other and uh that's not
+the case when you're doing TOS do tensor
+so what we can do is we can also create
+a tensor from another tensor uh so here
+we usually usually use methods like U on
+underscore like or Rand underscore like
+so it would have this underscore like um
+the the methods would have this trailing
+underscore like uh uh phrase present in
+it so uh what it does it so it creates
+it takes this tensor eight it retains
+the data type and retains the shape of
+this tensor and creates another tensor
+which is tensor 10 in this case and but
+however all its values would be one if
+if you had used Rand underscore length
+then all those values would be random
+numbers between 0 and one so all these
+are different ways in which you can
+create a tensor either you can manually
+Supply data or you can create empty or
+random tensors constant tensors you can
+also create tensors from numai arrays
+and also from other tenses that's uh so
+all all these methods that we just
+discussed uh these are Ines this is the
+functionality uh one key concept is uh
+that of device so device is an attribute
+of each tensor which specifies where the
+tensor is located is it located on the
+CPU or is it located on the
+GPU is just scuda so here uh one thing
+that I would like to mention is uh so uh
+so we have also come across libraries
+like numai which also uh more or less
+give us similar functionalities which we
+are observing in py to one key advantage
+of py is that it gives us GPU support
+along with the facility to perform
+tensor
+operations so here we see that so one
+thing is we can um like Define the
+device by using
+uh this statement so first we check if
+uh Cuda or GPU is available if it is
+available then we set it to Cuda
+otherwise we uh let it let it be uh
+CPU so uh here we see so when we
+creating this tensor we first so this is
+uh which we already saw uh then we use
+this do two device so what it would do
+is in this case the first this tensor
+torch. on uh it would get created in the
+CPU and then it would uh it would be
+moved to the GPU assuming that uh GPU
+facility is available on the
+system also you can explicitly mention
+where where you want to move the tensor
+to by instead of passing device you can
+explicitly give CPU then it would be
+moved to CPU or you can explicitly give
+Cuda in which Cas the tenser would be
+explicitly moved to the
+GPU also you can uh specify the device
+at the time of creating the tensor so
+here we just pass the device to the
+device argument and that would directly
+create the tensor on GPU in this case
+Okay so unlike uh unlike uh in the in
+this first statement here the tensor was
+first getting created on on the CPU and
+then it was being moved to GPU however
+when we directly specify the device when
+we are creating the tensor it gets
+directly it gets created uh like like uh
+at at the device which we specify over
+here so we can also access elements in a
+tensor so let's look at a few examples
+so here we have this tensor
+2 uh we know its Dimension is two we
+have two square brackets here uh its
+size is 2 comma 3 uh let's look at this
+once just to reiterate so there are
+three scalar values three uh zero
+dimension tensors which are being packed
+to create this onedimensional tensor and
+there are two of these onedimensional
+tensors so that gives us the size of 2
+comma
+3 uh now if you want to look at tensor
+0o so this index specifies what is the
+element I'm looking in the zeroth
+dimension so in the zeroth dimension
+these are the two elements that I
+have and in that this is the zeroth
+element and this is the first element so
+tensor 20 would give us this uh this uh
+uh this
+Vector so as we see over here now if we
+do tensor 1 comma 0 uh in that case what
+would happen is so uh so this is the
+index corresponding to the 0 Dimension
+and this is the index corresponding to
+the uh First Dimension so first what we
+do is we go to the zero Dimension and
+see what is the first element this is
+the first element and then further we
+check that here what is the zeroth
+element so that is none none other than
+four so we have four over here we can
+also do uh slicing operations over here
+uh so what does slicing so slicing is
+similar to we have also come across
+slicing when uh when we have deal with
+the numpy so it's quite similar to that
+so so here when we do uh colon comma two
+so that means all the elements in the
+zeroed Dimension but only two only uh
+element two in the First Dimension
+that's nothing but only column 2 uh
+let's look at it so this 7A 4 okay so
+that is what we obtain over here whereas
+next if we look at a tensor zero colon
+so colon means all the elements zero is
+we are specifying okay we want this
+specific element in this Dimension so
+what would be
+uh the result in this case nothing but
+the first this
+017 so I think this is quite intuitive I
+hope this was clear
+um so uh next we can discuss about a few
+very so this is very basic so some basic
+tensor operations uh I'll just quickly
+go through this because um the these are
+quite easy so we just creating two
+tensors just to uh illustrate how this
+operations work so we randomly we
+created two tensors now there are four
+operations uh element wise addition
+subtraction multiplication and division
+uh
+so as you can see uh so in order to
+perform addition we can either use this
+uh plus symbol or we can use the method
+torch. add and Supply the corresponding
+tensors as the F function argument so uh
+this allows us to uh add two tensors
+similarly for substraction we can use
+use the symbol minus or we can use torch
+do SUB method and uh similarly for
+multiplication and division so here we
+can see so these were the tensors that
+were created now if we add them we get
+this if you if we subtract we get this
+and this is again uh multiplication and
+division these are the results next
+we'll look at a few operations which
+allows us to manipulate tenses uh so
+here here we come across a new function
+so this is nothing but like this so here
+we specify the range of integers and
+within this range uh a tensor will get
+created of size 4A 5 with numbers uh
+that lie within this range so that is
+what rand. in does so here we have
+created this
+um tensor so one uh important idea which
+comes uh very uh like we encounter quite
+often in P Tores that a view so this
+allows us to change the shape of the
+tensor so here we uh create another
+tensor Y where we specify the shape to
+be 20 and another tensor Zed where we
+specify uh where we specify -1a 10 so -
+1A 10 means in the second uh so this is
+the zero and this is the first so in the
+First Dimension we want uh we want 10
+elements whereas min this one is a
+flexible argument so pyto will
+automatically uh figure out what the
+number of elements should be in this
+Dimension so as we can see over here
+we're printing the size originally X was
+4A 5 now when I Ed The View method to
+create y now the size is 20 and when I
+created Zed so now I had only specified
+10 over here and torch automatically
+figured out that okay there should be
+two uh so there be two elements in
+Dimension zero so that the overall
+overall shape and all the elements in
+the tensor gets
+retained uh so one thing is when you use
+the view method to create another tensor
+uh all the tensors share the common
+memory space so if you do any change to
+any one of the tensors it would get
+reflected in others so please be careful
+about it when you're using this method
+um there's also uh tor. arrange using
+this like since I specified nine uh uh a
+tensil will get created from uh a 1D
+tensil will will get created with
+numbers from 0 to 8 so this is similar
+to the range function that we have in
+P now there's we can also do reshape uh
+reshape also allows us to change the
+shape of the tensor and here we specify
+3 comma 3 so that gives us a tensor uh
+with the desired shape and the elements
+from this um tensor tensor a uh so there
+is a distinction between uh View and
+reshape so sometimes reshape creates a
+view sometimes it creates a copy of the
+original tensor so uh there's also
+there's a bit of ambiguity over here so
+also please be careful if you're using
+the reshape
+method uh next is so as I mentioned so
+uh we were discussing about Dimension uh
+in the beginning so Dimension is quite
+important when we are uh dealing with um
+uh like various denor operations so here
+we'll look at the first U First such
+instance for such method where we are uh
+we where we are specifying the dimension
+and along the dimension the operation is
+happening so here we have tensor a here
+we have tensor B now how do we want to
+create tensor C so for tensor c i I want
+to concatenate both of the tenses a and
+b along Dimension one so what is
+dimension one this is is dimension one
+so this 0 1 2 3 4 5 these are Dimension
+one so if we look at the first element
+so this is the first element in the
+zero8 dimension okay now if I further
+look into it in one dimension the
+elements are 0 1 and 2 similarly the in
+one dimension the elements uh in tensor
+B are 756 so when we concatenate along
+Dimension
+One the resulting tensor would uh stack
+up or uh stack up all these elements 01
+2 and 756 in one in one um one vector
+you can say so as we can see over here
+so this was tensor a this was tensor B
+when I concatenated along Dimension 1
+012 756 came along uh in one vector and
+corresponding similarly for the
+uh remaining values you can apply the
+same logic to the remaining values to
+get Den C
+um so one thing is if you look at the
+shape of tensor a it was 3A 3 if you
+look at the shape of tensor B it was
+again 3A 3 now when I concatenate along
+Dimension One the shape of the resulting
+tensor is um 3A 6
+so so the elements in dimension 1 got uh
+the number of elements in dimension one
+got uh concatenated and so as a result
+the number of this uh the the size in
+dimension one increased so that is 3 + 3
+now six you can also concatenate along
+Dimension zero then simply all these
+things would get stacked um one below
+the other so as we can see over
+here okay uh so again here the resulting
+shape would be 6 comma 3 so when we were
+uh we specified Dimension zero to be the
+uh to be the to be the dimension across
+which we want to perform the station
+operation so that uh that got changed so
+that got
+increased next we can look at uh okay so
+next we'll look at um a tensor reduction
+operation so in tensor reduction
+operation what happens is um one of the
+dimensions get reduced so it is called a
+reduction operation there are many such
+reduction operations so here we'll be
+looking at some there's mean there's uh
+ARG Max the all all these are reduction
+operations so I'll going through one of
+them over here uh I would uh I would
+encourage the students to look at the
+remaining when whenever they they're
+going through a
+tutorial so um here I'm creating this
+tensor so this is a three-dimensional
+tensor uh of shape 2A 3A 5
+okay and it has uh so this is a random
+tet would have values between 0 to
+9 so uh just just to again reiterate the
+concepts of Dimension and shape so there
+are three square brackets so it
+Dimension would be three and the shape
+is so if you look so this is the
+outermost square bracket it
+has two elements so that is why it has a
+shape of so it has it has the number two
+so two elements in zero Dimension if you
+look within that uh we'll have
+three three such uh 1D vectors okay
+three such 1D vectors so that gives us
+the number three so three elements in
+the First Dimension and then in each of
+these we further have five elements so 1
+2 3 4 5 five elements so 2 3 5 uh again
+like if I go in the opposite direction
+if I start from here so I have five Zero
+Dimensional
+scalers so I have five Zero Dimensional
+scalers stack up to create this
+onedimensional
+tensor and there are three such one
+dimensional tensors okay so that
+corresponds to number three which is
+coming together to form the the so which
+is coming together and there are two two
+of them and that gives us this number
+two
+okay so we start from 0 D we move to 1 D
+we Stack Up 1 D that gives us 2D and
+then we stack up 2D that gives us 3D so
+by stacking up these tensors we getting
+a higher dimensional
+tensor so now when I do p do sum all the
+values get summed up and I get
+121 uh then if I want to sum up along
+Dimension Z what does that mean so again
+I mentioned the dimension zero is this
+the outermost Dimension the outermost
+square bracket within that these are the
+two elements this one and this one so
+when we are summing the what we do is we
+take each of these elements and along
+Dimension zero right so and this
+remember so when we specify Dimension
+zero uh so ultimately since this is a
+reduction operation after the operation
+Dimension zero uh would so so that would
+get uh reduced
+okay uh so what we do is we simply add
+all these elements so there there are
+two elements we simply add them up and
+that would that would give us um the
+that would give us the result when we
+perform the sum operation and dimension
+zero so 5 + 5 over here okay that gives
+us 10 5 + 7 gives us 12 so similarly for
+the
+other uh other uh values okay so this is
+along Dimension zero uh and one thing is
+now the shape is 3A 5 of the resulting
+operation okay so when we perform across
+Dimension zero this got reduced but only
+remaining with 3A 5
+okay as we can see here again if I look
+at tensor P now I want to perform the
+sum operation across uh Dimension one so
+which is the dimension one so this
+entire vectors would be Dimension one
+right each of these vectors would be
+Dimension one so what happens is when we
+when we perform operation across
+Dimension One
+we just have to individually add up all
+of these so this plus this plus this
+okay would give us
+this okay so we can see 5 + 5 + 1 gives
+us uh the first element over here uh 5 +
+6 + 2 gives us this so you add all these
+things you get the first um element over
+here you add all these things you get
+the second element here so you you need
+to observe so this each of these are the
+onedimensional
+so each of these are the elements in
+dimension on so we simply when we doing
+sum so we simply adding those up and
+ultimately now the resultant uh tensor
+has shaped 2 comma 5 so now we can also
+perform the sum operation across
+Dimension 2 so what is dimension 2
+Dimension 2 is the innermost Dimension
+so each of this individual values this
+individual z d tensors that I have that
+is the scalers these are the elements in
+dimension zero so we simply sum them up
+we sum these so this is the elements in
+dimension zero we sum these we get 14 we
+sum these we get 20 we sum these we get
+19 okay so now we are performing the sum
+operation across Dimension
+zero okay previously we are summing
+across Dimension one which is this
+Dimension okay and that is what we
+oberved a while back okay now we are
+summing across Dimension two so now like
+now as I mentioned so we simply add them
+up and we get this 14 okay now the shape
+would be 2A 3 so the dimension across
+which I'm performing the operation that
+gets
+reduced so now we have more or less
+covered uh the fundamental concepts of
+tensor um however like like phyto is a
+huge Library there are a lot more things
+that are present uh so again I would
+encourage the students to go and visit
+the pyos documentation and learn more if
+if they feel
+interested uh next is we'll understand
+autograd so autograd allows us to
+compute gradients in py toor so first
+we'll start with a toy example and we'll
+see what is happening so uh let's take
+this example so say we have this
+equation Y is = 3 * Sigma of x + 5 now
+mathematically if I want to calculate
+the gradient of Y with respect to X we
+just simply take the derivative the
+derivative would be 3 * Sigma of x 1 -
+Sigma of X okay now say I want the
+derivative at a particular value say at
+X is equal to 2 so I pass in those
+values and ultimately Dy DX is uh we get
+this 0.
+3149 now if I want to do a similar thing
+in py to uh how can I do it so this is
+just for illustration this is a very
+simple example this is uh not the reason
+why we use pyos this is just so that uh
+I can make this make you all understand
+what is happening so here uh I would
+like to mention one thing uh that is the
+concept of leaf and non-leaf tensors so
+what happens in py toches when we are
+using
+autograd uh internally what is happening
+is that there's this computer ational
+graph which is getting which is getting
+created which keeps track of all the
+operations that are being performed on a
+tensor you'll understand this uh as we
+go ahead I'm just giving a heads up um
+so uh so in this computational graph
+they Leaf nodes and non-leaf nodes so
+what are
+those uh so here I create this
+tensor uh and I look at the attributes
+required grad and is Lea so by default
+the required grad attribute is false and
+is leaf is true so in general all
+tensors which have required grad to be
+false are Leaf tensors so I use the
+tensor X that I just created and I
+create uh a tensor Y which is a function
+of X so it is 3 * Sigma of x + 5 so um
+so now what are the attributes required
+grad and is leaf for y required grad is
+still false and his Leaf is true so now
+both X and Y are Leaf tensors however
+let's look at a different scenario here
+remember we did not explicitly set the
+requires grad attribute to True uh so in
+this case uh both of them were Leaf
+notes both X and Y were Leaf
+tensors however now let's explicitly set
+when we are creating tensor Z tensor X
+I'm explicitly setting required requires
+gra to be true so this is true and we
+see that X is leaf is still true so here
+uh one thing is so uh when when a user
+is creating a tensor and explicitly
+setting its required graph to be true it
+Still Remains a leaf tensor however
+let's see what happens next now I'm
+again creating
+y y is the same function of X that we
+just saw uh uh and now if I look at the
+required grad and is leaf of Y we see
+that Y is no longer a leaf node so this
+is because y uh the tensor Y is the
+resultant tensor of of um because we
+performed an operation on X so it no
+longer remains a leaf tensor it's now a
+non-leaf tensor so um and another thing
+is it requires grad is also true for why
+even though we did not set anything so
+why is that so what happens in the
+computational graph is so say uh I um I
+said requires graph to be true for x and
+then we performed an operation um using
+X and we and we generated y so all these
+things are being uh tracked or traced in
+the computational graph so and after a
+while we'll see that we'll use this uh
+backward method to compute the
+gradient so what happens is when we call
+the backward method the gradient flows
+through all the notes in the uh in the
+computational graph so as a result even
+though I did not specify why to have
+requires grad to be true however since
+it was created from this tensor it also
+has required grad to be true so because
+the gradient needs to flow through all
+these even through this node so the
+gradient needs to be calculated so that
+is why it has requires gra to be
+true uh another thing is grat function
+so grat function is what is called when
+then so when I call the backward method
+uh to to compute the gradient so so what
+happens is this grat function contains a
+pointer to this function add backward
+and this is called in order to compute
+the um the gradient so the computation
+happens via this so I'll not I I'll tell
+this very briefly if you want to know
+further you can refer to the P
+documentation uh so here you see that
+there's this addition operation so that
+is why we get add backward further if
+you look further you'll also find since
+there are sigmoid operation there would
+be a sigmoid backward involved there's a
+multiplication operation so there'll be
+a mul backward operation involved so for
+each of the operations we simply add
+this word backward and that uh that
+actually points to the function which
+will be called when this operation is
+encountered then we are tracing back the
+computational graph um during the um
+during the backward pass or during
+during the computation of gradient so so
+for Y which which was formed as a result
+of an operation on X it has a grad
+function however X which was the input
+Vector does not have a gr function so
+yeah as we saw over here now let's
+compute the gradient of Y with respect
+to S with respect to X which is dy DX uh
+that we can do by simply calling the
+backward method on y so we see
+previously before calling y do backward
+X was X do grad was none now I call
+backward method so uh the gradient
+computation happened and it got stored
+in the X do grad attribute so which we
+can find over here so here we got the
+value
+0.315 uh when we had done it
+mathematically we had got 0. 3149 so
+they they are uh like very
+close um so yes okay so another thing
+that I would uh mention over here is so
+there's this uh notion that the gradient
+gets accumulated each time so we perform
+this operation now X do grad holds this
+value 0.30 now again I repeat it if I
+repeat it again uh again the gradient
+will get accumulated so now we see when
+I look at X do grad again it is uh there
+actually this value times 2 so that is
+uh what is getting stored so the
+gradient gets accumulated at each step
+so now I'm doing the same operation
+again right so same operation again I'm
+calculating the derivative of y with
+respect to X using this backward method
+so I run it what happens as I said the
+gradient will get accumulated and now
+I'll get uh this value which is two *
+this if I run it again it would again
+get accumulated now it's three times of
+this and it keeps on going so the
+gradient is getting accumulated at each
+step however uh this is uh uh like this
+is not desired and if you don't want it
+what you can do is is can simply
+Set uh X do grad so we can use this x do
+gr. 0 and what would what this would do
+is at each time when you do this the
+gradient would get uh like again um it
+would be set to zero so let's check now
+I uh okay so now since I uh like I ran
+this uh line of code now no longer the
+gradient is getting accumulated so no no
+matter how many times I done this I'll
+get 0.315
+uh now let us look at a slightly
+elaborate example where uh we first
+obtain a okay so we first create the
+tensor a we set its required grad to be
+true then we create B where B is u a
+tensor which is being formed as a result
+of operation on a so a would be a leaf
+tensor but V will be a non-leaf
+tensor uh similarly we have C where C uh
+is nothing but uh the resultant tens
+when I perform the mean operation on B
+tensor uh so
+here so here we have a b c so so that
+that that is how uh the the tensors are
+present in the computational graph and
+if I look at the so I as I mentioned so
+a is the leaf attribute B is the
+non-leaf and C is also
+non-leaf now if I simply do c dot
+backward what would happen is I would
+now get the derivative uh of C okay so
+which is
+um which is this and it would get stored
+in a do gra now what if so B is a
+intermediate node over here so what can
+I do what if I want to compute the
+gradient of B so what to do so if I
+simply do c do backward and simply
+simply do B do grad in that case we'll
+get this uh warning that uh We call we
+calling for the dot grad attribute of a
+tensor that is a non-leaf tensor and if
+you want to access it what we want what
+you need to do is we need to set the
+return Grant uh attribute so if I want
+uh the gradient of B uh here what what
+can I do is before running C do backward
+I need to set this I need to set B do
+retain grad in that case uh I'll get the
+gradient stored in B so let's see that
+so now if I do B do grat I I can get the
+the derivative uh with respect to B as
+well so now we can discuss so now we
+understood the basics of autograd so
+where in the context of neural network
+uh we actually use autograph so for that
+this is a toy example again and just for
+illustration purposes we'll take the
+example of linear equation so say we
+have this uh uh equation Y = 5x + 3 we
+generate our training data following
+this equation so we first get like uh
+the values of X we Define w and B and
+then we get y so this is the input and
+output of the training data that I that
+I just created Now using this I'll be
+training the neural network uh with the
+intention that I want the neural network
+to uh converge finally converge at this
+values of uh W and B by observing the
+patterns in the data in this data that
+we just
+created so first we need to
+uh initialize the parameters so uh we
+have the parameters W and B since we are
+dealing with linear regression uh so we
+initialize them and we set requires gr
+to be true because we we down the down
+the line we would be Computing gradients
+with respect to W and
+B so next uh there is the forward method
+and forward method we Define the forward
+PA so the forward method takes in the
+input runs the forward PA gives us the
+output so in our example
+uh the the the the output would be W * x
++ B uh then we have the loss method so
+the the forward method gives us the
+output of the predicted values so loss
+method takes the predicted values takes
+the original ground tooth values and it
+computes the loss so since here we're
+doing with dealing with linear
+regression the loss is a mean square
+error loss and this is the formula uh
+now if I print W and V we see that W
+andb has been randomly initialized and
+the required grad attribute has also
+been said to true now in order to train
+the Neal Network we first set a few H
+parameters which are like very common
+the learning rate and the number of
+eox next what we can do is uh we uh run
+the training Loop so at during each
+iteration uh during each Epoch I first
+do the forward pass I pass the input to
+the forward method and I get the
+predicted y
+I use the predicted y along with the
+ground truth value to compute the loss
+and then now that I have the loss I use
+the backward method to compute the
+gradient of this loss with respect to
+the parameters of the model that I have
+that is w and B and that would get
+stored these gradients uh that I just
+computed so the derivative of the loss
+with respect to W will get stored in w.
+grad and the derivative of the loss with
+respect to B will get stored in b. grad
+so this is nothing but the gradient
+descent step where we update the
+parameters W and V uh using the gradient
+descent formulation so here we are doing
+a stochastic gradient desent so for each
+of the sample and the training data um
+this uh this parameter update step step
+is happening the optimization step is
+happening uh and here we see that we
+have specified this inside this uh so
+you given with torch. no gr so this is a
+cont text manager what happens is as I
+was mentioning so whenever we have a
+leaf node like w and B so these are Leaf
+tensors so whenever we perform any
+operation in using the leaf tensor it
+gets uh tracked in the computational
+graph but if we don't want that we use
+this st. nog grat and that would disable
+that for some while as long as we are
+within the scope of this context manager
+that would get disabled so here we
+simply update the parameters and then we
+are back again to normal here so we do
+not want the gradients to get
+accumulated so we do w. grad do0 and
+this would again initialize the
+gradients to be zero and this is just to
+this this is a common step so just to
+observe the progress so as we are
+training the uh the model initially we
+begin with this loss but as the model
+gets uh model is getting trained uh the
+loss is decreasing and the values of w
+and B is approaching the uh the actual
+values so w was actually five so uh as a
+result of training the model it is now
+4. 957 very close to five and B is now
+three so we see that uh W and B have
+more or less uh like convers to the
+actual
+values uh now we'll look at uh like uh
+neural network so we'll build a very
+basic neural network and understand the
+typical py to pipeline that is followed
+in order to build and train the model so
+uh so many of the things that I just
+explained would again be uh again you'll
+see the same things here as well so
+first is uh we encounter this uh this uh
+module which is torch.nn
+so uh whenever we are dealing with
+neural network so how however simple or
+however complex a neural network you
+want to create we need the torch.nn
+module so everything we need for
+creating a Neal network is present in
+torch.nn
+and so you'll also find different layers
+if you have come across convolutional
+layers linear layers all these things
+are present in this module also like
+optimizers so we can either use uh
+gradient descent we can use adom all the
+various optimizers that are present in
+byou uh can be accessed through the
+optim
+module now uh uh for this example we'll
+be using the mnus data set which I think
+all of you must have heard of uh so uh
+so that is already available in the
+torch Vision module so for that uh we
+are also using um this uh this module in
+the in the code so from that we have
+imported data sets to get access to the
+MS data set and we'll be performing some
+Transformations on the data set and that
+is why we need the transforms uh module
+as well so again so this we already
+observed so we setting the device now if
+we look at the at the at the properties
+or the uh or the elements that are
+present in data sets model we see all
+these elements so you also have other
+data sets such as C for 10 C for 100
+you'll find many more if you go through
+this there are others many many data
+sets available so like one exercise you
+all can perform is right now I'm just
+showing an example using Mist you can
+try a different data set it would just
+require some minor model ifications in
+the code and you can uh also try
+training a neural network on a different
+data set so first you can set the
+hyperparameters so here we'll be uh
+creating a neural network uh very very
+very simple neural network with only one
+hidden layer so here we set the hidden
+size so hidden size is the number of um
+number of neurons that is present in the
+uh in the neural net in in the hidden
+layer of the neural network so there
+would be uh the input that output and in
+in between there would be one hidden lay
+with 400
+neurons we' be uh running the chaining
+for 80 pox uh bat size is 32 we'll look
+at the bath size in a while um and
+learning rate is this you can play
+around with with these values and see
+what uh what changes is happening in the
+training is is um like is like
+increasing or decreasing the learning
+rate leading to faster or slower
+convergence or is it Di diverging or
+what does changing the bat size do so
+you can vary all these things and you
+can explore further so here we load the
+Mist data set so uh so data sets. Mist
+we specify the root then for training
+data set we set train to be true whereas
+for test we set train to be false quite
+intuitively we downloaded now uh the
+data set needs to be U like U needs to
+be needs to be tensor so that why we
+perform the transformation transforms.
+two tensor as a result the data set that
+we have now would have tensor
+values so we have loaded the data set uh
+so that is done next what we need to do
+let's just observe what is uh what is
+present in the data set so we can look
+at the classes present in the training
+data set so this is mless data set so we
+know that uh this deals with images of
+numbers from 0 to 9 where we're given an
+image uh the neural network needs to
+identify what is the number what what is
+the number that is present in the image
+so here we see the classes are from 0 to
+9 so there are 10 classes uh the shape
+of the train data set is 6,000 comma 28a
+28 uh 60,000 is the number of samples
+the number of images in the training
+data set and 28a 28 is the size of each
+image and okay so this is this is the
+shape of the data and this is
+corresponding corresponding to the
+60,000 lab uh 60,000 samples there are
+60,000 labels as
+well uh similarly for test data
+everything is same uh just the number of
+test samples is
+10,000 so from here we can understand
+some things so uh when uh when we want
+to con construct a neural network uh we
+need to specify what is the input uh
+what is the dimension of the input that
+we are passing and what is the dimension
+of the output we expect from the neural
+network so uh since uh there are 10
+classes the output features the DI so
+the output features would would be 10 in
+number whereas the input features would
+be 784 784 is nothing but 28 cross 28 so
+instead of directly passing a tensor of
+value 28 of size 28 CR 28 we flatten it
+and we uh and flatten it and then we
+pass it as a 784 for uh size tensor to
+the neural
+network we'll we'll uh we'll understand
+this in case anybody has a doubt in this
+as we go through the uh go through the
+designing of the model and I think these
+things will be clear so uh now that we
+have observed uh the data so the number
+of elements the number of classes what
+are the size of the image uh now uh we
+can uh look at data loader so as we saw
+that the training data set has 60,000
+samples the test data set has 10,000
+samples so we cannot load all of them
+into memory at once when we performing
+the training or when we are doing the
+evaluation so here the idea of data
+loaders come so what data loaders do is
+uh they give us a batch of the training
+so here as as you as we remember we had
+set the batch size to 32 so for each
+call of the data loader I'll get samples
+as many as the B si side so we'll get
+I'll get 32 randomly select the samples
+of the training data and I call train.
+data
+loader and so here we can see some here
+I need to pass the data set these are
+the arguments to the data loader the
+data set I pass the Trainor data set
+that I have I specify the batch size and
+for chain um data loader I want the
+elements in the batch to be random
+elements so I said Shuffle to be true so
+I want 32 random ele Els to be selected
+from the training data set and supplied
+to me for each
+patch however that is not required for
+test so for test I don't need to shuffle
+um so this is the concept of data loader
+uh next is I can look at a few images to
+of what it looks like what the data set
+looks like so here I just first uh take
+the take the data loader create an
+iterator from it I take the I do next
+data and that would give me um again
+like 32 uh 32 samples from the training
+data set I unpack them into images and
+labels I can check the shape over here
+this is the shape as you can see we have
+B size number of images and and
+correspondingly corresponding to 32
+images and the 32 labels uh now I can
+look at a few like five of them so as I
+can see over here
+uh so this is the image that I have and
+the corresponding label so this looks
+nine and the label is N9 and four and
+four so this could also be a like basic
+sanity check where you can uh like look
+at a few random samples of the data and
+you can see whether the image and the
+label align with each other or
+not so we have looked at the data uh we
+have figured out what is the input and
+output Dimension to the Neal Network now
+all we need to do is design the neural
+network design the model so here we need
+to define a class for that okay so in
+the class uh I named the class you can
+name it anything you want I've named
+basic neural net and this needs to
+inherit the NN do uh module class so
+this would be a subass of of this uh
+this this this class um so NN module has
+uh all the basic functionalities uh that
+you need to design a neural network so
+all we need to Simply do now is just
+Define the Constructor and the
+Constructor will be just defining the
+skeleton of the neural network and in
+the forward method I would be uh uh like
+defining the forward path rest
+everything else uh would be handled
+internally by NN do
+module so here I just simply call The
+Constructor of the base class uh then
+pass the hidden size so uh one thing is
+uh when I'm uh defining the function so
+here self is mandatory you need to
+mandatorily pass self rest other
+arguments can be anything you can pass
+it size you can pass input um size
+output size anything this this you can
+arbitrarily Set uh for forward you need
+to pass self and X which is the
+input so then if I talk about the uh the
+the layers that a model has so I have
+two linear layers one mapping the input
+to the hidden layer and another from the
+hidden layer to the output okay so this
+would be how much was the hidden size
+that I had Set uh let me check is 400
+input size was 784 right which was 28
+cross 28 so this would take like the
+input features would be 784 then from
+784 this linear layer would give me
+um uh the hidden s so 400 then again
+from 400 I get output features which is
+10 so that is how how uh it is
+happening now in the forward pass uh it
+takes the input and gives me the
+output uh of the neural network what
+would happen if I pass uh any input
+through the neural network what would
+happen so first I take the input I pass
+it through my first layer first layer
+and that gives me output so that I pass
+through a non nonlinearity in this case
+I'm passing it through reu again the
+output of this is fed to the output of
+the second linear lay and this would be
+my final output of the forward pass so
+uh one thing is
+um one thing is uh so since this is a
+multiclass classification we'll be using
+uh cross entropy loss uh during training
+the neural network so in Cross entropy
+loss uh you can like we can simply pass
+the raw value like we are not doing any
+further operation out here we are not
+further uh like we're not further
+passing it through another activation
+layer we're not doing anything of that
+sort we're not passing it through
+another soft Max we're directly taking
+the raw values and we'll Supply it to
+cross entropy loss and it would do
+everything uh like like the function
+would handle
+everything uh then I create the neural
+network I simply pass the hidden size
+and then I I move the model to the
+device so to the to the GPU if it is
+available now as you saw we created two
+linear layers so linear layers has a
+weight and a bias so we can look at that
+so we can once we have uh generated the
+model I can look at model. parameters
+and that would give me what are the
+weight weights and
+biases so here we can look at it so for
+the first linear layer we can look at
+the weight and bias so this is the
+weight and bias as you can see this is
+the weight and bias and you can see that
+uh just a second as you and you can see
+that see you can see the required Gra
+that is automatically set to true we do
+not have to explicitly mention it
+anywhere uh we just mentioned the the
+the the the the size of the linear layer
+uh and this things got handled U
+internally even so about both of them
+the required gr attribute is true as
+these are parameters of the model and we
+need to compute uh the gradient of loss
+with respect to these parameters and
+also you can look at the shape so this
+is hidden size and this is is the input
+size and so this is the size so this is
+the size of the weight parameter and
+this is the size of the bias parameter
+so this is bias tensor this is 400 okay
+next we can look at the second linear
+layer as well uh so here we have um so
+this is again similarly uh similarly
+it's very similar so now it's 10 which
+is the output uh number of output
+features and this is the hidden layer
+and this is the shape of the bass
+so right now they are all like U like
+garbled of values now we need to train
+the neural network and uh we want the
+neural network to uh like given an image
+predict what is the number associated
+with it so as I mentioned we're using
+cross entropy loss as as the loss
+function over here we for Optimizer we
+using adom there are various others
+available please check the optim uh
+module for that uh and and so here we
+passing nothing but the model parameters
+and the learning date which we had
+defined a while back here I'm doing
+batched stochastic gradient so there
+would be two for Loops one for Loop to
+keep track of the uh Epoch one for Loop
+to keep track of the epoch and another
+for Loop is where I am calling the data
+loader and it's giving me uh um like uh
+uh samples uh of the bat size okay um
+and then I again unpack them then I
+again unpack them so this is images and
+labels I reshaped the image as my input
+uh linear layer had uh it was of shape
+784 uh and 400 so I need to flatten the
+tensor so that is what I'm doing I'm
+flattening the tensor this is the input
+to the model and these are the ground
+tooth
+labels and since I moved the model to
+the device these also need to be M moved
+to uh through the
+GPU uh next I do the forward pass I pass
+the input in this case are the images uh
+which are which have been flattened now
+I'm passing it through the model when I
+pass it through the model internally the
+forward method would be called the
+forward pass would be performed and I
+would get the output so this is the
+predicted value I pass the predicted
+value and the ground to labels to the
+loss function I get the loss and now
+it's the time for the backward pass I
+need to compute the gradient of the loss
+with respect to the parameters of the
+network which is weight and bias so I do
+loss dot backward so now once the
+gradients have been computed uh I I need
+to update the weight parameters now here
+I don't need to explicitly mention the
+gradient decent uh step neither do I
+have to
+explicitly um like write the uh the like
+I do not have to explicitly write uh the
+context manager tor. nogra then I don't
+have to explicitly update the weights
+and parameters uh weights and biases it
+is internally uh it is done by this
+method so whenever I do Optimizer do
+step the parameter update happens um and
+this takes in the current uh states of
+the parameters it takes the current
+gradients and um using that uh it
+updates the weights and parameters
+appropriately and then again we do not
+want the gradients to get accumulated so
+at the end of each iteration we set it
+to zero so that from next time it starts
+a fresh um so again this is the basic we
+just looking at the progress so we see
+that uh the loss is decreasing it's also
+fluctuating in between and ultimately
+this is after training for like seven
+sorry 8 EPO I think
+yeah after training for eight EO so this
+is what we have now we can simply check
+the accuracy that we have so accuracy is
+we get 97.3 so that is good enough
+accuracy you can further play around
+with the hyperparameters and you can see
+whether you're able to get a better
+accuracy uh so this was more or less uh
+uh the basics of pyas the things you
+need to get started uh if you want to
+walk on uh any deep learning model or
+anything so I hope now the basic
+foundational concepts related to py toch
+are are clear so students have the
+foundational Concepts and now they can
+design any uh deep learning model they
+can easily get started with anything uh
+so thank you for listening and happy
+learning
+[Music]

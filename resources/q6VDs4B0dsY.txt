@@ -1,0 +1,924 @@
+[Music]
+Welcome everyone. In today's lecture, we
+will discuss an alternative formulation
+of transformer. Okay. And this is a very
+new development. I would say one years
+of development, recent development uh
+which which is basically the premise
+behind uh the recent interpretability
+work that we are going to discuss in the
+next lecture or next to next lecture.
+Okay. So in this lecture we will discuss
+how we can um you know dive deeper into
+different components of a transformer
+model and understand it in a very
+different point of view. Okay. Um let's
+again go back to the self attention mask
+self attention that we discussed long
+time back. Okay mass self attention what
+was it? If you remember
+uh we essentially compute an attention
+score attention score is what I mean you
+have this hidden states let's say at a
+at a specific layer L L minus
+one right. So uh uh what you do here
+essentially is is that you
+um for for every hidden state right you
+have now these hidden states correspond
+to uh different inputs right let's say
+input input x1 input x2 x3 dot dot dot
+so we have uh we have three weight
+matrices one corresponding to uh query
+other corresponding to key other
+corresponding to
+value, right? And you obtain three
+different representations, different
+representations for every token. And um
+now each of
+these representations will be used in
+different ways. For example, let's say
+when you take the dot product between a
+query and um the uh the the key vectors
+of other inputs, right? this dot
+product. You take the dot product and
+then and then you get the attention
+score from attention score you get the
+distribution uh using sortmax right uh
+here as you see this is basically a
+normalized dot product and then the
+attention distribution will be used uh
+for a weighted sum right over the value
+vectors.
+Okay. So uh this is normal scaled dot
+product
+attention. The problem in the self in
+this dot product is that uh the I mean
+at at at every token if you look at a
+single token it can now attend to all
+the tokens right it tokens can appear
+before the current token tokens can
+appear after the current token. So you
+cannot use this uh the this this kind of
+self attention layer in a decoder
+decoder only model or a decoder layer
+right. So for that what you need you
+need a mask mask self attention right in
+mask self attention what we do we
+essentially if you think of this matrix
+as a attention score matrix
+right you have uh these numbers
+right okay so what you do you
+essentially mask the upper diagonal part
+of this matrix right and how do we do
+that we we add a mask matrix uh called
+M and uh so uh so essentially uh those
+numbers which which uh fall above the
+diagonal will will be masked as minus
+infinity
+because then when when you take short
+max this minus infinity will lead to
+zero. This we already discussed. Okay.
+Mask self attention in decoders. Now,
+now once we have this mask attention, uh
+mask self attention, what's the next
+operation? The next operation is feed
+forward. In in the feed forward network,
+there are essentially two u two
+projections. The first one is uh kind of
+an up projection and second one is down
+projection. You have two matrices,
+right?
+So these are essentially the operations
+the main operations uh self attention
+feed forward and then this residual
+connection. Now let's dive deeper into
+this one and
+uh and let's look at only one token.
+This is a token level perspective of
+transformer individual token. Forget
+about multiple tokens. Just focus on
+only one token. Right? Right. Let's say
+the is token. I think I already
+mentioned uh in this perspective
+residual stream perspective what we
+consider we consider all these
+operations like self attention
+multi-headed self attention right feed
+forward these are just an additive
+operations over uh over the
+vector right so you think of you think
+of a stream this is a stream or a
+pipeline right where the input to this
+pipeline is the word itself
+Right? And at every layer you
+essentially add something to this
+stream. Right? And what the what are the
+things that we are adding? We are adding
+attention score and we are adding u we
+are adding uh feed forward network score
+MLP
+score. Right? And if you have multiple
+heads in the attention so you you will
+essentially add multiple things. uh to
+the
+stream. Okay. So this is the to this is
+the token you get the embedding. Now at
+every layer L you have different
+heads right multiple heads. This these
+heads will essentially contribute uh
+separately right they will uh they will
+basically be added to the stream. This
+is the stream and you will get an
+intermediate representation after
+attention.
+This we call as uh x mid x i mid right
+and then we have a multi-layer
+perceptron feed forward network. This
+will this will produce
+um another um I mean the output of this
+will basically be added to the string.
+Okay. And we keep on doing this thing
+for for cap for capital number of
+layers. Right. And at the
+end if the task is to uh produce a
+produce the next word let's say this is
+a decoder only model produce the next
+word what you do you pass the last
+hidden state through another layer which
+we call as unmbbedding layer unmbbedding
+layer right embedding and unmbeding.
+Embedding layer is at the beginning
+which embeds a token to an embedding
+space. uh which
+basically converts a dictionary word or
+a vocabulary word to a representation
+space and the unmbeding layer converts
+the uh representation space to a
+dictionary word. Okay, it's called
+unmbeding layer and here the unmbeding
+layer is denoted by w
+subu. So this is called the residual
+stream perspective of
+transformer. Okay. So let's dive deeper
+into these operations very carefully
+right and what is important here is the
+dimension. So we need to take care of
+the dimension very carefully. So let's
+assume that you have
+uh tokens right t_1 t2 dot dot dot uh
+tn okay and so these are tokens and from
+these tokens you obtain the u embeddings
+right x1 x2
+doxn okay and how do how did you get it
+you basically got it through this
+embedding layer to
+E. Okay. Now you can think of a matrix X
+which represents the input X1 X2 dot dot
+dot XN. Right? What is the dimension of
+all these X I right? The dimension of
+all these X I is essentially
+D. And what is the dimension of X? X is
+a matrix right where all this uh n
+number of all these n inputs are stacked
+one after another. So the dimension of X
+is essentially N cross D. You have n
+rows and each of the dimension is D.
+Okay. Let us denote another uh let us
+denote this. Let us use this notation X
+L. Now remember this X matrix gets
+updated after every layer. Right? In the
+residual stream stream view, your input
+is the X matrix. This will be processed
+through attention. This will be
+processed through feed forward network
+and things will be added to the to the
+actual receiver stream. So X will be
+added X will be updated after every
+layer. So for every layer
+L, we have this X matrix which will be
+uh updated, right? So one of the
+elements of this X matrix is let's say X
+I. This is the ayat token. IAT word at
+the eth
+layer. Right? This is iat. Remember this
+iat iat word or iat
+token at
+layer. Okay.
+And remember when we compute the
+attention mask attention at the i
+position, right? I will only consider
+those tokens which appear before
+I. Right? So X
+L I less than equals to I sub less than
+equals to Y. This is what this is
+essentially a
+matrix which has all those uh you know
+representations of tokens which appear
+before I stacked one up for another.
+Right? So what is the size of this
+matrix? I cross D. This is essentially a
+subset of XL which is D which is N cross
+D. Okay. This notation is important
+because this this this will be used to
+calculate
+attention. All right. So now we look at
+the the attention block carefully.
+attention
+block. So attention
+block. So in attention there are
+essentially three operations. The first
+operation is query key
+dotproduct. The second operation is uh
+uh whatever you obtain that will be
+multiplied with the value. Right? The
+third operation is whatever you obtain
+that will be projected through another
+layer for adjusting the
+dimension right because remember this is
+multi-headed attention for every head
+what is the head by the way let's say
+let's say this is this is attention
+right at at iat position right there are
+multiple such
+heads right and and the dimension of
+these heads can be current right the
+original dimension is D and let's say
+the dimension of this head individual
+head is it is denoted by
+h right for example for the first head
+the dimension is let's say four the
+second head the dimension is 10 the
+third head the dimension is uh uh you
+know 20 generally we use same dimensions
+for the heads which may not be same as d
+right so h may not be same as
+E.
+Okay. So after attention score,
+attention output, we need to project it
+back to D. Otherwise, this will not be
+added to the residual stream because in
+the residual stream, the dimension is
+always
+D, isn't it? So let's uh let's compute
+the attention weight. Attention weight.
+a attention weight for the token I at
+the layer for the h head let's focus on
+only one head
+h right let's assume there is only one
+head okay layer iat token please
+visualize this okay otherwise it would
+be difficult to
+compute
+so what is this uh attention weight the
+attention weight is after the the the
+score
+after query key query
+key. Before the value product okay this
+is after query key dot product. So at
+the token the representation is x i
+right x i but this is layer. So how do
+you get the so all these operations are
+happening at the eth layer. What is the
+input to this
+layer? X I L -1. So X I L -1 is the
+input. From here I will generate all the
+query keys whatever
+right. So X I L
+-1 will be multiplied with this query
+matrix right at layer H
+head right this will produce what? This
+will produce the
+query isn't
+it?
+Then how do we get the key? So for to
+obtain the key now there are so how many
+keys are there for the for this query I
+I number of keys right and this and this
+this matrix will be will be used here of
+course for L minus 1 player right
+so X L -1 less than equals to I right
+this is the input
+for calculating the key and I will I
+should also have a key matrix, right? L
+uh
+LH
+okay all right now let's look at the
+dimension and based on that we'll decide
+whether I need a transpose or not. Here
+I need a transpose I'm telling you.
+Okay. So let's look at the dimension
+first then you will realize.
+The so the dimension of this guy is 1 *
+d what is the dimension of this one?
+This is d
+* dh. What is dh? dh is the size of the
+head. So the h the h that that that I
+mentioned right this is basically dh dh
+is not same as d.
+Okay, clear. What is the dimension of
+this? This is I cross D. What is the
+dimension of this? D cross
+DH. Okay. So from I cross D and D cross
+DH I will get I cross DH. Okay. And this
+will be transposed. So I'll get I'll get
+DH cross
+I. Right? And here I have uh 1 +
+DH. Right? And I uh 1 + DH and DH cross
+I will be multiply and get 1 +
+I. What is 1 + I? 1 + I is basically a
+vector corresponding to I number of
+previous tokens. And these are attention
+scores. So we are good so
+far. Okay.
+So now if we modify this little bit, if
+we just unfold the
+transpose
+WQ
+L W K L comma H
+transpose
+X L minus one
+transpose.
+Okay, this you see that there are two
+there are essentially uh two matrices
+which are getting multiplied and this is
+called this we denote by a single matrix
+right which is w uh qk right at the
+elith
+layer okay uh h
+head
+wq w
+k transpose
+Right. And we call this as query key
+circuit. Now why certainly circuit is a
+fancy term. I also don't understand why
+these fancy terms are being used. But
+essentially you think of it as uh neural
+networks where I mean these are these
+are basically what these are two
+matrices two fully connected matrices
+right I mean uh layers where all the
+neurons are connected to each other you
+can think of them as you know basically
+neurons which are connected and I mean
+you can just assume this is a circuit
+like electrical people would love this
+terminology love or hate I don't
+know okay So this is this is called
+query key
+circuit. So this is just attention
+score. So so this attention score will
+be passed to
+sortmax. Okay, which will give a
+distribution and this is the weighted
+distribution weighted
+average. There's hot max here. Now I
+move from attention score to attention
+actual attention vector.
+For that what I need to do I will take
+this one and then I need to multiply
+this with the
+value
+right.
+[Music]
+So now look at here a i right l h is
+okay l a a a i is essentially a
+vector huh so each of these elements can
+be denoted by a i comma
+j huh where j r ranges from 1 to 1 to i.
+Okay. So to calculate the actual
+attention
+vector let us write in this way. J which
+is less than equals to
+I a I comma
+J LH this is the attention
+score right? This will be multiplied
+with what? This will be multiplied with
+the value right? How do we get the
+value? So for for iat what you are
+calculating the value but the value will
+come from
+J query has already come from
+I right keys and values will come from J
+so the input for this will be J L minus
+one and I need a value matrix
+WV
+LH
+right this will give you the output now
+say this what is the dimension of this
+uh this part so
+far. So so this is a scalar isn't it? A
+I J is a scalar. Uh what is the
+dimension of this? Is D. What is the
+dimension of uh this? This is D cross
+DH. Right? So this will produce this
+will produce what? This will produce
+a this will produce a D. So this is 1 +
+d 1 1 + dh 1 + dh vector but the in the
+residual stream the size is d the size
+should be d. So I need to again project
+it to d. So for that I need another
+matrix which will be multiplied here
+which we call as output
+matrix
+wo l comma h. What is the dimension of
+this? The dimension is dh *
+d. So this will produce 1 +
+D right. So and this we denote by so
+this is my attention attention uh
+vector. Okay, this I denote by a tt n
+layer h head, right? X L -1 is the
+input. Yeah. Okay. So for a single
+attention head H, I will get a vector of
+size D. There are eight number of such
+attention attention
+heads, right? And each of them will
+produce a vector of size D. uh how do we
+combine them? Uh if we concatenate them
+then the size will be d * h. We can't
+concatenate them. We can add
+them. Right? So we could have
+concatenated if we had not use this
+output matrix. Let's say if we had a so
+let's say if if I had produced a vector
+of size dh right and let's say there are
+there are each number of such attention
+heads. If we concatenate them let's say
+h * dh should be equals to d.
+But we did not do it in here. We we for
+every attention head will produce a
+vector of size D. There are h number of
+such attention heads those will be
+added.
+So, so this is for a for a specific uh
+head h. So, for the final attention at
+TN l at the
+layer input is the same x l
+-1 less than equals to i. This will be
+simply the
+sum h = to 1 to capital h right
+attention l comma h right this
+one x l minus
+one
+clear this will produce a vector of size
+d okay now this attention vector will be
+added
+to the residual stream and in the
+residual stream there is already this
+vector x i l minus one which is coming
+in right so through this uh residual
+connection right this will be added so
+this plus x l -1 i these two things will
+be added and this will
+produce this will produce what this will
+produce the output for the feed forward
+network layer This will produce the
+input for the fit forwarders uh fit
+forward layer block right so I call it
+as x i
+mid right layer l so layer l is not done
+yet okay let me go back to the picture
+again here look at here so so far I have
+calculated this one x i mid l right I
+have calculated the heads added them and
+I produce this
+I am I'm at this position right now what
+I need to do and now I need to pass it
+through MLP right so this will be passed
+through an MLP which is denoted by M
+here M is a function which again we'll
+uh segregate
+later and this will this will be added
+with this and this will produce the
+output after the MLP which we denote as
+X I L okay now let's focus focus on this
+MLP M. So we have we have seen two
+things uh in attention right one is
+called the uh query key the query key
+circuit right what is the query key
+circuit query key circuit will look like
+this okay
+wq
+LH right there is another circuit which
+was created
+here if you look at this equation again
+you see there are two matrices which are
+getting multiplied
+Right. We call this output value
+circuit. Output O value V output
+value
+circuit. Okay. And we denote it by
+um
+W O
+V Lh which is W
+V Lh W
+O
+LH. Okay. Output output value circuit.
+So output value circuit is responsible
+for writing things to the residual
+connection
+res to the output value circuit you
+compute this attention and this will be
+added to the rest stream. Now later on
+we will use this output value circuit
+extensively remember this notation. So
+in feed forward layer as we know there
+are there are two projections
+right. So one is this matrix which you
+call W in which will project to project
+it to one dimension and this will again
+down project it to another dimension.
+This is through this weight matrix W
+out. Okay. Now let's look at this
+equation
+here. X I mid L what is this? This is
+the output of the
+attention. Right? Right? This is the
+output of the attention which you
+obtained from the previous layer from
+the previous computation. This is fed to
+W in L the first projection layer.
+Right? And then we have some non
+nonlinearity normal MLP nonlinearity.
+Right? This will further be fed through
+W
+out. Right? And this will produce the
+feed forward output. And this feed
+forward output fn output will be added
+to the to the input through resable
+connection and this will produce the the
+output for the residual stream. Alth
+although this looks like a very simple
+operation but if you if you look at it
+very
+carefully there are there are very
+interesting uh observations that you can
+uh infer out of this equation. So what
+is uh again let's focus on the dimension
+right w in l please pay attention to
+this notation okay w in l is this matrix
+right what is the dimension of
+this the dimension of the input the
+input x i the dimension is 1 * d the
+dimension right what is the dimension of
+this uh this uh matrix d * it will
+project it to a uh some some some uh
+dimension right the dimension here let
+let's call it as uh
+df okay so what is the resultant
+dimension result dimension is 1 + d if
+right what is the what what is the
+dimension of this d out the dimension is
+d if * d if you look at it very
+carefully what is actually happening
+here is I mean we can interpret it in
+this way this is this w
+um in matrix forget about the layer W in
+matrix where there
+are
+DF number of
+columns isn't it DF number of
+columns okay and you are multiplying
+this with a vector X
+I so what is going to
+happen so when you multiply ly this it
+will essentially act like uh some sort
+of pattern
+detector
+right so it will so depending on this
+input it will essentially retrieve some
+sort of pattern out of this x in uh w in
+and we and we call this
+matrix the key
+matrix now this key and the previous key
+are different this is not the query key
+value this is a this is a key matrix
+that we discussed in the room
+paper, right? Key value
+memory. Okay? As if there is a key which
+is hidden within this
+w and you feed the input and uh
+depending on the input the pattern will
+be retrieved from the key. And remember
+this is element wise operation in the
+sense like the
+first value of x i will be multiplied
+with the first column of this matrix.
+the second value will be multiplied with
+the second column of the matrix and so
+on and so
+forth. I'll break it down to this level
+later
+on. I I'll break it down to this uh to
+the to the element wise
+level. So this is
+called key
+value memory
+retrieval. I have not discussed about
+value so far. I have only said the key
+part. So we identify we basically
+extract the key from W in depending on X
+right so and then we pass it through
+nonlinearity
+G when you pass it through nonlinearity
+it will produce another
+vector isn't it will produce a vector of
+size of size
+DF right this will produce a vector of
+size DF I already told you so a pattern
+of size DF will be retrieved from W in.
+This is the
+key and that key will be now plugged in
+or that key will be applied to W out.
+You can think of W out as value
+store. Okay, W out would look like this.
+This is W
+out. The dimension is DF * D. meaning
+there
+are df number
+of values.
+Okay, you apply
+uh this matrix this this this vector
+what you that you obtain after this
+activation uh to the value matrix W out
+matrix and this will produce some value
+as if we are retrieving a row from W out
+which will be upw
+weighted which will be upweed by this
+vector 1 + DF because ultimate is
+multiplication right uped or down
+weighted whatever let me draw this here
+okay whatever I
+said so this is my W
+in WIN there are these columns
+okay there are these
+columns and you
+apply
+X I mid here okay it will produce
+produce a vector of size T
+DF. Okay, this will be passed through
+G. This will produce another vector of
+size
+DF and you have this value matrix W out.
+Okay, you you multiply this with this uh
+it will basically produce a vector of
+size T. Now these are all element wise
+operations. Remember this, right? These
+are all elements. These are elements
+here, elements
+here,
+right? Okay. So each of these elements
+will be called as neuron. Essentially
+the values in W out will be upweighted
+by each of the neuron activations. These
+are neuron activations. Now if you break
+it down, if you break break the entire
+computation into uh neuron level
+activation, it would look like this. So
+feed forward network, right? At the Lith
+layer, the input is X what is input? X I
+mid at layer,
+right? It would look like this.
+U = to 1 to DF. What is DF? DF is the
+dimension of the intermediate
+intermediate uh layer,
+right? G
+U X
+I mid
+L
+W in. W is a matrix and U is the
+corresponding column, right? and W out
+L
+U. Now ultimately after this activation
+GU we will produce a vector of size DF.
+That's what I said right? DF. So for
+each of these elements I'm looking at
+each of these elements by
+U. For each of these elements right how
+do we get each of these elements? Now x
+i m l the dimension is 1 * d w is d * df
+and I am only interested in the u index
+of
+it. So the dimension is going to be d
+cross 1 and uh this is uh this is the
+column right? So df cross
+one or 1 + df doesn't matter because
+this ultimately a
+vector. So this is this is the feed
+forward for feed forward layer
+operation. You can think of this
+operation this enter operation you noted
+you denote it by n
+u l
+okay this is called neuron activation
+this is essentially here this these
+elements isn't it so n ul uh is a scalar
+so n
+l is a d a df dimensional
+vector is called a vector
+of neuron
+activation. Now these operations will be
+will be executed at every layer. Okay.
+Now think of the last layer where we
+actually obtain the final output. Okay.
+For the last
+layer for the last layer from where I we
+get the output the layer the last layer
+what is the input? The input is X
+NL right
+because X1 X2 dot dot dot X N right we
+have all these layers right we have all
+these layers and let's say this is the
+last layer l layer and the the
+corresponding output that we obtain from
+this for this XN right this will be fed
+to the uh to the to the unmbedding uh
+layer
+w right and this vector is denoted by x
+uh x n
+l
+okay so the final output fx the
+distribution that you obtain is
+essentially xn *
+wu unbedding layer
+Since this is a residual stream view,
+all these operations that we have done
+so far are
+additive. Right? So what we have done so
+far for every layer L, for every layer
+L, we have done this
+addition number of heads two have been
+added, right? And we do we we did it for
+L number of
+layers. These are all additive
+operations, right? So for every layer we
+we have added H
+heads already discussed right. What are
+the what are the other elements that
+have been added? We also added L number
+of feed forward
+outputs right and X N was the original
+input that also has been added uh to
+this residual stream right. So x ln this
+is nothing but
+this right and this will be multiplied
+with the embedding uh unmbeding uh
+matrix wn the w
+okay all right now now of course you can
+multiply w with each of these things
+separately so you if you look at the
+final equation the final equation
+You see that you can actually segregate
+the attention part and the feed forward
+part. This is the this is the attention
+part. This is the feed forward part. Let
+me let me tell you why this is needed.
+Okay. Now think of a basic neural
+network of basic transformer without any
+feed forward network. Assume that there
+are two layers. Okay. Assume that there
+are two layers
+and at layer one right at layer one this
+is the
+stream right uh input is x only one
+token two layers no feed forward network
+only attention
+okay so after the first layer you have
+this attention here after the first
+layer the output is x
+plus and also let's make this thing uh
+even simpler I already mentioned there
+are two circuits one is query key
+circuit other is output value circuit
+the output value circuit is responsible
+for writing things to the uh to the
+residual stream let us ignore query key
+uh circuit for the time being again
+making this thing simple so essentially
+we have only done one operation which is
+this output value operation
+right at the first layer for the input
+X right and let's call it as X1 so this
+is X1 X1 is nothing but there's this
+this WV it went through this WV1 and it
+it produced X1 okay similarly you have
+another OV circuit right W2 OV so and
+that will produce the final output F
+right. So f of
+x is
+x1 plus w o
+v2
+x1.
+Clear x1 is here. I have passed this
+thing to
+w2. Okay. It will produce this
+one.
+Clear? Right. So this is my final output
+after two layers with only OV circuit
+without feed forward network. Now let us
+expand this. So I replace x1 by this
+x plus
+w1
+x plus
+w2 x
++
+w1 x right which is x + w ov 1 x 1
+x + w ov V 2x +
+w1
+w2 x. So this will be multiplied with
+w. So, x w plus w uh x
+w x
+w 2 w x
+w
+ov 1
+w 2
+wu. Okay. So, so if you look at this
+individual operations, right? What I've
+done so far, this is the regular stream.
+This is X. There is this
+W1, right? There is this W O
+V2, right? And then
+Wu. Look at the first
+component. What is this? This is just x
+w input will has been multiplied with
+the unmbeding
+layer. What is the second component? The
+second component is input this has gone
+through
+wv1 and then
+w. What is the third one?
+Input. Input. This has not gone through
+this. This has gone through W2 and then
+W. Right? What is the fourth one? Fourth
+one is X which has gone through W1 then
+W2 then
+W. There are basically four circuits
+that you can think of. Four effective
+circuits for for this one. The circuit
+would look like this.
+X W. For this one, this will be
+X
+W1 then Wu. For
+this,
+X
+W2 WU for
+this
+W1 W2
+U. Okay.
+So these has different so these
+components have different
+names. The first
+component the first component is this
+one X * W and this is called the direct
+path. From X you have a direct path to
+the output through unmbedding. This one
+and this one these are called full OV
+circuit full output value circuit
+because for each of these one you just
+need
+one one OB circuit right for this one
+you have one the this OB circuit for
+this one you have this output value
+circuit right the third one is very
+interesting I mean the middle
+one here you see you can think of this
+OV OV1, OV2 multiplication of two
+matrices, two u two circuits as as a
+single attention head, right? Because
+this is ultimately a matrix
+multiplication and this is called
+virtual attention head because you can
+think of a single virtual attention
+which encompasses both the
+attentions, right? So you can replace
+this you can replace this by another
+virtual something like
+OV12. So direct path full OV circuits
+and virtual attention head. This is also
+called this virtual attention is also
+called recomposition. These are all
+fancy
+terms. Okay. Now why do we need all
+these things? Why do we need to
+decompose an attention into so many
+components? because this will help you
+understand the inner uh working of
+transformer better. Right? We'll look
+into each of these circuits separately
+and we will we will explain how a
+transformer model
+works. Okay? And it will also give you a
+localized view of the transformer model.
+You have we have seen we essentially
+segregated the feed forward part from
+the attention part which would which
+would not have been possible if you had
+used the traditional transformer uh you
+know the the the the traditional way of
+describing a
+transformer. Okay, we stop this uh we
+stop here. Next lecture we will uh we
+will discuss the interpretability of the
+transformer model with the help of the
+concept that we discussed today. Thank
+you.
+[Music]

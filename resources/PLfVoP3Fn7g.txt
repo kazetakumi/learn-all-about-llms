@@ -1,0 +1,714 @@
+Hello everyone.
+Let's get started. So, in today's class
+we will continue our discussion on word
+representation.
+So, in the last lecture we started
+discussing
+the old school method of representing a
+word, right? We looked at count based
+methods, simple term term context
+matrix, right?
+From term context matrix we moved to
+TF-IDF based matrix, right?
+In fact, there are other
+other ways to measure the co-occurrence
+like uh PMI, PPMI, right?
+Pointwise mutual information, positive
+pointwise mutual information and so on.
+So, I I did not cover those parts
+because those essentially
+come under statistical statistical NLP
+part of it, right?
+And then we also
+we also discussed word embedding
+specifically word2vec, right?
+And we saw that how a prediction based
+method like word2vec, right? Addresses
+some of the problems of count based
+methods. What are the major problems of
+count based methods? Major problem is
+that
+you have
+a larger matrix, right? Many entries are
+zero,
+right? And the good part about the count
+based method is that
+you can capture the statistics properly,
+right? For example, the number of times
+two words appear together, that count
+it's a very statistically important
+count, right? And that count you can
+capture properly in a count based
+method.
+Whereas, if you look at the
+Uh if you look at the prediction based
+method, there are also some some
+problems we'll discuss here. Right? So,
+in today's class, the idea is that we
+will um
+we'll finish this chapter. We'll talk
+about
+another embedding method which is called
+the glove embedding method, global
+vectors. Okay?
+And then
+we will see, you know, some of the
+important properties of these embedding
+methods
+and then we uh
+uh close this chapter.
+Okay. So, let's now proceed.
+We will look at
+uh the advantage of count based method
+and prediction based method and
+disadvantage of count count based method
+and prediction based method. Right?
+Count based methods include a TF-IDF
+based methods, uh
+PMI, PPMI based methods.
+Those methods are fast in training.
+Right?
+Because those methods essentially uh
+what do you need to run these methods?
+You need to just scan the entire
+document, right? And prepare this
+matrix. Right? So, once you scan the
+entire document and prepare this matrix,
+co-occurrence matrix, you're done.
+Right? And then you need to run TF-IDF
+and so on. It's very simple computation.
+So, this is fast in training and
+and uh it also
+uh uses the statistics of co-occurrence
+uh
+very carefully.
+Right? Uh if two two words co-appear
+several times, you see the numbers
+uh would be quite high, right? And you'd
+give more importance to those pairs of
+words and so on and so forth. Right?
+What are the problems in count based
+methods?
+The first problem is that
+uh
+it is primarily used to capture word
+similarity.
+Okay? If you see that, you know, two
+words co-appear with multiple other
+words again and again, that means that
+those two words are similar, right?
+But, it it is not a good way it is not a
+good measure, but it's not a good uh
+algorithm
+to obtain the embedding of a word.
+Because I mentioned last day, embedding
+is generally a dense vector, right? Uh
+small size vector.
+It gives disproportionate importance to
+highly frequent co-occurrences.
+If two words co-appear so many times,
+right? Let's say two stop words
+co-appear so many times within the same
+window, right? It it it it will not be
+able to uh
+it will not be able to kind of uh give
+them low weightage, right? Well, I mean
+I mean we know that uh stop words
+co-appear so many times, right? So, we
+need some ways to ignore uh those
+co-occurrences. What count-based methods
+don't do that.
+If you look at prediction-based methods,
+like word to vec,
+the bad part about these methods are as
+follows.
+It scales with corpus size. What does it
+mean?
+Let's say,
+if you have a
+fixed set of vocabulary,
+number of vocabulary words is the same,
+fixed, right? And you keep on increasing
+the size of the documents,
+right? Without adding additional
+vocabulary words.
+So, in case of count-based approach, the
+matrix will not change.
+Because count-based approach, this is
+basically vocabulary words times
+vocabulary words, the matrix, right?
+Whereas,
+in prediction-based approach, you need
+to scan through all these documents,
+right? All those new newly added words,
+and for every word, you need to run for
+for every
+for every context, every context window,
+you need to run this logistic regression
+again and again.
+Right? So, let's say there are
+there are uh uh uh uh there were 1,000
+words initially. Now, 100 words
+came in, right?
+You have to move the this context window
+through this 100 words, right? 99 times
+because the context window size is
+seven. So, and for every context window,
+you need to run the logistic regression
+again and again. So, with the increasing
+size of the corpus, the effective time
+to run this the entire algorithm will
+increase. Whereas, in case of
+in case of
+count-based approach, you just need to
+scan and that's all.
+Okay? And of course, the other problem
+is that it doesn't consider the
+statistics properly because, you know,
+it it is
+it is uh it it is not based on the fact
+that how many times two words co-appear,
+right? So, therefore, it is not that
+efficient in capturing the statistics.
+What are the plus points
+of prediction-based methods?
+The first first plus point is that
+uh
+it generates improved performance on
+other tasks, right? Let's say you want
+you were interested in sentiment
+analysis or you were interested in
+right, let's say named entity
+recognition. You can use these
+embeddings and you can feed those
+embeddings to task and that can be
+useful, right?
+Uh
+given the fact that this is a dense
+vector, right?
+It is less likely that the model will
+model will overfit,
+right? And
+sometimes we it also captures complex
+patterns. We have seen last day
+uh this analogy test, right? King minus
+men men plus women equals to queen,
+right? This so,
+you know, king, man, woman, these are
+the the these words have complex
+patterns, right? And these complex
+patterns are so uh smoothly integrated
+using linear operations, right? That
+that's very interesting um property of
+prediction-based approach, which you
+cannot do with the
+with the count-based approaches, right?
+So,
+let's try to
+utilize
+the best part of both the worlds.
+Right? Let's try to utilize the best
+part of count-based approach and the
+best part of prediction-based approach.
+Right?
+And that's the idea behind GloVe.
+This was proposed in 2014, right after
+the year uh when the word to vec was
+proposed. This was This was by um
+uh Chris Manning's group, uh his
+post-doc Jeffrey Pennington, and the PhD
+That time's PhD Richard Socher.
+So, let's look at the idea here.
+The idea here is
+we will again here also we'll we'll
+we'll we'll we'll again build this
+co-occurrence matrix
+like count-based approach.
+Okay?
+Words cross words, right? And we have
+this window size, a specific window. And
+if two words co-appear multiple times
+within
+uh within different windows, you can
+just increase the count. Okay?
+But here, we will not use the raw count.
+We'll use something else.
+Okay? Let's see.
+Let's assume that we are interested in a
+concept of thermodynamics.
+We're understanding We're trying to
+understand different different words
+related to thermodynamics, right? And
+let's say the words are
+uh something like ice and uh steam.
+Right? Let's Let's look at these two
+words, ice and steam.
+Okay?
+So, what we will see,
+we will see what are the other words
+which co-appear within the context of
+ice and steam.
+Right? And how And how do you get this
+information from this co-occurrence
+matrix?
+Right? So, we have we have all those
+tokens which are present in the
+vocabulary, right? All those tokens will
+essentially act as context, right? And
+we'll see how many of them essentially
+appeared with these words in the
+context. Right?
+And for this example
+let's assume that there are four context
+words that we're interested
+solid, gas, water, and let's say some
+random word like fashion.
+Right?
+So, if ice is the target word
+it is highly likely that the word solid
+will appear as a context word.
+Right? So, you see that this count that
+So, this count indicates that if ice is
+the target word, what is the probability
+that the context word will be solid? So,
+this will be high.
+If If ice is a target word the context
+word gas will be less likely to appear.
+So, this this should be small, right?
+The the word water
+may appear with ice multiple times. So,
+this can also be high, right? Whereas
+the word fashion which is a random word,
+it it it it will not appear as a as a
+context word, right? So, this will be
+small.
+Clear?
+Now
+let's look at another target word,
+steam.
+So, solid being the context word of
+steam will be less.
+Gas with the context word of steam will
+be high.
+Right? Water as a context word of steam
+will be high.
+Right? And fashion as a context word of
+steam will be small.
+Right?
+Now, what we do Now, this context words
+are called
+are called pivot word.
+They are pivot.
+How many such pivots are there?
+Vocabulary number. The size of the
+vocabulary. Right?
+Then, what we do? We take the ratio of
+these two.
+This by this.
+This by this. This by this. This by
+this.
+Okay? So, if you take the ratio of a
+large
+a ratio of large and small, it will
+produce a large value.
+If you take a ratio of small and large,
+it will produce a small value.
+Large and large number will be number
+tend
+tends to one, right? And small and small
+also the number tends to one. Ratio.
+These numbers are very important.
+Okay?
+So, now let's look at uh
+these numbers, okay?
+So, using these numbers, let's say if
+you look at the last row,
+you can differentiate
+relevant context
+from the non-relevant context.
+You can differentiate relevant context
+words like solid and gas
+from the non-relevant context words like
+water and random
+because based on these numbers.
+If
+the numbers tend to one,
+that means that
+context word is not relevant to
+differentiate ice and steam.
+If a word is non-relevant,
+it may be it may be completely
+non-relevant or it may be it may be
+completely non-relevant like fashion
+or it may be
+it may be it may be so close that it
+appears with both ice and steam like
+water. So, water is not a good context
+word to differentiate ice and and
+Clear? So, this ratio tells you a lot of
+things.
+So, it it it differentiates
+uh
+important context words from
+uh un- not so important context words.
+It also differentiates which context
+word
+is important, right, for ice, and which
+context word is important for steam.
+So, let's look at the number here. So, I
+just gave an intuition here. Let's look
+at some of the numbers.
+Right?
+Uh
+And so, these are some random numbers,
+and this is the ratio.
+You see, this is very high. This is very
+low. And these numbers are quite same as
+one.
+Okay? I will utilize this philosophy
+to derive
+the GloVe embedding objective. Okay?
+This is just an example. Let's say this
+is the co-occurrence matrix.
+You can easily compute uh P of J given
+I. These are I's.
+These are I's, and these are J's, right?
+I's are target words, and J's are
+context words, and so on and so forth.
+Okay. So, now
+let's see how we can model this, how you
+can utilize this.
+So,
+given a pair of words I and J,
+and their corresponding embeddings wI
+and wJ that we want to learn.
+Okay? How do we learn this?
+We say that the similarity
+between these two embeddings, which is
+captured using the dot product wI dot
+product wJ,
+this
+should be modeled using the
+the probability that I just measured.
+Okay?
+So, so this probability I just measured
+from the count-based uh approach, right?
+I try to model this dot product
+similarity using this probability.
+Right? Instead of taking the raw
+probability, I take a log probability.
+Clear?
+Okay. So,
+this is asymmetric, by the way, because
+when J appears as a context word and I
+appears as a the target word, the ratio
+will be different from when J appears as
+a target word and I appears as a context
+word. So, asymmetric.
+So,
+what I do here,
+uh
+W I W J, this is the dot product, right?
+Uh and
+what is X I J? X I J is a count of
+uh number of times I and J co-appear,
+right? What is X I? X I is the count of
+the word I.
+So, this is essentially the probability.
+So, given that W I is the target word,
+how many times uh W I and W J
+co-appears?
+This is this the probability.
+I want to come up with
+such two vectors, W I and W J, which
+kind of
+uh mimics this count based approach.
+Right? We can unfold it further, and
+this is going to be my formula.
+Similarly,
+if
+J is the target word and I is the
+context word,
+you have W J times W I.
+And how do you model this? X I J, the
+numerator will remain the same, and the
+denominator is going to be X J.
+Okay, the same formula.
+Okay?
+But, the left-hand part is same.
+It's dot product.
+Okay. Let's So, these are the two uh
+formula. So, what is X I J? X I J is the
+count of I and J appearing together. And
+what is XI? XI is the count of I.
+Meaning
+the sum of the this row values.
+Okay?
+Okay. So,
+these are two formulas now.
+What we do? We we add them. If we add
+them, this is going to be the resultant
+formula.
+Right?
+We cancel these two and we move these
+two here. Now, this is my resultant
+formula. W I J equals to log XIJ minus
+half log XI minus half log XJ.
+Okay?
+Now, if you look at this term and this
+term carefully,
+these are the terms
+which are not dependent on the
+co-occurrence.
+These two terms are dependent on the
+word specific word.
+Right? So, I can say that, you know, I
+can basically use these two components.
+I can use these two components as
+as basically a property of that word,
+right? And I when I model this using
+neural network, I will assume that this
+is a bias term or some sort of term
+which is associated with the word I.
+And I will again consider this as a bias
+term which is associated with the term
+J.
+So,
+now this is my
+resultant formula.
+W I W J
+log
+XIJ. And what I say what I'm saying is
+that I will essentially create a neural
+network which will try to model this.
+Right? Using a bias term BI and try to
+model this using another bias term BJ.
+Now, if you want you if you if you think
+that this is not possible, you can also
+simply ignore these two terms. That is
+also possible.
+So, what I have at this moment? I have
+this one and this one.
+Okay?
+And so, w i w j
+w i w j
+and
+log of
+x i j
+Okay? And what I do? These two things
+are same. What I do? I try to minimize
+the
+these and this.
+Because I will try to What is the aim?
+The aim is that I'll try to come up with
+two such vectors w i w j which will
+mimic this. So, I'll try to minimize the
+difference between these two. Right?
+I'll basically take a square loss.
+So, this is my
+resultant formula. I mean, if I if you
+consider b i b j, this will be there.
+Otherwise, you can also ignore this
+part.
+This I want to minimize. This is my
+square loss formula and I want to
+minimize.
+So, this is my objective function now.
+There's a problem here. What is the
+problem? The problem is
+it still gives disproportionate
+advantage to those counts
+which is significantly high.
+Right? x i j will be high.
+So,
+what we do to address this?
+I will essentially add a function f x
+before this.
+So, f x is a function
+which is a property of this
+co-occurrence co-occurrence x i j.
+If the co-occurrence value is too high,
+I will penalize.
+So, I'll basically penalize those those
+pairs
+which are, let's say, stop word pairs or
+something like that.
+Right? So, this is just an weight before
+this.
+And how do we choose this f?
+You can choose this f many ways such
+that
+these three properties hold.
+So, what are these three properties? It
+says that you should choose an F. Forget
+about this graph, okay?
+Forget about this function.
+You choose an F
+such that
+uh F is viewed as a continuous function,
+right? And as you move towards zero,
+right? This would be finite.
+Property one. Property two is this is
+that it should be non-decreasing. It
+will never decrease with the increase of
+co-occurrence, right? And the third
+property says that
+this is the this the value of this
+function should be relatively small for
+larger value of co-occurrence.
+If the co-occurrence is so large, you
+should not give
+proportionate weight,
+right?
+So, this is the formula that they came
+up with and they also said that if I
+mean you can also come up with new
+formula, new function that can satisfy
+these three properties, right? And this
+is the function that came up they came
+up with and the function looks like
+this.
+So, this is X and this is F.
+In our context, this is X IJ,
+right? And this is this F.
+Right?
+So,
+you see here that there is a cut-off
+here. This cut-off is called X max,
+right? So, after X max,
+whatever
+co-occurrence you have, you have the
+same weight for that. And the weight is
+one.
+So, it will not give additional weight
+or extra weight to those co-occurrences
+which are highly frequent,
+right?
+Whereas, the before this X max part,
+this is almost linear.
+Okay? So, this is Glove embedding. Now,
+this is my objective function. What I do
+now?
+I I will minimize this and I will
+when I do the gradient descent, I will
+take the derivative of this with respect
+to WI and with respect to WJ.
+Here also, remember similar to what to
+make here also, there are two embeddings
+that we are learning.
+One is WI, other is WJ, meaning one is
+acting as a target, other is acting as a
+context.
+Okay?
+So, this essentially
+captures both the both worlds
+you know
+appropriately, right? Because you have
+this count-based method, right? This
+component log of XIJ, which comes from
+the count-based approach, whereas this
+one is very similar to the
+prediction-based approach that we have
+seen. Okay? So, this is glove glove
+embedding. This is also static
+embedding. And they showed the efficacy
+of this method across multiple tasks and
+so on and so forth.
+Glove embedding is fast in terms of
+training,
+scalable to huge corpora, and it also
+showed good performance when you have
+small corpus. This is very important.
+Right? Unlike word to vec.
+Okay. So, if you want to know more about
+glove,
+this is original paper and these are the
+very interesting blogs that you can go
+through where
+things are explained easily
+in easier way.
+So, there are very interesting
+properties which I'm not explaining in
+this lecture, but
+with this word embeddings, right?
+You can not only use this word
+embeddings for I mean as an input to
+different downstream task,
+but you can also do very interesting
+studies. For example,
+word analogy test I already mentioned,
+right?
+If you let's say if you want to
+understand like this, let's say Beijing,
+right? Is to China
+equals to
+right? Uh, Delhi is to dash.
+Right? You'll get India. Something like
+that. Similarly,
+this kind of analogies, these are linear
+analogies.
+It was also shown that these kind of
+methods
+uh, are prone to bias. Right? For
+example,
+uh, father
+is to computer programmer
+equals to mother is to dash.
+It will return homemaker.
+Okay?
+Uh, man
+is to doctor
+equals to woman is to dash. It will
+produce nurse.
+Okay? So, these are essentially some of
+the bias examples.
+You can also do very funny thing uh, for
+some of the funny experiments using word
+to vec, right? Or using glove. So, what
+you do,
+let's say you have historical data from
+1950s to uh, 2010.
+Let's say you have uh,
+uh, New York Times uh, news articles
+from 1950 to 2010.
+So, what you do, you for for every
+decade, 1950 to 60, you collect all the
+documents and you run a glove embedding.
+Again, 61 to 70, you take all the
+documents and run glove embedding.
+Right?
+And then,
+if you look at all these decades
+corresponding uh,
+vector space, right? You see the words,
+the meaning of these words
+are changing over time.
+How do you know that? You look at the
+neighbors. You you you identify one word
+and look at their neighbors. So, look at
+their neighbors in 1950, 1960, look at
+their neighbors 60 to 70, 70 to 80, you
+see that the meaning is changing. For
+example, the word broadcast
+Okay? Early days, the word broadcast was
+used to basically
+indicate spreading of seeds.
+Right? In cultivation, agriculture. And
+these days, broadcast is used in in
+radios and you know, frequency related
+stuff and so on and so.
+You can do a lot of things using uh kind
+of embedding methods.
+In fact, these embedding methods are
+going to be the input for the
+transformer model that we'll discuss in
+the next to next class, maybe. Right?
+So, we will see how these words
+what embeddings are used to uh
+essentially
+uh to to perform different types of
+neural networks
+uh in in the next chapter, which is
+going to be on uh neural language model.
+Okay?
+Thank you.

@@ -1,0 +1,1358 @@
+Hi, welcome back to a new lecture from
+the attention family lecture series.
+Today's lecture is focused on mass self
+attention also called as causal self
+attention or causal attention.
+This is a very important concept in text
+generation models and we will first try
+to understand the intuition behind
+masking and then we will discuss the
+mathematical way of implementing
+masking. The concept itself is very
+simple. If you are already aware of
+this, you can feel free to fast forward
+fast forward the lecture or if you are
+coming across this concept for the first
+time or if you want to refresh it,
+please feel free to uh continue ahead
+with me. I will also be showing you a
+simple code implementation of mass self
+attention and uh the mathematical
+construct behind that. So here is a
+quick recap of what we covered in the
+last lecture. We are covering various
+aspects about attention mechanism. So
+that once we are fully clear about self
+attention with trainable weights with
+masking with multiple heads we are go we
+are good to go ahead and learn about
+many other different attention
+mechanisms. So in the last lecture we
+looked at for the first time the concept
+of projecting our input token into query
+space key space and value space using
+query w metrics key metrics and value w
+matrix. And this query key and value is
+used for calculating the attention uh
+score. In fact, quiry and key is used
+for calculating attention score and
+attention weight. And then you take soft
+max of that and then you multiply with
+value to get the context vectors. So if
+you have originally five input vectors,
+they will be converted into five context
+vectors. This diagram has a small
+mistake here. query it seems like there
+are only three rows but actually there
+should be five rows because if you have
+five tokens so here you can see 1 2 3 4
+5 you have five tokens each living in
+three-dimensional space it is being
+projected into two dimensional space of
+query key and value which means you
+should have five vectors which are
+living in two dimensional space so this
+uh the image rendering has an issue but
+other than that the concept I hope is
+very clear very clear for you so this
+was the formula attention of QV which is
+aka A context vectors is equal to
+softmax of query.key transpose divided
+by square root of D4 scaling multiplied
+by value. So this is attention weighted
+sum of value vectors. It's a in one
+line. That's how we can recap. But
+remember the sentence attention weighted
+sum of value vectors because that
+sentence we will look back at when we
+are discussing mass attention or causal
+attention.
+So now let's come back to this diagram
+that we have been referring to again and
+again. So currently we are in this
+connectivity section. Connectivity
+meaning which tokens are supposed to
+attend to what tokens. So mass attention
+or causal attention is a classic example
+of you not attend you not allowing the
+queries to attend to certain keys in
+construction of attention scores. Once
+we are done with this in the next
+lecture we will move on to the multi
+head attention concept. But by the end
+of today's lecture hopefully a good
+amount of um discussion about the
+attention score calculation is done and
+a good amount of discussion about the
+connectivity is also done. However,
+there are future attention mechanisms
+where we will come back to this
+connectivity idea where what tokens are
+allowed to which token that again will
+come into picture in cross attention. It
+will again come into picture in uh axial
+attention and many other attention types
+especially used in models that are not
+necessarily dealing with text. When you
+are looking at images cross attending to
+each other or image and text uh sequence
+token sequences attending to each other.
+There are other concepts which will
+prompt us to again come back to this
+connectivity idea. But for the time
+being we are currently focused on u how
+tokens attend to each other.
+So current lecture although it's about
+mass self attention we are not
+discussing about multi head attention we
+we are still discussing about a single
+attention head however you know that in
+GPD like models it has multiple
+attention heads and each head is uh
+having its own output and later you
+concatenate those outputs to get back
+the final set of context vectors but we
+have not discussed this till in this
+lecture series if you are familiar with
+it with this of course you will
+understand what I'm talking about but
+otherwise you can Wait until the next
+lecture to see how multi head attention
+works in practice.
+So here we are at masked self attention.
+This was done two lectures ago.
+Simplified self attention without
+trainable weights. Self attention with
+trainable weights was done in the last
+lecture. In the future lecture we will
+look at the multi head attention. So I
+hope the lay of the land is very clear
+for you.
+So today's lecture I have split into
+three parts as usual. So all lectures we
+generally have this three-part
+structure. So first we will discuss why
+is it very much required to hide the
+future. So when I say hide the future,
+it feels a little bit abstract. Although
+you can imagine something like okay, we
+are doing something with respect to
+hiding the future tokens. But you may
+still have questions like what do we
+mean by future tokens here and uh how do
+you tie that concept mathematically back
+into our equations although it's all
+very simple if I ask a few questions it
+may prompt some thoughts in you. So I
+will I will discuss all of that in the
+upcoming slides. And then what are the
+different ways in which we can implement
+masking because it's not like there is
+only one way to do masking. There are
+multiple ways to do masking. What are
+the pros and cons of each approaches and
+what is the way in which masking is
+implemented currently. And third we will
+also discuss the concept of dropout
+which is very important when you are
+training a GPT like model so that there
+is no overfitting. But here when we are
+talking about dropout it's specifically
+with respect to attention weights. So
+the attention weights matrix which is a
+square matrix there we will implement
+dropout and we will do something with
+the remaining elements which are not
+dropped out. So we will have a brief
+discussion about the dropout itself and
+we will see the whole pipeline how to
+implement it in code. So I will give you
+a proper code walk through just like the
+past lectures. So these are the three
+parts of today's lecture. So in the
+first part let us discuss about why do
+we hide certain um queries and keys from
+attending to each other and what do we
+even mean by hiding. So let's see that.
+So let's say we are in the inference. So
+inference meaning we are we have the
+trained LLM and we are trying to produce
+the text which means we are trying to
+produce iteratively next token after
+next token after next token. And say
+this is what is written so far dream big
+and and let's say the next token that is
+going to be predicted is work. So there
+is a difference when you think about the
+LLM training and LLM inference because
+during LLM training you have everything
+available to you. You have let's say
+this is the sentence dream big and work
+for it. So let's say that's the sentence
+you have the whole sentence available to
+you during training. Okay but think
+about this let's say currently you are
+considering only these three tokens and
+you are trying to perform the next token
+prediction as if you are in inference
+because during inference you don't have
+access to any other tokens. You only
+have access to tokens that are produced
+up until that point. So let's say you
+have only these tokens available green
+wig and
+what do you think the context vector is?
+Context vector as always it is attention
+weighted sum of value vectors which
+value vectors by the way because here
+technically if you were in training you
+have all these 1 2 3 4 5 six tokens
+available. Of course more tokens are
+there but in this constrained example
+you have six tokens available. Okay. Uh
+if you are in training because during
+training you have all the data
+available. during inference you don't
+have. So if you were training a large
+language model which is where this
+masking concept is coming into picture
+in the first place
+even if you are considering these three
+tokens to predict the next token called
+work
+you already have access to all the
+tokens. Does it mean that you should use
+the value vectors corresponding to all
+the tokens to produce the context
+vector? Because if that was the case you
+have how many value vectors? 1 2 3
+4 5 6. So in the current context window,
+you may have six value vectors. However,
+you are trying to predict the next token
+called work. Which means when you are
+constructing the value vector, is it the
+attention weighted sum of all the six
+value vectors or is it the attention
+weighted sum of these three value
+vectors, the the value vectors
+corresponding to these three tokens?
+Which one would it be? Just think about
+it for a second. If you train your model
+such that it is if if for predicting the
+next token work, if you are considering
+the attention weighted sum of all these
+six value vectors,
+what you're essentially doing is before
+even the token for and before even the
+token it is being predicted, you are
+somehow accessing the value vector
+corresponding to them. That will never
+happen in inference, right? During
+inference, you don't have the value
+vectors for the future tokens because
+you haven't produced them yet. You only
+have value vectors corresponding to
+tokens you produced up until that point.
+So if that is the behavior that you
+expect during inference, during training
+also you should inject that behavior,
+right? The behavior during training, how
+can the behavior be different when
+suddenly you are doing inference versus
+when you're doing training. So during
+training also although you have the
+whole text available to you during
+training when you are predicting the
+token corresponding to work and if you
+want to create the context vector
+corresponding to you know that token
+prediction you should only consider
+attention weighted sum of which value
+vectors all the value vectors which come
+which came up until that point. So that
+is the core principle behind mass self
+attention. I will show you where masking
+is coming here. But this is a core
+principle. When you when we say
+attention weighted sum of value vectors,
+it is only attention weighted sum of
+value vectors which came up until that
+point in the um in the prediction. Uh
+only those are used for predicting the
+context vector or only those are used
+for constructing the context vector and
+that context vector can be used for
+saying what is the next program. Okay.
+So that's the first first thing. Now
+let's see what does this mean? uh
+mathematically.
+So whenever we discuss about mass self
+attention, the mask is nothing but an
+upper triangular mask. So this this is
+what this is these are attention
+uh weights matrix which is a square
+matrix and when I say upper triangular
+all these elements all these upper
+triangular elements
+will be basically be zeros.
+Okay, first of all, that is
+mathematically what it means by mass
+self attention. We will see how this is
+accomplished from the previous step of
+attention scores. How these attention
+weights are obtained that we will see.
+Another the thing that you should
+observe is still the principle that
+every row should sum up to one. That
+still holds. This row will sum up to
+one. This row will sum up to one. Every
+row will still sum up to one. Okay. And
+now we will see why is why is it this
+structure? um we'll come to the
+mathematical implementation of this. But
+why is this upper upper triangular
+structure making sense? Let's say I have
+only the current token which is dream
+and I'm trying to predict the next token
+which is big. If that is what I'm trying
+to do, do I have the value vectors
+corresponding to big and work for it? Do
+I have those five value vectors
+available for me? I don't have. Right?
+So what that means is the attention
+scores which is going to be multiplied
+with those five value vectors should be
+zeros. So that even if I have those five
+value vectors even if I have all the six
+value vectors readily available during
+training because during training I have
+all the six tokens available dream big
+and work for it all these tokens I have
+available during training. Those tokens
+are vectors on top of which position
+embedding is added. Then you construct
+the attention weights matrix. You can cl
+you can calculate the values, queries
+and keys for all these six tokens. So I
+have value vectors of all the six tokens
+available. However, if I am currently
+considering the prediction of the token
+called big. What that indirectly should
+mean is I should not consider the value
+vector corresponding to big and work for
+and it. I should only consider one value
+vector which is the value vector
+corresponding to dream. Why? Because if
+I was if I were doing inference, I don't
+have any future tokens available. So
+because of that reason, if you were to
+somehow magically convert all of these
+numbers to zeros and only the first
+number remains, which is one, what do
+you think the context vector will
+become? The context vector will be 1
+multiplied by v_sub1. So let's say the
+value vectors are v_sub_1, v_sub_2,
+v_sub_3, v4, v5 and v6. Okay, they will
+also be the same vectors which are
+living in the same dimensional space as
+that of the query space and key space.
+So now what will be the context vector
+if I am predicting the token called big?
+It will be attention weighted sum of
+value vectors. What is the attention
+weighted sum of value vector in this
+case? 1 * v_sub_1 plus 0 * v_sub_2 plus
+0 * v_sub3 plus so and so on. What does
+that mean? It means all these five value
+vectors are being discarded. Why is
+that? Because the attention weights
+corresponding to those value vectors are
+all zeros. So effectively when when you
+are trying to predict the next token the
+context vector corresponding to the next
+token which is big only v_sub1 the value
+vector corresponding to the token
+available up until that point only that
+is available. Now let's look at the
+second case. Let's say I'm trying to
+predict the context vector while doing
+the next token prediction corresponding
+to and.
+So what all tokens do I have available?
+I have dream available and I have big
+available. Okay. So ideally if that was
+the case V3, V4, V5 and V6 should not be
+coming into picture. And here is how. So
+the what is again context vector?
+Context vector is attention weighted sum
+of value vectors. So context vector
+should be 0.48 * V_sub_1 plus 0.52 *
+V_sub_2 plus 0 * V3 plus and so on.
+Which means this time v3, v4, v5, v6 are
+being ignored. Only v_sub1 and v v_sub_2
+is coming into picture. So here this is
+a very smart mathematical trick. So we
+are not touching the value vectors
+to make the value vectors not exist
+during the calculation of attention
+scores. Instead of eliminating value
+vectors, what are we doing? We are
+eliminating attention scores or
+attention weights rather. we are making
+sure that these five attentions uh
+weights are zeros in this case when when
+we are predicting the third token we are
+making sure that these four attention
+weights are zeros in the next case we
+are ensuring that these three attention
+weights are zeros so when attention
+weights are zeros it's effectively as if
+the value vectors corresponding to them
+do not exist because you are multiplying
+attention weight with the corresponding
+value vector so this attention weight it
+is the fourth attention weight in that
+row which means it will be multiplied
+with V4 and this attention weight is the
+fifth attention weight in that row which
+will be multiplied by V5 and this is the
+sixth one in that row which will be
+multiplied with V6. So when these three
+things are zeros it is effectively as if
+you are eliminating V4, V5 and V6 and
+you only consider V_sub1, V2 and V3.
+Okay. So we are yet to discuss how this
+attention weights matrix was obtained in
+the first place but that we are getting
+into later uh soon but here we are just
+saying how this is helping. So I hope
+this part is clear for you. Um when we
+are doing attention weighted sum of
+value vectors only the value vectors up
+until that point meaning whatever is the
+current token or current context vector
+that is being produced only the value
+vectors up until that point should be
+considered. And how do you how do you
+try to accomplish this? You accomplish
+this not by eliminating value vector
+directly but by converting um attention
+scores or rather attention weights into
+zeros. Okay, that is how we do it. But
+that being said the remaining attention
+weights should sum up to one. So this 33
+plus 37 + 3 they add up to one. These
+two numbers they add up to one. Why?
+Because when when we are saying
+attention weighted sum of value vectors
+whichever value vectors are being
+considered the weights of weights that
+we are multiplying those value vectors
+with they should add up to one. So every
+row should still add up to one even if
+the upper triangular elements are being
+converted into zeros. Okay. Now let's
+see how this is being done or what are
+the different ways in which this can be
+done. That's a part two of today's
+lecture.
+So we could do one simple thing. First
+uh we know that to get attention weights
+we take softmax over the attention
+scores. Attention scores are raw dot
+products between query and key. Okay. So
+this is uh let's say query key number
+one key number two key 3 key 4. This key
+query 1 query 2 3 4. So this is Q1
+multiplied by Q1 dot product with uh K1.
+This is Q1 dot product with K2. Right?
+Right? So these are row attention scores
+which we convert into um a row being
+summing up to one using softmax. So once
+you take softmax this row will sum up to
+one. This row will sum up to one and
+those are called attention score
+attention weights. Raw attention scores
+converted into probability distribution.
+Now what we could do is once I have the
+attention weights I could simply convert
+these numbers into zeros. I could simply
+say oh let the upper triangular elements
+be zeros. Then do you think these
+numbers will add up to one?
+It will not add up to one. Right?
+Because it was adding up to one before
+we did this. Before we did this upper
+triangular elements being zero, it was
+adding up to one. But now since some of
+those numbers are being eliminated and
+replaced with zeros, the rows will not
+add up to one. So now but we know that
+the rows should add up to one. So what
+do we do? We can do something like we
+reormalize. So we can say the each
+element in the row is that element. So
+let's say this element we call as Q1 dot
+product with K1. We divide that that
+with sum of whatever is the that row
+sum. So let's say the sum of this row is
+0.9.
+That means this element will be divided
+by 0.9.
+And same thing we can do here. So if you
+want to convert this row into something
+which sums to one, we can say okay every
+element will be divided by the row sum.
+Whatever the row sum is, that is a way
+to normalize that also will satisfy our
+criterion that every row has to add up
+to one. That is that condition is
+satisfied. Uh upper triangular elements
+should all be zeros. That condition is
+also satisfied. Right? So are we not
+happy in this case? Is there any problem
+here?
+Like my question is first we take
+softmax to get attention weights.
+Attention weights WTS for weights. Once
+we and and here every rows are already
+adding up to one. Now what we do is we
+we manually convert the upper triangular
+elements into zeros and then remaining
+elements row wise we divide by the row
+sum. Whatever is the sum of the row
+which means the rows should again add up
+to one that is a probability
+distribution and upper triangular
+elements are all zeros. So we get
+masking. Is this okay or what is there
+any problem with this approach? There is
+one problem with this approach. The the
+problem is that we when we take soft
+max. Okay. Okay. So here we said that we
+are we have already taken the softmax.
+We are already considering
+the um quiry key dotproduct between the
+future tokens. That is already done. You
+know how because softmax is basically e
+ra toxi
+divided by sigma e ra to x i. Okay. So
+if we are doing soft max row wise or
+let's say we take the soft max of first
+row. What are the softmax numbers?
+E to X1 / sigma E X1 over the row. Then
+this one is E to X2 / sigma E to X I
+summed over the row. So essentially when
+we are saying that if the denominator is
+constant right to calculate the soft max
+of this or this or this or this the
+denominator is nothing but the sum of
+exponent of every element in that row.
+Correct? So what we are saying is the
+moment we calculate softmax the future
+attention scores resulting from the
+dotproduct of Q and K we have already
+baked into every single attention
+weights. So the moment you calculate
+attention weights from uh from raw
+attention scores using softmax some
+information from the future is already
+baked in. Why is that? Because the
+denominator of softmax calculation sigma
+e ra to x i and what is sigma e ra to x
+i by the It is sigma e ra to
+quiry.ranspose. Right?
+So when we say sigma e ra to x is the
+denominator that number is nothing but e
+ra to attention dotproduct the the dot
+product between query and key. So here
+we may take the dotproduct of quiry and
+key for future tokens. So query of the
+current token taken as a dot product
+with the key of the future token. Which
+means we are indirectly allowing the
+attention scores to have a look into the
+future. Because if future token is not
+generated yet, how come you have the key
+of that token available to you? Because
+if you are working in row number two,
+let's say your query key transpose will
+be Q2 dot with K1 transpose.
+Then the next number will be Q2.product
+with K2 transpose.
+Q2 dot product with K3 transpose.
+Right? This is what we are doing. But if
+you are trying to produce the u you know
+context vector corresponding to let's
+say Q2 how come you have K3 available
+and how come you have K4 available cuz
+you don't have that token available yet
+right unless you produce that token how
+come you have this I'm talking about in
+the inference in the inference you don't
+have K3 and K4 available if you are
+currently in Q2 which means when you
+convert the attention scores into uh
+into attention weights using softmax
+during training you are indirectly
+injecting the information about the
+future into those attention weights. So
+if you already take softmax and then
+zero the future. Zero the future meaning
+zero these numbers which are uh
+query.ranspose
+of the future tokens. Future tokens
+meaning if I am in Q1 K2 K3 K4 are all
+future. If I'm in Q2 K3 K4 are future
+right. So this this won't work because
+uh or I should not say this won't work.
+Maybe this will work to some extent but
+still still here we are allowing the dot
+allowing the attention scores to have a
+look into the future. So that is the
+reason why we should not take softmax
+first and then convert the upper
+triangular elements into zeros. That is
+not the right approach because the
+query.key transpose includes the key of
+the future tokens which we don't have
+yet if we were doing it if we were doing
+inference. So we to to mimic the
+behavior during inference during
+training also during training this is
+not something that we do. So what do we
+do? What is the alternative? Let's see
+what's alternative. The alternative is
+very simply this. So let's say these are
+the raw attention scores. Okay. In one
+row in one particular row you have let's
+say three numbers 2 3 5. In the previous
+example each row were four items. But
+now you might be you might be wondering
+how suddenly it became three because
+those these are two different examples.
+That's all. So we are considering one
+row. in that row. Let's say these are
+the attention scores and let's say we
+are currently at Q1
+which means K K2 and K3 should be
+masked. So what do we do? The the second
+item in that row we will assign to be
+minus infinity. Third item also you will
+assign to be minus infinity.
+Now what are the numbers on top of which
+you will apply soft max. You will apply
+top softmax over these numbers. So, so
+before you create an upper triangular
+matrix that are of zeros, you will
+create an upper triangular matrix that
+are all minus infinity. So, when you
+take this softmax, what will happen is e
+ra to minus infinity
+divided by sum of uh the the row right.
+So, in this case the sum will be e to 2
+plus e minus infinity plus e minus
+infinity. What is e to minus infinity?
+E to minus infinity is zero right
+because 1 by E to infinity is a very big
+number so E to minus infinity is zero so
+what will happen is the soft max score
+corresponding to this element will
+become zero the soft mass score
+corresponding to this element will
+become zero the soft max score
+corresponding to this guy will become 1
+because that will be e to 2 divid 2 + e
+- infinity plus e - infinity so this is
+zero
+this is zero and whenever you have eus
+infinity in the numerator for So those
+elements the attention scores will
+become zeros. Rest of the elements will
+sum up to one. So this is essentially
+what you do. So now how does it look
+like from a triangle perspective? From a
+triangle perspective,
+from an upper triangle perspective, it
+will look something like this.
+I'll convert this into minus infinity.
+This will be minus infinity and this
+will be minus infinity. Similarly, this
+will minus infinity minus infinity and
+this will be minus infinity. Now after
+we do this and this is done for what?
+Attention weights or attention scores?
+We convert the attention weights matrix
+or attention scores matrix into this
+upper triangular minus infinity. Which
+one? It's not attention weights, it's
+attention scores because we have to do
+this before we take soft max. So attent
+so this number whatever is here it will
+not add up to one because we are yet to
+take soft max. Then if we take soft max
+what will happen is this row will become
+1 0 0 0. Similarly this row might have
+been 2a 4 comma something something and
+what will happen is after we take soft
+max this may become let's say 4
+something this may become 6 they will
+add up to one and then this will be zero
+this will be zero. I'm talking about the
+row number two. Similarly row number
+three in that third row there will be
+three elements which are nonzeros
+whichever was minus infinity after we
+take soft max along the row that minus
+infinity element will become zero. So
+this way mathematically also it's very
+very easy to handle because softmax of
+minus infinity I mean softmax of a set
+of numbers where the current number that
+you're considering is minus infinity
+will be zero. Okay so that is
+essentially the the mechanism over here.
+Let me just write it down so that you're
+one you're clear once and for all. So
+let's say my my sequence is the cat
+sat
+on the and we have to predict Matt.
+So this is not the right this is Q
+corresponding to the. So this is Q1,
+this is Q2, this is Q3, Q4 and Q5.
+Similarly K1. So here this will be the
+key corresponding to the key
+corresponding to CAT key corresponding
+to SAT
+K4 K5.
+So when you are constructing the
+attention uh the the context vector
+corresponding to Q1. Okay. uh um what
+you have is you have K1 you you don't
+have K K you should not have K2 K3 K4 K5
+available to you because if you are
+trying to construct context vector
+corresponding to Q1 you only have one
+token available up until that point. So
+ideally u we should mask these elements
+as minus infinity
+and this will be whatever whatever was
+original raw attention score which is
+the raw dot product between Q1 and K1
+transpose. Similarly if you are trying
+to construct context vector
+corresponding to uh Q2 you don't have K3
+K4 K5 available because you don't have
+those three those three tokens
+available. If you were in inference of
+course during training you have all the
+data available but for the training data
+should mimic the behavior of inference
+otherwise during inference your your
+text generation will not work. So uh
+when you are working with Q2 K3 K4 K5
+should not be available. So
+you mask
+those uh columns K corresponding to K3,
+K4 and K5 with minus infinity and this
+will be whatever whatever was the raw
+attention scores and then you take
+softmax and what will happen is after
+taking softmax um so these are raw
+attention scores after taking softmax
+I'll just show one row one row here what
+will happen is this will become one
+the rest of the columns will become 0 0
+0 0
+because minus infinity when you convert
+to softmax will be will this is what
+will happen. So like this eventually all
+the minus infinity elements after
+softmax will be replaced with zero. So
+that is how the upper triangular
+u zeros are obtained. In this case, are
+we not looking at the future? Like when
+we take softmax, the future, why is the
+future not coming into consideration?
+Because you could ask the same question,
+right? In this case, isn't the future
+coming into into the picture? When we
+calculate softmax, the p the the future
+is not coming into the picture in softax
+because uh softmax is nothing but e to x
+i divided by sigma e ra to x i. Correct?
+And look at the sigma e to x i in this
+row. The sigma e x i is e 2 + e -
+infinity plus e minus infinity
+plus I'm talking about the denominator
+okay e minus infinity plus e ra to minus
+infinity this sigma ra to x i will look
+like this for the first row look at the
+contribution from the second third
+fourth and fifth uh tokens the
+contribution to by from the second third
+and fourth and fifth tokens is 0 because
+e ra to minus infinity is 0 0 plus 0 + 0
++ 0 so the contribution from all these
+four elements will become zero. So you
+are uh not allowing the you know
+attention scores to have a look into the
+future. So if you are currently working
+with Q1, you won't have access to um
+attention scores or even value vectors
+corresponding to token number 2 3 4 and
+five. Okay. So this is how you prevent
+looking at the future. Now one last
+concept I want to discuss before I give
+you a code walk through is the concept
+of dropout.
+Now let's discuss about why we do
+dropout, how we do dropout and after
+dropping out some attention weights what
+exactly do we do with the remaining
+weights. So the idea of dropout is that
+if there is [clears throat] a chance for
+overfitting meaning first of all why do
+we do dropout in the first place in any
+neural network. The reason why we do
+dropout is that some
+neurons in a neural network.
+So let's say this is a neural network.
+In this layer there are three neurons.
+In this layer there is one neuron. When
+we do drop out what happens is let's say
+and the dropout probability for this
+layer is
+um 1x3. So there is a 1x3 chance that
+these elements will get dropped out. So
+let's say in any given instance maybe
+one of these elements might get dropped
+out. Let's say. So what will happen is
+to calculate the sum over here which is
+W1 X1 plus W2 X2 plus W3 X3 the W2 will
+not be taking part only this neuron and
+this neuron will contribute to producing
+an output in this instance when you have
+dropped out an element but there is a
+problem with that. The problem is that
+when you drop out one out of three
+elements in a uh in a layer then your
+average output intensity which is over
+here may reduce by the factor of 1/3
+right which means you have to multiply
+with a certain number if so so basically
+if your original intensity was x it will
+reduce by 1/3 meaning it will become 2
+2x 3x why because you have only two out
+of three neurons available in producing
+the output.
+Which means if you want to maintain the
+output magnitude on an average, you have
+to multiply by 3x2.
+Okay. So you have to have a
+multiplication factor when you are
+dropping out certain elements so that
+the intensity at the output or the
+magnitude at the output is not being
+reduced. So in attention weights the
+dropout is implemented with the same
+idea. So if dropout probability P is 0.5
+what it means is every element has a 50%
+chance of being dropped out. So after
+dropping out it may so happen that this
+item is gone. Maybe this is gone and
+then maybe this is also gone. This may
+happen. It's not always exa there is no
+guarantee that always exactly 50% of the
+items will be gone. There is there is no
+such guarantee. But every element has a
+50% likelihood of being dropped out.
+Okay. Now what do you do with the
+remaining items? Same thing. If 50% of
+the items are gone, the remaining 50%
+has to produce an output of same
+magnitude as what it was before. Because
+if the output magnitude is reducing,
+then your loss will be obviously be
+increasing because the dropout itself
+should not contribute to loss of
+tremendous number. So output magnitude
+on an average should not change too
+much. So what you do is if half of the
+items are dropped remaining half the
+items which are roughly remaining items
+which may remain should be multiplied by
+a factor of two. So the remaining items
+this one is remaining right. So one will
+be multiplied by a factor of 2 it will
+become 2. 52 is remaining right it will
+become 1.04
+33 is remaining which will become 66.3
+is remaining that will become 6 and so
+on. So this is the idea of dropout. So
+now these elements will produce on an
+average an output of similar magnitude
+as that of what it was doing before.
+The same idea in neural network. So
+let's say this is a this is a particular
+weight 27 is a weight. Okay. So what
+will happen is half of that there is a
+if 50% likelihood that it gets it may
+get dropped out. It means half of the
+times it is kept half of the times it is
+dropped out on an average right. So uh
+half of the times whenever it is kept
+the magnitude is 0.54. Half of the times
+when it is dropped the magnitude is
+corresponding to that is 0. So whatever
+is the resultant output that this
+particular uh weight is going to
+contribute to that output on an average
+its magnitude will remain 0 +.54 / 2. So
+that is basically the idea. So so that
+and by the way the dropout is only done
+during training. During inference you
+don't do dropout. you you lose you use
+all the available weights but during
+training to prevent the models from
+learning nuances in the text and kind of
+wrote memorizing something you randomly
+switch off certain neurons so here the
+attention weights are not exactly I
+don't like to call it as neurons it's
+slightly different from the neurons in
+the neural network but yet they are
+trainable I mean they are parameters
+which are resulting from uh your query
+and key uh not trainable parameters they
+are resulting from quiry and key so when
+you um drop it out at a with a random
+probability those weight those attention
+weights do not have a chance for wrote
+memorizing something that is supposed to
+learn from the text. That is a that is a
+basic idea. So if the dropout is with a
+probability of P you have to multiply
+the remaining elements by one by 1 minus
+P. So if P is.5 1x 1 - P will be 1 by.5
+which is 2. If P is 1x 3 if things are
+getting dropped out at a probability of
+1x 3 remaining will be 1x 1 - 1x 3 which
+is 1x 2x3 which is 3x2. So remaining
+items will be multiplied by a factor of
+3x2.
+So this is in one diagram everything
+summarized that we have looked at since
+the last I would say three or four
+lectures. You have inputs, input tokens
+X converted into uh query key and value
+space using the quiry weights matrix,
+key weights matrix and value based
+matrix which are denoted as WQ, WK and
+W. So initial inputs may live in a two
+dimensional space after projecting it
+into a query key value space. The
+dimension may change and the resulting
+raw scores from the dot product between
+queries and keys are called attention
+scores. Attention scores will not add up
+to one along the row. Now what do we do
+with attention scores? Attention scores
+we can uh scale first of all by dividing
+by square root of d. Okay. And once we
+have the scores uh once we have the
+scale scores you apply upper
+right triangular minus infinity mask. So
+all the upper right triangle elements
+are converted into a minus infinity
+number. Then you take softmax. So all
+upper uh right triangle elements become
+zeros. Remaining elements will add up to
+one in every row. And once you have this
+you apply drop out. In drop out you drop
+out at a certain probability P which
+means there is a P p percentage or P *
+100% chance for every element to be
+dropped out. Remaining elements which
+survives without being dropped out will
+be multiplied by 1x 1 minus P and that
+will give you an output magnitude which
+is comparable to the magnitude which you
+had before you did the dropout. And this
+is ultimately what happens to attention
+uh weights. And then these attention
+weights are used for computing your
+context vectors. So ultimately what is
+happening is your X which is a input is
+getting into context vector which you
+call as zed. So zed is the space in
+which context vectors are living. Thus
+the dimensionality of that space may or
+may not be different. But ultimately
+these context vectors when it comes out
+of um the multi attention mechanism
+which we are yet to discuss we will
+discuss in the next lecture. Ultimately
+the dimensionality is similar to that of
+the dimension or same as that of the
+dimensionality of the input space. In
+multi head attention the context vectors
+resulting from every single attention
+head will have a different
+dimensionality as that of the input and
+they are concatenated and they are mixed
+which we will discuss in the next
+lecture. But this is essentially what
+happens. So now with this we are good to
+discuss in code how this whole
+implementation looks like. It's actually
+very very uh simple. So first let's say
+I have six vectors dream big and work
+for it. So these are the six input
+vectors or input embeddings and these
+embeddings are all living in
+three-dimensional space. And now let's
+say the query key value space is living
+in a query key vectors are value vectors
+are living in a two-dimensional space.
+So you are essentially projecting from a
+three-dimensional space which is the
+input embedding space into a
+two-dimensional space. Why do I say this
+is threedimensional? because every row
+has three items. So the dimension number
+one, two and three.
+Then you can define self attention
+class. This we have not discussed how
+this class is defined uh strictly in the
+last lecture. But if you look at the
+construction of the class, it's very
+simple. You have u and I won't be going
+through the the details of the code
+right now that we can we have plenty of
+time to discuss in the future lectures.
+But basically NN.linear Linear means you
+have a linear projection layer with
+learnable parameters where input has D
+in number of nodes, output has D out
+number of nodes and that will form the
+query weights matrix. Similarly, you
+have a key weights matrix and value
+weights matrix. Then queries are nothing
+but quiry weights matrix multiplied by
+X. Same for key and same for value. So
+here essentially we are passing the X
+into uh W do.quiry uh function. But
+essentially what's happening is this
+this input is being multiplied by a
+transformation matrix of dimensionality
+D in comma D out. So resulting numbers
+are queries keys and values. Attention
+scores are queries dot product with keys
+transpose. Attention weights are
+basically this converted into softmax
+format. So and after dividing by square
+root of D. So here uh keys dot shape
+raised to.5 is the square root of D.
+square root of D is and by the way what
+is D? D is that the dimensionality of
+the input embedding space? No, D is the
+dimensionality of the query key value
+space or we can simply say it's the
+dimensionality of the uh key space. So
+dimensionality of the key space raised
+to square root of uh square root of
+dimensionality of the space or
+dimensionality of the space raised to
+0.5. So that is those are the attention
+weights and finally attention weighted
+sum of value vectors is the context
+vectors. So context vector is nothing
+but attention weights multiplied by
+values. So now these you can simply run
+this block of code and print the
+resulting context vectors. Resulting
+context vectors in this this particular
+example lives in a two two dimensional
+space not in a three-dimensional space.
+So the you had six input embeddings or
+input vectors and you have six resulting
+context vector. Okay. So I hope this
+part is everything until this part is
+very clear for you. Now let's just print
+the
+attention weights which are unmasked. So
+unmasked meaning you have attention uh
+weights after taking 1x square root of d
+and after taking softax. So these these
+are the attention weights and every row
+will add up to one. So you can see that
+this row will sum up to one. This row
+will sum up to one. This row will sum up
+to one. Now we discussed two types of
+ways to implement masking. We can
+directly take these attention weights
+and mass the upper triangular elements
+by directly uh converting it into zeros.
+All the upper triangular elements are
+zeros and row wise remaining elements we
+can divide by the sum of the row. That
+is the wrong approach we said right? So
+that wrong approach I'm just
+implementing here here. So here what we
+are doing is we have the uh we have
+these attention weights and attention
+weights are basically converted into uh
+all the upper triangular elements are
+converted into zeros and remaining
+elements are divided by sum of
+individual rows. So this is called as
+naive masking. We can call it as naive
+masking. And here the resulting numbers
+are of course this will resemble
+the mass self attention from numbers you
+will never be able to say whether this
+was a result of mass self attention um
+with minus infinity or without minus
+infinity kind of technique. This is
+without minus infinity technique. Here
+you are directly assigning upper
+triangular elements to be zeros after
+taking softmax and then remaining
+elements in the row you are converting
+it into a probability distribution by
+dividing by the row sum. The second
+second way is the correct way where you
+first create an upper triangular mask of
+negative infinity then take softmax
+along a row so that this guy will become
+1 0 0 0 0 as you can see here the next
+row will become something such that the
+first two elements will add up to one
+remaining elements will be zeros that is
+what this is
+same thing same thing goes for the next
+row fourth row fifth row and so on okay
+and in this block I'm simply calculating
+the sum of every row. So sum of the
+first row is one. Sum of the second row
+is one. Sum of the third row is one. So
+the raw row sum should add up to one.
+Again, very very simple concept. So the
+reason why I'm not going to I'm going
+I'm not going through these individual
+lines of code is because it's very
+simple. My my purpose here is not to
+teach you how to code uh this attention
+mechanism. It is just to give you okay
+how it may look like when you are
+implementing it in Python code roughly.
+And last part is how dropout is uh
+implemented. So dropout is implemented
+like this. So first you have a uh like a
+this you can call as something like a
+dropout mask which is applied element
+wise. So if you're doing 50%age dropout
+and each time when I run this you will
+see that this mask will look a little
+bit different. Uh let me see actually
+it's not different because I'm passing a
+seed. If I don't have the seed each time
+it each time ideally it should look
+different.
+Um
+yeah
+see each time each time it looks
+different but if you want repeatability
+randomness with repeat repeatability I
+can have this seed I can enter some seed
+number so that every time you run uh the
+random numbers are generated using this
+seed number. So the mask will look
+exactly the same. Now what do you do
+with the mask? You take the same
+um same set of context vector sorry same
+set of attention weights you got over
+here. So these are the attention weights
+you got element wise you multiply with
+this mask with this dropout mask. So
+what will happen to the first element?
+First element was actually first row was
+1 0 0 0 0 like that. Right? So first
+element will become two. The rest of the
+elements were zero anyways. Similarly
+second row every item will become zero.
+Why is that? Because the first two first
+two dropout mask items are zero. Which
+means and remaining items were zero
+anyway in the second row. Third row in
+third row what will happen is third row
+has had three elements. All the three
+elements will will get multiplied by
+two. So where were the three elements?
+These were the three elements. So
+33.3630.
+So that will become 66 72 and 6 as you
+can see here.
+Um oh I'm not sure if this was
+implemented. One second.
+Okay. This time the mask changed a
+little bit but let's let's make sure
+that the mask is being applied as we
+expect. So
+psyal weights after dropout is 2 * 2 *
+so every item in the
+in this row should become
+twice.
+But my question is
+why is this guy zero? Okay.
+Okay. I think I understand the problem.
+What we can do is we can
+we can generate a new variable called uh
+dropout mask
+equal to
+this.
+Okay. And then I can simply print that
+dropout mask. And then what I can what I
+can do is I can multiply dropout mask
+with
+causal weights. So if I simply multiply
+it should produce I think should produce
+a
+dropped out um attention weight. So now
+let's see. So now this is the dropout
+mask. That mask is being applied to our
+original causal weights which are this.
+Maybe I can print the cosal weights once
+here just for your reference. So let me
+just
+print it.
+Okay. So these are the original cosal
+weights and this is the dropout mask.
+And if these three elements in the
+dropout mass are all zeros, all these
+this row entirely will become zero as
+you can see here. Similarly, this item
+is zero in dropout mass. This item is
+zero in dropout mass. So this guy will
+become zero. This guy should become zero
+as you can see here. And uh what will
+happen in let's say first row is the
+first item which was one is getting
+multiplied by two. So this should become
+two in the third row all items are being
+multiplied by two. So this should become
+66 73 something and 6 as you can see
+here. Okay. So this is what happens when
+you apply a uh dropout
+and that's all. So eventually this is we
+can literally write everything inside
+one class. Uh so this is the causal
+attention class and in this class we
+define the w uh query key value uh
+weight matrices. We can also define
+dropout and finally what comes out of
+this will be context vectors which are
+passed through the uh which are
+resulting from the dropped out attention
+weights matrix. And the context vectors
+here will be looking slightly different
+from the context vectors which you got
+earlier without dropping out. But on an
+average producing these kinds of context
+vectors are better if you are doing
+training. During uh inference you don't
+do the dropout because during inference
+you are not trying to prevent
+overfitting or anything. During
+inference you are just trying to produce
+output using the already trained
+language model or already trained uh
+neural network. So that is the uh this
+code in a brief nutshell. So we are good
+to wrap up today's lecture. So let's
+just see what all things we have looked
+at. So in uh masked attention you are
+not applying mask you are not randomly
+masking the upper triangular elements
+after taking softax you're doing the
+opposite before taking softmax you apply
+upper triangular negative infinity then
+you take soft max so that uh future keys
+are never present in the calculation of
+the current context vectors then
+uh rest of the things I think you have
+already uh you're already familiar with
+so if you were to take away three things
+from today's lecture first thing is that
+when context vectors are attention
+weighted sum of value vectors and when
+you when you lose the sum of those value
+vectors only the value vectors up until
+the current token should be available in
+producing the context vector any future
+value vector should not be considered
+into the equation. Similarly when you
+calculate the attention weights also
+future keys should not come into
+picture. So to prevent uh both of this
+from happening you have to somehow
+convert the upper triangular elements
+all into zeros. But directly converting
+upper triangular elements into zeros
+after you take softmax uh it will
+prevent the value vectors future value
+vectors from being present in the
+context vector calculation but it will
+not prevent the future keys from being
+present uh in the context vector
+calculation. The future key will still
+be present if you are simply converting
+upper triangular elements into zero. So
+what you have to do is before you take
+softmax you apply minus infinity to all
+the upper triangular elements so that
+future keys are not participating
+because all the contribution from the
+future keys be will become e raised to
+minus infinity which will be which will
+be zero. So all the keys in the future
+will not contribute to calculation of
+the present attention weights and all
+the future value vectors will not come
+into picture because the query.key key
+transpose dot productduct which are
+attention weights resulting in the
+attention weights matrix will all be
+zeros for the future values. So we will
+get a a clean attention weighted sum of
+value vectors where only the current
+value vectors are or value vectors up
+until the current token is used for
+predicting the next context vector and
+also those weights in the weights
+calculation only the keys up until that
+point is being considered in calculating
+the weights. So it's clean on both
+sides. So this is a brief summary of
+today's lecture. I'll be sharing the
+code files and u the slides with you.
+Please go through it. The last thing
+which we discussed in the lecture was
+about dropout. You can randomly drop out
+elements but then rest of the elements
+you have to scale up accordingly. That's
+the only thing that you have to take
+away from today's lecture. So thank you
+so much. We will meet again in the next
+lecture when we will discuss about about
+multi head attention and that will be
+the I would say one of the last lectures
+in the first initial module of this
+series where all the basics of attention
+mechanism is covered and we'll be fully
+equipped to move into more complex
+attention mechanisms. Thank you so much.
+Take care. See you in the next lecture.
+Bye.

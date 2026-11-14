@@ -1,0 +1,1173 @@
+Hi, welcome back to a new lecture from
+the attention family series. In today's
+lecture, for the first time in this
+series, we will be discussing about self
+attention. In fact, we will be
+discussing a simplified version of the
+self attention in today's lecture and
+simplified because this will not have
+any trainable parameters. So, we will
+look at the trainable parameter based
+attention mechanism in the next lecture.
+But today, let us look at the self
+attention in a very simple manner.
+So, we will discuss about context
+vectors. We will also discuss about the
+attention score calculation when tokens
+are attending to each other etc. But
+before that let's do a quick recap of
+the last three lectures. What we
+discussed in the lecture number two, we
+discussed regarding how recurrent neural
+networks were used in encoder and
+decoder in neural machine translation
+for let's say converting English into
+French translation and there the problem
+was one context vector was responsible
+for capturing everything that is there
+in the input sequence and that was too
+much pressure on one single context
+vector and badano attention which was
+also called as additive attention fixed
+this to a great extent by introducing
+context vectors that vary depending on
+what token the decoder is decoding at
+that moment. So if decoder is writing
+the French equivalent of the English
+word cat which is chat um the attention
+scores would be different where the
+attention score the attention will be
+paid maximum to the token cat. So the
+attention score between cat uh the
+hidden state of cat and the hidden
+decoded state corresponding to chat that
+will be highest and this was the fix
+produced by badano badano's attention
+and that was the first time that the
+concept of attention mechanism became
+prevalent and for that reason that paper
+has almost 45,000 citations now
+however one interesting thing was bad
+attention was not a dot product based
+attention between uh tokens but rather
+it was something called as additive
+attention Meaning we had a formula that
+looks something like V dot
+tan hyperbolic of
+w1 multiplied by hidden state
+corresponding to the uh encoder plus w2
+which is weights multiplied by hidden
+state corresponding to decoder. So
+because you are doing the weighted sum
+of the hidden states in the encoder and
+decoder. This is called as the additive
+attention. Here is the addition
+happening. Then that is passed through a
+tan hyperbolic activation function and
+then whatever is resulting the resulting
+vector is taken as a dotproduct with
+this learnable vector V and the
+resulting score is the attention score.
+Attention score
+but an even simpler mechanism is there
+which was simply taking dot product
+between the tokens that need to attend
+to each other. So in the last lecture we
+discussed about dot product attention
+and scaled dot product attention and we
+discussed that the scaling which is
+dividing by square root of D is very
+important to make sure that the softmax
+scores are not becoming saturated
+because if softmax scores saturate it
+will cause issues during training
+because the loss may become very small
+and for that reason the LLM training
+will not be very efficient. So this all
+of these we discussed in the last three
+lectures. Now in today's lecture we'll
+be purely looking at self attention
+mechanism and now today for the first
+time we are entering this category or
+this bucket. We have been coming back to
+this figure again and again in this
+series. Basically this figure is showing
+the different buckets in which the
+different attention mechanisms that we
+will be discussing in this series is
+belonging to. So in the last three
+lectures we've we've completed this
+scoring bucket meaning how the attention
+scores are calculated and there were
+there were three items the bad attention
+dot product attention and scaled dot
+product attention and in today's lecture
+when it comes to connectivity bucket
+what we are discussing is how tokens
+which tokens are allowed to attend to
+which other tokens. Okay. So this is
+where we are at.
+Now
+one thing to note is when we are talking
+about self attention mechanism you will
+come across three terms quiry key and
+value. Actually this quiry key and value
+are all produced from the same input
+token. So X input is converted into
+query converted into key and converted
+into value. This is how it is done
+practically. However, for today's
+lecture, because it's a simplified self
+attention, we won't have any trainable
+weights. Which means quiry, key, and
+value will not exist as three separate
+things. If you are not familiar with
+what is quiry, key, and value, don't
+worry because that in this series, we
+have not yet discussed what is query,
+what is key and what is value. That we
+will discuss in the next lecture. So, in
+the next lecture, you will have very
+good clarity or very good intuition on
+what exactly is query, key, and value.
+But in today's lecture we will look at
+uh this whole process from an even
+simpler perspective. The perspective is
+that currently there won't be any
+trainable parameters involved in
+deciding the attention score.
+So this is the upcoming sequence I would
+say it may be four different lectures or
+sometimes I may decide to convert some
+of these concepts into one single
+lecture but essentially we have to cover
+simplified self attention. After that we
+will look at attention with trainable
+weights. With trainable weights meaning
+we will have query weights matrix, key
+weights matrix and value based matrix to
+convert x which is input into query
+comma key comma value. This we will
+discuss in the next lecture. After that
+we will discuss the mass self attention
+or causal attention and after that we
+will discuss about multi head attention.
+So this is the sequence that we are
+going to follow in the next few
+lectures. So today's lecture is divided
+into three parts. First we will see the
+difference between bad attention which
+was actually not the same sentence
+looking at itself. It was actually the
+French s sent sentence looking at
+English sentence. So it was technically
+like a cross attention rather than a
+self attention. But we'll see the
+difference between bad's attention and
+the self attention we will look at uh in
+today's lecture and we will also see how
+the embedding which is the vector
+embedding corresponding to every single
+token how is it converted into context
+vector. So embedding we will denote by
+the symbol X and context vector we will
+denote by the symbol symbol zed. Um and
+we will see in self attention that we
+will discuss today how this context
+vector is calculated. Of course it is
+calculated using scale.product but we
+will see the details of how exactly the
+calculation goes. Then we will look at
+an example sentence dream big and work
+for it. So this is the sentence that we
+will look at which has 1 2 3 4 5 six
+words which which translates to roughly
+six tokens but uh that is an
+approximation and each word we will try
+to represent using a three-dimensional
+vector. So we will have dimension x1 x2
+x3.
+So we'll have a three-dimensional vector
+to represent each of these tokens and we
+will see using those vectors we will
+assume some numbers. So starting with
+the numerical set of vectors, we will
+see how to calculate the attention
+scores and uh we will also see how the
+entire process of going from tokens
+which are X into attention scores and
+then finally into context vector. How
+can this whole thing be represented by
+one single equation, one single
+mathematical equation which is basically
+involving matrix multiplication and
+softmax calculation. So we will see that
+and in fact the formula which is which
+was introduced in the attention is all
+you need paper which is softmax of so
+I'll just write it down here although
+I'm not expecting you to fully
+understand if you are not aware of it
+but softmax of quiry timepose
+query keyranspose divided by square root
+of d multiplied by value. So this is the
+formula which helps us calculate the
+context vector for given a query key
+value which was introduced in attention
+is all you need paper but in today's
+lecture you will see the equivalent of
+this formula would be soft max of and we
+don't have query key value in today's
+lecture everything is the input x so x
+dot xrpose
+divided by square root of d square root
+of d is a dimensionality square root of
+dimensionality multiplied by x because
+uh we don't have query key and value
+separately or everything is basically
+the input token X. So we will see this
+formula towards the end of the lecture.
+So these are the three parts. So first
+let us look at the difference between
+bad attention and self attention. So in
+bad attention we said we are having
+French token. So I I'll call this as
+F_sub_1 and F_sub_2. So this is the
+French token number one and French token
+number two. And I'll put this as E1 E2
+E3. So what is happening in this
+particular example is an English
+sentence with three words is converted
+into a French sentences with uh two
+words. Uh so there is no guarantee in
+translation that the number of words in
+the input and number of words at the
+output are the same. Right? Translation
+is uh dependent on the languages. So and
+because of that since bad attention is
+constructed such that the French tokens
+are attending to English tokens. So
+French is just an example. Okay. By the
+way please don't take it that French and
+English are the only languages. It can
+be any languages but and it can even be
+paraphrasing. It can be any task but
+essentially what I'm saying is the
+attention is constructed between what
+you get at the output which is the
+output token and what you have at the
+input which is the input token which
+means it is not a self attention. A
+sentence is not attending to itself. The
+output is attending to the input. So
+because of that reason Badano attention
+in a generalized case it produces square
+uh non-square matrices as the attention
+matrix or attention map it will be
+rectangular. Okay because these are two
+different sequences and the number of
+tokens in each sequence can be
+different. On the other hand, in self
+attention, the same sentence is
+attending to itself. Meaning the tokens
+within one sentence is attending to all
+the tokens within the same sentence.
+Which means obviously it will be a uh
+when you can when you construct the
+attention weights matrix, it will be a
+square matrix. So basically these are
+attention weights. So if you add up
+these three numbers, it will add up to
+one. If you add up these three numbers,
+it will add up to one. So these three
+numbers will be let's say 6 +2 + 2, they
+will add up to 1. This may be 7 +.15
++.15. They will add up to one.
+Similarly, here each row will add up to
+one. These are all attention weights
+corresponding to one particular token.
+Let's say I call this as Q1 attending to
+um you know tokens in the same sentence.
+I I'll name this as K1, K2, K3, K4 etc.
+And it will be square matrix because one
+sequence is attending to itself. So this
+is one of the major differences between
+bad attention and self attention. We
+will also discuss in the in some of the
+future lectures the concept of cross
+attention and at that time you will see
+that uh in cross attention there is no
+guarantee that your attention weights
+matrix will be a square matrix there it
+could be again a rectangular matrix. So
+it depends on whether we are talking
+about a sentence attending to itself or
+tokens attending to themselves or tokens
+attending to a sequence of another set
+of uh tokens.
+So
+just look at this idea. Okay. So if we
+have the sentence the cat drank the milk
+because it was thirsty. This is the
+first sentence. I'll denote this as
+sentence sequence one or sentence one.
+This is sequence two. So here when it
+say when we say it here it was thirsty
+means cat was thirsty. So here the
+meaning of it is cat. However look at
+another sentence. The cat drank the milk
+because it was it was sweet. Here
+actually it does not mean uh cat it
+means milk because milk is what is sweet
+cat is not sweet. So but ultimately if
+you look at the tokens it is the exact
+same token
+but we can't have a fixed embedding for
+the token. If we had a let's say these
+tokens are represented using
+three-dimensional vector x1 x2 x3 okay
+we can't have the same vector
+representing it in both of these cases
+because clearly
+the
+meaning of it in sentence one and
+sentence two are different. So we have
+to have a mechanism to represent this or
+or change if there is a base embedding
+for the uh token it that base embedding
+somehow we should modify based on the
+available context. So here what is
+available context this entire sentence
+is the available context based on this
+available context we should be able to
+somehow modify the base meaning or the
+the basic embedding of it. Basic
+embedding is by default the term the
+token it may have a vector embedding
+that vector embedding somehow we should
+be able to modify depending on what is
+the context and the context is clearly
+different in the sentence one and
+sentence two and because of that the
+resulting vector representation of it
+should also be different okay so what we
+have to do is the embeddings which are
+represented using x so in this case I'm
+taking another sentence here dream big
+and work for it Okay, in this sentence x
+of 2 means this item. This is x of2 or I
+can simply call it as x with underscore2
+does not matter. It depends on what what
+is our convention. Um x2 is the actual
+vector embedding. But this vector
+embedding we can't take directly because
+this vector is not you know this uh
+token or this uh word is not standing in
+isolation. This is uh available within a
+context. So because of the context
+because of the available context we have
+to modify the embedding into something
+called as context vector. So self
+attention mechanism is the art of how to
+convert
+this x into zed how to convert the the
+default input embedding into a context
+vector. That is the whole question of
+what the self attention is going to do.
+So now let us look at some numerical
+examples. Okay. So I'm going to take the
+same sentence dream big and work for it.
+So dream big and work for it. Here I
+have taken a random um threedimensional
+vector random set of threedimensional
+vectors as the corresponding vector. So
+this is the vector corresponding to
+dream. This is the one corresponding to
+big and work for it. So totally we have
+six vectors. Each vector is living in
+three dimensional space. Obviously need
+needless to say in large language models
+the embedding space is much bigger. It
+can be 768 dimensions or,24 dimensions
+depending on uh the exact architecture.
+Now what will happen is if we draw these
+six vectors uh in three-dimensional
+space which in fact we are going to do
+in some time. Uh there is a simple
+Python script that I have written which
+I will walk you through. I will also
+share the link to this Python script.
+You will see that when you plot these
+vectors, some of the you know some of
+these vectors are pointing to a certain
+direction of space like dream big and
+work may be pointing to one um space in
+the semantic uh space or one area in the
+semantic space and these two tokens and
+and for which are kind of filler words
+they are pointing in another direction
+and it is pointing in another direction.
+So this may this may happen this we had
+discussed in the last lecture also. So
+you may if the sentence has words which
+are like apple, mango, oranges etc. they
+all may point into a certain direction
+of space which may correspond to fruits.
+So this is a semantic space
+corresponding to fruits. And if there
+are bunch of animals which are mentioned
+in the sentence like lion, zebra etc.
+they may those tokens the embeddings
+corresponding to those tokens may point
+into a different d different uh region
+in the semantic space corresponding to
+animals. Okay. So vectors carry meaning
+the the direction as well as magnitude
+there is some significance associated
+with it. Now let's look at the self
+attention scores how the self attention
+scores can be calculated when the token
+begin and because we said self attention
+it's like you pick one token from the
+sentence and you let that token attend
+to all the tokens within the same
+sentence. Meaning we will take big as
+the input token which is X of 2 or X2
+and we are saying what is the what is
+what are the attention scores if X is
+the token which is attending to every
+other token. So X uh X meaning X of two
+which is big. So big attending to dream
+big attending to itself then big
+attending to and big attending to work
+and like that. So totally when when the
+token big is attending to itself and to
+all the other tokens in the same
+sequence. First of all how many
+attention scores will be there? The
+total number of attention scores should
+be equal to total number of tokens in
+the sequence. So in this particular
+sequence we have 1 2 3 4 5 6. We have
+totally six tokens and now right now big
+is attending to all the tokens. And as a
+result we have currently six attention
+scores. The best way to denote this
+attention score is probably using some
+notation like omega or something. So we
+can call this as omega uh 21. This is
+omega 22.
+This is omega 2 3. So in my notation
+omega this two_2 denotes that the fact
+that I'm taking big which is the token
+number two as the token as the quiry
+token which is now attending to all the
+rest of the tokens. So now omega 21
+omega 22 omega 2 3 omega 2 4 omega 25
+and omega 26 those are the raw attention
+scores. Now you may have a question how
+come the value of the and how are these
+scores by the way calculated? It's
+simple dot product. You are taking the
+vector corresponding to big and you are
+taking the vectors corresponding to all
+these tokens and you are performing dot
+product. So and the dot and the result
+of the dot product is a scalar right
+scalar number. So you might have a
+question when you perform dot product
+how come the dot product between big and
+itself so the dot dot product between
+big and big how come that is not the
+highest because they are pointing in the
+exact same direction right because big
+as a vector is pointing in the same
+direction as itself which means the
+value of that should be highest no but
+there is a small thing to note this the
+thing is that yes that value could be
+highest But there is also magnitude to
+these vectors. So to give an example,
+this is a very simple example. Let's say
+this is the vector corresponding to big
+and let's say this is the vector
+corresponding to maybe work. Okay. So
+this is correspond this is the vector
+corresponding to work and this is the
+vector corresponding to big.
+Now one thing to notice when we are
+creating embedding space the magnitude
+of all the vectors are not equal to one.
+The magnitudes can vary. So if big is a
+vector which is pointing to itself then
+here 91 is basically
+the dotproduct
+like something like x2 dot x2.
+But you can imagine that when you are
+taking the dot product between work and
+big you are essentially taking a
+projection of work onto
+onto this line. Right?
+So you are you are essentially saying
+uh and what is work? Work is x3 uh x4 so
+x4.
+So when you do the dot product of x4 dot
+x2
+you get something like x4 x2
+cos theta
+where cos theta is the this theta is the
+angle between the um oh for some reason
+I'm not able to select one second. So
+this theta is the angle between the two
+vectors
+and you can already imagine that if
+theta is a small number so if this angle
+is a small number
+then x4 dox2 can actually be bigger than
+x2 dox2 and that is what you are seeing
+here. So here the dot product between x2
+and x4 is 1.04 which is resulting in
+omega24 whereas the dot product between
+x2 with itself is only 0.91.
+So this can happen because the vectors
+are having different magnitudes. So just
+pay attention to that. Now
+what is happening here is this dot
+product it's rewarding the length of the
+vector as well as direction. Right? Uh
+so this you already saw. So in this case
+when big when the token big is attending
+to all the tokens in the same sequence
+the attention score is highest between
+big and work. Okay. So this is just a
+distribution of the attention scores but
+attention scores the raw attention
+scores we don't use as such. We
+obviously convert the attention scores
+using softmax into attention weights.
+Okay. So there is one more question that
+we could ask ourselves. If our goal is
+to convert the uh scores into something
+which which will add up to one and let's
+say the scores are something like 1 2 3
+6. Let's say these are the raw attention
+scores. Why can't we divide each of
+these scores by the sum? So sum is 6 + 3
+9 + 2 11 11 + 1 12. So why can't we
+divide each of these numbers by 12 and
+that way we get a probability
+distribution which will add up to one.
+Right? So here we get something like
+this. This distribution will add up to
+one. The problem with this is the dot
+product when you take dot product
+between vectors if the angle between
+them is let's say greater than 90° the
+dot product itself can be a negative
+number. So what will happen is you will
+end up getting probability scores which
+are like negative numbers or rather
+attention scores which are like negative
+numbers.
+You don't you don't want that. You want
+to say either these tokens attend to
+each other or you say these tokens do
+not attend to each other at all. If they
+don't attend to each other, the score
+should be very close to zero. If the if
+they if they attend to each other very
+well, the score could be very close to
+one. Right? That is what you're trying
+to say with the attention weights. When
+you convert the attention scores into
+attention weights, that's what you want
+to do. So softmax actually takes care of
+that issue. Even if the attention scores
+are negative or uh any sort of numbers
+softmax will ensure that the resulting
+numbers are one positive and second it
+will also ensure that the sum will add
+up to one. So here these are the
+resulting softmax numbers and you can al
+already see that the dominant number
+here was six and here again you can see
+the fourth number the fourth item in the
+sequence is the dominant one. I mean
+here I'm taking a different example.
+Okay. So in the previous example there
+were six attention scores. Here there
+are only four attention scores. So
+please don't get confused by seeing now
+suddenly four attention scores and over
+what happened to the remaining uh two
+attention scores. No, this is a
+completely different example which I
+took to tell you why we are doing softax
+rather than just you know dividing by
+the sum of these numbers. So we take
+softax due to the reason that we want to
+convert these numbers into a probability
+distribution. The sum should be equal to
+one and every number should be positive.
+Now the scores were denoted by omega
+right uh omega 1 omega 1 2 or in this
+case omega 2 1 omega 2 eta 2 3 etc. So
+these are the attention scores which
+will be which will be negative also
+depending on the dot product value and
+they will not add up to one and
+attention scores omega is converted into
+attention weights alpha and alpha is
+basically the um probability
+distribution. So here what we are
+essentially looking at is alpha 21 this
+is alpha 22 this is alpha 2 3 and so on.
+So what does this mean? This is the
+attention weight where the token number
+two is attending to token number one.
+This is the attention weight when the
+token number two is attending to token
+number two itself. Basically the token
+attending to itself. This is the
+attention weight when the token number
+two is attending to token number three
+and so on. So these alphas will add up
+to one. Omegas will not add up to one.
+Now
+let let's proceed ahead and uh have a
+look at how the context vector will look
+like. Okay. Now what are we going to do
+with these alphas?
+Because the attention we got the
+attention weights fine but what's our
+ultimate goal? Our ultimate goal is not
+to simply have bunch of attention
+weights. Our goal is to use these
+attention weights to produce context
+vectors. So our goal right now is to
+convert x of 2
+into zed of two. How do we do that? How
+do we convert x of2 into zed of two?
+What we do is we have we have six
+attention weights, right? So zed of 2 is
+nothing but
+z of2 equal to alpha 21 * x of 1 plus
+alpha 22 * x of 2 plus alpha sorry this
+is not 32 this is 2 3 alpha 2 3 * x of 3
+so on until x of 6 and how did we get
+alpha we got alpha 1 or basically alpha
+equal to
+uh let me just delete this. Alpha is
+equal to
+soft max
+of
+how did we get alpha? Alpha was the soft
+max of dotproduct between x with itself
+x dot x in in fact in terms of matrix uh
+notation we have to say x doxrpose.
+One step I have not mentioned here is
+when you get the raw attention scores
+these omegas you divide it by square
+root of d as we discussed in the last
+lecture to make sure that the softmax
+scores which we get when we convert
+attention scores into attention weights
+should not saturate. So this divided by
+square root of d is also there.
+So this is how we got alphas and now
+those alphas are being multiplied by x
+again. So in terms of matrix notation we
+can simply say context vector zed in our
+current case is equal to softmax
+of
+x doxrpose
+divided by square root of d. What is
+square root of d? Square root of
+dimensionality of the embedding space.
+In this case it will be square root of
+three because it's a threedimensional
+space multiplied with x. So that is
+essentially what is happening. And if
+you open the attention is all you need
+paper and if you look at the formula the
+formula there will be pretty similar to
+this except x will be replaced by query
+key value. I'll quickly show you the
+formula but in detail we will discuss
+this in the next lecture. If you are
+already familiar with all of this by the
+way you can feel free to skip this
+lecture. Okay. I'm sure some of you are
+already familiar with this and you might
+find this very elementary. If that's the
+case no worries like you don't have to
+uh follow this lecture necessarily.
+However, if you want to use it as a
+refresher, feel free to do that. So,
+this is the attention of QV.
+Essentially, what is this attention of
+QV? It is the context vectors. So,
+context vectors is equal to softmax of
+quiry dot keyrpose divided by square
+root of D multiplied by V. In our case,
+quiry key and value everything is the
+input X itself because we are we
+implementing a simplified self
+attention. So, our formula will look
+something like this. Soft max of X
+doxpose divided by square root of D
+multiplied by X. Okay. So how did we get
+zed of 2? Zed of 2 is basically x1 *
+alpha 21 plus x2 * alpha 22 this formula
+or alpha 21 * x1 plus alpha 22 * x2 plus
+alpha 23 * x3 and so on. So that is our
+context vector z of 2. What if you
+wanted to calculate um context vector
+corresponding to z1 basically uh let's
+say token corresponding to dream is
+called x1. What if I wanted to convert
+x1 to z1?
+What will we do? First we will calculate
+the omegas. Basically omega 111 omega2
+etc. up to omega 16 we will calculate.
+Then we will divide those omegas by
+square root of d which is the normal
+scaling. Then we will take soft max to
+convert them into omega alpha 111 alpha
+2 etc up to alpha 16. Now we are ready
+to calculate zed 1. What is zed 1? Z1 is
+equal to alpha 111 * X1 plus alpha 2 *
+X2 plus etc up to alpha 16 * X6 that is
+the final
+context vector corresponding to token
+number one like this you can calculate
+any context vector and uh did we discuss
+any trainable parameter in this whole
+case? No, the only question you may have
+is how did we get the input embedding in
+the first place? How did we get X1? How
+did we how did we get X2? How did you
+how did we get X6? That question you may
+have that you can imagine we have an
+already defined let's say you you you
+imagine that we already have a well-
+definfined library like a word to
+library or basically a set of embedding
+matrix which tells us if this is the
+token this is the vector this is the
+token this is the vector. The way it is
+created in the first place is through is
+through training a a very big neural
+network but that we are not going to
+discuss right now. It's a it's a
+separate discussion altogether. But once
+you have the base uh word embeddings to
+calculate the context vectors, it's all
+about calculating the uh attention
+scores like this. So here to calculate
+alpha 111, alpha 12, alpha 1 16 etc. We
+did not use any trainable parameter. We
+use the input embeddings directly and
+using the input embeddings themselves we
+generated these alpha values. But in
+reality when in the real attention uh
+weight or attention score calculation
+this is not what happens. Okay. Now the
+last part of the lecture let's look at
+this whole thing uh overall. So first uh
+look at this dimensionality. Okay x is
+6x3. Why is x 6x3?
+Why is it 6x3? X is 6x3 because we have
+six words dream big and work for it. We
+have six words and each word is living
+in a three-dimensional space. So this is
+word number one dream big work and work
+for it. And this is the dimension one,
+dimension 2, dimension 3. That's a 6x3.
+So this is the input embedding.
+Now input embedding multiplied with the
+transpose of itself. So 3x 6 is
+basically xrpose.
+What do we get? We are essentially
+getting dot product. We how many dot
+products will be there? The resulting
+dot product matrix will be 6x6. So when
+you are multiplying a 6x3 matrix with a
+3x6 matrix, you will get a 6x6 matrix.
+So this is equivalent to taking dot
+products. And here what you have is
+attention scores. I mean if you take
+soft max if you divide by square root of
+D and then take soft max it will be
+attention weights otherwise it'll be
+attention scores. Uh so here we have
+already mentioned that we are taking
+softax row wise. So each row
+each row will add up to one and each row
+is the attention score uh attention
+weight corresponding to that particular
+token. So the first row is basically a
+set of attention weights corresponding
+to token X1. Second row is the attention
+weights where we are considering X2 as
+the token which is attending to all
+other tokens and so on. So totally how
+many attention weights do have do we
+have? We have 36 attention weights.
+Okay. And one more question I have here
+is
+um
+are the attention weights symmetric?
+Meaning if I transpose this matrix, do
+you think the attention weights will
+remain the same? So my question is is
+alpha 1 alpha12 is equal to alpha 21. Is
+this true? That's my first question.
+Second question is is omega12 is equal
+to omega 21.
+Omega is by the way attention scores.
+Alpha is attention weights. We can
+already see that this is true.
+Omega2 is equal to omega 21 y. The way
+omega is calculated omega2 is nothing
+but
+x1 when we take dot product of x1 with
+x2. And then if we do divide by square
+root of d. So x1 dot product with x2
+divid by square root of d is same as x2
+dot product with x1 divided by square
+root of d. So omega 1 2 is same as omega
+21. Is it is it same for alpha? Do you
+think alpha12 is equal to alpha 21?
+Alpha 12 need not necessarily be equal
+to alpha 21 because to calculate alpha
+you are not just dependent on omega2
+because to go from omega to alpha you
+are taking soft max. So which means you
+are dependent on um other omega values
+also to calculate alpha. So there is no
+guarantee that alpha 12 will be exactly
+equal to alpha 21.
+So just remember that in general this is
+not true. Okay, the attention weights
+alpha 12 is not necessarily same as the
+attention weight alpha 21. Okay, so once
+you have the attention weights, you
+multiply that with the matrix again 6x3
+matrix which is the same 6x3 matrix
+which is over here. So this is the input
+embedding. But if this was um attention
+mechanism with trainable parameters
+instead of X this would have been the
+value vector value matrix V. But in this
+case currently or value when I say value
+matrix I mean the collection of value
+vectors but here it's the collection of
+input embeddings themselves. So this is
+input embedding number one like that we
+have six input embedding 1 2 3 4 5 6
+each of them are threedimensional
+vectors. So you multiply this 6x6
+attention weights matrix with this 6x3
+uh input embedding x to get 6x3 uh
+context vector. So what what do I mean
+by 6x3 context vector? the the six
+context vectors each living in
+threedimensional space. So this is Z1
+which is a context vector corresponding
+to first token. This is Z2 like that.
+This is Z6. So this is how you convert
+uh you know X1 etc up to X6 into
+corresponding context vectors Z 1 Z 2 Z
+3 etc up to Z6. And these context
+vectors play a very important role in
+large language models in the next token
+prediction.
+Okay. So moving on, this is an actual um
+numerical example. This in fact we will
+see soon. Uh we can go through this code
+file once uh and we will run the
+different cells and we'll see. But
+basically the um attention weights one
+particular row if you look at it, it
+will look like this and the numbers will
+add up to one. This we will easily see.
+And I have one question or one thought
+process for you. X2 is the original
+input embedding corresponding to big,
+right? and zed2 is the context vector
+corresponding to the token build. X2 and
+zed2 need not be pointing in the exa
+exact same direction. Zed2 is a
+modification that we are bringing to X2
+using the attention uh weights. So you
+might see that Z2 will change its
+direction compared to X2. It may point
+in slightly different direction
+depending on how much the how much
+information the rest of the context is
+bringing uh bringing in in the form of
+attention weights. So this also we can
+plot our uh vectors in 3D and we will
+see this. Now let us move on to PyTorch.
+Yeah, this is one last point in today's
+lecture. We are having query equal to
+key equal to value equal to X because we
+are not having any weights matrix or we
+are not having any transformation matrix
+which converts X into query space. X
+also into key space and X into value
+space. We are not doing that. And again
+when I keep saying query key value if
+you are not familiar with that term with
+those terms don't worry. We'll be
+discussing about it in detail in the
+next lecture. So now let us go through
+the Google collab notebook once. It's
+very simple. These are the same words
+dream big and work for it. And we have
+six vectors total. This is the vector
+number one. This is a vector number two,
+vector number three. Each of them are
+three-dimensional vectors corresponding
+to each of these tokens. So just run
+this. And the shape is 6x3. Six uh
+tokens and each of them in three
+dimensions. And here in this block I'm
+just printing the magnitude of those
+tokens. I'm not going to go through the
+code line by line because it's a fairly
+straightforward code. Okay. Uh but
+essentially I just wanted to print the
+magnitude of these tokens to show you
+that every tokens are not of same. It's
+not unit dimens uh unit magnitude. The
+magnitudes are different. So clearly
+here you can see that the token work has
+a magnitude greater than one. Many other
+tokens. Some of these tokens are very
+small. Uh this is the dream is the token
+with the with the lowest magnitude. Now
+what we can do is we can simply make a a
+basic 3D plot of all these six tokens in
+the three-dimensional space. So in the
+threedimensional space you can see that
+work big and dream these three tokens
+are pointing into some common uh
+direction. It seems like similarly for
+and and they are pointing in another
+direction and it it is pointing in a
+completely different direction. So when
+we take dot product I assume that dot
+product between it and the rest rest of
+the tokens will be a bit small. Um
+whereas dotp productduct between four
+and four and and will be big. Dot
+product between big and work will also
+be big. And we will also try to convert
+this big this vector. Which one is the
+big vector? This one. This is the vector
+corresponding to big. We will see what
+happens to this vector once this is
+converted into a context vector.
+Uh okay. Let's go down.
+Now we are calculating attention score.
+So attention scores are inputs
+multiplied with the um query. So what is
+actually uh inputs in in our case we are
+interested in calculating the attention
+scores where big is the query and rest
+of the tokens are all the keys right. So
+query equal to inputs of one meaning the
+uh from the inputs the item at the at
+the index number one. Index number one
+meaning second item we are picking. What
+is the second item? This one inputs of
+one is this row. This is the inputs um
+variable and inputs of one is this
+particular row. So now this is the
+query.
+And
+so what we are doing is we are
+calculating attention scores by taking
+the dot product between inputs and the
+query. Inputs is all the six um
+embeddings and query is just the
+embedding corresponding to big. And this
+results in six attention scores. The as
+I mentioned omega 21 omega 22 omega 23
+etc. So the dot product between big and
+dream is 0.801 8005. This is omega 21.
+This is omega 22. This is omega 23. This
+is omega 2 4 and so on. Now these are
+six attention scores. Now we can convert
+in a naive way the attention scores into
+we can try to convert it into attention
+weights by dividing by the sum of those
+scores. Otherwise the better way to do
+that is to run softmax. So here we'll be
+using softmax to convert attention
+scores into attention weights. So after
+converting scores into weights these are
+the numbers and obviously whichever is
+dominant. So here we can see that the
+dominant attention score is 1.037.
+Basically the dot product between big
+and work. So even after say taking
+softax that will remain that that will
+be the case. So after taking soft max um
+which one between big and work this will
+be the dominant one. See 0.2059.
+So this is the dominant one and there
+some will ideally they will add up to
+exactly one. Here it is slightly above
+one because the precision we are not um
+taking into consideration that these
+numbers have certain floating point
+precision.
+Then um okay so this is the final
+softmax attention uh weights. Now what
+do we do? We use these attention weights
+and we multiply with the inputs. So this
+is the step where we are doing soft max
+of x doxrpose divided by square root of
+d multiplied by x to get the context
+vector. So the final resulting context
+vector zed is this one 0.5982,
+0.3431,
+0.5794
+and this is zed of two zed of two
+because this is the context vector
+corresponding to big and in fact we can
+also calculate context vector
+corresponding to all the vectors. So
+attention scores will be 6x6 matrix
+which is inputs multiplied by the
+transpose of inputs. So here we are take
+essentially taking the dotproduct of all
+the inputs with itself and this will be
+a 6x6 matrix as you can see here and
+then attention weights will be
+calculated by taking soft max are we
+taking soft max row wise or column wise
+we are taking soft max row-wise every
+row should add up to one every column we
+need not add up to one every row should
+add up to one so dimension equal to
+minus1 denotes that we will be taking
+soft max along the row and uh here we
+are simply printing the attention uh
+weights. So these numbers
+will add up to one. These numbers will
+add up to one and so on.
+Uh and then finally we can calculate the
+context vectors which is attention
+weights multiplied by the input
+embeddings and these are the six context
+vectors. Context vector number one,
+context vector number two etc. We can
+plot all the context vectors but it is
+better we if we plot the same embeddings
+which we had before and plot one of the
+context vectors. So here what I'm
+plotting is I'm plotting the same
+embeddings as before except uh one item
+one additional context vector we are uh
+plotting here Z of two. So Z of two is
+the context vector corresponding to big.
+This brown color arrow this green color
+arrow is the original input embedding
+corresponding to big and you can see
+that the original input embedding has
+been modified a little bit here based on
+the available context. If the available
+context was something else then the the
+way in which big would have been
+modified would have been different.
+Right? So this is what I had discussed
+in the early beginning part of the
+lecture in the in one of the initial
+slides I had mentioned that you know u
+the cat drank the milk example. Let me I
+don't you know I don't remember the
+exact sentence. Let me go back.
+This was the exact sentence.
+The cat drank the milk because it was
+thirsty versus the cat drank the milk
+because it was sweet. So the input
+embedding original input embedding of it
+would be the same. But when it is
+converted so x of it will be the same in
+both case. But what we are doing is we
+are converting x of it into zed of it.
+And do you think zed of it will be same
+in both of these cases? No. Zed of it
+will not be the same in both cases
+because the available context for it in
+sentence number one is different from
+available context for it in sentence
+number two. So even if X of the X of it
+which is input embedding of it in both
+cases are the same. The resulting
+context vector corresponding to it will
+not be the same. They will be different.
+And that is how this whole context
+vector calculation is adding tremendous
+value into uh our whole uh calculation
+that we have been discussing so far.
+Okay. So what we have discussed so far
+is just a simple attention mechanism
+without any um trainable parameters. So
+zed equal to softmax of x * xrpose divid
+by square root of d is also there I'm
+not mentioning it multiplied by x. Okay,
+then
+we have discussed all of this uh that
+the recap of this lecture. This is fine.
+In the next lecture, what we are going
+to do is we will look at how we can
+convert the input embeddings into query
+key and values. So the same input
+embedding. Basically X will be converted
+into Q. X will also be converted into K
+and X will also be converted into V
+using WQ, WK and WV respectively. So in
+the next lecture we will discuss the
+intuition behind why we are doing this.
+What exactly is key? What exactly is
+query and what exactly is value. Those
+points we will discuss in the next
+lecture. And um I think now you are
+slowly becoming better and better at
+having a good intuition about the
+attention mechanism. And by the way this
+is the most simplest attention mechanism
+mechanisms. Uh we are we are moving
+slowly to more complex attention
+mechanisms in the future lectures. But
+whatever you saw today u is something
+that will lay the foundation for
+everything else that is um yet to come
+in this lecture series. So I think the
+Google collab notebook also we have
+covered fully. I'll share the link to
+the slides and Google collab notebook
+with you. I also have a basic attention
+uh simple attention lab where you can
+interact with different tokens and see
+how the attention raw attention scores
+look like and how the attention um
+weights look like and how the you know
+each individual row here looks like. You
+can also try dividing by the uh sum
+versus dividing by uh versus converting
+into softmax. Just a basic exercise.
+This we already discussed. That's the
+reason why I did not go through this
+lab. But in any case, I'll be sharing
+the link to that lab if you want to just
+interact with it and play with it. So,
+thank you so much. We will wind up
+today's lecture here. See you again in
+the next lecture and take care until
+then. Bye.

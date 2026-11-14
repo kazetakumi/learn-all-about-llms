@@ -1,0 +1,1807 @@
+Hi, welcome to a new lecture from the
+attention family lecture series. In
+today's lecture, we will learn about
+multi head attention. Multi head
+attention is implemented in almost all
+modern architectures and there is a very
+specific reason why we can benefit from
+having multiple attention heads looking
+at the same token sequence in parallel.
+We will first understand the logic of
+the implementation and then we will see
+mathematically how it is implemented.
+Specifically we will look at two
+techniques. In the first technique we
+will see how the attention heads can be
+processed in series using for loops and
+we will see that it is slow and in the
+second technique we will see the same
+thing can be implemented mathematically
+by using a a simple matrix
+multiplication technique. So that is
+what we're going to do uh what we going
+to discuss in today's lecture. Before
+that let's have a quick recap of what we
+saw in the previous lecture. So in
+lecture seven first we discussed the
+need for having to mask some of the uh
+dot products between queries and keys
+especially if query is going to look at
+the keys from the future. So we saw that
+we have to construct an upper triangular
+mass like this in the attention weights
+matrix. So what we did was because we
+are converting attention scores into
+attention weights using softmax which
+involves calculation of exponents. We
+first convert all the upper triangular
+elements into minus infinity such that
+when you take soft max those numbers
+will become zeros because e ra to minus
+infinity is zero. So the steps that were
+involved in this calculation was we
+first have input tokens. Input tokens
+are converted into quiry key value space
+using uh quiry w matrix keyways matrix
+and value matrix and then we can
+calculate the attention scores by taking
+the dot product between quiry and key.
+So this attention scores matrix is not
+yet uh scaled by dividing by square root
+of d. So you scale by dividing the
+numbers by square root of d. And we have
+discussed in in detail in the past
+lectures why this scaling is needed. And
+you assign minus infinity to the upper
+triangular mask. And then you take
+softmax. And once you do this you have
+the attention weights with masking
+applied. And every row will add up to
+one. And you will so you will see that
+all the elements except the first
+element in the first row will be zeros.
+All the elements except the first two
+elements in the second row will be zeros
+and so on. After this we also discussed
+that to prevent overfitting during
+training we also implement dropout and
+if dropout probability is P we multiply
+or rather we scale the rest of the
+elements by a number 1 by 1 minus P
+because if half of the elements are half
+the weights are unavailable to produce
+the output we have to scale the output
+produced by the rest of the weights by a
+factor of two because if 50% of the
+items are missing and if the output
+magnitude has to remain unchanged the
+remaining weights will be scaled up by a
+factor of two. And similarly, if in
+general we are using a dropout
+probability of P, we will multiply the
+remaining elements which are not dropped
+out by a number 1 by 1 minus P. So all
+of this we discussed in detail in the
+last lecture. However, we were yet to
+discuss how all of this is implemented
+when it comes to multi head attention or
+MHA.
+So in this slide we are going back to
+the same figure that we have been
+looking at throughout the lectures and
+we will come back to this figure again
+and again and again. So in the initial
+lectures we looked at how attention
+scores are calculated. There were many
+different ways in which attention scores
+will be could be calculated. Initially
+we start started with uh additive
+attention or badano attention. Then we
+moved into dot product attention and
+then we looked at scale dot product
+attention and then we looked at uh self
+attention with trainable weights and
+before that we also looked at self
+attention without trainable weights. In
+the last lecture we looked at uh mass
+multi head attention sorry mass
+attention with single head not multi
+head. So that was about connectivity
+which tokens are allowed to look at
+which other tokens. In today's lecture
+for the first time we will look at the
+idea of can we do something uh to the
+attention heads themselves. So right now
+we'll be talk we'll be discussing how we
+introduce multiple attention heads. Now
+in this bucket there are a few more
+lectures that are upcoming. They are not
+necessarily the next lecture immediately
+but eventually all the lectures that we
+have in this series will fall into one
+of these seven buckets. So today we are
+going to look at the bucket number
+bucket number three for the first time.
+So
+in the first part of today's lecture
+we'll discuss about uh multi head
+attention and the lecture is actually
+divided into three parts. So part one is
+about why we implement MHA and part two
+and part three we will cover to discuss
+two different ways to implement MHA.
+This figure also I'm sure uh you have
+seen similar figure in the last lecture
+or last couple of lectures. We looked at
+simplified self attention without
+trainable weights. Then we looked at
+self attention with trainable weights.
+Then mast or causal self attention and
+now multi head attention.
+So before we jump into the um
+implementation through loops through
+four loops and also the implementation
+through the technique called weight
+split we will first see what is multi
+head attention and why do we introduce
+it? What is the advantage of having
+multiple multiple attention heads etc
+from a qualitative perspective and after
+that we will look at what happens to the
+dimensionality of the input token
+sequence in both of these approaches and
+finally what happens to the final output
+because if each attention head is
+producing an output we have to do
+something with that output to get back
+the context vectors. So please keep in
+your mind the goal here is to produce
+context vectors corresponding to your
+input tokens. That is the end goal. And
+somehow if you have six input tokens,
+you should have six context vectors.
+That is the end goal. So whether it is
+single head attention or multi-head
+attention, that goal has to be met. So
+we will see how that goal is uh met. So
+firstly, why multiple attention heads?
+To understand the need for multiple
+attention heads, look at this sentence.
+The dog chased the ball but it could not
+catch it. So here the last one, it
+refers to actually it refers to ball,
+right?
+But the verb who is trying to act on
+this it it is dog. So dog is trying to
+catch the ball. If we have a single
+attention head at the output of the
+single um attention head basically we
+have a set of attention weights and
+these attention weights individually
+multiply with the value vectors and then
+you sum up those value vectors and
+that's how you get the corresponding
+context vector.
+Now attention weight you can think of
+something that answers a question about
+that particular token. So let's say the
+token is this it you can say that if you
+have multi head attention each attention
+head answers one question about this
+token. Maybe the question that one of
+the attention head is asking and this is
+completely qualitative. Okay. So when I
+say this when I say that attention head
+is trying to answer a question about the
+token it's it's completely vague. uh
+it's a bit qualitative and uh that is
+the only way to kind of picture what may
+happen in attention head really what
+happens in attention in different
+attention heads is completely
+mathematical it's very difficult to
+unless you have some sort of attention
+visualization map it's very difficult to
+say this attention head is learning
+something this second attention head is
+learning something else third attention
+head is learning something else etc but
+in general we can it is safe to assume
+that there are [clears throat] multiple
+things to learn about this particular
+token which entirely cannot be possibly
+captured using one attention head. If
+you have a single attention head, you
+have one single context vector which is
+mapped to this particular token. And
+that is because you have one single set
+of um attention weights. On the other
+hand, when you have multiple attention
+heads, each attention heads heads
+produce completely independent set of
+attention weights. And using those
+attention weights, you will get one
+context vector out of every single
+attention head. So if you have three
+attention heads, for example, you will
+have three context vectors corresponding
+to this particular token. And you can
+hope that each of those attention head
+might be learning different things about
+this particular token. One attention
+head might be good at learning okay
+whether this is a noun or something
+else. Another attention head might be
+good at learning whether this is an
+animate object or inanimate object.
+Another attention head may learn some
+other feature. Um while the examples
+that I give are very vague and
+oversimplified versions, effectively you
+can say each attention heads heads
+learned something specific about that
+token. And when you have multiple
+attention heads acting in parallel, the
+resulting output is equal same number of
+context vectors as there are number of
+attention heads. And that collective
+output you can somehow make use of to
+produce a much richer representation of
+these tokens. So which cannot be
+accomplished using a single attention
+head. So that's the idea of using
+multiple attention heads. I know that
+this this is a very vague way to explain
+this but when you go through the
+mathematical steps it will be very clear
+how exactly it is implemented because uh
+mathematically how one attention head
+how a single attention head operates if
+you look at it in isolation versus how
+any attention head in a multi head
+attention operates if you look at it in
+isolation. It's more or less the same
+thing. you are trying to produce context
+vector corresponding to tokens, right?
+So at the end of the day, if you have
+five attention heads, you will have five
+tokens rather you will have five context
+vectors corresponding to every single
+token. But finally, at the very end of
+all of this, you want one context vector
+associated with one token. You don't
+want five context vectors associated
+with uh each token. So the question is
+how do you accomplish that? How do you
+produce if you have five attention
+heads, how do you produce five context
+vectors? And then how do you combine
+that everything into a single context
+vector corresponding to one token? That
+is the question that we are going to
+answer now. So mathematically this is
+how multi head attention works. So the
+simplest example for a multi head
+attention is two attention heads. So you
+have an input X which is a 6x6 matrix.
+So what is 6x6? You have six tokens and
+each token is living in a sixdimensional
+space. So this is token number one.
+token number two 3 4 5 6 and each token
+is living in a sixth dimensional space.
+So every row is basically one token. Now
+one way to imagine what attention heads
+do is typically and this is not always
+true but you will see that in many cases
+if you have n attention heads so let's
+say the dimensionality of your embedding
+space is d and if you have let's say n
+attention heads
+the dimensionality of the quiry keys and
+values in each attention head will be d
+by n so in this case d is equal to six
+and number of attention heads that I'm
+trying to show you here is two which
+means the dimensionality of the query
+key value space in each individual
+attention head will be three. So if that
+is the case the context vector resulting
+from every attention each of these
+individual attention heads will be of
+dimension 6x3. This is the context
+vector matrix by the way. Why is it 6x3?
+Because you have six tokens that has not
+changed. You have six tokens. However,
+the the dimensionality of the space in
+which that attention head is operating
+is 6x2 equal to 3. So the resulting
+context vectors will be
+three-dimensional context vectors. So
+this is context vector number one. This
+is context vector number two etc. And
+where are these six context vectors
+emerging out of? They are emerging out
+of the first attention head. Similarly
+from the second attention head also
+another set of six context vectors
+emerge and they are also in living in
+three-dimensional space. Now think about
+this you you have let's say this is your
+token number five corresponding to token
+number five how many context vectors do
+you have right now you have two context
+vectors you have this first context
+vector coming out of attention head
+number one you have the second context
+vector coming out of attention head
+number two so now for every token
+because you have two attention heads you
+have two context vectors however that is
+not the output that you want finally you
+somehow just want only one context
+vector vector per token. So what do you
+do? You concatenate this Z1 which is the
+list of context vectors coming from
+attention head one and zed 2 in such a
+way that you're concatenate them
+concatenating them along the embedding
+dimension. So you have 6x3
+concatenated along the embedding
+dimension with another 6x3 to get 6x6.
+So now you have six context vectors
+where each context vector is mapped to
+its corresponding token at the input and
+that context vectors are also living in
+sixdimensional space just like how the
+input embeddings were. Your input
+embeddings were living in sixth
+dimensional space. Your final context
+vectors are also living in
+sixdimensional space. Okay. So this is
+simply how multi head attention works.
+Now you should have a you should have a
+list of questions here. What about WQ1,
+WK1, WV1? what are their dimensions? You
+can easily imagine what their dimensions
+should be. So the dimensionality of Q1
+let's say this is uh the query of the
+belonging to the first attention head K1
+uh V1 etc. they all should be same as
+the dimensionality of Z1 which means the
+WQ1 matrix will be something like 6x3.
+So how do you get that? You have 6x6
+incoming operated upon by WQ1
+resulting in output which is 6x3. So the
+so Q will be 6x3 K will be 6x3 and V
+will be 6x3. Why 6x3? You have six
+tokens each of them living in three
+dimensional space in the query key value
+space within each individual attention
+heads. Okay. Now let us look at some of
+the details of u this whole
+implementation.
+One more thing uh before we go into the
+details. Yes, one more thing is after
+concatenation
+there is one small problem. The problem
+is that here the output from every
+attention head is in a is arranged in a
+specific order. But who says that this
+is the attention head number one and
+because of that that should go here and
+this is attention head number two and
+because of that that should go here like
+who decides what should come first right
+because I'm just labeling this as
+attention head number one I'm just
+labeling this as attention head number
+two at the end of the day one head does
+not get precedence over the other every
+head is doing its job they are all
+acting in parallel just because I I call
+this as attention head number one and
+just by because I call this as attention
+head number two at the output when you
+concatenate it should not be like a set
+of values are getting certain preference
+over the another set of uh when I say
+values a set of context vectors are
+getting higher preference over another
+set of context vectors that should not
+happen but that is happening here here
+if you look at the first three context
+vectors those uh not not first three
+context vectors if you look at the first
+three dimensions those first three
+dimensions are exclusively coming from
+context vectors emerging from attention
+head number one And the last three
+dimensions they are exclusively being
+contributed by the second attention
+head. But that should not happen like
+output should be sort of like it should
+be a mixed output meaning you should not
+be able to say that oh these three
+dimensions are completely contributed by
+this head and these three dimensions are
+completely contributed by the other
+head. So what happens in reality in
+practice when you implement is you also
+have an additional mixing step. So in
+this mixing step the output which is
+concatenated output it is passed through
+a mixing layer and mixing layers by the
+way should not change the
+dimensionality. So if you have six
+context vectors each living in six
+dimensional space that should remain the
+same. So 6x 6 should remain as 6x 6. So
+what you do is the mixing matrix is also
+6x6. So this happened to be 6x6 because
+your input is 6x 6. If instead you had
+let's say 12 tokens
+living in six dimensional space okay
+your W output would in this in that case
+would be again 6x 6 and output would
+become 12x 6 12 6 because 12 x 6
+multiplied by 6x 6 will become again 12
+x 6. So the W out in this case is purely
+dependent on the embedding
+dimensionality. And W out is like a a
+matrix which kind of jumbles the values
+in the sense like if you have a bunch of
+numbers here arranged in in a certain
+order because you concatenated zed one
+first followed by zed 2. By the time you
+come to this output of the mixing step,
+you won't be able to say that oh the
+first three dimensions belong to head
+number one and second the next three
+dimensions belong to head number two.
+You won't be able to say that. However,
+you can still track the context vector.
+So this is the input token, fifth input
+token. This is the context vector
+corresponding to fifth input token from
+the first attention head. This is the
+context vector corresponding to fifth
+input token from second attention head.
+And this highlighted uh row is the
+context vector corresponding to input
+token number one. Input token number
+five after concatenation. But here you
+can clearly say that first three
+dimensions belong to head number one.
+Sec dimensions belong to head number
+two. But after mixing this highlighted
+row is the final context vector belong
+corresponding to fifth token. And here
+you won't be able to say that these
+dimensions belong to this head and these
+dimensions belong to that head. you
+won't be able to say that because of
+mixing and uh this is the actual way in
+which multi head attention is
+implemented in practice.
+Now again there are a few more uh things
+we need to understand like when we
+implement batches because when you
+process tokens you are processing tokens
+in batches. You have a token sequence
+and like that you have bunch of token
+sequences and to make sure that this
+whole operation happens efficiently
+uh we have to perform a certain you know
+matrix transpose operation. So we will
+come to that in a few moments but just
+keep that in your mind.
+So first is let's have a quick
+visualization of how the uh
+dimensionality of the multi head
+attention looks like. So let's say we
+have six tokens and let's say input
+dimensionality is 12 and we have four
+attention heads. In this case what would
+be x? x is the input. X will be 6x 12. 6
+12
+because you have six tokens. 12 is 12 is
+the embedding dimensionality. If we have
+four attention heads the dimensionality
+of each within each head is three,
+right? 12 x 4 equal to 3. So each head
+will be taken care of
+each head will look like context vectors
+from each head will look like 6a 3
+and then you will have four such items
+concatenated
+one after the other along the embed
+embedding dimensionality to get back
+6x2.
+Okay. So just uh note this. So 12 is
+divided by 4. 12 is the embedding
+dimensionality. Four is the number of
+attention heads which means each
+attention head will be looking at three
+dimensions. By the way, this is not
+completely necessary. You could define
+an attention head where every attention
+head is individually looking at you know
+12 as the embedding dimensionality. You
+could do that but then your compute will
+blow up. So in practice when multi head
+attention is implemented it is
+implemented in such a way that each
+attention head looks at uh d by n where
+d is the dimensionality of the embedding
+space of the inputs and n is the number
+of attention heads.
+Now by the same logic you can say GPT2
+it had 768 as the embedding
+dimensionality and it had 12 attention
+heads and because of that the
+dimensionality of the context vectors
+residing uh from the output of uh every
+attention head will be 64 64 because 768
+divided by 12 and in GPD3 that number
+was 12,288
+that was the embedding dimensionality of
+the input and it had 96 attention heads.
+So each attention head the embedding
+space dimensionality of each individual
+attention head was 12288 divided by 96
+which will be roughly 128. So this is
+how you can calculate the embedding
+dimensionality living in each attention
+head. Now let us look at the actual
+implementation of multi head attention u
+using an inefficient way inefficient way
+using for loops and then after that we
+will see how this is implemented using
+matrix multiplication. So inefficient
+way is very fairly straightforward just
+like how you implemented uh attention in
+the lecture number seven you you
+implemented
+cosal or mass self attention whatever
+you did that step you repeat n number of
+times where n is the number of attention
+heads. So first you calculate the
+context vectors emerging from attention
+head number one then you calculate
+context vectors emerging from attention
+number two. Repeat that for how many
+attention heads you have. And once you
+have the output, you concatenate all the
+outputs. Uh this is fairly
+straightforward. However, you can
+already imagine that this will be slow.
+What if you have thousand attention
+heads? This will become like a it it may
+not become a bottleneck process, but it
+will definitely be much slower than
+ideal.
+The second approach is so instead of
+processing heads one by one, first
+process attention head number one, then
+go to attention head number two, then go
+to attention head number three. So this
+will result in Z 1, zed 2, etc. up to
+let's say now we have 4,000 attention
+heads. Uh only very few models have such
+large number of attention heads. I'm not
+sure if any popular models have such
+very high number of attention heads. But
+if we have let's say a very big model
+with 4,000 attention heads, you will
+have to calculate 4,000 uh you know
+contact vectors from all of these 4,000
+heads and then you will have to
+concatenate and this will require a
+little bit of waiting as we will see in
+this Google Collab notebook. So I will
+show you the a quick implementation of
+this and I will show you how much time
+it takes when you have two attention
+heads versus 20 versus 200 versus 4,000.
+On the other hand, we could have one
+single matrix multiplication helping us
+calculate all of this in one go. And we
+will see the speed difference between
+these two when we are implementing this
+in Google Collab notebook. Okay.
+So the first approach is something like
+this. You have your inputs. Inputs are
+in this case 6x6. Six tokens living in
+sixdimensional space. And let's say you
+are looking at attention head number
+one. You have WQ1. That's the quiry
+weights matrix which is of dimension 6x3
+resulting in queries which is again 6x3.
+You have six tokens living in three
+dimensional space. Uh six quiry tokens.
+So that is Q1. Similarly you can
+calculate Q2. So if you were to
+calculate uh sequentially going from
+attention head number one to number two
+etc. These are the two matrix
+multiplications involved assuming there
+are two heads. But the same calculation
+you can perform to get Q1 and Q2
+separately using one single matrix
+multiplication. So you can assume that
+WQ1 and WQ2 are joined into one single
+matrix called WQ of dimension 6x6. Okay.
+And and the the query weights are
+completely the same. So whatever you
+have WQ1, whatever whatever is the
+weights you have here in WQN, they are
+exactly the same here in the first half.
+Similarly, whatever weights you have
+here in WQ2, they are exactly same here
+in the second half. But instead of
+treating WQ1 and WQ2 as two separate
+matrices, you just have them
+concatenated. Now this concatenation is
+very different from concatenation of
+context vectors that we have discussed
+so far. Okay, please don't get confused.
+I'm not talking about concatenation of
+the output here. I'm talking about
+utilizing one single matrix as the query
+weights matrix to be used as the
+equivalent of having multiple query
+weights matrices such that you have WQ1,
+WQ2, WQ3 etc. Instead of having that
+just have one single query based matrix
+however there has to be similarity.
+Similarity is that if you had WQ1 if you
+had WQ2 etc. Whatever would have been
+the output that same thing you have to
+have here in such a way that you are
+concatenating WQ1 and WQ2 to produce WQ.
+Okay. So let's say you had such a matrix
+then you could produce something called
+quiry which is just the normal query
+calculation which is X multiplied by WQ
+and query in this case will be 6x6. Now
+think about this mathematically this
+first half of the query will be exactly
+same as this Q1 and second half of this
+will be exactly same as Q2.
+But in this case we just performed one
+single matrix multiplication which GPU
+can process very fast. But if you had
+large number of m matrix multiplications
+to be done separately, the time it takes
+for the GPU is much higher because GPU
+has to uh transfer all of that. Then it
+has to uh load packages and it has to
+perform the uh calculation and send back
+the results. But GPU can do the same
+thing so long as everything is packaged
+into one single matrix multiplication.
+You will see this actually being
+implemented in Python uh in a in a few
+minutes. But the basic idea is if your
+goal is to get Q1 and Q2 separately, why
+can't you produce one single Q and split
+them into two parts? You could do that,
+right? So you could you could kind of
+treat the attention uh you can treat the
+query weights matrices as one single
+matrix and produce one single query and
+split that query into two parts and
+treat them as outputs from head one and
+head two. it is completely valid and the
+numbers will look exactly the same as
+the approach above here.
+Now let's look at one more idea before
+we uh proceed ahead to any sort of
+implementation.
+If you look at the actual implementation
+of let's say LLM training or SLM
+training, you have the following
+dimensions. First is you will have
+batches. So this 2623 is basically a set
+of dimensions corresponding to first is
+batches,
+second is sequence of tokens, third is
+number of attention heads and fourth is
+dimensionality within each attention
+head.
+So here two means you have two batches
+that are being processed parallelly.
+Six means in every batch you have a
+token sequence where there are six
+tokens in that sequence and you have two
+attention heads and dimensionality of
+each attention head obviously it will be
+three uh based on our previous
+discussion uh the number of the
+dimensions in each attention will be
+head will be 6x2
+now if this is the query okay
+when we calculate the attention weights
+it is quiry dotkeypose and when we say
+transpose what we are essentially doing
+is we are transposing the last two
+dimensions. We are not transposing the
+in the transpose the batch dimension or
+sequence dimension. They are not coming
+into picture. What is really coming into
+picture is the the attention heads and
+dimensionality
+in in naive case of transpose and you
+will see the mistake with that. So if we
+are naively transposing the last two
+dimensions what will happen is the key
+transpose will be such that 2a 6a 3a 2.
+So this two is the batch, six is
+sequence of tokens, three is uh the
+dimensionality in each attention head
+and two will be the number of attention
+heads. Now if you take the dot product
+between these two the resulting
+dimensionality will be 2a 6a 2a 2
+because when you when you multiply 2x 3
+with 3x2 the result is 2x2.
+So you will get something like 2a 6a 2a
+2. Now what is the attention base matrix
+looking like in this case? It will look
+like a 2x2 matrix. You will have 2x2
+matrix
+and you will have such mat uh 2x2 matrix
+for first batch and second batch
+separately.
+However, the actual attention weights
+matrix that you are expecting in this
+case is 6x 6 because you have six tokens
+which means you have six queries and six
+keys and when you take query.key
+transpose you have 6x6 right that is
+what you're expecting not 2x2. So here
+there is a dimensionality mismatch when
+you calculate uh by naively taking
+quiry.key transpose.
+What you have to do is you have to take
+a transpose between dimension number one
+and dimension number two. Basically
+these two dimensions. Why am I calling
+this as dimension number one? Because
+index number starts with zero. So this
+is 0 1 2 3. So when you transpose
+dimension number 1 and two what happens
+is instead of 2 6
+2 3. So two is the batch size six is the
+number of tokens in each sequence. Two
+is the number of attention heads and
+three is the dimensionality of each
+attention head. You get something like 2
+6a 3. You are you're swapping these two
+dimensions. So that will be the key.
+Sorry, that will be the query. Key also
+will be the same but key transpose will
+be 2a
+3 6 because when you take transpose uh
+key transpose you are basically taking
+transpose of the last two dimensions. So
+after you take transpose
+you have quiry as 2a 2a 6a 3 and key dot
+key transpose as 2a 2a 3a 6. Now what
+happens when you multiply 6x3 with 3x 6.
+So this is 6x3 and 3x 6 resulting will
+be 6x 6 right and that is what this is.
+So now this is the correct way to take
+the dot product between quiry and key
+and like this how many 6x6 matrices will
+you have in this case you'll have two
+6x6 matrices one corresponding to batch
+number one and another corresponding to
+batch number two because here you have
+two batches but this is the right way to
+take dot product when you have when you
+consider the fact that you're not just
+in individually considering just one
+batch you you have an additional
+dimension called batch dimension and
+when you are implementing in practice in
+Python you have to consider all of these
+practicalities.
+Okay. So I know that this slide is a
+little bit crowded but uh just trust me
+if you if you walk through this one by
+one with me you will understand
+everything. Okay. So I'll start from the
+very beginning and we we'll walk out
+till the end where we do the merging and
+then um uh we will see the final
+resulting dimensionality.
+So first is the input. Input is 2a 6a 6.
+two is the first two is bat size, six is
+uh number of tokens in uh the sequence
+and the last six is dimensionality. So
+bat size followed by token sequence
+length followed by dimensionality of
+each token. So here we are assuming that
+tokens are living in a sixdimensional
+space. So if this is your input your
+final output that coming that comes out
+of the um multi head attention mechanism
+should also be 2a 6a 6 because there
+also you should have two batches you
+should have six sequence length as six
+and embedding dimensionality also should
+be six and what are those actually they
+are context vectors so you'll have six
+context vectors belonging to each
+batches okay so finally so after all the
+steps something that comes out of this
+should be 2a 6a 6 but In between there
+is a bit of dimensionality change and
+that is what we are going to understand
+now. So now the second step is you have
+the input you are projecting the input
+into query key value space. So how do
+you convert input into query? I'll zoom
+in a little bit. How do you convert
+input into query? By multiplying with
+quiry weights matrix. So wq is a quiry
+weights matrix.
+And uh let me just open the pen.
+So 2a 6 is multiplied by 6x 6. What is
+the 6x 6? 6 6 by 6 is w cq resulting in
+again 2a 6a 6. However that will be
+splitting into two heads. So here we are
+assuming that we have two attention
+heads. Each attention head living in
+three dimensional space. Okay. So the
+actual result of this operation is again
+2a 6a 6 only. But the last six which is
+the sixth dimensional embedding space is
+split into 2a 3 such that you have two
+attention heads and three dimensions for
+each attention heads. So 2a 6a 2a 3.
+Then you transpose the dimension number
+1 and 2 which which means this six and
+this two gets exchanged. So the
+dimensionality will become 2a 2a 6a 3.
+Now what is this? This is query.
+Key will be same in terms of dimensions
+but you are taking the transpose of key.
+So when you take the transpose of key
+you have quiry as 2a 2a 6a 3 key
+transpose will be 2a 2a 3a 6. So 6 and 3
+will be exchanged and the result will be
+2a 2a 6a 6 right 2a 2a 6a 6. Now 6x 6 is
+the attention weights matrix. Now you do
+the rest of the things. You scale it.
+You apply masking. Uh none of that will
+change the dimensionality. Does scaling
+change dimensionality? No. Scaling means
+you are simply dividing by square root
+of D. Every element in your attention
+based matrix will be divided by square
+root of D. Does masking change the
+dimensionality? No. Masking means you
+are applying negative infinity mask and
+after that you are applying soft max.
+Right? None of that none of that changes
+the dimensionality. Now you have to like
+once you have the um attention weights
+you multiply it with value. What is the
+dimensionality of value? Dimensionality
+of value is same as dimensionality of
+query 2263. So this 2A 2A 6A 6 which is
+the dimensionality of your attention
+weights matrix that will be multiplied
+with your value matrix or value in this
+case tensor value will be 2a 2a 6a 3 and
+what is the result when you multiply 6x
+6 with 6x3 you get 6x3 right so the
+result is now 2a 2a 6a 3 now that you
+have you're done with your calculation
+the original swapping which you did so
+here you had taken a transpose between
+in the dimension one and dimension two
+you apply that once more to reverse what
+you did earlier. So you apply transpose
+1 2 once again so that the
+dimensionality instead of it being 2a 2a
+6a 3 it will come back to 2a 6a 2a 3. So
+this six the 6 and 2 will be swapped. So
+here it was 2a 6 here it is 6a 2. So now
+you are back into what you originally
+had. And why are you doing this
+transpose? Because finally when you are
+merging the heads you want the numbers
+associated with different attention
+heads together right? So here you have
+two attention heads and you have three
+items three dimensions belonging to each
+head. So you can merge the last two
+dimensions. So you here you merge the
+dimension number two and dimension
+number three assuming dimensionality
+starts with zero. Uh then you will get
+2a 6a 6a 6. Okay. And then last is
+mixing. So mixing is after you after you
+do the merging you pass through a 6x6
+matrix which performs missing mixing of
+the of this um matrix and then the
+result is again 2a 6a 6a 6. So this 6x6
+when you multiply with this 6x 6 the
+result is again 6x 6 and you have two
+batches. So you have batch size as two.
+So what is the output 2 6A 6 meaning you
+have two batch size as two token
+sequence length is six and embedding
+dimensionality is six. So essentially
+you have six context vectors living in
+six dimensional space and like that you
+have two batches that is the final
+output the meaning of the final output
+just go through these numbers it's
+fairly easy to understand but this is
+the whole process of transformation just
+from a dimensionality perspective okay
+so this slide is a a brief summary of
+the previous slide. So you have six
+tokens living in six dimensional space.
+Um in if you consider query key value as
+one single matrix which you can split
+later after projection you will have
+6x6. However you are splitting them into
+two uh separate heads. So when you do
+that split you have 6x3 in the head
+number one and 6x3 in the head number
+two.
+Then um you calculate the attention
+scores in each head separately and after
+that the resulting context vectors will
+be 6x3. You have six tokens each of them
+living in three-dimensional space. When
+I say token I mean context vector. Then
+you merge them. So when you merge two
+6x3 uh two set of context vectors of
+matrix dimension 6x3 you get result as
+6x6. Then you pass them through mixing
+matrix which is also of dimension 6x6.
+The result is finally 6x6. So you have
+six tokens living in six dimensional
+space converted to six context vectors
+living in sixdimensional space. Okay,
+this is effectively what we did here.
+But what we saw earlier was a bunch of
+details that we have to realize before
+we actually implement this in practice
+in code. So now it's a good time for us
+to uh walk through all of this in code.
+I have already written the blocks of
+code corresponding to today's lecture
+and it is definitely an extension of
+what we have been doing since the
+lecture number seven. So I will walk you
+through block by block but my intention
+is not to teach you Python coding or
+anything here. It is just to show you
+the implementation in practice because I
+just want to remind you that this series
+is not about or not necessarily about
+Python implementation of different
+attention mechanisms. It is for for us
+to get a theoretical familiarity with
+respect to various attention mechanisms
+existing. There is group query
+attention. There is multiquiry
+attention. There is multi head latent
+attention. Lat multi head attention. Kim
+delta attention. There are many many
+variants. So eventually we have to reach
+uh over there. That's our goal. But um I
+hope by end of today's lecture you will
+have a fairly good idea about the way in
+which attention mechanism is implemented
+in LLMs or SLMs including GPT models and
+many other popular models. Okay. Now
+let's look at the slide uh let's look at
+the Google collab notebook in
+let's walk through the code first. What
+we start with is we have our
+sixdimensional
+vectors. So here you have six rows and
+six columns. Each row is one vector. So
+the example that we were considering in
+the last lecture was dream big and work
+for it. Same thing here. So this is the
+vector corresponding to dream
+corresponding to big and so on. Okay.
+Now we are just taking a shortcut here.
+We are just saying that here the batch
+dimension the number of batches the
+batch size here is two. But what we are
+doing is instead of defining another set
+of six vectors because I'm lazy. Um I'm
+just copy pasting this these set of
+inputs twice. So the batch dimension is
+such that you are having this six
+vectors in batch number one. In batch
+number two also you are having the same
+six vectors. A batch is basically a
+stack of these set of inputs on top of
+each other. Okay. So here now your final
+dimensionality when you run this block
+of code you will you can print the uh
+final dimensionality as 2A 6A 6 two for
+the batch size six uh for the sequence
+length and the last six for the
+dimensionality now I could have you know
+we can add one more dimensionality here
+so let's say I do this
+our output will become 2a 6a 7
+see this became 2a 6A 7 because I added
+an additional dimension. So just
+understand what's the difference between
+this six and the next six. Okay, we can
+also print uh the actual output by the
+way. Print.
+Okay, we are not yet. Yeah, we have the
+batch. I can simply print batch. So if I
+print the batch, you see this is the
+first item in our batch. This is the
+second item in our batch. So batch size
+is two. But they are exact replicas of
+each other. All right. Now this is the
+class that we had in the last lecture.
+We had a cosal attention class. And
+without spending too much time I will
+give you a quick walk through. First is
+self.w query where it's a linear you
+know it's basically a linear
+transformation via matrix where the
+input dimension is dn and output
+dimension is d2 uh dout. So if we are
+projecting from a sixdimensional space
+into three dimensional space this will
+be six and this will be three. Same
+thing applies for W uh key and W value.
+So the query weight matrix, key wise
+matrix and value wed matrix are all
+linear transformations. Basically they
+are matrices which transform from input
+dimension to output dimension. So these
+nn.linear means the total number of
+trainable parameters. So this will
+introduce a bunch of trainable
+parameters. Total number of trainable
+parameters will be D in multiplied by D
+out. So same thing applies for query key
+and value. Dropout we applied in the
+last lecture. We will drop out at drop
+out uh certain parameters in the uh
+attention weights matrix with a certain
+probability.
+And the other important thing to note
+here is now queries you can calculate by
+passing your input X into W query.
+Similarly input X you can pass into W
+key and W value to produce queries keys
+and values and attention scores are
+query dot product with key uh but here
+as just understand why we are doing this
+transpose. So if I had not explained
+earlier why we take the transpose you
+would not understand this this one step
+you you will be confused u not knowing
+why we are transposing dimension one and
+dimension two we are doing that so that
+it makes it easy for us it makes it
+possible for us to calculate a an
+attention weights matrix of
+dimensionality 6x6 otherwise it will
+produce an attention weight matrix of
+dimensionality 2x2 okay so that's the
+reason why we are transposing at
+dimension one and dimension two please
+remember dimensionality starts with
+dimension zero. Okay. Then uh attention
+scores are now masked by putting upper
+triangular elements as minus infinity.
+Then after that we calculate attention
+weights. But of course before that we do
+the uh scaling. So this is square root
+of d and square root of d of what?
+Dimensionality of the key space. It can
+be called as dimensionality of key space
+or value space because all of that is
+same in this case. But yeah in general
+dimensionality of the key space. And
+then finally what we return is attention
+weighted sum of value vectors. So this
+is attention weighted sum of. So by the
+way before we take the attention
+weighted sum of value vectors the
+attention weights themselves are passed
+through dropout function. So uh
+otherwise if you don't want to apply
+dropout all you need to do is you can
+just
+you can simply delete this. You can just
+say weights multiplied by values that
+will be your uh final context vectors.
+But in this case we are applying
+profile. Okay.
+And the only thing um we need to pass is
+so if this is the cosal attention class
+what we are passing into that class here
+and this is the object one head is the
+object we are passing the input
+dimension output dimension and context
+length. So here when I say output
+dimension it is not the output from the
+multi head attention okay or or even
+single head attention. It is basically
+the dimensionality of the query key
+value space. So please remember that. So
+here our nomature happened to be such
+that day out is referring to the
+dimensionality of the query key value
+space. So our embedding dimensionality
+is six. Query key value space
+dimensionality is three and uh context
+length is six. Okay.
+Now we can print anything. So let me run
+this first. We can uh okay something is
+missing. Dropout dot forward is missing
+input.
+Yeah. So I have to pass weights here. I
+forgot to add weight back here.
+Yeah. So now we are just printing the um
+the size of this batch. We can also just
+print the actual batch itself. Not batch
+uh we can pass the batch into this one
+head object and we can print the
+resulting output.
+So now this is the resulting output. So
+what is this? This is so we our batch
+size is two right? So this is the item
+number one in in our batch. This is the
+item number two in our batch. They will
+both look identical because the inputs
+going inputs that were part of the both
+items in the batch was the same. We we
+we took the exact replica right in this
+step. So here we took inputs, inputs
+meaning uh we are stacking the same
+items um to form a batch size of two.
+But if you look at this one single let's
+say matrix what is that actually? There
+are six context vectors living in
+three-dimensional space. Six context
+vectors living in threedimensional space
+because you had six context six vectors
+at the input. Okay. But the input
+dimensionality was not three. It was
+six. Now in step number two, we can
+concatenate the output from two
+different uh attention heads. So here
+what we are doing is um I mean we have
+defined a class called multi head
+attention wrapper. It just produces a
+wrapper so that the output from
+different attention heads can be
+concatenated. That is the only job this
+does. And the only line of code that I
+want you to pay attention to in this
+case is just this.
+So here we are doing torch.cat which is
+torch.enate.
+Head of x is nothing but we are uh so
+head we are we have defined over here.
+Um
+where is head? Yeah
+actually head is not defined outside
+anywhere. Head is over here. So here we
+are saying self do heads equal to
+nnn.module list of causal attention of
+all these inputs for dash in range of
+number of heads. So here we have a for
+loop. So what we are doing is we are
+creating a list but this list is
+different from the traditional list in
+Python. NN dot module list means the
+list will be curated such that it is uh
+useful for Python to carry off
+calculations using GPU. Okay. Um so here
+for dash in range of number of heads how
+many times will will this for loop run?
+This for loop will run as many times as
+there are number of heads. In our case
+we will define the number of heads to be
+two. So this for loop will run two times
+which means this cosal attention
+uh class is being or the object
+corresponding cosal attention class is
+being defined two times in this
+nn.module list. Okay. So what that means
+is you can iterate through it two times.
+So now here in this torch.cat
+line of code what we doing is for head
+in self dot heads. So self dot heads
+have how many items? It has it has two
+items. So head of x is the first
+attention head when you are in you know
+first item of the for loop. Head of x is
+the second attention head when you are
+in the second item of this for loop. So
+this for loop will run two times. this
+for loop will also run two times because
+here we are passing we here we are
+explicitly saying the number of heads is
+equal to two. So now this causal
+attention uh now this um multi head
+attention is basically a concatenation
+of outputs from the two attention heads
+you concatenate it along which dimension
+along the last dimension. And what is
+that last dimension? The last dimension
+is the embedding dimension. So the
+dimensions 1 2 3 or rather 012 will
+belong to attention head number one. the
+dimensions um 345 will belong to
+attention head number two. So this
+wrapper is the object corresponding to
+multi head attention wrapper class and
+um you can pass into this object your
+batch. So here this batch is defined in
+the first block itself. So this was our
+batch. This guy
+this 2A 6A 6 was our batch and that
+batch we are passing into the um object
+corresponding to our multi attention
+wrapper and out loop is nothing but the
+actual output coming out of our multiad
+attention. So here we can print either
+the shape of it or we can print the
+entire output. So we can also print out
+loop itself. Outloop simply means output
+produced as a result of looping. So here
+uh in this first example I'm not showing
+you the way of um avoiding the loops but
+rather here we are implementing using
+for loops because soon I can show you
+how this output will look like if the
+number of attention head instead of two
+if it was 4,000 what would happen right
+so if I run this you can see the output
+so this is the output dimensionality 2a
+6a 6 so batch size is two so this is
+batch number one and this is batch
+number two the item number two in in our
+batch
+and 6A 6 as you know you have six tokens
+living in six dimensional space. So
+these are context vectors and why is the
+output dimension six and not three
+because we are showing the output here
+after concatenation. So outputs from
+your um your final multiple attention
+heads you are concatenating and that's
+what you are displaying here.
+Now let us see how having this kind of a
+loop based implementation of multi head
+attention is not really ideal. So here
+is a very simple example and this also
+applies for inference right so not just
+for training when you are performing
+inference you are passing a bunch of
+token se bunch of tokens as a sequence
+and that you are using to produce the
+output so now if the number of attention
+heads are very high it will introduce
+tremendous amount of latency
+uh in your inference so here I am
+picking two examples two attention heads
+400 attention heads and 4,000 attention
+heads and here I'm just I'm simply
+running these as loops. So in the in the
+first part of the loop I will run with
+two attention heads in the second part
+with 400 attention heads and third
+4,000. So the only part where the code
+changes is in this line of code where
+number of attention heads we are
+passing. We we'll pass variable number
+of attention heads. In all cases input
+dimensionality is six, output
+dimensionality uh the the query key
+value space is living in a
+three-dimensional space and number of
+heads um is could be a small number or
+large number. So of course this will uh
+break some of the things that we
+discussed earlier like usually the quiry
+key value space is such that the input
+dimension divided by number of attention
+head equal to the uh dimensionality in
+the quiry key value space that will not
+apply here. Okay, that will apply for
+this one example but for 400 and 4,000
+that will not apply. So now if we run
+the code you can see that two attention
+if you have two heads it performed uh in
+0.003 seconds. Uh this is basically one
+forward pass through the attention
+heads. 400 took more time and order of
+magnitude more time. 4,000 took almost
+close to 1 second 63 seconds. Right? So
+this is very slow and this is one of the
+reasons why we are doing the weight
+split approach. Weights split approach
+meaning we have u instead of having wq1
+and wq2 we simply have one weight matrix
+query weights matrix and that we use for
+producing query. Same logic applies for
+keys and values. So here if WQ1 is a
+random matrix of 6x3 dimension, WQ2 is
+also a random matrix of 6x3 dimension.
+The instead of trying to separately
+calculate them using two different uh
+using a for loop with two iterations, we
+have one single query base matrix which
+is a which is equivalently concatenating
+WQ1 and WQ2 along the uh along the
+column dimension. So now you can see the
+output here when I print um the query is
+basically inputs multiplied by WQ.
+Otherwise what we would have had is Q1
+is equal to inputs multiplied by WQ1.
+This would have been Q1 and
+Q2 would have been inputs multiplied by
+WQ2. And we can also print those. We can
+just see that print q comma actually we
+can print them separately. Print
+uh here we can print q1 and here we can
+print q2.
+So okay so this is the resulting query
+where I'm not calculating the Q1 and Q2
+separately. Instead it's all one single
+matrix multiplication. On the other hand
+for calculating Q1 I had to do one
+matrix multiplication and for Q2 I had
+to make another matrix I had to perform
+another matrix multiplication. So Q1 is
+this and Q2 is this. And you can see
+that the the final the big Q matrix if
+you look at the first three columns for
+first three columns are okay I I'm not
+able to select only the first three
+columns but if you look at these first
+three columns they are exactly same as
+this Q1 and if you look at the last
+three columns
+this last three columns are exactly same
+as Q2. So what it shows is it doesn't
+matter if you split into uh you know two
+different matrix multiplication or if
+you just perform one single matrix
+multiplication and after you perform the
+multip matrix multiplication you can
+split you can split the resulting Q into
+Q and Q2 Q3 etc. But the the key point
+is reducing the number of matrix
+multiplications that you need to do
+because one single matrix multiplication
+use using parallel compute GPUs can do
+fast but if you have many matrix
+multiplications to be done um that will
+slow down the total compute. So it is
+always better to perform one single
+matrix multiplication. So that is what
+we are trying to do here. Now this is
+the case where we had two attention
+heads. What if we had uh more? What if
+we had uh 10? We will have to do 10 such
+multiplications. What if we had 4,000?
+we will have to do 4,000 multiplications
+like this, right? Which will make it
+very slow.
+So now we can also look at the uh
+transpose idea which we discussed um
+during the lecture. So we have first let
+me you know pick items one by one.
+I'll put a one put one more block of
+code here. So B is batch number of
+tokens and D in. So we can also print B
+comma
+actually we can just print batch. So if
+you print batch we will see or we can
+print batch dot shape then we will see 6
+comma or rather 2a 6a 6. So the value of
+b is two number of tokens the number of
+tokens in our sequence is six input
+dimensionality is six. We already know
+this. Then output dimensionality and
+number of heads. So output
+dimensionality after everything is done
+we want it to be six. Basically what it
+means is the context vector resulting
+from sixdimensional input tokens will
+also be sixdimensional. Number of heads
+is two which means dimensionality in
+each individual head will be dout
+divided by number of heads. So dout
+since dout is six in this case 6 divided
+by two is equal to three. So head
+dimension is three. Okay then
+let me just delete this.
+Then what we do is we define W query, W
+key and W value. So W query key and
+value are defined not based on D in
+comm, head dimension. So please note we
+are not doing this. We are not having
+head dimension here. If we were
+calculating query key and value
+separately for each heads uh using for
+loop we would have had separate query
+key value weight matrices for separate
+heads and input dimension would have
+been D and output dimension would have
+been head dimension. But that is not
+what we are doing here. The output
+dimension is d out only. Okay. And then
+we can say calculate queries is equal to
+W query of batch and same applies for
+keys and values. So first what we do is
+we take we calculate queries. So that
+will be W queries of batch and the
+dimensionality here would be we can we
+can print um yeah actually this
+statement is already printing. When you
+print it the dimensionality will be 2A
+6A 6. Then uh you perform this view
+operation. view operation is looking at
+the uh same tensor but you can you can
+view one of the dimensions by splitting
+it into two different dimensions. So
+what we do here is instead of the last
+dimension being input dimension we split
+it into number of heads head dimension.
+So that will be 2a 6a 2a 3 that is being
+printed here and then we transpose the
+dimension number 1 and 2. Basically we
+will swap these two items. So it will
+become so the resulting dimension will
+become 2a 6 2a 2a 6 3. If we don't do
+this the attention weights matrix will
+be 2x2 instead of 6x 6.
+So and same same thing we do for keys
+and values. So here whatever we wrote
+here in like four five six lines of code
+we are just writing in one line. So we
+are initially calculating W uh uh
+initially calculating keys by passing
+our batch which is the input into W key.
+Then we are viewing it such that the
+last dimension is split into number of
+heads and head dimension. Then whatever
+is resulting we are transposing the
+dimension number one and dimension
+number two we are transposing. Same
+thing we are we are applying for uh
+values. So let's run this.
+And now we can calculate attention
+scores. Attention scores is squaries
+multiplied by key keys transpose. And by
+the way, why is it keys transpose of 2a
+3? Because we are transposing the last
+two dimensions. So when we transpose
+last two dimensions, what we will have
+is 2a 2a 3a 6 instead of 6a 3. So
+instead of 6a 3, the key transpose will
+be 2 uh 3a 6 and and the result will be
+2a 2a 6a 6. So that is the that is what
+is written here but that can also be
+printed. Then we will apply masking. So
+tors try u means upper triangular
+triangular triangle upper. Then upper
+triangular items are all converted into
+um I mean here we are just defining the
+mask. So upper triangles basically we
+define an upper triangle where upper
+triangular items are zeros. then that
+mask we can apply element wise uh such
+that whenever we have uh upper
+triangular mass as zeros we convert it
+into negative infinity
+um in the in this case I think the upper
+triangular items are all
+um if I'm not wrong upper triangle will
+be ones I can I think instead of zero
+let me just print it
+yeah upper triangles are all basically
+true so whenever you have a true item
+that true item will be replaced by
+negative infinity in this line. Okay, so
+it's not zero or one. It's basically
+true or false.
+Then uh after that you convert attention
+scores into attention weights by
+dividing the scores by square root of d.
+And uh you can after this if you want
+you can also apply dropout. Okay. But
+here in this case we are not applying
+dropout just for a simplicity. Then
+context vectors are attention weighted
+sum of value vectors. So weights
+multiplied by values. So that is our
+context vector.
+And
+the last thing that we have to do is
+we can print these context vectors. So
+instead of printing something like this,
+we can just print context vectors. So as
+you can see the dimension the resulting
+dimension should be 2a 2a 6a 3. Let's
+just see how it is. First of all, what
+is this two? This is the batch size. So
+in the batch we should have two items.
+Where are the two items? This is the
+item number one and this is the item
+number two. Okay. So that is two common
+uh that is the first two. What about the
+second two? Um the second two is because
+of the transpose. Right? So we had taken
+a transpose and this two is
+corresponding to our head dimension. So
+we should have head one and head two.
+What are the numbers corresponding to
+head one? These are the numbers
+corresponding to head one in the batch
+item number one. These are the numbers
+corresponding to head two in batch item
+number one. These are the numbers
+corresponding to head one in batch item
+number two. And these are the items
+corresponding to head number two in
+batch number two. Okay. So this is
+corresponding to batch two. This is
+corresponding to batch one. This is
+corresponding to head one. This is
+corresponding to head one. This is
+corresponding to head two. And this is
+corresponding to head two. Now what
+about six? Where is this six coming? Six
+is coming because the token sequence
+length is six. You can see that you have
+six rows here. 1 2 3 4 5 6. So you have
+six rows in every single one of these
+items. What about three? What is this
+three? Three is the dimensionality of
+each individual attention head. So you
+can see that there are three columns.
+This is column number one, column number
+two and column number three.
+Okay. So this is how the final u context
+vector looks like before you do
+concatenation before you do mixing.
+Okay. Now let's go to the next one. So
+in the next one what do you do? You
+perform one more transpose. You
+transpose the dimension number one and
+two. This is to reverse what you did
+earlier. So when you do this you can
+print
+print context. What you will see is the
+dimension will become instead of 2263 it
+will become 26 23. And let's actually
+move this to a new block and print it in
+isolation.
+So this is now and we can also print the
+shape. print on text
+context dot shape.
+Okay, while it is getting printed, let's
+just u understand that the shape is
+basically u 2623, right? So where is
+2623 here?
+Oh, I think I somehow
+somehow my code is gone. Let me just get
+it back.
+Uh, context equal to context.poser 1A 2.
+Um, okay. I know what happened. What
+happened is I I ran this block twice. So
+because I ran it twice the transpose was
+applied once more. That's what happened.
+So I can I just need to run it once
+more. That's all. Okay. So now we are
+back. So 2 623. See if I run this again
+the transpose will be applied again. So
+it gets back to the original form. If I
+So you might wonder why why do don't we
+get same output when I run the same
+thing twice? Because I'm I'm transposing
+the same thing. Right? So this is what
+we want. So 2623 where is the first
+batch item? This is the batch item
+number one. This is the batch item
+number two. Then where is the six? We
+have six tokens, right? Uh so this is
+token number one, 2, 3,
+4, 5,
+6. And same thing applies for the batch
+item number two. And where is this two?
+Two means you have outputs from two
+attention heads. This is the output from
+attention head number one. This is from
+head number two. This is from head
+number one. Sorry, this is from head
+number one. This is from head number two
+and so on. And what about three? What is
+this? It's the embedding dimensionality
+of the uh of the uh individual attention
+heads. So you have one first column,
+second column, third column. Okay. Now
+it's obvious you you know what is what
+we are going to do next. What we're
+going to do next is we'll concatenate
+this with this. So this last two 2 3
+we'll concatenate into one single item.
+So,
+so when you concatenate
+you have after transpose 2 623 then you
+concatenate to to make it 266. You can
+also print the actual item you just
+print the actual context vector and you
+will see that the only difference here
+now is here instead of you know
+this these numbers being in two rows
+currently they are in two rows - 3.39
+sometimes something 2.11 * e ^ of minus
+* 10 ^ of -1 etc this will be one single
+row and that is what you can see here it
+became one single row so 2a 6A 6. Y2 you
+have batch size two. Why six? Because
+you have six items uh basically six
+input tokens and output is also six. I
+mean the output dimensionality is also
+six which is why you have six columns 1
+2 3 4 5 6. Okay. So this is the final
+output. Now all of this can be wrapped
+in in one single class. So I can just
+define a multi head attention instead of
+causal attention. The other class which
+we had here was causal attention class.
+Um
+this one causal attention. So just like
+how we have a causal attention class, we
+can also define multi head attention
+class. So I'll quickly walk you through
+that. It's it's very simple. We already
+implemented everything. So first is
+define number of heads. Define the
+dimensionality in each individual heads.
+Uh define what should be the final
+output dimension. Final output dimension
+should be I mean unless we explicitly
+say otherwise mostly it is same as input
+dimension. Then W query uh here we have
+a linear transformation from D in to D
+out. Please note it is D into D out. It
+is not D in to head dimension. We are
+not changing from input dimension to
+head dimension. Although we are
+internally imagining it that way but
+when we are implementing it to avoid
+large number of matrix multiplications
+we just want to do this in one single
+matrix multiplication. That's the reason
+why here it is D in comm, D out.
+Otherwise, we will have to define W
+query number one, W query 2, W query 3
+etc.
+Then uh we have W key, W value, then uh
+output projection. So this output
+projection is where you perform mixing.
+Uh so once you have D out, you perform
+mixing and you also have a dropout in
+forward pass. This is what you do. You
+have queries, keys and values
+calculated. Then you calculate attention
+scores. I mean these are the raw scores
+before masking. Then you calculate mass
+scores. Mass scores you convert into
+attention weights. Then you have your
+context vectors. Uh then afterwise you
+have context vectors. Uh I mean the
+resulting context vector uh the last two
+dimensions you concatenate. So the
+resulting context vector dimensionality
+similar to 2a 6A 6. It will be the
+equivalent of that. And before you
+return the final context vectors you
+pass it through the projection. The we
+are calling it as an output projection.
+But essentially what it does is mixing
+uh the dimensionality of this will be
+same as um it will be dout comma dout.
+So we can see that here. So output
+projection is dout comma dout. Okay in
+this case it will it happens to be equal
+to d in comma d.in. Why? Because d in
+and dout are the same. D in is six
+dimensions. D out is also six
+dimensions.
+Um so yeah that's pretty much it. This
+also you can run and uh we can clearly
+see I mean we can write like a a setup
+where we can compare whether the output
+is any different whether we run it in
+four loops versus whe whether we
+calculate this in one single um matrix
+multiplication there is absolutely no
+difference. So I will share this Google
+collab notebook with you. So please go
+through it, take more time. U I did not
+intend to spend lot of time on this
+Google Collab notebook anyways. But I'm
+pretty sure that there will be some
+blocks or some lines of code where you
+will you would require clarification. So
+what you can do is just like how I'm
+using Gemini here, you can simply
+uh use Gemini to understand the code.
+You can use Gemini to modify the code.
+It's pretty easy. I mean none of us are
+coding by hand these days. But it's
+always helpful to understand what the
+code is doing for for understanding
+internally what is happening. So um you
+can by all means try to write code using
+coding agents or Gemini or whatever you
+prefer and but try to understand it
+also. So that brings us almost to the
+end of today's lecture. Uh in summary,
+we have finished now multi head
+attention and now we are in a good shape
+to look at how position embedding is uh
+or how position information is injected
+into this whole setup. We have never
+discussed position embedding apart from
+discussing it in one word or something.
+We have never discussed it in detail. So
+that is what we are going to do next in
+this lecture series. So we have various
+position embedding mechanisms to
+discuss. Probably the most famous ones
+are learned position embeddings, rotary
+position embedding, sinosidal position
+embedding and there are a few more. So
+we will discuss them in the upcoming
+lectures. So um the main reason for
+position information being valuable is
+because if you if you look at this
+sentence all dogs are animals and if you
+look at this sentence all animals are
+dogs. If position information was not
+there, the
+context vectors corresponding to uh or
+rather the attention scores
+corresponding to every token, they will
+remain unchanged. There will be no
+difference between attention scores
+corresponding to the those same tokens
+whether you are in sentence number one
+or sentence number two. But clearly uh
+these two sentences are completely
+different. Right? So something needs to
+change. some position information is
+important because here although the same
+four tokens are present in both
+sentences they mean completely different
+things. So how do you how do we teach
+that to a language model? We teach that
+to a language model by teaching the
+language model to respect the positions
+of the tokens. How do we do that? We
+will discuss in the upcoming lecture.
+Thank you so much. Take care. See you in
+the next lecture. Bye.

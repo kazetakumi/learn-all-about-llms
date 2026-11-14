@@ -1,0 +1,401 @@
+[Music]
+next we will focus on translation and
+rotation models to plug into that box
+that we called f recently this is about
+designing the scoring function f and
+plugging in various forms of the subject
+relation an object and then decide the
+shape of the function itself to Output
+the
+belief now in principle deep networks
+are Universal function approximators if
+F has sufficient depth and width it
+should be able to fit any function
+between the subject relation object and
+the output belief in practice several
+years and hundreds of papers have
+proposed different forms of f Associated
+loss functions and sampling protocols to
+train the model parameters not only in F
+but also in the representation of
+entities and
+relations before we dive into it uh we
+will quickly review word embeddings that
+have already been covered in this course
+as you know word Toc and glove are
+popular word embedding schemes which
+scan through an ordinary Text corpus and
+map every token in the Corpus to a dense
+Vector
+embedding it is also known that both of
+these are related to low rank
+factorizations of the document by term
+Matrix but what really catapulted word
+embeddings into scientific Limelight was
+this property of translations as
+relations it was found that the vector
+difference from man to King was
+approximately the same Vector
+translation as between woman and queen
+completing this parallelogram basically
+tells us that man to King involves a
+translation that means
+royalty and that same royalty transition
+takes a woman point to the queen
+Point similarly translating from a man
+to a woman involves a transformation
+which adds
+femaleness that same approximate
+translation turns king or takes the
+point King to the point Queen in the
+embedding
+space and this is not only true of this
+specific relation during the embedding
+it was found that there are very often
+approximately parallel
+translations between two entities which
+are related by the same relation for
+example here we see brown colored nodes
+which represent countries such as is
+Russia and Canada and Spain and the
+green colored nodes which represent
+cities and the very specific relation
+between these countries and cities is
+that these cities are the capital of
+those
+countries and surprisingly turns out
+that the translation from Spain to
+Madrid is approximately the same as the
+translation from Italy to long so this
+suggests a very simple way to get
+started on the designing that function
+f suppose we start with
+Italy embedded in space and then suppose
+we also have a
+representation of the relation has
+Capital as a vector so we could think of
+this as the subject Vector there's an
+origin somewhere and then Italy is the
+point here in the some multi-dimensional
+space
+has capital is a translation which is
+denoted by the vector R and now we look
+for other points in the knowledge graph
+for our candidate objects so let's say
+here is the vector o1 we measure the
+distance between this tip and
+o1 right and here is another Vector O2
+we measure the distance from the tip of
+that Vector to O2
+by the way this tip actually has a
+vector name we go from the origin to S
+then we take the path R therefore this
+Vector is s +
+r and here is a candidate
+object so what we have to do is to
+measure that distance and that distance
+is s + r - o I for the ith candidate and
+we measured this
+distance and that is the score so we
+might say F of Sr o is equal to that
+distance so if f is large then our
+belief is small and so it's a bad fact
+or an unpromising fact in this case it's
+the opposite of what we are discussing
+if the distance
+is small that means the object is very
+close to the point where we want it to
+be and my belief is high and it's a good
+triple okay so with this formalism in
+mind we will say that F Sr o is the norm
+of the vector s + r minus o where in
+fact each entity and the relation will
+be embedded as D dimensional real
+vectors in words the subject translated
+by the relation should be near the most
+promising object otherwise we will have
+low confidence in the proposed fact SRO
+being actually in the kg so low score is
+high confidence and vice versa the loss
+polarity has to be then adjusted to the
+same hinge form so we would take K
+negative
+samples and have the earlier hinge loss
+we want the bad scores to be now large
+so we have to subtract it and we want
+the good scores to be small the good
+distances to be small so this would be
+the form of the hinge loss now observe
+that the function f itself has no
+parameters of its
+own the only variables here are are
+coming from entity embeddings which
+could turn into subject or object
+embedding depending on the current fact
+context and the relation embeds those
+are the only variables in the
+optimization and that's what we will try
+to optimize while minimizing this kind
+of hinge loss over all the triples in
+the knowledge
+C what are the benefits and limitations
+of this model which is called trans e
+for translated entities it's very simple
+and fast the network is basically
+non-existent it's a just two linear
+functions like the one sum and one
+subtraction and taking a nor so
+computation is extremely fast there are
+very few hyperparameters they are just
+the margin that we use and the number of
+negative samples per positive sample so
+this is very small number of hyper
+parameters the big difficulty is that
+transy cannot model one to many many to
+one or many to many
+relationships if Obama attended
+accidental college and he also attended
+Harvard Law School
+because Obama is the single
+subject
+and attended is the single
+relationship what will happen is that if
+it attended both 01 and O2 the
+optimization would try to push o1 and O2
+together toward the same point in space
+and so we naturally come to believe that
+ocidental college and Harvard Law School
+are the same and they are not so we
+don't want their relationships to
+collapse to the same
+point it also cannot model symmetric
+relations if we want s + r to be equal
+to O and O + r to be equal to S by
+solving this equation simultaneously
+you'll see that this will hold only when
+R is equal to0 so the norm of R has to
+come down to zero which means all
+symmetric
+relationships like sibling or friend has
+to be represented by the same Vector
+which is also a limitation over time
+many patches have been found generally
+named in the pattern X trans y instead
+of trans e we might review one or two of
+them trans AG is one of those early
+fixes and this is useful because we will
+come across this kind of fix later again
+when we discuss temporal knowledge
+graphs where time will take a very
+interesting role because the precedent
+of us changes Depending on time so this
+is a natural thing to want to
+study in trans AG we will represent a
+relation not with a single Vector
+artifact but with two artifacts first a
+hyperplane in space which will be
+represented by its unit normal PR so
+generally as a broad picture if you're
+thinking of a hyperplane it has a normal
+Vector which we will call P
+R and the second is a displacement as
+before earlier we called it just R but
+now we'll have to call it Dr to
+distinguish it from PR so R will now be
+represented as both PR and Dr
+together what happens to our earlier law
+of subject plus Rel relation equal to
+object it will remain almost the same
+but modified in one important way the
+subject which might be here will first
+be projected or dropped to the
+hyperplane so the subject projected to
+the hyperplane plus the
+displacement Dr within the hyperplane
+should
+roughly be close to the object object
+projected to the hyperplane so this is
+object projected to the hyperplane that
+point is the subject projected to the
+hyper now observe that this geometry
+makes it possible to model many to many
+relations now Barack Obama would project
+down to this point on the hyperplan
+meant for
+attended educational institution and our
+ocidental College and Harvard Law School
+may be two different points which
+project down to a very similar place on
+the attended hyperplay so this is what
+implements the many to one mapping there
+have been many other attempts which are
+similar in all kinds of ways but also
+different in some significant ways such
+as structured embedding f transan s
+transan and so on and so
+forth now we won't Dell too much on this
+because translation models have soon
+been overtaken
+by Knowledge Graph techniques which
+depend on rotation and
+factorization so let's move on to
+rotation
+now as many of you may remember uh in
+the cartisian plane a complex number may
+be represented by two real numbers a and
+b a will be on the real
+axis as a component of the blue vector
+and B will be multiplied by square < TK
+of minus1 which will call J over here
+and those will point to the imaginary
+axis and the overall Vector Z which will
+be A+ bi I will represent this
+point we also know that complex numbers
+can be represented
+as Polar coordinates so if the length of
+the vector is r and its angle from the
+real axis is Theta we can write it as
+cos Theta on the real axis and sin Theta
+multip by J on the imaginary
+axis we know that if we take one complex
+number and multiply with another complex
+number r that actually results in
+rotating the first complex number
+through an angle Theta
+anticlockwise and that gives the idea of
+modeling a relation not as a translation
+but as a rotation so take the subject
+which is a complex vector and then
+rotate it through an angle determined by
+R to end up at a place which is close to
+an object Vector which is also a complex
+number to be able to handle many to many
+relations and a large Knowledge Graph we
+will add more capacity by not turning
+one complex number but turning a whole
+bunch of complex numers so our entity
+now will map to an entity Vector which
+is not
+in real number to the D but it will be
+in complex number to the D so if I say
+that say d is equal to five so there
+will be five complex numbers each with
+its real part and imaginary part so
+there will actually be 10 real numbers
+representing that
+entity now complex embeddings and
+certain interesting functions combining
+them give close to the best possible
+performance in contemporary knowledge G
+completion
+tasks the norm of a complex number a + J
+B is simply by Pythagoras rule the
+square root of a s + b s if s and O are
+complex vectors like described recently
+then the norm of the complex Vector we
+will be written as the square root of
+the sum of the norm of the individual
+complex
+numbers so going back to the previous
+slide we will take this as a and b and
+from this part calculate square root of
+A1 2 + B1 2 for A1 and B1 if this is A2
+and B2 we'll compute the same and then
+finally we will keep squaring those add
+them up and take a final square root on
+top of them it's easy to see that
+basically what we are doing is taking
+all the real numbers real Parts squaring
+them taking all the imaginary Parts also
+squaring them adding these up and taking
+the square root over the whole thing so
+that is defined as the norm of a complex
+Vector we will insist that the complex
+Vector corresponding to a relationship
+has to have Norm one in all its
+Dimensions so when we optimize these
+models through gradient descent we must
+ensure that every complex element of the
+vector R has to have unit modulus or
+amplitude just like earlier in trans e
+our loss became subject plus relation
+sorry subject plus relation and minus
+object and we wanted to minimize this
+this time we will start with the subject
+we will multiply by the relation which
+amounts to our rotation and now we want
+to get close to the object so that will
+be a standard complex subtraction and
+then we'll take the norm squared of that
+quantity it is easy to derive that
+what's written compactly in this line
+can be expanded out to be the sum over
+all dimensions of these complex vectors
+the real parts of these numbers so
+remember SD itself is a complex number
+Rd itself is a complex number and OD
+itself is a complex number and so we can
+take the real part of that and square it
+and we can take the imaginary part of
+that and square it add those up and then
+sum it over all the dimensions of the
+complex embeding
+Vector now rotate which is the system
+using complex numbers and rotation as
+relation can simulate transi in all
+respects so it's a super set it's at
+least as powerful as transi now what
+happens if a relation is symmetric when
+a relation is symmetric that means if Sr
+o is in the kg then o RS is also in the
+kg if we write this out in complex
+notation it means o is equal to R
+complex multiplied by S and S is equal
+to O complex multiplied by R if we
+combine these two facts we will see that
+R rotated by R should be equal to 1 that
+means the rotation R has to be its own
+inverse what does that mean that means
+if I rotate something by some angle and
+then I rotate by another time that
+should come back to the same position
+the only way that can happen is if the
+initial
+rotation of the element s took
+it to 180° plus s and so another 180°
+rotation would take it back to S that's
+why it's symmetric so R is its own
+inverse okay for anti- symmetric
+relations which are not symmetric we
+just have to choose a different angle we
+can't choose 180° as the rotation Vector
+now note that in this case we don't
+collapse all symmetric relations to the
+same complex Vector because they may be
+rotating different components of the
+vectors so we will still have distinct
+symmetric
+relations if relations R and RP Prime
+are inverses of each other it is easy to
+see that one corresponds to a clockwise
+rotation through Theta the other
+corresponds to an anticlockwise Rotation
+by the same angle Theta by standard
+complex
+arithmetic also compositions of two
+relations like where was Barak Obama's
+father born amounts to starting from
+Barak Obama taking a rotation to
+represent the father relationship and
+then taking another rotation in high
+dimensional space corresponding to the
+birthplace relationship so there's a
+very simple algebraic structure of
+adding up up angles of rotations as we
+compound relationships so traversing a
+graph of relationships through a path of
+individual relations amounts to just
+starting with an s vector and then
+turning it in various ways to roam
+around this High dimensional space
+he

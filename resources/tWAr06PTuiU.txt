@@ -1,0 +1,948 @@
+In today's lecture, we will continue our
+discussion on neural language model.
+So, in the last class, we
+we started discussing vanilla RNN. We
+discussed the architecture of RNN and
+then
+the training of RNN using back
+propagation through time, BPTT, right?
+And we have also seen that
+due to the recurrent multiplications of
+gradients, right? What happens is that
+if the size of the gradient is is small,
+it will lead to vanishing gradient
+problem. If the size is
+large, it would lead to exploding
+gradient problem. So, although
+theoretically RNN can capture long long
+context, but in practice,
+it starts forgetting,
+you know, those contexts which are far
+from the current
+current context, current word.
+So,
+you know, exploding gradient can be
+addressed using methods like gradient
+clipping, right? Whereas, vanishing
+gradient can be addressed in various
+ways. So, in today's class, we will
+discuss different gating mechanisms. We
+will discuss LSTM and GRU, right? But in
+the next lecture, maybe we will discuss
+more advanced topics like like
+attention, right? So, attention, LSTM,
+GRU, these are
+different ways, but apart from these
+techniques, there are also other ways.
+For example, you can add skip
+connection, residual connection, etc.,
+etc., right? We will discuss all these
+concepts in today's lecture.
+Let's get started.
+So, in So, we will first look at some of
+the very some of the usages of RNNs in
+in NLP, in language technology. So,
+since RNN is a sequence labeling method,
+right? Given any sequence, it should be
+able to solve downstream tasks, right?
+Let's say the downstream task is a task
+like part of speech tagging, POS
+tagging, right? So, you are given this
+sequence, the
+uh So, this is the sequence
+and you were asked to
+essentially determine the POS tag for
+every token in the sequence, right? So,
+what you do? You run an RNN, vanilla
+RNN, right? So, let's say Let's say
+there are 46 tags, 46 POS tags, right?
+So, from every hidden state, you pass it
+through a linear layer U,
+last day we discussed, followed by a
+non-linearity, softmax, etc. And softmax
+will essentially map this to a
+46-dimensional vector.
+Right?
+And you choose the one which has the
+highest probability, and so on and so
+forth. We choose the one which has the
+highest probability, not we choose the
+one we we sample it from the
+distribution.
+Right? Remember this. Because this is
+not a generation task, it's a
+classification task.
+And you do this for all the uh for all
+the words.
+Now, here you can ask that um
+in order to predict, let's say, the POS
+tag for the word cat
+at this hidden state, okay? I have
+access to only the previous hidden
+states,
+right? But sometimes when I when we do
+POS tagging, or let's say named entity
+recognition, we we may also need to
+access to the
+uh future uh
+hidden states. And remember, the the
+entire sequence is given to you. It is
+not a generation task. The entire
+sequence is given to you, and the task
+is to predict the POS tag for every
+word, right? So, why only to consider
+the previous hidden states? We can also
+consider the future hidden states,
+right?
+So, we will discuss in today's class
+that here we will bidirectional RNN.
+Bidirectional RNN, there is one RNN from
+left to right. There is another RNN from
+right to left, right? So, at every at
+every time step you you you will have
+two hidden states. One from left to
+right and other from right to left,
+right? You have two hidden states and
+then then you can either concatenate or
+do some operations and basically create
+a single hidden state. And from the
+single hidden state then you uh then you
+pass it through linear layer and
+non-linearity, right? This is called
+bidirectional
+bidirectional
+RNN.
+Okay? Uh
+you can use RNN for simple sentence
+classification task. For example,
+sentiment analysis, for example, right?
+Or let's say uh
+let's say uh spam uh spam email
+classification, right? So, what you do
+here
+again, there are different ways to do
+it.
+Uh
+one way would be you look at this
+sentence. There are hidden states here.
+One RNN, right? Then you basically uh
+merge all the hidden states together
+some ways and you create a uh a single
+vector.
+This can be possible. Another
+possibility is that you look at you you
+take only the last hidden state because
+the assumption is that the last hidden
+state has uh information to all the
+previous hidden states. So, you take the
+last hidden state and you pass it
+through linear layer and non-linearity
+or so on so forth, right?
+So, the problems the problems with RNN I
+mentioned last day, vanishing gradient
+problem, exploding gradient problem. And
+it happens due to this recurrent uh
+computation of gradients, right? Let's
+say this is the last uh loss or the
+final loss which is uh J
+J theta, right? At the fourth step,
+right? I I discussed this thing in the
+last class.
+Okay? And
+if If to take the gradient of this with
+respect to H1,
+right? You'll have to take the gradient
+of this H4 with respect to H3, H3 with
+respect to H2, H2 with respect to H1,
+and so on and so forth.
+Right? And if so so these gradients,
+right? These are essentially matrix
+because you are taking the derivative of
+a vector with respect to another vector.
+Okay? Now, if the size of this matrix is
+small, right? Then it will lead to a
+gradient
+vanishing gradient problem with size is
+large, it will lead to exploding
+gradient problem.
+Okay?
+Uh
+so, and how to address this problem? We
+discussed last day. Now,
+how to address this we'll discuss today,
+but
+let's look at the problem here. Why this
+is why this is a problem, right? Let's
+look at Let's look at this sentence,
+right?
+So, when she tried to print her tickets,
+she found that the printer was out of
+toner.
+She went to the stationery store to buy
+more toner.
+It was very overpriced. After installing
+the toner into the printer, she finally
+printed her dash.
+Right? So, this
+this will be tickets.
+Now, look at the distance between this
+and this this tickets the word tickets
+in
+this is I think at the seventh position
+of the sentence, and this is very very
+far. So, vanishing gradient
+due to vanishing gradient problem RNN
+won't be able to predict the next word
+as tickets.
+Okay?
+So, what are the what are the ways we
+will fix it using a gating mechanism,
+right? We will see that in a gating
+mechanism, we will explicitly use
+another state
+called the memory state.
+Right? So, along with the hidden state,
+we also have a memory state called the
+cell state. We'll discuss.
+So, using LSTM GRU, we will we'll try to
+address the problem of vanishing
+gradient, but there are other mechanisms
+also like attention, residual
+connection, we'll discuss later. Okay?
+So, let's focus on LSTM and GRU.
+So, what is the idea here?
+So, the idea here is that
+in vanilla RNN,
+so these are hidden states H1, H2, H3.
+X1, X2, X3 are the inputs, right? So, at
+every state at every time, you have a
+hidden state,
+right? In in LSTM, we will also maintain
+another state a state is a vector,
+right? We will maintain another state
+called the cell state
+denoted by CT.
+The cell state will act as a memory.
+Okay?
+So, the cell state is responsible for
+storing information which you do not
+want the model to forget.
+Okay? So, hidden state and cell state,
+these are the two states which will be
+available at every every time stamp.
+Okay?
+And
+we will control the content which which
+is going to be written to this memory
+cell state using a gating mechanism. So,
+we have a cell state, we have hidden
+state. The cell state will act as a
+memory and the hidden state will act as
+an output.
+Okay? Now, this is the overview. I'll
+discuss
+in details. Then we'll try to understand
+the overview of this. So, memory, cell
+state and hidden state. Cell state will
+act as a memory and hidden state will
+act as an output, right?
+Uh
+We will generate some content which we
+which we want to store within the
+memory,
+right?
+But, how much of this content will be
+stored into the memory? This will be
+controlled through a gating mechanism,
+right? And what are these gates? These
+gates are same similar to and or gates
+that we have that we we already know,
+but
+not as simple as that. But the idea is
+more or less same if the So, gate itself
+is a vector.
+It is also a vector, right? So, a vector
+has multiple multiple cells. If one cell
+is the value of one cell is one,
+it means it will allow the information
+to pass, the corresponding information
+to pass to the
+memory. If it is zero, it will not
+allow.
+If the number is in between one or
+zero to one, let's say 0.5 or 0.3,
+proportionately the information will be
+passed.
+Right?
+So,
+in LSTM, we will see there are three
+kinds of gates
+that are that are being maintained,
+right? Now, these gates are responsible
+for deciding which part of the content I
+would like to store into the memory.
+How much I would like to
+read from the memory and store into a
+hidden state, right? So, this is So,
+these operations are very similar to the
+operations that we have in computer,
+read and write operation, right? I write
+something, right? So, here I write the
+content to the memory. I read content
+from the memory and store it to the
+hidden state.
+Okay? And and how much will be stored,
+how much will be forgotten, how much
+will be written, all these decisions
+will be taken by the gates.
+Clear?
+Now, these gates, the values of these
+gates are controlled dynamically.
+Okay? In fact, these are the parameters.
+Okay? Values of these gates will be
+controlled dynamically.
+Gates are vectors like this. Okay?
+Values Generally, the
+the value of every cell of the gate
+ranges between between zero to one.
+Right? If it is zero, then it will not
+allow it will not allow the content to
+pass to move forward. If it is one, it
+will allow the complete content to move
+forward. And if
+let's say this is 0.3, so it will only
+allow 30% of the content to move
+forward.
+Okay?
+Let's look at it.
+This is very important. I'll go slow so
+that you understand it.
+Okay. So,
+now as I mentioned, at every time t,
+okay?
+There is a
+cell state ct.
+There is an hidden state ht.
+Right? ht.
+Okay? This is at every time.
+Similarly, at t minus one, we have a
+cell state ct minus one. Let me write in
+this way. t minus one.
+Right?
+And a hidden state
+h
+t minus one.
+Okay?
+So, there are three gates that we will
+that we will um
+that we will create. Right? One is
+called the forget gate,
+ft.
+Forget gate. Right?
+The second one is called the input gate,
+it.
+And the third one is called the output
+gate, ot. Let me Let me explain the
+functions of these three gates. Right?
+So, the I will
+I will discuss these equations later.
+First, try to understand the intuition
+behind this.
+So, the forget gate
+controls
+what to keep versus what to forget?
+Right? So,
+now remember at t minus one is time time
+stamp,
+you have some information stored in CT
+minus one.
+Either you want to
+move the entire information from t minus
+one to t,
+or you want to move a part of this to t.
+Right? So, how much you want to forget
+and how much you want to move will be
+decided by if.
+Okay? So, you will see that if will be
+attached with CT minus one.
+If will decide uh how much content,
+right, you want to basically move from
+CT minus one to t.
+Right?
+So, what is IT? IT is the input gate.
+What is the role of the input gate? The
+role of the input gate is to decide,
+right? So, remember at every time stamp,
+you generate some content.
+T minus one is time time you generate
+some content, and how do you generate
+the content? The content will be
+generated based on the current input and
+the previous information.
+Right? At this time stamp, you generate
+some content, and then
+we'll have to see
+that how much of this content that you
+generate at time stamp t will be written
+to the cell.
+Now, remember,
+a cell
+will have information from the current
+content and from the previous content.
+Where was the previous content stored?
+The previous content was stored in the
+cell state of previous time stamp.
+Right? So, how much the cell state's
+previous cell state's content will move
+to the current
+cell state? Who will decide that?
+Forget gate. And how much the current
+content will be stored to the
+to the cell? Who will decide that? input
+gate.
+Clear?
+And then we have So so far there is no
+role of hidden state. We are just
+deciding how much amount of information
+you want to store into the cell state.
+Now
+we have already decided let's
+we we have decided cell state has been
+uh
+has been updated.
+Now
+from cell state, how much information
+you want to read
+and store it to the hidden state will be
+decided by the output gate.
+Right? So output gate controls what
+parts of the cell state are output to
+the hidden state. Let's look at how
+these gates are formed.
+So you see here all these gates f i o
+they are functions of
+the previous hidden state.
+Right? And the current input.
+Right? And what are the differences? The
+differences are the weights.
+For the forget gate, you have two sets
+of weight matrices w f and h f. For the
+input gate w i h i. For output gate w o
+w o
+w f u f w i u i w o u o.
+Right? And this
+matrices we need to learn.
+And along with this we have bias. I'm
+just ignoring the bias for the time
+being.
+Right?
+So
+all these gates
+values of these gates are decided by
+whom? It will be decided by x t.
+Right? It will be decided by x t.
+Okay? And
+h t minus one.
+Okay? It will be decided by h t minus
+one.
+Correct?
+Clear?
+Okay. Now
+what is the next task? The next task is
+to generate the content at this time.
+Right? So, this content that we will
+generate, this is not the cell content.
+This is the content that I want to write
+to the cell. This is called cell
+content. All right, this is the content
+that I want to write to the cell.
+Okay? So, the cell content C tilde
+at time t will be generated based on the
+previous hidden state same, based on the
+previous hidden state and the current
+input. But, the look at the parameters,
+parameters are different. Wc and Uc. So,
+a cell content C tilde
+at time t
+will be generated based on Ht minus one
+and
+Xt.
+Okay?
+Now, this is the content that I would
+like to write to the cell state.
+Okay? But, my forget gate and my input
+gate will not allow
+to write this totally to the cell state,
+right? So, here this forget gate gate
+comes to the picture if Ft. And Ft will
+say that
+Look at Look at here. Ft
+and Ct minus one, right? They are They
+are connected through this element wise
+multiplication. Right? So, Ft will
+decide how much of the previous current
+state, previous cell state
+will be moved forward.
+Right? So, Ft Through Ft, this will this
+will come here.
+And through It
+through It, the cell content that you
+have just generated will basically come
+to the memory. So, through It
+This is It.
+Through It
+it will come here.
+Right? So, the cell state
+is essentially a function of the
+previous
+uh cell state and the current cell
+content.
+And it will be controlled by forget gate
+and input gate.
+Clear?
+So,
+so based on this, uh we will update the
+the the the values of the cell content
+and of the cell state.
+Right?
+Now,
+how much I would like to basically
+write
+or read from the cell state, it will be
+decided by OT.
+So, you see here,
+right? How much will be uh how how much
+we would like to read from the cell
+state and write to the hidden state will
+be decided by OT. So, OT again
+element-wise forget about tan h for the
+time being, right? This is OT
+element-wise multiplication CT.
+Clear?
+So, now uh this the current hidden state
+will hidden state will be updated.
+Now, now think what will happen at t +
+1.
+At t + 1,
+again,
+I will I will uh
+first initialize all the uh all the for
+all the gates, right? Which will be a
+function of the the input at t + 1, so
+xt + 1 and the hidden state ht.
+Right? And at time t + 1, we will
+generate a cell content
+c tilde. Right? And then the similar
+operations will basically be executed.
+Okay?
+Now, what is the guarantee
+that it will it will not have uh the
+vanishing gradient problem?
+What is the guarantee?
+Or can you intuitively state that uh
+uh
+you know, the the past information can
+be preserved
+for for
+for the longer time.
+If
+let's say if if t
+if if t
+is one
+all the elements of ft
+are one
+all the elements of ft are one
+and all the elements of I are zero
+then what will happen?
+So then at
+so then the cell state will get copied
+and copied.
+Right? So ideally
+if you do this
+a token which is far far from the
+current state
+it will not be forgotten.
+Right? If you want to forget the cell
+state completely, then you fix if equals
+to zero and I equals to one.
+So this two gets will essentially
+control how much you want to forget, how
+much you want to retain.
+Right? Now
+now of course you have seen operations
+like tan h here, tan h here. These are
+all These are all design decisions that
+they took. There are There are not
+proper justification behind taking this
+one. But these are all design decisions,
+right?
+And you have seen that
+this
+this is passed through a sigmoid, right?
+This sigmoid will make sure that ft, it,
+and ot they are just probabilities.
+Clear?
+Clear?
+Now
+can you see problems here?
+How many parameters are there? Now think
+of a vanilla RNN and an LSTM.
+LSTM is long short-term memory, right?
+How many parameters are there in vanilla
+RNN? how many parameters are there in
+LSTM?
+So, in LSTM, you see, if you forget bias
+for the time being, right? You have two
+sets of parameters for every gate,
+right? And And then, also, you have uh
+two sets of parameters for the cell
+content.
+There are so many parameters.
+And these are all matrices, remember
+this.
+Okay? So, LSTM is generally useful when
+you have a lot of data to train.
+Otherwise, you will you will overfit.
+Right? If you have a lot of data to
+train, then only you can use you can
+basically uh train all these parameters.
+So, this is a diagram, pictorial
+diagram, you can I've already mentioned.
+So, this is So, so, each of these blocks
+indicates um a particular time step,
+right? Uh this is one block, this is
+another block, another block, and so on
+and so forth.
+Okay. So,
+remember, LSTM doesn't guarantee that it
+will remove vanishing gradient problem
+totally.
+Right?
+But, you can say that
+uh it will reduce the vanishing gradient
+problem
+compared to a vanilla RNN.
+Right?
+Uh
+In fact, there are there are other
+alternative ways of creating more direct
+and linear fast through connections,
+right? We will discuss all these things
+later.
+Okay. So, one way So, the So, LSTM was
+one way. The other way to address
+vanishing gradient is what? Now,
+remember, the vanishing gradient problem
+is not an unique problem
+for LSTM, right? Vanishing gradient
+problem is there in other models, also.
+For example, if you think of a very deep
+feedforward network, right? Very deep
+feedforward network. If you are ever of
+transformer, for example, you know that
+transformer has multiple layers, right?
+12 layers, right? 24 layers, 36 layers,
+and so on and so forth.
+So, as we increase the number of layers,
+you see vanishing gradient problem,
+right? So, as we increase the number of
+layers in in
+simple CNN, simple RNN, simple
+feedforward network, you see that the
+effect of the bottom layers to the to
+the loss, final loss, will be much
+lesser.
+So, you see that bottom layers will not
+be updated at all. It will remain the
+same
+over the iterations, right?
+So, another way to address this problem
+is something called a residual
+connection.
+This is also called skip connection.
+What is a residual connection? A
+residual connection says that let's say
+you have a layer like this.
+Okay, a layer is nothing but a function,
+isn't it?
+It's a function, right? Let's say you uh
+This is your X,
+right? The input to that layer, and the
+layer output is f of x,
+right? And let's say you want to pass
+this f of x again to another layer,
+which is f'x,
+right? And so on. So, what you do in
+this residual connection,
+you essentially
+you add the input to the output.
+So, the input to the next layer will be
+fx
++ x.
+Okay?
+Again, when you generated f. f f'
+something, right? You feed this input
+here,
+right? You basically take a plus of
+this.
+Now, what will happen is that due to uh
+due to so many
+complicated operations within every
+within each layer,
+right? The model will start forgetting
+the input itself, right? So, every time
+you basically you know
+make it aware that please don't remember
+the input. You have an input and you
+should not
+forget that input, right? So, you at
+every step you keep on adding this input
+again and again.
+We'll see this kind of skip connection
+in transformer when we discuss later.
+The other way to address this is
+is let's say a dense connection,
+densenet. Right? In densenet what
+happens? Let's say
+let's say you have uh
+RNN layers like this.
+Okay? So, in a vanilla RNN
+two consecutive layers are connected
+through one connection, right? In dense
+dense net what you do you connect all
+the layers
+to all its next layers. Each of the
+layers to all its next next layers. For
+example,
+this will there's a connection from here
+to here, there's a connection from here
+to here, there's a connection from here
+to here. Okay?
+From here to here.
+And so on and so forth.
+So, every every layer is connected to
+all the future layers.
+Not back connection by the way, forward
+connection.
+Okay? So, in that way you will always
+make sure that
+information will not be forgotten
+because you have connect multiple
+connections. Of course, how to combine
+all these connections together would be
+a question, but there are ways.
+Right?
+In fact, there are many other ways.
+There is another technique called
+highway connection where you can use a
+getting mechanism. So, highway
+connection is a mixture of a getting
+mechanism and densenet, right? So, the
+high
+this is called highwaynet. In highwaynet
+you you you use a gate to control
+um
+uh so, you you also have these dense
+connections and this gate. So, gate will
+control how much you want to basically
+remember from the
+from the far far away states and how
+much you want to remember from the
+current state.
+Okay, the combination of this.
+Okay, then in So, so LSTM was proposed
+long time back, by the way.
+Long time back and people did not use it
+because at that time let's say early
+2000, that time there was
+there was a scarcity of the amount of
+data. Right?
+And then in in 2014, so in from from
+2008, 2009 when people started curating
+data, huge amount of data, right?
+AlexNet, AlexNet, all these methods was
+proposed in 2011, 2012.
+People got access to huge amount of data
+sets. Then they thought that, you know,
+uh
+LSTM is okay, but let's look at other
+mechanism. So, in this paper in 20 in
+2014,
+right?
+They proposed a mechanism called GRU,
+gated recurrent unit. So, in GRU, the
+idea is exactly the same as LSTM.
+Right? The only difference is that here
+there is no explicit cell state.
+Okay? And there are only two gates.
+One is called the update gate,
+which is responsible for controlling
+what parts of the hidden state are
+updated versus what to preserve.
+So, there's only one state, which is
+hidden state, right? You have to You
+have to control So, this is what you
+have, right? So, you want to control how
+much of the previous hidden state will
+be preserved and how much of the
+previous hidden state will be updated in
+the next hidden state.
+A reset gate controls
+what parts of the previous hidden states
+are used to compute the new content.
+Let's look at the equation.
+So,
+similar to LSTM, here also
+I will create uh
+I will basically initialize these two uh
+vectors, create these two vectors, uh
+gates, update gates, and reset gate, and
+they are functions of the previous
+hidden state and the current input.
+Same. Right? With parameters, different
+parameters.
+Now, this time
+here there is no cell content. Here,
+there is something called hidden cell
+content that you want to uh that you
+want to insert into hidden state.
+Right? Now, this hidden state hidden
+state uh content, H tilde,
+right?
+is essentially controlled by R.
+What is R? R is a reset gate.
+Right? So, R will decide how much of the
+previous hidden states will be used to
+generate the content.
+Okay? And then
+so, you generated the content, which is
+H tilde,
+right? Which is a function of
+the previous hidden state and the
+current input.
+Right?
+And then
+this content
+will again be controlled by the update
+gate.
+So, the update gate will say
+decide
+um so, there are two components now. One
+is the current hidden state uh the
+current hidden state content that you
+generated, H tilde, and the previous
+hidden state.
+Right?
+Then, this
+the update gate controls that how much
+of the current cell current uh
+current content
+will be moved to the hidden state,
+current hidden state, and how much of
+the previous hidden state will be moved
+to the current hidden state. Right? And
+you see they use a single gate, UT.
+Right? So, UT and here UT and here 1 -
+UT.
+Right? So, it basically balances. If UT
+is very high, then we'll give low
+weightage to the previous hidden state
+and more weightage to the current
+content. If UT is low, and then you
+basically
+do the opposite.
+Okay? So,
+in this way we essentially control the
+entire thing. Now, you you see how many
+parameters are here. There are two
+parameter sets, two parameter matrices
+for you. There are two parameter for R.
+And and there are two parameter matrices
+for for H tilde.
+Okay. So,
+let's look at the comparison between
+LSTM and GRU. You can ask that which one
+is preferred, LSTM or GRU? Right? In
+general, the practice the the the the
+suggestion is that you
+you start with LSTM and then you move to
+GRU.
+Right? If you have enough data.
+If you don't have enough data, you can
+use GRU. But this is the rule of thumb.
+You start with LSTM, you can switch it
+to GRU if you want something more
+efficient. But there is no clear
+evidence which one is better, LSTM or
+GRU. Sometimes LSTM performs better,
+sometimes GRU performs better.
+Okay. So, this is about LSTM GRU.
+I already mentioned by directional RNN,
+right? In by directional RNN, you see
+this by directional arrow, right? So,
+there is one forward RNN, right? Which
+will
+generate hidden state at T. There is a
+backward RNN, right? Which will generate
+a hidden state at T. And then the final
+hidden state at T is basically a
+concatenation of the backward RNN hidden
+state and forward RNN hidden state.
+Right? And this this kind of methods you
+use when you want to access access to
+the
+to the entire sequence. Right?
+Multi-layer RNN, you can also think of
+other variations where
+RNN layers are stacked one upon another.
+Right? So, this is one RNN. It can be
+bidirectional or uni- unidirectional.
+This is another RNN, but look at here.
+What's the difference between
+bidirectional and multi-layer?
+In bidirectional,
+uh
+you you in in bidirectional, you you
+have something like this. So, this is a
+time stamp t.
+Okay? W- where i- This hidden state will
+be generated based on the current input
+xt
+and the previous hidden state ht + 1.
+Right? And xt.
+He- This hidden state will be generated
+based on xt
+and ht - 1.
+Right? And these two things will be
+combined. But in multi-layer RNN, you
+see here the the input of every hidden
+state is not the actual input.
+What is the input? The input is the
+output of the previous hidden state.
+Output of the uh
+hidden layer of the previous hidden
+state of the previous layer.
+See the difference between these two?
+Okay.
+Uh LSTM has been very very successful
+from 2013 to 2015,
+and then in 2017, Transformer was
+proposed, and then people started using
+Transformer. But again, uh the
+importance of LSTM kind of methods was
+realized recently. Uh the state space
+model Mamba kind of models, right? We
+will see that their RNN
+models will be used. Right? RNN has its
+own beauty. Right?
+But here also, the same the I mean, one
+problem still remains there. What's the
+problem?
+You cannot process the
+uh the sequence in parallel.
+You can't process the sequence in
+parallel, right? You have to wait till
+till till T minus one to basically
+process the hidden state at T.
+Right? We'll We'll see how we can
+address this. Okay? Thank you.

@@ -1,0 +1,1040 @@
+[Music]
+hello everyone uh welcome to the course
+on large language model uh this is uh an
+introductory chapter uh for this course
+so in this specific lecture we are uh
+basically trying to understand why uh
+you know large language model is
+important to learn I'm pretty sure I
+don't need to convince you why this is
+an important you know uh Topic at least
+in today's era we are we are all aware
+of chat gbt and how chat gbt has
+disrupted our society so uh in this
+lecture we will essentially try to cover
+the content that we are going to cover
+in the entire course and some of the
+logistics that are needed to to
+essentially U you know understand
+different content and so on and so forth
+okay so let's get started first things
+first so my name is tanma chakraverti I
+am one of the instructors for this
+course I'm an associate Prof at I Delhi
+along with me uh profess Swan chakti
+from I Bombay he will also teach a part
+of this course and this course uh also
+has a has two wonderful tiers very
+supportive tiers uh one is my student an
+chat G uh from I Delhi and other is uh
+PA Migos she's a PG student at I
+Bombay so uh this is the course content
+so this is essentially an introductory
+graduate level course okay and uh uh the
+hope is that at least you know the
+audience should have some understandings
+of NLP although we will cover basics of
+NLP but it's not possible to cover the
+you know details of NLP in this course
+uh and of course deep learning is needed
+so if you haven't learned NLP and deep
+learning it is recommended that you can
+go through one of the some of the online
+courses or you can go through some of
+the books there are many wonderful books
+uh in NLP and deep learning so uh these
+two topics are very important to learn
+as a prerequisite for this
+course okay and uh this is more or less
+the content that we are going to cover
+we will start with Basics okay uh so
+this is so so today's lecture is the
+introductory lecture then we have
+lecture on the introduction of NLP
+introduction to NLP this is essentially
+you know it's it's going to be an an
+hourong lecture on NLP but you know it's
+not possible to cover the I mean all
+different topics of NLP in one hour but
+what I will try I will try to basically
+give you a very high level overview of
+different interesting uh context uh in
+NLP and then I will also briefly cover
+neural networks uh specifically uh you
+know activation functions back
+propogation right uh different different
+types of architectures basic
+architectures in neural network and then
+we will have one lecture on uh on
+language model statistical language
+model okay where we will cover Ingram
+language model different types of
+smoothing techniques right evaluation of
+language model perplexity uh extrinsic
+evaluation intrinsic evaluation and so
+on and then we move to word embedding
+right so we will essentially connect the
+concept of distribution semantics and
+and recent water embeddings right we
+will essentially see why uh you know old
+school techniques like tfidf based
+methods for what representation may not
+be a good idea why we need this the
+concept of distri semantics and why you
+know we can why we should learn what
+Tings from documents right there we will
+cover what to V can love
+uh these two methods and then we move to
+neural language model where we will uh
+essentially teach uh uh CNN RNN uh lstm
+Gru models uh for uh language models and
+then we will move to sequence to
+sequence models right for maing
+translation for for text to text kind of
+problems and then we will introduce
+attention Okay so these are the basics
+uh that we will cover and then we move
+to to architecture uh in this bucket we
+will uh we'll start with the
+introduction to Transformer the
+Transformer model which is the
+foundation of existing large language
+models uh available um you know publicly
+available or uh some of the blackbox
+models right and then we also talk about
+uh the concept of positional encoding we
+will see that in Transformer uh the the
+beauty about Transformer is that
+uh unlike RNN right where um um RN kind
+of models where sequence is important
+right and uh uh you know RNN lstm kind
+of models they process a sequence of
+data and that's the that's the bottom
+neck because because of the sequential
+nature of the data the model is not able
+to to to to
+basically access the input in parallel
+right so Transformer was introduced
+where they showed that how to access the
+input in parallel right and to access
+the input in parallel as you understand
+um you know we essentially Mis uh miss
+out the information of position right so
+positional encoding is essentially and
+way to encode the position information
+along with the along with the actual
+information present within the token
+right then we'll talk about different
+tokenization
+strategies uh bite pair uh you know
+sentence piece what piece and so on then
+we move to different uh pre-training
+strategies decoder only models uh prefix
+model encoder only model encoder decoder
+model and so on and so forth so there
+we'll talk about um right so there we'll
+talk about B uh and different GPT models
+and also
+T5 okay and then we move to different as
+aspects of learnability right these are
+more advanced concepts so we'll talk
+about instruction fine tuning right uh
+we'll talk about in context learning
+we'll also talk about Advanced prompting
+techniques chain of thoughts graph of
+thoughts tree of thoughts prompt prompt
+uh chaining and so on then we will
+discuss a very important concept of um
+human alignment right there we'll talk
+about rhf you know if time permits we'll
+talk also talk about DPO and so on and
+then we will see how we can essentially
+reduce the size of this models right
+systematically one way of reducing the
+size is uh is basically something called
+PFT parameter efficient fine tuning
+where we uh we will essentially liage
+the ideas of distillation knowledge
+distillation where you have a teacher
+Model A large teacher model and a small
+student model and you essentially
+distill Knowledge from a teacher model
+to a small student model right so that
+the student model performs as similar as
+the teacher model we'll also talk about
+different types of adapter based methods
+right and so on and so forth then we
+move to more advanced concept uh
+knowledge and retrieval there we'll talk
+about knowledge graphs right uh and uh
+open book question answering systems
+models which which essentially uh can be
+used for question answering in an open
+book setting right and we also talk
+about retrial augmented
+techniques and at the end of this course
+we will cover some of the uh some of the
+ethical aspects of large language models
+bias toxicity hallucination and we will
+also try to cover some of the advanced
+concepts in uh LMS including State space
+model and um uh you know if possible
+some other aspects as well okay so this
+is more or less the content uh the
+tentative content uh hopefully we'll try
+to cover we will'll be able to cover
+most of the content but it again also
+depends on the time and the context okay
+so the prerequisite uh you know I
+always show the slide that uh I believe
+that for any course uh there is no such
+prerequisite right the prerequisites are
+basically you should have an excitement
+about learning something new in this
+case learning about language about
+language models and of course willing
+willingness to learn something new right
+but
+officially you know data structure
+algorithms machine learning uh should be
+the prerequisites uh for the course we
+will not touch upon any of this uh
+Concepts in this specific lecture and
+then again the hope is that you have
+strong understanding uh of Python
+Programming you have strong Python
+Programming skill there are there are a
+few lectures on essentially Python
+programming for this uh large language
+model so the 2ts will uh take couple of
+lectures on you know on how to basically
+code right uh to use llms for our uh
+day-to-day life and as I mentioned
+earlier the desirable uh you know the
+desirable subjects include NLP and deep
+learning uh we will not be able to cover
+NLP in details and deep learning in
+details okay so this course will not
+cover NLP machine learning deep learning
+this course will not cover generative AI
+for modalities other than the text right
+so this course is essentially generative
+model for text okay so for example we
+will not cover uh uh any any uh uh
+stable diffusion kind of models or let's
+say mid Journey di kind of models right
+but here we will briefly cover some
+Vision language models right only one
+there is one chapter on Vision language
+model that we will cover
+okay
+so so this is the non-exhaustive list of
+uh online content uh which have been
+used to design some of the slides for
+this course so we acknowledge uh uh you
+know all the content creators okay so uh
+the contents some of the content are
+taken from from CMU gr gr nuic course
+some content from mu's course from UMAS
+Chris Manning course from stf for right
+uh you know some material from from uh
+University of Texas Austin right USBC
+and so on and so forth this is of course
+not an non this is not an exhaustive
+list so right so you know over the time
+we will duly acknowledge the sources
+from where we have taken content for
+this uh course we will follow this
+textbook this is a textbook on large
+language models written by me the book
+covers various topics those which will
+be covered in this lecture as well as
+other topics as well with every chapter
+we have comprehensive exercise and uh
+slides supplementary tools and you know
+interesting papers that are there
+related to the chapter okay so let's get
+started so this course is about large
+language model so let's try to
+understand what is what is a language
+model although there's a separate
+chapter on language model but here you
+know just to uh start the the the the
+overall uh content right so I thought uh
+let me introduce language model in the
+in this particular lecture so language
+model essentially is a probability
+distribution over a sequence of tokens
+okay let's say you are given a token you
+are given a sequence of Tokens The
+Tokens can be words token tokens Can Be
+characters tokens can be uh subwords
+tokens can be a sequence of numbers
+tokens can be anything right so so if
+you are given a sequence of tokens the
+task would be to essentially measure the
+probability uh of the sequence of tokens
+right now remember when I when I mention
+the term sentence right uh I use the
+term sentence vaguely right or Loosely
+right uh a sentence I mean when we use
+the term sentence it it may not indicate
+that it's a valid sentence right a
+sentence can be an invalid just an
+invalid sequence of tokens right valid
+SL invalid sequence of tokens okay so so
+language model so if you let's say if
+let's say if there is a uh sequence of
+tokens like the monsoon rains have
+arrived okay so language B should be
+able to say that the probability of the
+sequence of tokens is let's say 0 2 or3
+or point4 right this number 2.3 is quite
+High by the way remember this right but
+let's say if there's a sentence like
+this a sequence of tokens like this
+Monsoon on the have rein arrived right
+the model the language model should be
+able to say that the
+probability of this uh sequence is 0.1
+for example right because this is not a
+valid valid sentence okay this a
+syntactically incorrect sentence
+now when we talk about language model
+right we also assume that the language
+model understands knowledge right let's
+say there's a sequence of tokens like
+the man eats the cheese right language
+model will say that the probability is
+08 right let's say there is another
+sequence of tokens the cheese eats the
+man okay the language model should be
+able to say that the that the pro
+probability of this sequence is let's
+say 0.1 right earlier it is point it was
+point8 now this is 0.1 and if let's say
+the sequence is something like that the
+man cheese eats
+right so then the model will say that
+the probability is 01 right now remember
+the the first one was of course the that
+was a valid uh English sentence but the
+second was was also a valid English
+sentence right it was uh it valid in the
+sense like it it was valid in terms of
+the syntax in terms of the grammar there
+was subject verb and object right but
+semantically that was not a right
+sentence because a cheese can't eat a
+man
+right on the other hand the last
+sequence of tokens that I mentioned that
+is not at all syntactically correct
+sequence stic correct sequence so
+therefore the probability is much much
+lower right so you see that when you
+compare across multiple probabilities
+generated by language models you can
+also think of you know
+which one is syntactically correct which
+one is semantically correct which which
+one is nonsensical and so on and so
+forth right so the hope is that the
+language model also understands world's
+knowledge some ways
+right now when we design a language
+model right what we do we create a
+vocabulary right how do we create a
+vocabulary let's say we are given a
+document a corpus remember the term
+Corpus okay Corpus is essentially a
+vocab uh document right and the plural
+is
+corpora okay so let's say you are given
+a corpus uh large Corpus and you start
+scanning the Corpus from from extreme uh
+left to the uh extreme left start to the
+extreme Right End right so you scan
+through the document one by one uh the
+tokens one by one and then you
+essentially uh uh create a vocal where
+we will add all the unique tokens right
+all the unique tokens into the
+vocabulary right the unique tokens are
+called types remember this
+types right tokens are wordss in this
+case right let's assume that tokens are
+what tokens Can Be characters also but
+in this case tokens are wordss and we we
+add unique tokens or we add words to the
+vocabulary right in this way we create a
+list of unique tokens present in the
+document right and that forms the
+vocabulary okay let's say in this case
+the vocabulary words are arrived D have
+is Monsoon re the ETC okay
+so
+mathematically given a sequence of
+tokens X1 X2 dot do.
+XL the language model uh uh basically
+measures the probability of the sequence
+right so it's a joint probability X1 to
+L right and how do we measure this joint
+probability we measure the joint
+probability uh we can unfold it uh to
+basically multiple conditional
+probabilities using chain rules we all
+know that P of
+X1 X2 X3 can be computed as p p of X1 *
+P of X2 given X1 right times P of x3
+given X1 X2 and so on and so forth right
+as you see here so all these components
+right these are um conditional
+probabilities right and we will see in
+the language model chapter how we will
+compute these conditional probabilities
+okay we'll also understand the problems
+uh you know in Computing this
+conditional probabilities and why do we
+need to adapt large language models for
+for scaling it up
+okay
+so now as you see here although I
+mentioned that a language model is a
+probability distribution over a sequence
+of tokens when you break it into
+multiple conditional probabilities
+okay
+uh it it it now becomes uh some sort of
+generation problem right look at this
+component for example what does it say
+it says that given X1 and X2 given two
+tokens given two uh previous tokens what
+is the probability that next word or
+next token is going to be
+X3 okay again uh I will use the the the
+term word very vaguely a word basically
+refers to a token
+okay
+so so in our example if the context is
+the monsoon rains have right what is the
+probability that the next word is going
+to be let's say aride okay or next word
+is going to be Delhi next word is going
+to be have and so on and so forth right
+and how do we do that we already have a
+pro probity distribution right how do we
+compute the distribution we will discuss
+in the language model chapter but you
+assume that you are given this
+distribution right and you choose a
+token right as a as as as as a
+placeholder for uh for XI right and
+let's say the token is Xi okay that you
+sample from this distribution okay and
+you return that token as the next token
+given the context okay so the next token
+can be can be arrived the next token can
+be begun the next token can be started
+right the next token can also be telling
+right and if the language model is good
+enough the language model will say that
+the probability that the next token is
+going to be arrived or the probability
+that the next token is going to be
+started uh would be higher than the next
+token uh uh you know than let's say the
+what they
+or uh the the word let's say rain okay
+the monsoon rains have rains doesn't
+make any sense
+right okay so we'll discuss more about
+this so this model is also called Auto
+regressive model right why Auto
+regressive model because you are given a
+contest automatically it will generate
+the next uh next token you know in a
+sequential Manner and we will see uh in
+the neural uh Network or in the uh
+neural language model chapter that the
+the enre cont concept of language model
+can be can be U modeled using uh neural
+network where you feed the sequence uh
+of uh the sequence of tokens which are
+present in the context as an input to
+the neural model and the neural model
+should be able to
+produce the output with certain
+distribution with certain probability
+okay so the entire concept can be
+actually modeled or can be mimicked with
+a neural network we'll discuss
+later okay so this is all about language
+model now moving to large language model
+right so the term large uh here right
+can be referred to um the parameter size
+of the model right or the number of
+training data set or amount of training
+data set amount of tokens present in the
+training data set that are used to train
+this kind of
+model okay so uh you know Transformer
+was introduced in 20177 right and then
+during that time another model was
+introduced called ilmo we'll discuss the
+ilmo model later right and the model
+parameter was uh the number of
+parameters were roughly 94 million in
+Elmo right and then GPD was introduced
+in 2018 roughly 110 million then bot was
+introduced uh it had around 340 million
+parameters you know in 2018 and people
+started started shouting people said
+this is this is too much right 340
+billion 340 million parameters training
+such a model loading such a model for
+inference this is impossible right and
+then you know we we we saw some of the
+developments of tiny language models
+right small language models on top of B
+okay but then in 2019 gpd2 came and the
+parameter size was roughly 1.5 billion
+right and then Megatron language model
+Megatron LM right roughly U roughly 8.3
+billion and then T5 11 billion right
+gpt3 was introduced in 2020 175 billion
+Megatron Turing en was introduced 570
+billion and Goofer 280 billion right
+this is the history till 2021 by the way
+I'll talk about the you know the models
+which were introduced after 2021 later
+okay but if you
+see the parameter size increase right
+the parameter size has increased by you
+know 2,000 times 5,000 times
+roughly in four years okay and at the
+same time if you look if you look at the
+size the Corpus size right um that were
+that were used to uh train the model
+ilmo used roughly 1 billion tokens right
+to uh train the model gpt2 gpt3 you know
+much much higher than that and then the
+recent models like Palm opt gimini
+gbd4 we don't know the
+exact exact uh amount of tokens uh that
+were there in the training set to train
+this model but you know from from social
+media from Twitter we came to know that
+roughly the parameter size of g54 is 17
+1.76 trillion right Gemini is 1 .56
+Ultra is 1.56 uh trillion roughly GPT
+1.76 trillion right OPD 175 billion OPD
+is a open source
+model so yeah so you see that a massive
+scaling up in terms of number of
+parameters in terms of number of tokens
+uh used to train such
+models let's look at the overall
+landscape of AI uh you know in today's
+era
+so we have ai the classical AI where uh
+along with the learning part we also
+learn uh we we will'll also learn the
+planning part of it right uh planning
+scheduling and other parts of it which
+may not need the learning component as
+such and then within
+AI we have machine learning where we are
+interested in you know learning
+automated rules from
+data then within ml we have deep
+learning where now we introduce the
+concept of neural network deep neural
+network multiple layers deep layers
+right and then uh large language models
+large language model is essentially a
+deep neural
+network right uh which has the
+capability to generate things right the
+traditional deep learning models you
+know do not have the capacity to
+generate text to generate uh images but
+today's gen geni model C models of the
+capability
+to generate languages right so LM is
+essentially a part of deep learning
+whereas uh generative
+AI uh is is essentially uh talks about
+uh many things apart from text it also
+has images right various types of media
+speech and so on and so
+forth okay so uh now let's look at the
+uh the evolution of language models
+evolution of large language
+models so if you think of language
+model right uh let us go back to uh the
+year 1966 or 1967 during that time the
+famous mod model Elisa was introduced by
+MIT lab right Elisa was a simple chat
+bot which were which was able to
+interact with humans right it was
+basically operated with a set of rules
+rules were predefined right there was
+not a there was not a there was no
+learning component as such within
+Elisa and
+then in 1996 1997 lstm was introduced
+RNN was introduced much before that lstm
+was introduced lstm G you all know that
+these are basically some sort of GED
+mechanisms right on top of RNN which
+would uh which would address the
+vanishing radiant problem discuss later
+Nvidia you know came into the picture in
+2000 in 1999
+2000 and then uh they started producing
+uh their gpus uh Graphics Processing
+Unit which is essentially the hardware
+that we use these days to train such
+gigantic
+models right um IBM has always been one
+of the Pioneers right one of the one of
+the major figures in in AI right all all
+of you know uh you know the IBM Watson
+model into 2011 IBM
+Watson basically U defeated the human
+participants in the in a quiz game
+called geopat challenge right it's a
+it's a TV
+show and then um you know around 2006
+2007 uh Facebook introduced their lab
+called Facebook AI research lab Fair lab
+right in 2014 2015 during that time time
+Google released their Google brain
+project okay and Google also started uh
+producing their own Hardware called tpus
+tensor Processing Unit okay um and then
+in 2017 Google brain Asis basani and his
+colleagues from Google brain they
+introduced this model called uh called
+Transformer right in uh slightly before
+Transformer before the time when
+Transformers was introduced uh open
+a another company right at that time it
+was a very small company right uh that
+basically came into the picture in 20
+2015
+2016 and then in uh in 2016 Stanford
+released this um data set called the
+squad data set for question
+answering right so this is the history
+till
+2017 we are in 2017 now and Transformer
+has just been introduced by Google brain
+okay we are moving to 2018 let's see how
+post Transformer era looks
+like so this is the paper uh the
+Transformer paper the famous paper right
+if you I don't know how many hits this
+paper has received so far
+so Google uh continued their Journey
+right in 2018 they introduced this
+famous B model right A B directional uh
+encoder model right um
+and uh this is essentially a new
+architecture a new training protocol
+right they introduced the concept of
+mask language model they just focus on
+the encoder part of Transformer we'll
+discuss the Transformer model in details
+essentially in Transformer there are two
+blocks right one is one is called the
+encoder block other is called the
+decoder block and incoder decoder blocks
+are linked right so but only focused on
+the encoder block of Transformer model
+and with the concept of mask language
+model right so uh this model was
+trained
+then U although the Transformer model
+was introduced for machine translation
+uh task specifically for machine
+translation task but B here showed
+Superior performance across 11 NLP tasks
+right and different types of task in NLP
+so as I mentioned earlier that time
+people thought that this is too big
+right a 300 million parameter model
+right let us try to think of a tiny
+model people proposed a digital bird
+Tiny Bird mobile Bo these are all small
+models based on the B
+architecture you know in
+2018 there was another company who was
+just waiting for the right opportunity
+right and it is none other than openi so
+openi in 2018 they wrote their first GPD
+paper right and remember this
+gentleman elas HK right so he is one of
+the co-founders of openi right he's the
+Chief Architect of open he was the Chief
+Architect because he recently uh
+resigned and um some of you know aah
+because um he was also the co-authors of
+this famous Alex net paper right IIA was
+um uh was Jeff Hilton's PhD student so
+in 2012 I guess 2012 2013 they wrote
+this Alex net paper and then he started
+uh with Sam Alman other members other
+Founders uh this open company was
+started in 201 2015 2016 I guess this is
+the first GPD paper and in this
+paper they only focused on the
+they only focused on the uh the decoder
+part of it remember encoder decoder but
+was B was only based on the encoder
+model encoder layer GPT only focused on
+the decoder part of it
+okay so
+2018 just one year after that 2019 gpt2
+was introduced the same same guy right
+same set of people right gpt2 the beauty
+about gpt2 is that the architecture is
+more or less same it's a decoder only
+model but the parameter size is now
+jumped from 117 million to 1.5 billion a
+3X kind 13x kind of increase right and
+now the context
+length the the length of the input that
+the model can process is now uh one24
+tokens earlier it was one it was 52
+tokens right in gpt2
+they observed very interesting idea of
+prompting right they showed that you
+know they came up with the concept of
+zero shot few shot and so on and so
+forth right so they showed that a
+pre-train model right uh train pre trend
+on gigantic Corpus
+right uh on a down Downstream task right
+let the task is translation or
+summarization on a downstream task
+without knowing training data the model
+uh performs significantly well in a zero
+shot setting zero shot means without
+knowing about the about the task or
+about the about uh any examples related
+to the task and so
+on okay
+and if you look at the results across
+different tasks reading comprehension
+translation summarization po answering
+you see this blue uh blue line right
+which indicates the performance of gpt2
+right the performance is
+significantly uh is comparable compared
+to the other expert models the expert
+models are essentially trained for this
+particular task right for example this
+pget qu generator Network this is
+trained for the summarization task but
+gpt2 is not trained for this task in a
+zero short setting during inference time
+the model performs significantly well
+right then they thought
+that the the the the GPD guy the the
+opena people they thought let us scale
+up further this is one this is 1.5
+billion let us scale up uh scale it up
+further and let's see what happens right
+so now they the they took some more time
+but in between in
+2019
+so Google is Google right so Google
+after introducing the Transformer B they
+kept on exploring the other avenues and
+they proposed this model called T5 this
+is again a billion siiz model uh coing
+Rafel and his colleagues from Google
+they propose the idea of T5 T5 is text
+to text transform text to text transfer
+Transformer right we'll discuss about T5
+later so it's a encoder decoder
+model unlike B which is an encoder model
+or GPT which is a decoder only model
+this is an encoder decoder model right
+but in this model they
+unified all the task as a text to textt
+problem where a text is an input and the
+text and a text is an output it can be a
+classification task it can be a
+regression task a number is also
+considered as a text
+right
+so in T5 we have same kind of same
+strategy training strategy that was used
+in B kind of model but here they
+introduced some more uh you know some
+some Advan strategies like span
+corruption and so on and so forth for
+training we'll discuss
+later meta another
+giant right they also came into the
+picture into the race 2019 they proposed
+the idea of robot robot all of you know
+it's it's a it's an advanced method it's
+it's a followup of B right and this
+paper they understood they showed that
+the bot model is significantly under
+Trend right with more and more training
+can we boost the performance of B kind
+of model right in 2019 they also propos
+the xlm model xlm the the followup of
+xlm I mean all of you know it's a cross
+lingual model
+right um it has both supervis and
+unsupervised kind of uh I mean it has
+applications in both supervis and UNS
+supervis machine
+translation okay in 2020 so
+right after gpd2 gpt3 was introduced
+right and in this paper first time we
+saw a term called large language model
+right
+gpt3
+so from 1.7 billion to 175 billion okay
+huge huge jump in terms of parameters
+right and in this paper they
+also uh uh they
+also observed a very interesting
+phenomena called in context learning
+right so in context learning the idea is
+that uh during the inference time you
+give some examples for a TK uh for a for
+a downam downstream task and without any
+gradient update within the neural
+network the model should be able to
+understand the or the model should be
+able to cater to the examples right and
+perform significantly well in the
+downstream task this in context learning
+is essentially an emerging property of
+the scaling law scaling law says that
+you just increase the size of you keep
+on increasing the size of the models and
+you see U the model should be able to
+perform better and better the fun part
+is that from 2020 open AI stopped
+sharing their codes their their tools
+their checkpoints and so on so open AI
+is no longer an open uh open model right
+so uh open stopped sharing models sto
+sharing details of the parameters
+training protocols and so on and so
+forth in
+2022 right uh Google again came up with
+the idea of pal okay it's a very
+interesting idea uh it was introduced
+mostly for conversational setting uh 540
+billion parameters right Google also
+stopped sharing their their their their
+codes their Source codes their
+checkpoints and model details and so on
+and so forth so the race has already
+begun 2021 2022 we saw a bunch of models
+right models like uh Megatron touring by
+Microsoft and Nvidia
+collaboration then um we also saw U
+models from Deep Mind like chinchila AI
+Google also introduced the Lambda model
+right uh deep uh Deep Mind also proposed
+a model called grer right openi
+uh introduce their first language model
+for codes right remember handling code
+has its own problem right because the
+major problem is long context there are
+other problems also openi introduced the
+Codex model right code genen was also
+introduced and many other models were
+introduced in
+between MAA thought that since open Ai
+and Google stopped promoting open
+science right open open sourcing
+let us only focus on open
+sourcing right so they um they propose
+the idea of opt right this is basically
+u a suite of decoder only model right
+from 125 million to 175 billion
+parameters and these are open sourced
+right and then in 2022 November right
+this happened chat Duty came to our life
+and the rest is history right so we
+started playing with charb we knowingly
+unknowingly fed lots of our data to char
+examples right queries passages text and
+you know those data actually started
+moving to CH dut's account okay
+freely
+2023 race has race continued
+uh February
+2023 Google released their Bard model uh
+meta kept on uh you know basically
+producing the open source their open
+source models the the Llama series
+started right llama one llama 2 llama 3
+recently Lama
+3.1 right uh another company came into
+the picture anthropic anthropic started
+building the cloud
+model okay um in March 2023 GPD 4 was
+introduced it's the first multimodal
+model the input maybe a text input maybe
+an image and so on and then Microsoft
+built a tiny model called 51 right a
+five series Model 51 which is a 17 1.7
+million parameter model mistal another
+very interesting company from France
+right they again they also came into the
+picture and
+they started focusing on small models
+right at the at the beginning so M 7
+billion model is very good in terms of
+reasoning right um Elon mask company XII
+they
+also build a model called grock model
+and then late 2023 Google unified all
+their B models and they introduced this
+new framework this unified framework
+called Gemini right Gemini is again
+close Source model or blackbox model
+like like openi model
+CPT okay
+so this is 20124 and I'm recording this
+lecture today today is 26th of July
+right uh last 6 s months we have already
+seen a massive Improvement in terms of
+models right Gemini uh the followup of
+Gemini uh Gemma 2 and then uh gp4 also
+released
+their GPT opena released their Advanced
+GPT model which is GPT 4 40 recently
+they also released cp40 mini right uh
+Lama 3 was introduced recently
+mistl started collaborating with Mamba
+team so Mamba is again a team um which
+which believes in non- transformal Bas
+model we'll talk about Mamba maybe at
+the end of the class at the end of the
+course right it's aate space based model
+right and uh Mel collaborated with with
+Mamba and then they introduced this
+model called Corral 53 was was
+introduced by Microsoft right recently
+Lama 3.1 was introduced right mistal uh
+introduced their new model uh which is a
+mistra large uh large to large two model
+right it basically uh handles
+80 plus languages 80 80 plus coding
+languages and eight different languages
+French German Etc right so uh this Mr
+Large 2 has already been compared with
+Lama 3.1 and it showed reasonable
+performance R reasonable comparison with
+Lama 3.1 llama 3.1 if you look at the
+largest version it has uh more than 400
+uh billion parameters it's the largest
+uh open open source model Facebook has
+produced so far okay this course exist
+because the enter journey is not only
+about scaling law right this is also
+about emergence right different emerging
+properties we'll talk about uh prompting
+in context learning right different
+types of prom prompting techniques right
+how with with with a small gradient
+update we can perform uh significantly
+well Ross different task and so on and
+so forth right
+so and Lama sorry I
+mean llm models like Lama GPT these kind
+of models have already been Incorporated
+by different Industries right so if you
+are also interested in understanding how
+these models have been integrated with
+let's say Google search Microsoft as
+your service right Microsoft being
+service so this course is important for
+that
+okay
+uh when while performance is an
+important factor the other factors are
+uh the risks right uh already
+llama gpts right all these models have
+been accused for different uh different
+violations of policies right they are
+not reliable in many cases they produce
+this information they have they are
+biased towards certain certain parts of
+our society right um they produce toxic
+content uh malicious content and so on
+and so forth right we'll talk about the
+ethical aspects of it as
+well
+and of course the security is one of the
+aspects so if you do not know the
+architecture of the model you won't be
+able to understand the vulnerability of
+this models therefore the security
+aspects the security loopholes are also
+uh interesting uh to understand right so
+we'll start with the basics
+and then we move to architecture I
+already mentioned we move to
+learnability right then move to advanced
+concepts Knowledge Graph integrating
+Knowledge Graph to the model Rag and so
+on then we look at different ethical
+Concepts another miscellaneous topics
+Advanced topics in large language models
+okay if you are interested and if you're
+excited about this this course I
+strongly suggest you to make your hands
+dirty with huging face libraries right
+with Kegel so Kegel essentially um you
+know releases many data sets you know
+many researchers launch their
+competitions on kegle right so many open
+source data sets are available in in
+Kegel and um and and of course Google
+collab uh should be one of the tools one
+of the platforms Frameworks where which
+you should you should know right so uh I
+end today's lecture by saying this thumb
+rule right never believe in any
+hypothesis until you experience it okay
+so so the the enre space of large
+language model has been very shaky in
+the sense like you know people are
+coming up with different hypothesis
+different conclusion right uh most cases
+codes are not available most cases
+things are not reprod ible right most
+cases you know there are there are
+multiple gurus right who will teach you
+you know this to be done this not to be
+done and so on and so forth but you
+should not believe in all these things I
+mean you can of course you can you can
+capture those ideas right you can quote
+them right but you should not believe in
+this all these uh lectures right even
+you should not believe in my lectures
+until unless you experience it you
+experimentally verify whether um all
+this um hypothesis all these conclusions
+are valid conclusions or not okay with
+this I stop uh today's lecture so the
+next lecture we'll talk about uh you
+know we'll talk briefly about about inel
+thank you
+[Music]

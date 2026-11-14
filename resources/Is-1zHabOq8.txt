@@ -1,0 +1,535 @@
+Hello everyone. In today's class, we
+will start attention.
+So, sequence-to-sequence problem was
+very popular in 2014. In fact, it turned
+out to be one of the popular models
+which basically, you know, outperformed
+all the statistical machine translation
+models that were out there, right? 40
+years of statistical machine learning
+history, statistical machine translation
+history.
+Right? Suddenly, the
+sequence-to-sequence model outperformed
+all the statistical models, okay?
+And
+then in 2016, right? People noticed
+that,
+you know, some more
+tweaks or some more modifications can
+also be done on top of
+sequence-to-sequence.
+Okay? In 2016,
+a new method was proposed which is
+called the attention.
+Okay? Now, let's look at attention here.
+So, now so far, sequence-to-sequence is
+also an RNN. There are two RNNs, right?
+There are three problems which still
+persist.
+What are the three problems? The first
+problem is you can't
+you can't access all the tokens in
+parallel,
+right? The first problem. The second
+problem,
+if you think about it very carefully,
+the sequence-to-sequence model
+essentially considers every
+every each pair of interactions, right?
+Let's say hidden state T, hidden state T
+plus one. This interaction, hidden state
+one, hidden state two, hidden state
+T plus five, hidden state T plus six.
+Every consecutive pair of interactions
+are considered in a similar way.
+So, the interaction
+is considered as linear.
+Right?
+So, the way we treat one versus two, the
+way we treat uh
+t i - 1 t, we will treat the same way uh
+till say t + 5 t t + 6.
+The third problem is very important. The
+third problem is called the bottleneck
+problem. Look at this one. Okay?
+So, this guy
+this is the final hidden state of the
+decoder.
+Right? So, this input is fed to the uh
+this is the final uh
+hidden state of the encoder. This input
+will be fed to the decoder.
+Right?
+The The decoder has access to only this
+hidden state.
+Right? For the decoder, this is the
+input.
+Decoder doesn't have access to these
+hidden states.
+Right? So, this guy
+has a lot of responsibility
+of remembering the entire input
+sequence.
+Right? So, there is a bottleneck
+on this
+in terms of remembering
+the entire sequence of the input.
+Right? If you are If you are not able to
+compute it properly, you will not be
+able to uh process it. But, think about
+it very carefully. The The word he
+the word he
+corresponds to the word I L.
+The word pi
+corresponds to the word this. Right?
+But, at this time, at this stage, this
+hidden state has no access to the to to
+to the first hidden state of the decoder
+of the encoder.
+So, due to vanishing gradient problem,
+due to due to other problems, right?
+Over smoothing and etc. etc.
+It will happen that this hidden state
+will essentially forget about the first
+hidden state.
+Right? And when you come here,
+these guy will completely forget about
+this one.
+So, instead of this, if we had a direct
+connection from decoder to encoder
+from decoder to encoder.
+Right? That could have solved this
+problem, maybe. Let's say there are
+Let's say there's a direct connection
+from he to
+ill.
+Uh from a a direct connection from pi to
+this one.
+Right? Then that could have solved the
+problem because through the shortcuts
+right? Information can move from encoder
+to decoder. So, this is the philosophy
+of attention.
+I already mentioned about this
+bottleneck problem.
+Right?
+So, what is attention?
+The core idea here
+is that on each step of the decoder
+we use a direct connection to the
+encoder to focus on a particular part of
+the source sequence. So, let's look at
+the architecture first and then we'll
+understand.
+Let's look Let's Let's take a desi
+example.
+Okay?
+Hum bazaar gaye the.
+Okay? And you want to convert this Hindi
+to English.
+So, in attention, what we do, now this
+is my encoder state, right? And this is
+the final uh hidden state of the
+encoder.
+The first
+hidden state of the decoder
+this will have access to all the
+previous encoder states.
+Right? And how do you do that? Here we
+introduce a concept of query and value.
+Each of these decoder hidden states will
+act as a query.
+And each of the encoder hidden states
+will act as a value.
+Right?
+So, the decoder hidden state will
+basically check
+which of the encoder hidden states will
+be relevant
+for that decoder state.
+Right? Relevant means which encoder
+states will be helpful for for the
+decoder state to generate the correct
+output.
+Okay?
+How do you do that?
+So, let's first look at the computation.
+So, this is my query and this is value
+V.
+So, what I do I'll first measure the
+similarity between query and value.
+And how do you measure this? We measure
+this using simple dot product.
+So, this
+vector and this vector will will will be
+passed for dot product. Right? And we
+get a scalar here.
+Scalar. This vector and this vector will
+will will pass for dot product. Right?
+And then
+similarly this is my query, this is V.
+So, each of the decoder state will
+basically be used to do the dot product
+of every encoder state separately.
+So, this is the second dot product,
+third dot product, fourth dot product.
+What are these dot products indicating?
+They're indicating the similarity.
+Right?
+So, these are called attention scores.
+All of these elements are scalars.
+Remember this.
+From attention score, I pass them
+through softmax.
+Softmax will produce a distribution.
+And this distribution is called
+attention distribution.
+Let's say
+Let's say this is P1, this is P2, this
+is P3, and this is P4.
+Right? And let's say
+this is
+V1 V2 V3 V4. V1 V2 V3 V4 are vectors. P1
+P2, they are scalars.
+Right? And from from there
+from this uh computation, what I do, I
+will generate something called attention
+vector.
+Attention vector.
+Right? What is the attention vector?
+Attention vector
+is a weighted
+the weighted sum of the encoder states.
+Weighted sum of the encoder states. And
+what are the weights? Weights are the
+probabilities.
+So, attention vector will be P1 and the
+corresponding vector V1 plus P2 V2 plus
+P3 V3 plus P4 V4.
+This times this plus this times this.
+Right? And plus so on and so forth.
+Right? So, P's are the weights.
+So, what is this vector? This vector is
+the weighted sum of the encoder state.
+And how does How these weights are
+computed? The weights are computed based
+on the similarity
+between the decoder state and the
+encoder states.
+Right? Remember, these weights will be
+different when I move to the next
+decoder state.
+Right? So, I I got this attention
+vector.
+I already have a hidden state here.
+Right? And the attention vector here.
+Which I compute. And then
+So, this is attention vector and this is
+the
+decoder vector decoder hidden state. I I
+just concatenate them.
+So, at this time at time stamp one,
+the hidden state is H1.
+Right? Attention vector is let's say A1.
+I concatenate them.
+Right? And then what I do?
+I pass it through a linear layer
+followed by non-linearity and it will
+generate a probability.
+So, instead of passing the hidden state
+directly to the linear layer, I will
+pass this concatenation of hidden state
+and attention vector.
+Right?
+So, similarly for the for the next
+decoder state, this is my Q.
+And
+this is my attention distribution.
+Now, look at this distribution of the
+previous distribution. They are
+different.
+Right?
+Now, if you look at the distribution
+carefully
+for the to generate the first
+output token of the decoder
+look at the probability.
+Which which encoder was useful? Which
+encoder state was useful? The first one
+was useful. Therefore
+the corresponding probability was high.
+To generate the second input had which
+one is useful? The last one was useful.
+To generate the third one
+the third one was useful. To generate
+the fourth one, the second one was
+useful.
+Right? And how do we get this
+usefulness? From the probability. From
+dot product probability.
+This is clear?
+There's no bottleneck problem here.
+Why there's no bottleneck problem? Now
+we have a shortcut
+from every decoder state to all the
+encoder states.
+Every decoder state can access to access
+all the encoder states.
+Clear?
+So, this is attention. Uh
+now tell me
+due to this attention, due to
+incorporating the attention concept
+did I incorporate any additional
+parameter? Answer me quick.
+No.
+There's no parameter involved.
+What are the parameters here?
+The parameters are same. WH
+WE
+WH
+dash, WE dash, and here U.
+That's all. There's no U here.
+There's no U here. Attention score,
+attention distribution, there's no U
+here.
+Now, this is vanilla attention.
+Okay? Of course, there are modified
+versions of attention I will discuss,
+but this is the vanilla attention.
+Okay?
+So
+let's look at the equation once again.
+The attention equation I already
+mentioned. So, H1, H2, H3, look at this
+equation, right? H1, H2, H3, H and these
+are the hidden states.
+Hidden states of the encoder, E. Right?
+What is ST? ST is the hidden state of
+the decoder
+at the TS time period. So, ST will
+basically
+access all the
+hidden states of the encoder. So, ST H1,
+ST dot product H1, right? ST dot product
+H2, and so on and so forth.
+Right? So, we generate
+these numbers, these are dot products,
+these are attention scores.
+Right? Let's say this is ET.
+Attention scores will be passed to
+softmax. So, alpha T is the attention
+distribution.
+Which will act as weights.
+Right? So, alpha T will then be
+then act as a weight for each of these
+hidden states of the decoder. So, alpha
+So, alpha I ASI.
+Right? T ranges from 1 to N.
+What is AT? AT is the attention vector.
+Right?
+Then AT
+and ST ST is the
+hidden state of the decoder, this will
+be concatenated.
+Right? And then this will be passed to
+the linear layer.
+Attention is great. Why?
+Attention
+not only
+gives you a shortcut from decoder to
+encoder, it also gives you many
+additional information.
+Right? What are the additional
+information?
+It It reduces the problem of bottleneck
+problems, right? I already mentioned,
+okay, bottleneck problem will not be
+there. It will also help address the
+vanishing gradient problem.
+Why?
+Because now there's a shortcut, right?
+One gradient is moved through this, one
+gradient is moved through the shortcut.
+Very similar to skip connection.
+Right?
+The most important beauty of this um
+attention is that it gives you
+interpretability.
+For example,
+here,
+based on this distribution,
+you can say that to generate the last
+word
+of the decoder, second word was more
+responsible.
+You will not get this kind of
+information from a vanilla RNN.
+Right? So, if somebody
+tells you, "Can you explain that why you
+generated this?" You can say that look
+look at the probability.
+So, this is my attention map.
+So,
+my French inputs and the English
+outputs, and you see So, so this
+entry so each of these rows indicates
+Okay, attention distribution.
+If one entry is dark, it means the
+probability is high.
+Right?
+So, to generate the word he, the word
+ill was responsible. To generate the
+word the word with A and pi, the last
+word of the encoder was responsible.
+Therefore,
+it's dark, right? So, from the attention
+matrix,
+you can identify the portions which are
+responsible.
+So, this will give you an alignment,
+also.
+So, in in a statistical machine
+translation model, which I did not
+discuss,
+there are three components. One is
+two components. One is the translation.
+So, you basically So, may bazaar ja raha
+hu, I am going to the market, right? So,
+it is not one-to-one translation. If you
+think about it carefully, it is not
+word-by-word translation.
+Sometimes we need to change things here
+and there. So, in statistical machine
+translation, there are two components.
+One is this one-to-one translation, and
+then you do some alignment.
+So, alignment will rearrange the token,
+right?
+So, for the alignment, you need a
+separate model.
+But here, you do this alignment for free
+due to this
+attention.
+And by the way, sometimes I mean there
+are papers which claim that attentions
+are used for interpretability. There are
+papers which claim that attention can't
+be used as a can't be used to
+for interpretability. This This is
+debatable, but
+therefore I said it gives some
+interpretability. So, I discussed
+attention with respect to
+sequence-to-sequence problem.
+Right?
+But attention is not restricted to
+sequence-to-sequence problem.
+Attention can also be used in other
+other
+other models. You can use attention in
+normal RNN, for example.
+Right? So, in general, you can think of
+this attention
+as a generic con- con- concept in deep
+learning
+where you have a query and you have some
+values
+and you want to measure the importance
+of query
+with respect to all the values, right?
+You can use attention.
+You can also think of an attention that
+that that the attention vector that you
+generated, remember? Attention vector is
+one vector that you generated, right?
+For every decoder for every decoder
+hidden state, you generated one
+attention vector.
+Right?
+So, attention vector can also be thought
+of
+as the summary
+of all the value vectors.
+Think about it.
+Attention vector can also be considered
+as a summary of all the value vectors.
+In our case, the value vectors are
+encoded encoder
+hidden states. It's a summary.
+Right? Irrespective of the size of the
+encoder
+layers. How many encoder layers? Let's
+say Let's say there's a sequence where
+there are 100 encoder layers. There's
+another sequence where there are 10
+encoder layers. Irrespective of the
+size of the encoder layers, you can
+always generate one vector attention
+vector.
+Right? So, it basically you can think of
+attention as a summary of the value
+vectors,
+you can think of attention as something
+which can squash the entire
+encoder states into a single vector.
+Okay, why I said all these things?
+Because
+when you apply attention to some other
+problems, you can
+you need to understand all these
+factors.
+These are
+some variations of attentions. The one
+that I discussed was a simple attention
+method, right?
+I I basically discussed this one. It's
+called dot product attention. Right?
+This is the one that I discussed. You
+can also think of some sort of
+parameter, right? Because
+we we have a lot of data.
+We are We'll be very happy if we if we
+are able to add more parameters,
+right? So,
+you can also add a parameter between the
+query and the value.
+Right? What you can do,
+you can pass the query to a parameter
+matrix, right? You can also pass the
+value towards the same parameter matrix.
+Basically, bilinear product, product,
+right? And then it will generate some
+vector.
+You can also think of um you know, doing
+some complex
+formula. For example,
+you concatenate the query and value,
+then pass it through a linear layer,
+right? Some non-linearity, then pass it
+through another
+another linear layer, right? That will
+give you vector, right? The Transformer
+paper, they use something called scaled
+attention.
+Scaled dot product.
+Where we take the dot product and
+this is
+this dot product is normalized
+by the size of the vector.
+What is mod K? Mod K is the size of the
+value,
+right? And you take the root of this.
+So, this is scaled by the size of the
+vector.
+There's no intuition, by the way. I
+mean, these are different hacks,
+engineering hacks.
+Okay?
+So, this is all about attention.
+We stop here.
+And in the next class, we will discuss
+self-attention.
+And then the transformer model. Okay?
+Thank you.

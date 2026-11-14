@@ -1,0 +1,1917 @@
+Hello everyone. So,
+in this uh
+lecture, we will talk about word
+representation. We finished uh the
+language model
+uh the language modeling part of it,
+right? We discussed statistical language
+models, uh different types of smoothing
+techniques, and uh how to evaluate a
+language model, right? Perplexity we
+discussed in details what is perplexity,
+how it is linked to uh entropy, and uh
+how you can use perplexity as an
+intrinsic measure uh to evaluate the
+performance of a language model, okay?
+So,
+now we are moving towards the semantics.
+Remember the different layers of uh NLP
+I mentioned, morphology, syntax,
+semantics, right?
+Uh and so on and so forth. So, here we
+start talking about semantics, right?
+The first thing in any semantic
+understanding of language, right? What
+we do is to represent a word or
+represent a sentence, represent a token,
+right? And we will discuss in this class
+we will discuss old school methods to
+represent a word, and then we will see
+how in modern days we represent a word
+using word vector, okay? Okay, so let's
+get started. Meaning of a word, right?
+So,
+let's see what uh a dictionary says
+about a meaning of a word. If you look
+at the uh Merriam-Webster dictionary,
+online dictionary, it says that a
+meaning is essentially in the idea that
+is represented by a word or a phrase,
+right? Or etc.
+Or it can be an idea that a person wants
+to express by using different words,
+signs, and so on and so forth. Effective
+representation of words' meaning, right?
+Is has been one of the major challenges,
+right? Because we use a word in
+different context. Right? I mentioned
+about the word bank, right? For example,
+apple, mouse, these words are used in
+different context with different
+meanings and so on and so forth. So,
+it's it is very tough to come up with a
+single representation
+or single meaning of a word. Right? If
+you think that, "Okay, let me curate a
+dictionary where for every word I have a
+single meaning and whenever I need the
+need the meaning of that word, I just
+retrieve that meaning from the
+dictionary and then I basically
+solve the problem, right?" But, this is
+not going to work because of the
+complicacy. Okay?
+So,
+so so far, if you look at the old school
+NLP techniques, the way people used to
+solve the semantics problem is that they
+used to look at
+uh documents and from documents, there
+were human annotators who were employed
+to read thousands of thousands of
+documents and then they they used to
+create big ontology like a word net,
+right? Where nodes are I mean entities
+are nodes and entities are linked
+through different relations, right? One
+sense of an entity is linked to another
+sense of an entity and and and these
+relationships can be of different types,
+right? Holonym, meronym, synonym,
+antonym, hypernym, hyponym and so on and
+so forth, right? And then
+and then whenever you are interested in
+you know, understanding a meaning of a
+word, you you look at the ontology, you
+retrieve
+the let's say the neighboring
+words of that given word, right? And you
+try to guess the meaning of it, right?
+But, then people realized that
+this might not be a good approach. I'll
+tell you why. And then what is what is
+needed is that we essentially need some
+sort of vectorized representation of a
+word.
+Right? Computer doesn't know characters,
+right? Computer knows
+uh numbers, right? So, we do we all know
+ASCII values, right? So, we you you can
+say, "Okay, why do we need uh a
+complicated vector representation?
+Let me take a word, and let me take the
+character Let me take the ASCII value of
+every character, right? And then we
+concatenate."
+Right? But, the problem is that words
+have different lengths, right? So, if
+you just uh concatenate all the ASCII
+values, then the length of the vector
+would be different for different words.
+And there are also other problems,
+right? I'll tell you the other problems.
+So, the simple way to represent a word
+using a vector is something called
+one-hot encoding.
+Right? One-hot vector, right? What is a
+one-hot vector? Very simple idea. Let's
+say you already have a dictionary
+where all the unique words are listed.
+Right? And each word has an ID.
+Right? Let's say the word A has an ID,
+word N has an ID, dot dot dot, word
+zebra has an ID, word zoo has an ID, and
+so on and so forth. ID 1, ID 2, ID 3,
+and so on and so forth, right? And let's
+say uh the size of the dictionary is um
+is 1 million.
+Right? So, what we do in one-hot
+encoding, one-hot vector, is that for
+every word, I create a vector of size 1
+million.
+Right? And let's say if the ID of that
+word is five,
+right? What I do, I will I will add one
+at the fifth position of the vector,
+and the remaining positions will be will
+be uh marked as zero.
+Right? So, one position corresponding to
+the ID will be marked as one, and the
+remaining position will be zero. Right?
+Very simple idea.
+And it also makes sure that
+um words have different Different words
+have different representations. right?
+All the representations are unique,
+right? But the problems are there are
+the there are many problems. There are
+multiple problems here. The first
+problem is that
+now
+all these vectors are orthogonal.
+Right? So, if we take the dot product
+between two vectors, you'll always get
+zero.
+Right? Now, if you think of uh
+if you take a synonymous
+two synonymous words like say motel and
+hotel. Motel and hotel, they are kind of
+same, right?
+If you
+take the dot product of these two
+vectors, you see the dot product would
+be zero. It means that they are
+basically orthogonal to each other.
+Although their semantics is almost the
+same.
+Okay?
+So, one-hot encoding is not a good
+approach. The second The second problem
+here is that as the dictionary size
+increases, the vector size will also
+increase.
+Right? In fact, you you may need to
+recompute the vector again and again.
+And there are multiple problems, okay?
+So,
+So, uh if two words share mutual
+mutually similar semantics, right? Uh
+this kind of uh
+one-hot encoding may not be a good
+solution for that.
+Okay? So, the what is the next solution?
+The next solution is to look at the
+WordNet, right? As I mentioned earlier,
+WordNet is a
+semi-automatically generated uh
+ontology, right? Where you see many
+nouns, verbs, mostly nouns, verbs,
+adjectives, and adverbs. They are linked
+through uh different relations, right?
+Every word
+in uh the WordNet is represented by
+something called a synset.
+Every word has a synset, okay?
+What is synset? Synset is a synony-
+synonymous set or synonym set, okay?
+So,
+each word each sense of a word, not not
+every word. So, remember, every word has
+multiple senses.
+Right? A word can have multiple senses.
+So, every sense of a word is represented
+by by a synonym set or synset.
+Right? Uh and the description of the
+synset is called the gloss.
+Okay? For example, uh
+let's look at the word chump.
+Okay? The gloss or the description of
+the of this word is a person who is
+gullible and easy to take advantage of.
+So, this is the description of the sense
+one sense of the word chump.
+Okay?
+And this description is written
+manually, by the way.
+Okay, it's a huge manual effort.
+And
+what are the different senses of the
+word chump?
+Now, if you look at WordNet, WordNet
+will say that
+chump
+has these many senses.
+Okay?
+One sense of chump is
+same as the second sense of fool.
+Now, remember, fool is also an entry in
+the WordNet. Fool also has the word fool
+also has multiple senses. Sense one,
+sense two, sense three, sense four, and
+every sense has a gloss.
+Right? So,
+so, the particular sense of the word
+chump
+is linked to the second sense of the
+word fool, right? To the
+first sense of the word gull.
+To the ninth sense of the word word
+mark.
+Right?
+And so on and so forth.
+Now, imagine the amount of effort.
+Okay? Every word has multiple senses,
+right? The senses are linked, not the
+words. The senses are linked.
+Okay?
+So,
+now this is one entry in the WordNet,
+right? The word bass, b a s s.
+If you look at the WordNet uh ontology,
+you see that the word bass has multiple
+senses. The first sense is uh bass is a
+musical
+some sort of a musical range, right?
+Bass can be can can also be a fish,
+right? Bass can also be a some sort of
+singing male singing voice, bass bass
+guitar, right? So, it has multiple
+multiple senses, right? Of course, the
+pronunciations are different, but the
+the surface
+word is the same.
+Okay?
+So, this is a first sense of bass.
+There's a second sense of bass, third
+sense of bass, and so on and so forth.
+Okay?
+So, and and if you look at every sense,
+there's this gloss.
+These are different glosses.
+So, now one can say that, you know, we
+don't need to worry one-hot encoding. I
+will just look at the WordNet, fetch the
+corresponding sense, and that's that
+will be sufficient, right?
+So, what are the problems with this kind
+of thesaurus-based approach? Thesaurus
+means resource, right? Thesaurus-based
+approach or ontology-based approach,
+okay? The first problem is that
+there may
+be other meanings which are not captured
+into the WordNet
+version, right? WordNet has multiple
+versions, by the way.
+Right?
+Uh for example,
+the word proficient and the good the
+word good, right? They are synonymous in
+certain contexts, but they are not
+synonymous in all the contexts.
+Right?
+Secondly,
+it's very difficult
+to add
+newly coined words.
+Right? You need manual effort. For
+example, uh the ninja, right? Uh nifty,
+and so on and so forth. These kind of
+newly coined words,
+uh if you want to add them into the
+ontology, you need to actually study a
+lot about their usage, right? What are
+the senses, where they are used, and so
+on and so forth. Right? And then, you
+also have to remember what are the other
+senses that can be linked to this sense
+of nifty, for example. Right? So, it's
+it's actually very complicated.
+Uh up-to-date information is difficult
+to obtain.
+The The other problem is that WordNet
+only WordNet mostly considers noun,
+adjective, adverb, and um what else?
+Uh noun, adjective, adverb, and verb.
+Right? The other preposi- the other part
+of speech
+uh words are not covered appropriately.
+This is also subjective
+because uh if you ask one annotator,
+they may feel that, "Okay, this is not
+the sense." If you ask another
+annotator, they may feel that, "No, this
+is the sense." And so on and so forth.
+It depends on who is annotating. Right?
+It requires a lot of human effort.
+To address this,
+we will use uh the notion of
+distributional semantics.
+If you If you remember the second
+lecture where we talked about NLP,
+right? I mentioned three ways to
+understand semantics of a word. What are
+the three ways?
+Ontological semantics.
+Then?
+Decompositional semantics,
+distributional semantics. Right? Very
+good. So, distributional semantics is
+the the the the the premise based on
+which most of the existing uh
+uh word representation techniques are
+proposed. Okay?
+And what is the philosophy behind the
+dis- distributional semantics?
+Uh
+J. R. Firth in 1957,
+he said this famous quote that you shall
+keep a word
+by the company uh you you shall know the
+word by the company it keeps.
+Okay. So, now based on this philosophy,
+again, if you go back to old-school NLP,
+right? Uh people came up with many, many
+approaches, right? One simple approach
+is to look at the documents, right? You
+you read the sentences in a document,
+and you look at the neighboring words of
+every word, and from the neighboring
+word, from the neighbor neighborhood,
+you try to imply, or you try to guess
+the meaning of that word.
+Right? For example, the word banking.
+If you look at this three sentences
+here, the first sentence, government uh
+debt problems turning into banking
+crisis as happened in 2009, right? Here,
+essentially, uh you're talking some sort
+of crisis, right? Where the next one,
+uh saying that Europe needs unified
+banking regular regulation. Here, you're
+talking about some sort of regular
+regulation, rules and regulations.
+Third one, India has just given its
+banking system a shot in the arm. So,
+this is more of a banking system, right?
+The literal meaning of banking system.
+So, you look at the neighbors, and from
+the neighbors, you guess the meaning of
+that particular word.
+Right? Now, how do we systematically do
+it? We systematically do it using a
+count-based approach.
+A very simple count-based approach,
+where the idea is that, let's say you
+have multiple documents.
+Okay? You have a bunch of documents, you
+have corpora,
+and you see
+uh for uh how many times this
+a particular word appears in a document,
+how many times this word appears in
+other documents, and so on and so forth.
+It's just a count, right? A bag of word
+kind of approach. So, okay?
+Uh let's look at uh
+this example. This is uh
+a simple example where
+um
+right? We will we'll we'll we basically
+create this kind of matrix. This matrix
+is called
+term context matrix.
+What is a term term context matrix?
+Here, rows are individual terms,
+individual words, individual tokens, and
+columns are also individual tokens.
+Right? And and you see how many times,
+let's say here, let's say this entry
+says how many times the word
+computer appears as a neighbor of the
+word apricot.
+Okay?
+Some sort of bigram count table, so very
+similar to bigram count table, but what
+is the difference here?
+In case of bigram, these two words
+should appear side by side. W I - 1 W I.
+Right? But here, when I look at the
+uh the the context, I first decide the
+size of the context.
+Okay? Let's say I have a context size of
+10. I look at 10 words at a time, right?
+And
+I see I'll I'll see how many times the
+word apricot and computer appear
+together, right? In a in the same
+context, right? And that's going to be
+the count here.
+So, term context, and this is a square
+matrix,
+a square matrix, right?
+So, from the term context matrix, now if
+you look at um every row,
+okay? Now, you can think of every row
+as a vector,
+right? Let's say first row is a vector
+for the word apricot,
+right? When apricot is used as a term as
+as a term right? You can also and and
+and and apricot will also appear in a
+row, right? Here also you'll see an
+entry for apricot.
+Right? And there'll be a column
+corresponding to the word apricot.
+Right? So, that column can be treated as
+as a context vector
+for the word apricot.
+So, row can be treated as a term vector
+for the word apricot. Column can be
+treated as the context vector for the
+word apricot.
+Right? Now, it is up to you to decide
+which vector you want to consider. One
+option is that you you take both the
+vectors and you sum them.
+Right? Other option is that you you try
+with context vector as well as
+term vector and see which one is useful.
+Right?
+Very simple idea.
+So, let's say
+you are given this kind of documents.
+This is this is a
+stylized example. There are multiple
+sentences, right?
+Uh you scan through the documents and
+you create this kind of metrics, okay?
+So, now if you look at two entries here,
+let's let's say apricot and pineapple.
+You see both these words co-appear
+with similar context words pinch and
+sugar.
+Right? But they did not appear co-appear
+with the context words artwork or
+computer data.
+Right? So, you can say that, "Okay,
+maybe these two words are similar."
+Okay?
+Similarly, if you look at digital and
+information, you see both these words
+co-appear with the word computer and
+data.
+Right? Also results. But they did not
+co-appear with
+the word artwork, pinch, and sugar. So,
+maybe these two words are similar.
+Right? Simple idea. You look at you you
+you every column, you take a pair of
+columns. You do some sort of dot
+product, cosine similarity, and then you
+you you figure out the similarity.
+Right? So, here
+what are the problems?
+The first problem is that uh
+again this matrix size can can increase
+with the increasing number of vocabulary
+terms. Right? Second problem is that
+vector size will also be very large. If
+the vocabulary has, let's say, millions
+of words, then the size of the vector
+should be very very large. And also this
+this matrix is sparse.
+Most of the entries are zero.
+Right? A sparse sparse matrix.
+The fourth problem is that
+we see stop words,
+right? Frequently appearing words, uh
+particle, uh preposition, right? They
+They are corresponding entries will be
+very very high.
+Obviously.
+Right? So, we need some sort of
+normalization after this, right?
+So, what we do here?
+So, from term
+raw raw count, a raw count of terms and
+context, now we move towards an advanced
+slightly advanced
+concept called TF-IDF.
+Okay?
+So, what is TF-IDF?
+In TF-IDF also, we are going to create
+this matrix. Remember this. Okay?
+TF stands for term frequency, and IDF
+stands for inverse document frequency.
+TF-IDF.
+Okay? Let's first discuss TF.
+So, what is TF? Term frequency of a term
+T,
+right?
+With respect to a document D,
+is the number of times
+that particular term appears in the
+document. So, remember this is a tuple.
+This is a This is a function of t
+{comma} d.
+You can't say that the term frequency of
+t is this. You have to say the term
+frequency of t with respect to the
+document d is this.
+Okay? So, by the way,
+when I say a document, a document can be
+a Wikipedia document. A document can can
+be a novel.
+A document can also be a paragraph.
+A document can also be a sentence. It
+depends on how you define a document.
+Right? Because
+if you have only one document, then how
+do you compute tf-idf? You consider
+every paragraph as a document, and then
+you measure this.
+So, count of this, the raw count of
+this.
+Now, the raw count will be very very
+high for again frequently appearing
+words, stop words, right? To just uh
+dampen the effect of this, we uh squash
+this a bit. Instead of taking the raw
+count, I take the log of the raw count.
+Right? Log of the raw count. And if the
+count is uh zero, then log zero will be
+uh undefined, right? Then therefore, we
+just add one. Uh just a smoothing
+technique. So, log count plus one is the
+tf measure.
+What is the problem in tf?
+The problem with tf is that again,
+frequently appearing words, stop words,
+will have very high tf count. Okay?
+To address this, we will use another uh
+component of tf-idf called inverse
+document frequency, idf.
+Okay?
+idf.
+So, what is inverse document frequency?
+Let's first
+uh see what is document frequency.
+A document frequency
+is the number of documents
+where the particular word appears.
+It is not the number of counts of all
+the documents where this particular uh
+entry appears, right? Only the number of
+documents where the particular entry
+appears.
+It's called document frequency. Okay?
+Uh
+let's say there are two words, Romeo and
+action.
+The word Romeo
+appears only one document, not in the
+other documents of Shakespeare, for
+example. Okay? So,
+the term frequency will be very high for
+that document, but the document
+frequency will be very low. Why? Uh out
+of let's say 1,000 only one document has
+this word Romeo.
+Right? So, document frequency will be
+let's say one.
+By the way, what is this collection
+frequency?
+Collection frequency is
+uh the count of
+uh the the the sum of count of this word
+across all the documents.
+Term frequency is with respect to one
+document.
+Collection frequency is
+the sum of counts of all the counts in
+all the documents, and document
+frequency is the number of documents
+where this particular entry appears.
+Clear?
+Okay.
+So, the word Romeo
+will have a document count of one,
+whereas the word action, which is a more
+generic word than Romeo, right? Let's
+say its collection frequency is still
+113.
+Right? But this collection frequency is
+distributed across documents. It is not
+that
+uh only only in one document the the
+word action appears 113 times. In total,
+it appears 113 times uh fragmented,
+right? And let's say there are 13
+document 31 documents where the word
+action appears.
+Okay? So,
+so this is document frequency.
+Okay? Now, I will take the inverse of
+this, inverse document frequency. So, 1
+by 1, 1 by 31. Now, what is the meaning
+of this inverse document frequency?
+The in when we take the inverse of this,
+if a word appears in all the documents,
+like the like the word
+action or stop words, if it appears all
+the documents, its importance will be
+reduced.
+Which is obvious. We don't want to
+capture those words which are which
+which appear in all the documents.
+Rather than this, we should consider
+those words which are representative.
+Right?
+So, this is IDF.
+This is the formula of IDF. So, DF
+1 by DF is inverse document frequency,
+right? Of the term T. Remember, here IDF
+is a function of only the term T, not T
+{comma} D.
+Right?
+And we take a log of this.
+And just to normalize the value, we
+normalize it by N. What is N? N is the
+number of documents.
+Okay?
+So, we just normalize it by N.
+Now, this is the
+This is the general generic IDF formula,
+but as you can see, you know, DF if DF
+is zero, then what would happen, right?
+So, we sometimes we also add one here.
+Right? To the denominator. Sometimes,
+what we do, we also add one here.
+There are There are multiple variations
+of TF-IDF, right? In in TF also, term
+frequency,
+instead of taking the log log of count,
+right? What we do, we normalize it by
+number of tokens in the document, right?
+Let's say the number of tokens is V, for
+example, right? Sometimes, we normalize
+it normalize it by max count.
+Not the total count, max count. And
+there are different variations of this,
+okay?
+Now, look at uh
+the IDF value of the
+different words. The word Romeo has the
+idea value of 1.57, whereas the word
+good
+or the word sweet, which are frequently
+occurring in all the documents, their
+idea values are zero.
+So, you're penalizing those words which
+appears
+in all the documents. Okay? So, the
+combined version of this metric is
+TF-IDF, where you multiply TF with IDF.
+Right? So, this is the This is the
+formula of TF-IDF.
+Uh
+This is the raw count table.
+Right? Before TF-IDF.
+Uh this is the
+uh TF-IDF
+uh table.
+Okay? In in the raw term raw term
+document matrix, you see that uh there
+are entries like um
+let's say
+let's say the word uh battle, right?
+Appears only in the Julius Caesar uh
+novel, right? His is its count is seven,
+but if in in TF-IDF, its value is
+significantly high, 0.22, right? Whereas
+the word fool, which is kind of a common
+word,
+uh uh whose TF which whose count is
+pretty high, 58, but TF-IDF is pretty
+low.
+So,
+from raw count, we moved to TF-IDF,
+right? So, every entry here that is a
+TF-IDF value for that document, right?
+With respect for for that word with
+respect to the document.
+Right? And each
+row is a vector now.
+Similar to uh earlier case, right? So,
+it addressed the problem of frequently
+appearing words, right? But, it
+there are still other problems. For
+example,
+if the document size increases, the
+vocabulary size increases, the matrix
+will increase, right? The vector size
+will also increase. There There so many
+zeros and so on, It's a smart city and
+so on and so forth.
+Okay. So,
+now these are the problems of
+count-based approaches.
+So, one can say that
+one can say that you know, so this smart
+city problem or you know, bigger size
+matrix problems, right? We can easily
+address by doing some sort of
+decomposition. Right? We can use SVD for
+example, right? On top of this
+count matrix or TF-IDF matrix, I do SVD
+and then I I decompose it, right? And
+we'll take the decomposed version of it.
+But SVD is again SVD is again
+time consuming, right? It is quadratic
+in the number of
+rows and columns. And
+the other problem is that as new words
+comes in, right? You you have to
+reconstruct the table. You have to again
+apply SVD on top of this and so on and
+so forth.
+The last and most important drawback of
+this kind of count-based matrix
+is that
+it doesn't consider the ordering.
+Ordering of words.
+Right? I look at a particular context
+and within the context, this context
+window size 10 for example, all the
+words are same.
+Right? It's a bag of word
+representation. All the words are the
+same.
+Right? So, it it doesn't take into
+account the fact that if some word
+appears before the other word or some
+word appears after the other word, their
+meaning may change.
+Okay. So, SVD may not be a good approach
+because of the quadratic complexity
+and
+I know incorporating difficulties in in
+incorporating new words and so on and so
+forth. Okay?
+So, to address this problem,
+now we move to the the recent approach
+called word2vec.
+A prediction-based approach. We have
+seen count-based approach. Now we look
+at prediction-based approach.
+Okay?
+Uh
+So,
+let us go back to 2013
+when uh
+Google,
+uh Thomas Mikolov, and Jeff Dean
+they came up with the idea of word
+vector. And this term word vector was
+coined that uh at that time. Word vector
+is nothing but the vector that we have
+been discussing, but it is dense now.
+It is not of size 1 million.
+It's the size could be 100 or 200 or
+500.
+Right?
+So,
+word vector is a dense vector. Now, why
+a dense vector is important
+instead of a sparse vector?
+Because if if if the feature size is
+if the feature number of features is
+is high, right? It may It may It may be
+prone to overfitting.
+We need lots of parameters to train.
+Right? We all know
+uh curse of dimensionality. Right? So,
+if we squeeze, it may be we don't need
+to uh of course, we don't need to uh
+train many parameters. The second
+problem is that it will be more uh
+generalizable. Right?
+The other
+good part is that
+if you do this kind of if you take this
+kind of dense vectors, right?
+Often times we see that the words car
+and automobile, right? They are
+synonymous. But if we if we look at the
+um
+the traditional count-based approaches
+or one one hot
+one hot encoding one hot encoding kind
+of approaches,
+uh you know, this kind of synonymous
+words are not captured properly. In
+fact, often times we say that if a word
+w co-appears with the word car
+as well as with the word automobile,
+right? Let's say there are There's a
+word w1 with which co-appears with the
+word car. There's a w2 which co-appears
+with the word automobile. w1 and w2 can
+also be synonymous. Right? So, this kind
+of inference
+uh may not be uh
+may not be very straightforward from a
+raw count based approach.
+Okay?
+So, word2vec was proposed in 2013.
+And the the in the word2vec package,
+there are two types of
+um
+There are two types of approaches,
+right? Which which are almost the same,
+but you know,
+prediction based are
+slightly different. Remember, these are
+prediction based approaches.
+We are moving from count based approach
+to the prediction based approach, okay?
+So, the first one is called CBOW,
+continuous bag of word model.
+And the second one is called the
+skip-gram model.
+Okay? So, the idea is almost the same.
+In let's say there is a there is a word
+there's a sequence of tokens, let's say
+I am
+going
+to school.
+Right?
+I want to I want to
+measure
+the vector corresponding to the word
+going. I want to measure the word vector
+corresponding to the word going.
+Right?
+In CBOW,
+what I do, I will take the context
+tokens,
+right? To predict the word embedding of
+the given word.
+In skip-gram, I will use the
+uh the
+the the the the the center token to
+predict the word embedding of the
+context words.
+It's just opposite.
+I have a sequence of words, sequence of
+tokens, and let's say there is a central
+word.
+For example, in this case, the central
+word is going.
+For which I want to predict the
+embedding.
+In CBOW, I will look at the context
+words
+to predict the
+representation of the central word. In
+skip-gram, I look at the central word to
+predict the representations of the
+context words.
+Right? In a neural network terminology,
+this is very straightforward. Let's say
+you have you have a multi-layer
+perceptron kind of network, a two-layer
+network, right?
+Uh
+in in CBOW, what I do, I feed the
+representation of
+the context word and I will try to
+generate the representation of the
+central word.
+In skip-gram, I feed the representation
+of the central word and try to generate
+the representation of the
+uh context word.
+Okay?
+So, let's focus on skip-gram because
+this is this is uh more popular, right?
+Skip-gram with negative sampling.
+Okay, skip-gram with negative sampling.
+We'll discuss what is negative sampling
+and so on.
+Okay, so
+So, Word2Vec is an is an unsupervised
+approach. I would say this is a
+self-supervised approach. You do not
+need any labeling.
+Any human-labeled data.
+Right? Number one. Number two, this is
+just a prediction task.
+Right? A simple logistic regression
+task.
+It's a simple logistic regression task.
+All of you know logistic regression?
+It's a simple logistic logistic
+regression classifier. It's a classifier
+which will classify that this
+this word is not a context word, this
+word is a context word. That's all.
+Very simple idea. Okay?
+So,
+let's look at the approach.
+So,
+we have a target word T. Now, remember
+we we will use two terminologies. One is
+called the target word.
+Target word. And the other is called the
+context word.
+Right? T and C.
+Okay? Given a particular target word,
+I will look at what are the context
+words. And how do we identify context
+word? I have this window.
+Right? I have this window of size 10.
+I have the documents, multiple
+sentences. I move the window
+one step at a time. Right? At every
+step, I look at 10 words at a time.
+Right? Let's say the middle word is the
+central word, and the remaining nine
+words are the context words. Right? So,
+what I do, for every central word, I
+make a pair.
+Right? Let's say
+Let's say uh
+W W T is a is a context uh is a target
+word, and W T minus one W T minus two, W
+T minus three, right? W T plus one, W T
+plus two,
+W T plus three. This is the context
+size.
+Moving window size. Right? And there are
+of course other words here. It's a W T
+plus T minus four,
+W T minus five, right? W T plus four,
+W T plus five, and so on and so forth.
+And this is my sliding window.
+Okay?
+This is my target word.
+So, what are the positive context words?
+The positive context words are W T. So,
+W For W T target word, the positive
+context words are W T minus three,
+right? W T minus two,
+W T minus one, W T plus one, W T plus
+two, W T plus three. These are the
+positive context words because these
+words appear uh the these words
+co-appear with the word W T within the
+context.
+So,
+right?
+So, these are the pairs. These are the
+positive pairs.
+Given a particular
+window size, right?
+I identify I I I will first identify the
+context words.
+And make these pairs.
+What are the non-context words with
+respect to this context size at this
+position?
+What are the non-context words?
+Non-context words are those words which
+are which are which are outside of this
+particular window, right? Right? So,
+there are there are If if the size of
+the document is in, there are in minus
+how many?
+Uh 3 + 3 6 + 7 in minus 7 uh
+tokens which are non-context words.
+Right?
+Okay?
+So, I will sample non-context words from
+the document. So, this is my context
+what pairs? I will sample equal number
+of non-context pairs from the document.
+In fact, in word to vec what we do in
+skip-gram specifically, we take
+k times more negative samples. These are
+negative samples.
+These are positive samples. And those
+are negative samples. Non-context words
+are negative samples. So, if I take if I
+take 10 positive samples, I will take 40
+negative samples, four times or five
+times. Why?
+Why?
+It will give you more more more more
+evidence, right? Not only that,
+sometimes what happens is that when we
+when you sample negative examples, it
+may happen that some of the positive
+examples can also come.
+Right? Because you're sampling from some
+some distribution.
+It may happen that some of the positive
+samples can also come. In fact, that
+that particular word can also come as a
+context, negative context.
+Right? Of course, you can have tricks to
+remove those duplicates, but it is
+always safe to consider more negative
+examples. We will discuss how to sample
+negative examples later.
+Okay, so
+this is a sequence of tokens. I fix the
+context window. I sample positive
+instances, negative instances. I curate
+positive instances, sample negative
+instances, then I run this classifier.
+Okay? And the classifier will classify
+positive instances from the negative
+instances. Now, how I will tell you.
+Right? So,
+again again you move this context window
+one word forward, right? Again, you
+curate all these things. Again, you run
+the classifier. And you keep on doing
+this thing until and unless the entire
+document gets scanned.
+This is the overall philosophy. Okay.
+Let's look at examples. So,
+let's say this is an real example, lemon
+air, tablespoon of capri- apricot jam, a
+pinch. This is a sequence of words,
+right? And let's say the context window
+is this one, from here to here. Okay?
+And the target is apricot.
+Table- tablespoon and of
+context words, jam and air also context
+words, and other are non-context words,
+right?
+Right? These are context pairs.
+So, for every word W,
+now this is W, okay?
+For every word W, we have a context
+context vector C. Now, remember this W,
+this word W, is represented by a vector.
+The word embedding vector which we are
+going to learn.
+Right? Through this classification, we
+are going to learn the embeddings of W
+and C. What is C? C is the context words
+and W is the target word T.
+We need a representation for C. We need
+a representation for W.
+Right? And over the iterations, we will
+learn the representations of W and C.
+We start with a random
+initialization of W and C. It can be
+let's say a one-hot encoding for
+example, simple, or it can be a random
+random random initialization, and then
+you keep on iterating, right?
+Okay, what is the task of the
+classifier?
+The task of the classifier is that
+a given a pair of instances W and C,
+what is W?
+What is W?
+W is the target word, central word. What
+is C? C is the context word. Given this
+pair W and C,
+we measure the probability that this is
+a positive pair.
+So, given that you we have W and C, what
+is the probability that this is a
+positive
+positive instance? This is a positive
+instance.
+If it's a context, it's a positive
+instance, right?
+If C is a negative instance,
+then I will measure
+given this probability
+given this tuple W and C, what is the
+probability that this is a negative
+instance?
+So, we will measure these two
+probabilities.
+Okay? Now, negative probability is same
+as 1 minus positive probability,
+right? So, essentially, we will measure
+this positive probability.
+Okay? What is the probability that the
+that a particular pair is a positive
+pair?
+Okay, so how do you how do you measure
+this probability? We measure this
+probability using
+dot product.
+Right? Dot product is a measure of
+similarity. We all know what is dot
+product, right?
+Now, let's look at the the equation
+here. It's a very simple equation.
+So, I mentioned that this is just a
+classifier. This is the This is a
+logistic regression.
+Right? To measure this probability that
+W and C are positive instances, right? W
+and C's pair is a positive instance.
+What I do, I measure this probability
+using a sigmoid function.
+Right? What is the sigmoid function?
+Right?
+And the beauty of the sigmoid function
+is that it it basically squashes
+everything between zero to one, right?
+Machine learning uh researchers always
+prefer this
+uh this this sigmoid function because
+uh
+not only it produces a probability, but
+also the derivative has beautiful some
+beautiful formula, right? If you take
+the derivative of sigmoid, this is
+essentially sigmoid into one minus
+sigmoid.
+And there are also other properties,
+very interesting properties. Of course,
+if you ask a statistician,
+uh they will say that, you know, we I I
+I will not consider sigmoid as a as a as
+as a probability because probability has
+certain axioms and certain other
+properties. But, for a machine learning
+researcher, I think this is a good
+enough
+uh function, right?
+So,
+so sigmoid of C and W, remember C is a
+vector,
+embedding vector, right? W is also a
+vector,
+right? So, this is computed by one by
+one plus e to the power minus C times X.
+This is a dot product.
+Okay?
+Right? And how do you compute the
+negative one? One minus positive.
+Remember,
+uh
+what is one minus sigmoid of X?
+One minus sigmoid of X is sigmoid of
+minus X.
+So, sigmoid function has very beautiful
+properties, right? So, one minus the
+sigmoid is basically sigmoid of minus of
+that. Right?
+And if you if you do this math, you see
+that this is essentially this one. 1 by
+1 plus exponential of c times w.
+Okay? So,
+now this is for one pair. This is for
+for a single pair of word and context.
+Right? Target and context. There are
+multiple such pairs.
+Right? If if the context size is 10,
+there are nine such pairs of positive
+instances and there are there are 40
+such pairs of negative instances.
+If it is four times.
+Right? So, this is for one pair. So, how
+do we then consider all the other pairs?
+For other pairs also I measure this.
+And we assume that all these pairs are
+independent.
+Right? If they are independent, then
+this is just a product of all the
+probabilities.
+This is just a product of all the
+probabilities.
+Isn't it?
+There are
+uh there are L such instances. Right?
+And sigmoid of c c i times w where i
+tends to i ranges from 1 to L.
+L is the context size, the window size.
+Is this clear?
+Okay? So, this is essentially the uh the
+the you know all the probabilities
+considered together.
+So, we we do not consider the sum we do
+not consider the product. Often times we
+take the log of it. Right? We take the
+log of this probability and which will
+essentially be the sum of all the logs.
+Right?
+Right? So,
+So, what what we have done so far? Tell
+me.
+We fixed the context window size. Right?
+For every context window we sample
+positive instances and negative
+instances. We curate positive instances
+and sample negative instances. Right?
+And then we measure the probability.
+Okay? And then the positive the positive
+probability should be higher than the
+negative probability. That the
+classifier needs to make sure. Right?
+The classifier basically
+you know uh
+logistic regression uh works based on
+the log likelihood estimate, right? So,
+we we will have this log likelihood
+estimate and that's my objective
+function. Then we take the derivative.
+Because this is the objective function
+log log we we maximize the log
+likelihood.
+Right? Then we take the derivative. What
+are the parameters here?
+The parameters are the vectors of the C
+and W vectors.
+Now, here's the question.
+So,
+tell me
+for every word
+how many vectors we are computing?
+Two vectors.
+Right? C and W or C and T, right? Where
+where uh you know, a time when the word
+is the word acts as a central word
+and the time when the word acts as a
+context word.
+Right? So, if you think of this matrix
+if you if if you think of the embedding
+as a bulky matrix
+and assume that there are V number of uh
+uh
+vocabulary tokens or vocabulary entries
+present in the document, right? V is the
+size of the
+V is the number of tokens, right?
+So, we have
+V entries here and we have V entries
+here, right?
+Let's say from A to from A to Z,
+here from A to Z, right? And these
+entries, the upper part of the matrix uh
+represents the target embedding
+and the lower part represents the
+context embedding.
+So, we are essentially
+learning
+two V number of vectors.
+Right? And what is the size of the
+vector?
+Is the hyper parameter.
+You have to decide beforehand. Let's say
+the size of the vector is 10. Right? So,
+what's the size of this matrix? 2 V *
+10.
+This many number of parameters we are
+updating.
+Okay? So, now look at this one.
+So, this is this bulky matrix which we
+are estimating. So, the word starts from
+aardvark to let's say zebra. Right? And
+this mod V uh
+size
+part of the matrix corresponds to the
+target words. And the similar mod V
+types size submatrix corresponds to the
+context words.
+Okay?
+And when I say
+when I say that uh the word aardvark,
+for example, the word aardvark aardvark,
+and the word apricot, just again uh
+for the sake of uh
+you know, giving an example. Let's say
+when I say that the target word what is
+aardvark and the context word is
+apricot, let's say.
+And the apricot is a positive context
+for the word aardvark.
+Right?
+Let's say this is my initial
+uh matrix
+when you initialize it.
+Right? And when I say that this
+is a positive positive context of this.
+What does it mean?
+It means that over the iterations, I
+will try to move the representation of
+the of of the context of apricot
+closer towards the target of target of
+target of aardvark.
+Let me repeat what I what I just
+mentioned.
+Aardvark is the target word.
+And apricot is the context word.
+Right?
+When you initialize this matrix at the
+beginning, all this initial
+initialization happened random.
+Right? And over the iterations, what is
+the target? The target is that positive
+context should come closer to the
+target, and negative context should
+basically be far from the target.
+Right? So, over the iterations, I'll
+update this matrix such that the
+positive context will come closer, and
+negative context will basically go far.
+So, apricot, you will see that
+over the iterations, right? If you look
+at the embedding space, let's say these
+are the These are the the These dots
+indicate different uh embeddings, right?
+In the vector space. Let's say this is
+artwork,
+and this is
+apricot.
+This is the target of artwork. This is
+the context of apricot.
+Right? Over the iterations, you will see
+that this will move closer and closer.
+These two things move closer and closer.
+And the negative instances will move
+further and further.
+Okay?
+Okay. Now, let's look at the training uh
+process of word2vec.
+Okay?
+Uh at every context window, I have a
+target, and I have a context. I have
+multiple contexts, right? So, in this
+case, apricot and tablespoon, apricot
+and off, apricot jam, apricot e, these
+are positive instances, right? And uh we
+we sample k negative instances from the
+remaining documents, right? For example,
+apricot artwork, apricot my, apricot
+where, apricot if. These are all
+negative instances.
+Okay?
+Okay. So, and then I I train the
+logistic regression so that uh this and
+this
+the positive pair should be classified
+uh from the negative pair. Okay?
+How do we sample negative examples?
+We sample negative examples based on the
+unigram distribution.
+Right? So, for every word
+I have a
+I have a probability
+from the document. I can easily measure
+the unigram distribution of every word.
+Unigram probability of every word.
+Right? So, there is this unigram
+probability.
+And then I sample
+every time I toss a coin and sample a
+negative example from the unigram
+probability.
+Okay?
+But with the small tricks here, because
+what what will happen if I only consider
+unigram probability, what will happen?
+Only the words which are frequently
+occurring, but they are they are they
+are probability is high.
+Those words will be sampled again and
+again. But those words are not at all
+meaningful non-contextual words.
+Right? If I keep on sampling word if If
+I keep on sampling the word, let's say
+the or a, right? These are not
+meaningful words, right?
+So, what I do
+instead of a raw unigram probability, I
+will use a some sort of modified unigram
+probability.
+So, count of this W by sum of count,
+this is the unigram probability. I will
+essentially use another parameter alpha.
+So, count to the power of alpha by sum
+of count and every count has this alpha.
+Okay, that's a power.
+Why this is needed?
+This alpha, addition of this alpha will
+give you a slightly higher edge
+to the
+rarely occurring words.
+Or low frequent words. Right? Let's If
+you're not convinced, let me give an
+example. Let's say
+there are two words A and B.
+And these are the raw
+uh unigram probability, 0.99 and
+0.01.
+Right? Now, if you use alpha, if you add
+alpha as a as a as a power,
+and let's say the value of alpha is
+0.75.
+Okay? So, the modified unigram
+probability of A is 0.97.
+And the modified unigram probability of
+B is 0.03.
+So, 0.03 is higher than 0.01.
+Although uh you know, a highly frequent
+word has still higher frequency, higher
+probability, but at least after this
+modification, uh rarely uh uh
+occurring words, they will have slightly
+higher uh probability. And high frequent
+words will have slightly lower uh
+probability.
+Right? And now you can control the value
+of alpha.
+So, this is the probability based on
+which I will sample negative instances.
+Okay? So,
+how to learn word vectors? We will
+maximize
+the target word context word pairs
+probability.
+We will minimize the target word
+negative context word pair probability.
+This is the target.
+So, what is the final objective function
+for the logistic regression? Logistic
+regression maximizes the likelihood,
+right?
+Uh or mini mini mini minimizes the
+negative log likelihood, right?
+So,
+probability of the positive instance.
+And there are key negative instances I
+have I I I have sampled. Right? Negative
+probability of uh
+uh sorry, um
+uh
+positive instance and the negative
+instance, and um we will see that
+whether this uh this pair this negative
+pair
+is what is the probability that this
+pair is a negative pair?
+So P of
+W
+C pause what is C pause? C pause is the
+embedding of the positive context.
+Right? And W is the target word. Right?
+So what is the probability that this is
+positive?
+Right? Similarly
+I have a W and C
+neg
+Okay? This is a negative this one
+negative
+context. Right? What is the probability
+that this is a negative
+context?
+Right?
+Okay? And there are K number of such
+negative samples that I've already
+sampled. So I take a
+product of all this K.
+And I maximize both these and these.
+I mean you can you can say that why I'm
+maximizing this?
+I should minimize this.
+The second part?
+What is the second part?
+What is the second part?
+Given a target word
+and a negative context word, what is the
+probability that this is a negative
+instance?
+Right?
+Should I maximize or should I minimize?
+Maximize.
+Maximize. Right? I want to maximize this
+also. I also want to maximize this.
+So I take the product. Right? Log of
+this. So this is the log likelihood.
+Minus
+negative log likelihood. I want to
+minimize this.
+Okay?
+Now if you do some small arithmetic, so
+you move log inside.
+So log this plus
+sum of log this.
+Right?
+And
+we we have already seen that Okay, so
+what is this by the way? P of minus
+minus given W comma C neg is same as 1
+minus P of plus given this.
+Yes.
+Right?
+This is This is same as this.
+And how do we measure this probability?
+Using sigmoid. Sigmoid and dot product,
+right? So this is This probability is
+replaced by sigmoid.
+This will be This will be replaced by
+sigmoid.
+1 minus sigmoid is
+1 1 minus sigmoid x is sigmoid of minus
+x.
+So this is same as sigmoid of minus x.
+Okay? So this is objective function that
+I want to minimize now.
+Okay? And what are the parameters?
+Parameters are C positive, C negative,
+W. By the way, C positive C negative
+These are just notations, right?
+Both of them are C.
+Right? Just just for our understanding,
+C positives are those instances which
+are positive and C negatives are those
+instances which is negative. So in this
+bulky
+uh embedding matrix, we have only W and
+C. Or whatever T and C.
+Okay? As I already mentioned.
+And and I will use gradient descent
+to update this.
+So this is the loss function.
+Okay? Uh there are parameters W, C neg,
+and C pos.
+And we take the derivative. Let's look
+at the derivative. A very simple
+straightforward derivative.
+Uh
+you take the derivative of this with
+respect to C pos.
+Okay? So this part will be ignored.
+Right? We only look at this part log of
+x 1 by x. Right?
+So So this will be 1/
+1/sigmoid
+right? And then we take the derivative
+of this.
+Right? What is the derivative of
+sigmoid?
+Sigmoid into 1 minus sigmoid. So,
+sigmoid into 1 minus sigmoid is sigmoid
+sigmoid will cancel out. Right? 1 minus
+sigmoid will will basically remain. Now,
+we will already have a negative here.
+So, this will be sigmoid minus 1.
+And of course there's a
+there's a W.
+So, this is the derivative. Similarly,
+if you do a small calculation here, this
+will be the derivative with respect to C
+neg.
+And this will be the derivative with
+respect to W.
+Okay? Once we obtain the derivative
+this is these are the update rules.
+The
+the the the positive vectors will be
+updated
+using this formula.
+The negative vectors will be updated
+using this formula. And W will be
+updated using this formula.
+Right? Now, we we obtain two matrix two
+matrices W and C. I mentioned multiple
+times two matrices W and C.
+Now
+you can ask which one I should choose.
+Right? The best option is that you
+choose two things separately and see
+which one is better.
+The default option is that you take the
+sum
+of
+uh apricot using apricot acting as a
+context, apricot acting as a target.
+You take the sum of both the vectors,
+and that's going to be your final
+vector.
+Word2Vec
+is a static embedding. Remember this.
+It's a static embedding.
+Meaning
+that
+for every word W, you will only obtain
+one vector. I mean, of course you can
+say two vectors, but ultimately one
+vector. It is not the case that for
+every senses of this word, you will have
+different vectors.
+Modern approaches like
+what kind of methods? There you will see
+that we will you will get contextual
+embeddings.
+Okay?
+Okay. So, summary. This is a summary
+slide.
+We start with a random initialization of
+this entire matrix.
+What's the size of the matrix? D
+dimension V
+plus V. So, 2V * D matrix. We start with
+a random initialization. And then I move
+the sliding window. Every movement I
+will I will curate positive instances,
+negative instances, K times more
+negative instances. I will run the
+logistic regression, update the
+parameters. I can move,
+run, and so on and so forth. Okay? So,
+this is
+prediction-based approach.
+What is the difference between
+count-based approach and a
+prediction-based approach?
+Count-based approaches including TF-IDF,
+raw count, and prediction-based
+approaches like word2vec. Right? What
+are the differences? Count-based
+approaches
+uh
+create this the matrix
+one time.
+Scans, you just scan all the document
+with the entire document and create the
+matrix and you are done. Right? So, it
+preserve the statistics very very very
+carefully.
+Whereas in case of word2vec, there is no
+such thing. Right? The count-based
+approaches, the negative part is that as
+the as the size increases, the matrix
+size will increase and you keep you need
+to recompute all the entries. Here, as
+the size increases, you may just need to
+learn, but you may you may need to run
+the logistic regression one more time.
+Okay?
+So,
+couple of small tricks that this
+word2vec paper considered. Another
+tricks that they considered is called
+sub-subsampling frequent words.
+Let's say this is the
+sentence. The quick brown fox jumps over
+the lazy dog.
+Okay? And this is my window.
+What are the samples I can curate? The
+quick, the brown, right from here. Let's
+say quick, quick the, quick brown, quick
+fox, and so on and so forth. Right?
+If you look at here very carefully,
+quick, the quick, and quick the, they're
+basically the same.
+Isn't it? Because ultimately we will
+take the dot product dot product of two
+vectors.
+So, I can I can ignore one of these
+instances.
+The second problem is that the word the,
+right?
+The second problem is that the word the
+is not at all a very meaningful word.
+Right?
+Because
+you know, it is unclear whether the word
+the
+acts as an article, I mean acts as a
+meaningful article here, or the, you
+know, the the the the literal meaning of
+the is useful in this context or not.
+Right?
+So, what we do here in subsampling is
+that we
+we use another probability.
+And with this probability,
+I will remove some of the words from the
+documents, and I will not consider those
+words while curating the positive
+samples and negative samples.
+What does it mean?
+Now, this is the probability. This is
+again
+kind of an unigram probability, but
+small changes here and there. Right?
+So, P of W is a probability of a
+particular word.
+This is
+What is Z of W? Z of W is the raw
+raw frequency.
+Okay, of of the word W I.
+And this is a some sort of complicated
+formula that they proposed without much
+rationally behind it. Right? But you can
+also think of many such formula which at
+least which can guarantee that this
+trend
+you know, remains
+as it is. What is this trend?
+It says so the x-axis is
+Z W I.
+And Y axis is P W I.
+Okay? So if a word
+is less likely in terms of frequency,
+they will be sampled more.
+And if it is highly likely, they will be
+sampled less.
+Zipf's law. Meaning that if a word
+appears a lot of times like the word the
+you will ignore or you will remove that
+word from the document if it appears
+less number of times, you will keep
+those words.
+When I say remove a word from the
+document means
+with certain probability, not all the
+times.
+Okay? With certain probability.
+So
+let's look at some of the
+values, right? So in order to
+make the value of P to be one
+if you really want to make a probability
+to be one right? The frequency
+the the the the the frequency should be
+0.26%
+less than 0.26%.
+So it means that if a word
+appears
+in a document
+0.26%
+of time
+it is highly likely with probability one
+you will sample that
+word.
+Okay? If the word appears
+right? With this probability,
+right? You will
+with 50% chance you will
+with with 50% chance you will sample
+that word.
+If a word appears
+100%, what does it mean?
+It means that there's only one one word
+in the document.
+Right?
+I mean, there is only one word appearing
+multiple times and there are no no other
+word.
+So, the chance that this word will will
+be sampled is
+.033
+probability.
+This is just a just a hack to remove
+frequent frequently appearing words
+uh from the training instances.
+That's all about word to vec. Right? Uh
+this is a very nice analogy that they
+showed in the paper.
+That uh with now you have all these
+embeddings, right?
+So, with these embeddings, now you can
+do all sorts of word analogy test.
+Right? In fact, you can you can do
+linear operations here.
+There's a beautiful example.
+You take the embedding of king
+and you subtract
+the embedding of man from the embedding
+of king. So, king the word king has an
+embedding.
+The word man also has an embedding.
+Okay? You subtract this from king.
+You get a resultant embedding.
+Right?
+So, and then you add the embedding of
+woman.
+Right? To that resultant embedding,
+this will be equivalent to the embedding
+of queen.
+Right? So, you subtract man from king,
+add woman, you get the embedding of
+queen.
+What are the problems of what of word
+embedding? The first problem is this is
+a static approach, right? It doesn't
+consider different different senses of
+it.
+The second problem is that when an
+unknown word comes in the test set,
+word embedding is already trained on a
+training set,
+right? You have a dictionary where the
+embeddings are stored, already stored.
+Now, in a test set, when you see a new
+embedding uh when you see a new word
+which that which did not appear in the
+training set, how do you how do you get
+the embedding of this?
+You'll not get it.
+Right? To address this problem,
+uh
+what people suggested is something
+called subword embedding.
+So, from word, I move to subword. What
+is a subword? Subword is a sequence of
+characters.
+Right? So, the method that was proposed
+by Facebook is called fastText. fastText
+is a subword embedding method.
+Right?
+What is a subword embedding method? Very
+same as skip-gram. Right? So, here I'm
+again I will not going to going to
+details of this.
+So, the idea is that
+in in skip-gram word embedding method uh
+in in word2vec, what is our vocabulary?
+Our vocabulary is the set of words.
+Right? Here, the vocabulary is set of
+sub subwords.
+And how do you define a subword? A
+subword is defined by n-grams.
+Right? Let's say the word where w h e r
+e w h e r e.
+Here, if the n-gram size is t three,
+I will take w h e, h e r, e r e. These
+are three subwords.
+Right?
+Uh along with this, I will use this
+uh this angle bracket as the start of
+the word and the end of the word. And
+those angle brackets are also considered
+as characters.
+So, you have this as a n-gram as a
+three-gram. This is also three-gram
+character, three-gram character,
+three-gram character. three ground
+character and the word itself.
+So for every word, I have
+a set of sub words, that word itself and
+the other
+in grounds, in ground characters.
+Once we got it,
+I will just run the skip ground.
+I will just run the skip ground and skip
+ground will give you uh
+sub word label in weddings. Now, let's
+say a new word's coming
+a new word comes in which is let's say
+let's say uh nifty.
+Okay? So,
+the hope is that
+n i f for this sub word, I have an
+embedding.
+Right? The the this this uh in ground
+character this character in ground has
+appeared maybe, right? So, I will take
+the uh
+sub word embedding of n i f. I will take
+the sub word embedding of i f t. I will
+take the sub word embedding of f t y.
+Right? And of course this angle
+brackets.
+Right? And I will sum sum them up. Okay?
+So, this is the idea of
+uh fast text. I'll stop here.
+And
+maybe in the next lecture I will start
+discussing
+uh glove embedding.
+Thank you.

@@ -1,0 +1,1041 @@
+{
+  "subject": "LLMs from first principles",
+  "goal": "Understand LLMs from first principles, build one from scratch, then continue research on LLMs and AI.",
+  "learner": "Rusty on Python/PyTorch, linear algebra, calculus and backprop. Missing prerequisites become branches on demand.",
+  "method": "Each part: understand it (derived, not stated), then build it in code, then an ablation: predict what breaks without it, then check.",
+  "current": "1.3",
+  "phases": [
+    {
+      "id": "0",
+      "title": "Foundation: the objective",
+      "status": "planned",
+      "parts": [
+        {
+          "id": "0",
+          "title": "The objective",
+          "hook": "What does 'learning language' even mean?",
+          "owns": "Phone autocomplete: guessing the next word",
+          "covers": [
+            "next-token prediction",
+            "loss as surprise (cross-entropy)",
+            "gradient descent"
+          ],
+          "depends_on": [],
+          "status": "planned",
+          "lesson": null,
+          "cruxes": [],
+          "resources": [
+            "kCc8FmEb1nY",
+            "UgOmrFkn9-U",
+            "guNsMPj1U-c",
+            "wjZofJX0v4M"
+          ],
+          "papers": [
+            {
+              "title": "Bengio et al. 2003 — A Neural Probabilistic Language Model",
+              "url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "Pretraining",
+      "status": "planned",
+      "parts": [
+        {
+          "id": "1.1",
+          "title": "Tokenization",
+          "hook": "How does a network take in text?",
+          "owns": "The objective (0)",
+          "covers": [
+            "text to integers",
+            "BPE",
+            "vocabulary trade-offs"
+          ],
+          "depends_on": [
+            "0"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "zduSFxRajkE",
+            "fKd8s29e-l4",
+            "341Rb8fJxY0"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Sennrich et al. 2015 — Subword Units (BPE for NMT)",
+              "url": "https://arxiv.org/abs/1508.07909"
+            },
+            {
+              "title": "Kudo & Richardson 2018 — SentencePiece",
+              "url": "https://arxiv.org/abs/1808.06226"
+            },
+            {
+              "title": "Radford et al. 2019 — GPT-2: Language Models are Unsupervised Multitask Learners",
+              "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Embeddings",
+          "hook": "How can an integer carry meaning?",
+          "owns": "Tokens as integers (1.1)",
+          "covers": [
+            "integers to vectors",
+            "meaning as direction",
+            "dot product as similarity",
+            "word2vec / GloVe"
+          ],
+          "depends_on": [
+            "1.1"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "ghCSGRgVB_o",
+            "KKJxzPxhkdo",
+            "PLfVoP3Fn7g",
+            "PcxUVCmvsAM",
+            "wjZofJX0v4M"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Mikolov et al. 2013 — word2vec",
+              "url": "https://arxiv.org/abs/1301.3781"
+            },
+            {
+              "title": "Pennington et al. 2014 — GloVe",
+              "url": "https://aclanthology.org/D14-1162/"
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Attention",
+          "hook": "How does one token use its context?",
+          "owns": "Tokens as vectors; dot product as similarity (1.2)",
+          "covers": [
+            "seq2seq bottleneck",
+            "Bahdanau attention",
+            "scoring functions",
+            "self-attention",
+            "Q/K/V",
+            "causal mask",
+            "sqrt(d) scaling",
+            "multi-head"
+          ],
+          "depends_on": [
+            "1.2"
+          ],
+          "status": "current",
+          "lesson": null,
+          "resources": [
+            "QgnOoQsPc0o",
+            "IG2gl6sKj_c",
+            "6yIe4ekER14",
+            "DDxMVJnjgps",
+            "vQPCjniSfNU",
+            "wshXBhGItkM",
+            "Dv8e0ayAikA",
+            "IOmg660SvmM",
+            "Is-1zHabOq8",
+            "ofsTGSeakbE",
+            "-Ll8DtpNtvk",
+            "kCc8FmEb1nY",
+            "eSRhpYLerw4",
+            "h94TQOK7NRA",
+            "K5u9eEaoxFg",
+            "wjZofJX0v4M",
+            "RQowiOF_FvQ",
+            "vkhPtpUiLd8"
+          ],
+          "cruxes": [
+            {
+              "id": "3.1",
+              "title": "The context problem",
+              "hook": "Translation squeezed a whole sentence into one fixed vector, and long sentences broke. Bahdanau (2014): let the decoder look back.",
+              "status": "current",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Sutskever et al. 2014 — Seq2Seq",
+                  "url": "https://arxiv.org/abs/1409.3215"
+                },
+                {
+                  "title": "Cho et al. 2014 — RNN Encoder-Decoder",
+                  "url": "https://arxiv.org/abs/1406.1078"
+                },
+                {
+                  "title": "Bahdanau et al. 2014 — Jointly Learning to Align and Translate",
+                  "url": "https://arxiv.org/abs/1409.0473"
+                }
+              ]
+            },
+            {
+              "id": "3.2",
+              "title": "Scoring and the weighted average",
+              "hook": "How relevant is each token? Additive scoring first, then the dot product, and why the dot product won. Self-attention: a sentence attends to itself.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Luong et al. 2015 — Effective Approaches to Attention (dot-product scoring)",
+                  "url": "https://arxiv.org/abs/1508.04025"
+                },
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                }
+              ]
+            },
+            {
+              "id": "3.3",
+              "title": "Q, K, V",
+              "hook": "Raw similarity is fixed and symmetric; 'what I seek' differs from 'what I am'.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                }
+              ]
+            },
+            {
+              "id": "3.4",
+              "title": "Causal mask",
+              "hook": "Training predicts all positions at once; without a mask each token sees its answer.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                },
+                {
+                  "title": "Radford et al. 2019 — GPT-2: Language Models are Unsupervised Multitask Learners",
+                  "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
+                }
+              ]
+            },
+            {
+              "id": "3.5",
+              "title": "Scaling by sqrt(d)",
+              "hook": "Dot products grow with dimension; softmax goes one-hot; gradients die.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                }
+              ]
+            },
+            {
+              "id": "3.6",
+              "title": "Multi-head",
+              "hook": "One softmax gives one mixture; a token needs several relationships at once.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.4",
+          "title": "Positional encoding",
+          "hook": "Attention is blind to order. How do we give it order?",
+          "owns": "Attention ignores order (1.3)",
+          "covers": [
+            "permutation equivariance",
+            "learned",
+            "sinusoidal",
+            "relative",
+            "ALiBi",
+            "RoPE",
+            "NoPE",
+            "length extrapolation"
+          ],
+          "depends_on": [
+            "1.3"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "NmyR0gCByoU",
+            "sWyJ0L-cfMw",
+            "tjiXhpruvkE",
+            "8WBS0dT0h2I",
+            "p3sij8QzONQ"
+          ],
+          "cruxes": [
+            {
+              "id": "4.1",
+              "title": "Attention is order-blind",
+              "hook": "Shuffle the input and the output only shuffles. Order must be injected.",
+              "status": "planned",
+              "lesson": null
+            },
+            {
+              "id": "4.2",
+              "title": "Absolute positions: learned and sinusoidal",
+              "hook": "Add a position vector to each token. Learned ones cannot go past training length; sinusoids try to.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                }
+              ]
+            },
+            {
+              "id": "4.3",
+              "title": "Relative positions and ALiBi",
+              "hook": "What matters is distance between query and key, not absolute index.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Shaw et al. 2018 — Relative Position Representations",
+                  "url": "https://arxiv.org/abs/1803.02155"
+                },
+                {
+                  "title": "Press et al. 2021 — ALiBi",
+                  "url": "https://arxiv.org/abs/2108.12409"
+                }
+              ]
+            },
+            {
+              "id": "4.4",
+              "title": "RoPE",
+              "hook": "Rotate Q and K so their dot product depends only on relative distance.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Su et al. 2021 — RoFormer (RoPE)",
+                  "url": "https://arxiv.org/abs/2104.09864"
+                }
+              ]
+            },
+            {
+              "id": "4.5",
+              "title": "Beyond training length",
+              "hook": "Contexts longer than training: interpolation, scaling RoPE, and models with no positions at all (NoPE).",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Chen et al. 2023 — Position Interpolation",
+                  "url": "https://arxiv.org/abs/2306.15595"
+                },
+                {
+                  "title": "Peng et al. 2023 — YaRN",
+                  "url": "https://arxiv.org/abs/2309.00071"
+                },
+                {
+                  "title": "Kazemnejad et al. 2023 — Positional Encoding and Length Generalization (NoPE)",
+                  "url": "https://arxiv.org/abs/2305.19466"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.5",
+          "title": "Attention family",
+          "hook": "Every variant changes one bucket: scoring, connectivity, heads/KV, cost, implementation, position or domain.",
+          "owns": "Core attention (1.3) + RoPE (1.4)",
+          "covers": [
+            "KV cache",
+            "MQA",
+            "GQA",
+            "MLA",
+            "local / sliding window",
+            "sparse (BigBird)",
+            "attention sinks",
+            "linear attention",
+            "DeltaNet",
+            "Kimi Delta Attention",
+            "hybrids"
+          ],
+          "depends_on": [
+            "1.4"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "8WBS0dT0h2I",
+            "p3sij8QzONQ",
+            "QgnOoQsPc0o"
+          ],
+          "cruxes": [
+            {
+              "id": "5.1",
+              "title": "The KV cache",
+              "hook": "Generation recomputes the whole past each step; caching K/V fixes it, and the cache becomes the new limit.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Pope et al. 2022 — Efficiently Scaling Transformer Inference (KV-cache memory analysis)",
+                  "url": "https://arxiv.org/abs/2211.05102"
+                }
+              ]
+            },
+            {
+              "id": "5.2",
+              "title": "Sharing and compressing K/V: MQA, GQA, MLA",
+              "hook": "How little K/V can we keep before quality drops?",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Shazeer 2019 — Multi-Query Attention",
+                  "url": "https://arxiv.org/abs/1911.02150"
+                },
+                {
+                  "title": "Ainslie et al. 2023 — GQA",
+                  "url": "https://arxiv.org/abs/2305.13245"
+                },
+                {
+                  "title": "DeepSeek-AI 2024 — DeepSeek-V2 (MLA)",
+                  "url": "https://arxiv.org/abs/2405.04434"
+                }
+              ]
+            },
+            {
+              "id": "5.3",
+              "title": "Connectivity: local, sliding window, sparse, sinks",
+              "hook": "The n-squared cost. Which tokens must each token really see?",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Beltagy et al. 2020 — Longformer",
+                  "url": "https://arxiv.org/abs/2004.05150"
+                },
+                {
+                  "title": "Zaheer et al. 2020 — BigBird",
+                  "url": "https://arxiv.org/abs/2007.14062"
+                },
+                {
+                  "title": "Jiang et al. 2023 — Mistral 7B (sliding window)",
+                  "url": "https://arxiv.org/abs/2310.06825"
+                },
+                {
+                  "title": "Xiao et al. 2023 — Attention Sinks (StreamingLLM)",
+                  "url": "https://arxiv.org/abs/2309.17453"
+                }
+              ]
+            },
+            {
+              "id": "5.4",
+              "title": "Attention as recurrence: linear, DeltaNet, KDA, hybrids",
+              "hook": "Remove softmax and attention becomes a fixed-size memory updated per token. What is lost, and how hybrids win it back.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Katharopoulos et al. 2020 — Transformers are RNNs (linear attention)",
+                  "url": "https://arxiv.org/abs/2006.16236"
+                },
+                {
+                  "title": "Yang et al. 2024 — Parallelizing Linear Transformers with the Delta Rule (DeltaNet)",
+                  "url": "https://arxiv.org/abs/2406.06484"
+                },
+                {
+                  "title": "Songlin Yang — DeltaNet Explained (blog, Parts I–III)",
+                  "url": "https://sustcsonglin.github.io/blog/2024/deltanet-1"
+                },
+                {
+                  "title": "Yang, Kautz, Hatamizadeh 2024 — Gated Delta Networks",
+                  "url": "https://arxiv.org/abs/2412.06464"
+                },
+                {
+                  "title": "Kimi Team 2025 — Kimi Linear (KDA + MLA hybrid, 3:1)",
+                  "url": "https://arxiv.org/abs/2510.26692"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.6",
+          "title": "Transformer block",
+          "hook": "Why does stacking attention layers fail without help?",
+          "owns": "Attention + gradient descent",
+          "covers": [
+            "residual stream",
+            "LayerNorm, pre-norm vs post-norm",
+            "MLP",
+            "assembling a GPT"
+          ],
+          "depends_on": [
+            "1.5"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "G3W-LT79LSI",
+            "2r0QahNdwMw",
+            "G3-JgHckzjw",
+            "YSAkgEarBGE",
+            "G45TuC6zRf4",
+            "q6VDs4B0dsY",
+            "kCc8FmEb1nY"
+          ],
+          "cruxes": [
+            {
+              "id": "6.1",
+              "title": "The residual stream",
+              "hook": "Deep stacks stop learning. Give every layer a path that adds, never overwrites.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "He et al. 2015 — ResNet (residual connections)",
+                  "url": "https://arxiv.org/abs/1512.03385"
+                },
+                {
+                  "title": "Elhage et al. 2021 — A Mathematical Framework for Transformer Circuits (residual stream)",
+                  "url": "https://transformer-circuits.pub/2021/framework/index.html"
+                }
+              ]
+            },
+            {
+              "id": "6.2",
+              "title": "Normalization: where and why",
+              "hook": "Activations drift in scale with depth. Post-norm vs pre-norm, and why pre-norm trains deeper.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Ba et al. 2016 — Layer Normalization",
+                  "url": "https://arxiv.org/abs/1607.06450"
+                },
+                {
+                  "title": "Xiong et al. 2020 — On Layer Normalization in the Transformer (pre-LN)",
+                  "url": "https://arxiv.org/abs/2002.04745"
+                }
+              ]
+            },
+            {
+              "id": "6.3",
+              "title": "The MLP",
+              "hook": "Attention moves information between tokens; the MLP processes it within each token.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Geva et al. 2020 — Feed-Forward Layers Are Key-Value Memories",
+                  "url": "https://arxiv.org/abs/2012.14913"
+                }
+              ]
+            },
+            {
+              "id": "6.4",
+              "title": "Assembling a GPT",
+              "hook": "Embeddings, N blocks, final norm, output head, weight tying: the whole decoder.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Radford et al. 2019 — GPT-2: Language Models are Unsupervised Multitask Learners",
+                  "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
+                },
+                {
+                  "title": "Press & Wolf 2016 — Output Embedding (weight tying)",
+                  "url": "https://arxiv.org/abs/1608.05859"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.7",
+          "title": "Architecture variants",
+          "hook": "Each change since 2017 is a fix to a problem. Which problem?",
+          "owns": "The full block (1.6)",
+          "covers": [
+            "RMSNorm, QK-norm",
+            "GELU, SwiGLU",
+            "no dropout, no bias",
+            "MoE",
+            "reading a modern architecture"
+          ],
+          "depends_on": [
+            "1.6"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "8WBS0dT0h2I",
+            "p3sij8QzONQ",
+            "QgnOoQsPc0o"
+          ],
+          "cruxes": [
+            {
+              "id": "7.1",
+              "title": "Normalization variants",
+              "hook": "RMSNorm drops the mean; QK-norm keeps attention logits in check.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Zhang & Sennrich 2019 — RMSNorm",
+                  "url": "https://arxiv.org/abs/1910.07467"
+                },
+                {
+                  "title": "Dehghani et al. 2023 — ViT-22B (QK-norm for stability)",
+                  "url": "https://arxiv.org/abs/2302.05442"
+                }
+              ]
+            },
+            {
+              "id": "7.2",
+              "title": "Activations: ReLU, GELU, SwiGLU",
+              "hook": "Why a gated MLP learns better per parameter.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Hendrycks & Gimpel 2016 — GELU",
+                  "url": "https://arxiv.org/abs/1606.08415"
+                },
+                {
+                  "title": "Shazeer 2020 — GLU Variants (SwiGLU)",
+                  "url": "https://arxiv.org/abs/2002.05202"
+                }
+              ]
+            },
+            {
+              "id": "7.3",
+              "title": "Mixture of Experts",
+              "hook": "More parameters without more compute per token: routing, load balancing.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Shazeer et al. 2017 — Sparsely-Gated MoE",
+                  "url": "https://arxiv.org/abs/1701.06538"
+                },
+                {
+                  "title": "Fedus et al. 2021 — Switch Transformers",
+                  "url": "https://arxiv.org/abs/2101.03961"
+                }
+              ]
+            },
+            {
+              "id": "7.4",
+              "title": "Reading a modern model",
+              "hook": "Llama 3, DeepSeek V3, Kimi Linear: name every choice and the problem it solves.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Llama Team 2024 — The Llama 3 Herd of Models",
+                  "url": "https://arxiv.org/abs/2407.21783"
+                },
+                {
+                  "title": "DeepSeek-AI 2024 — DeepSeek-V3",
+                  "url": "https://arxiv.org/abs/2412.19437"
+                },
+                {
+                  "title": "Kimi Team 2025 — Kimi Linear",
+                  "url": "https://arxiv.org/abs/2510.26692"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.8",
+          "title": "Transformer family",
+          "hook": "One block, many wirings. Why did decoder-only win, and what else is out there?",
+          "owns": "A complete decoder (1.6) + variants (1.7)",
+          "covers": [
+            "encoder-decoder, cross-attention",
+            "encoder-only (BERT), masked LM",
+            "decoder-only",
+            "ViT, Swin",
+            "state-space models (Mamba)"
+          ],
+          "depends_on": [
+            "1.7"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "QCJQG4DuHT0",
+            "HQn1QKQYXVg",
+            "G45TuC6zRf4",
+            "ZMxVe-HK174",
+            "g3sEsBGkLU0",
+            "QwfuoNhjbkI",
+            "MqDehUoMk-E",
+            "ekg-hoob0SM",
+            "VzS8hrOSSAs",
+            "1tgZo2tpK44",
+            "Xg5JG30bYik",
+            "Nw_PJdmydZY",
+            "bCz4OMemCcA",
+            "6vThlsJ_ASE",
+            "WZOqXkld9mk",
+            "NB_4dkfJf_w",
+            "i3-bjM3VhJQ",
+            "SndHALawoag",
+            "KEu6HVK_rzE",
+            "Ub3GoFaUcds"
+          ],
+          "cruxes": [
+            {
+              "id": "8.1",
+              "title": "Encoder-decoder and cross-attention",
+              "hook": "The original 2017 translator: one stack reads, the other writes and looks across.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Vaswani et al. 2017 — Attention Is All You Need",
+                  "url": "https://arxiv.org/abs/1706.03762"
+                },
+                {
+                  "title": "Raffel et al. 2019 — T5",
+                  "url": "https://arxiv.org/abs/1910.10683"
+                }
+              ]
+            },
+            {
+              "id": "8.2",
+              "title": "Encoder-only: bidirectional attention and masked LM",
+              "hook": "Remove the mask to understand text better, and lose the ability to generate.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Devlin et al. 2018 — BERT",
+                  "url": "https://arxiv.org/abs/1810.04805"
+                }
+              ]
+            },
+            {
+              "id": "8.3",
+              "title": "Decoder-only, and why it won",
+              "hook": "One objective, one stack, scales cleanly, learns in context.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Radford et al. 2019 — GPT-2: Language Models are Unsupervised Multitask Learners",
+                  "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
+                },
+                {
+                  "title": "Brown et al. 2020 — GPT-3",
+                  "url": "https://arxiv.org/abs/2005.14165"
+                },
+                {
+                  "title": "Wang et al. 2022 — Which Architecture and Objective Work Best for Zero-Shot",
+                  "url": "https://arxiv.org/abs/2204.05832"
+                }
+              ]
+            },
+            {
+              "id": "8.4",
+              "title": "Images as tokens: ViT and Swin",
+              "hook": "Patches become tokens; Swin brings back locality and hierarchy.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Dosovitskiy et al. 2020 — ViT",
+                  "url": "https://arxiv.org/abs/2010.11929"
+                },
+                {
+                  "title": "Liu et al. 2021 — Swin Transformer",
+                  "url": "https://arxiv.org/abs/2103.14030"
+                }
+              ]
+            },
+            {
+              "id": "8.5",
+              "title": "Beyond attention: state-space models",
+              "hook": "Mamba and friends: recurrence returns, with training in parallel.",
+              "status": "planned",
+              "lesson": null,
+              "papers": [
+                {
+                  "title": "Gu & Dao 2023 — Mamba: Selective State Spaces",
+                  "url": "https://arxiv.org/abs/2312.00752"
+                },
+                {
+                  "title": "Dao & Gu 2024 — Transformers are SSMs (Mamba-2, state space duality)",
+                  "url": "https://arxiv.org/abs/2405.21060"
+                },
+                {
+                  "title": "Tri Dao — State Space Duality (Mamba-2) blog series",
+                  "url": "https://tridao.me/blog/2024/mamba2-part1-model"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1.9",
+          "title": "Optimization",
+          "hook": "Why does a big model diverge or stall?",
+          "owns": "Gradient descent (0) + the full model",
+          "covers": [
+            "AdamW",
+            "learning-rate schedule",
+            "initialization",
+            "stability"
+          ],
+          "depends_on": [
+            "1.8"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "Zar2TJv-sE0",
+            "Zxf-34voZss",
+            "7TKCrt--bWI"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Kingma & Ba 2014 — Adam",
+              "url": "https://arxiv.org/abs/1412.6980"
+            },
+            {
+              "title": "Loshchilov & Hutter 2017 — AdamW (Decoupled Weight Decay)",
+              "url": "https://arxiv.org/abs/1711.05101"
+            },
+            {
+              "title": "Goyal et al. 2017 — Large Minibatch SGD (linear scaling + warmup)",
+              "url": "https://arxiv.org/abs/1706.02677"
+            }
+          ]
+        },
+        {
+          "id": "1.10",
+          "title": "Data",
+          "hook": "What should the model read?",
+          "owns": "A model that trains (1.9)",
+          "covers": [
+            "corpus",
+            "cleaning",
+            "deduplication",
+            "data mix"
+          ],
+          "depends_on": [
+            "1.9"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "ZLbVdvOoTKM"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Penedo et al. 2024 — The FineWeb Datasets",
+              "url": "https://arxiv.org/abs/2406.17557"
+            },
+            {
+              "title": "Stanford CS336 Language Modeling from Scratch (Spring 2025)",
+              "url": "https://stanford-cs336.github.io/spring2025/"
+            }
+          ]
+        },
+        {
+          "id": "1.11",
+          "title": "Scaling",
+          "hook": "How big a model, for how much data, for this compute?",
+          "owns": "Model + data (1.10)",
+          "covers": [
+            "scaling laws",
+            "compute-optimal sizing"
+          ],
+          "depends_on": [
+            "1.10"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "ZLbVdvOoTKM"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Kaplan et al. 2020 — Scaling Laws for Neural Language Models",
+              "url": "https://arxiv.org/abs/2001.08361"
+            },
+            {
+              "title": "Hoffmann et al. 2022 — Training Compute-Optimal LLMs (Chinchilla)",
+              "url": "https://arxiv.org/abs/2203.15556"
+            },
+            {
+              "title": "Sardana et al. 2023 — Beyond Chinchilla-Optimal (inference-aware)",
+              "url": "https://arxiv.org/abs/2401.00448"
+            },
+            {
+              "title": "Stanford CS336 Language Modeling from Scratch (Spring 2025)",
+              "url": "https://stanford-cs336.github.io/spring2025/"
+            }
+          ]
+        },
+        {
+          "id": "1.12",
+          "title": "Efficiency",
+          "hook": "Why is the obvious code too slow?",
+          "owns": "A full training run (1.11)",
+          "covers": [
+            "mixed precision",
+            "FlashAttention",
+            "paged attention",
+            "parallelism",
+            "quantization"
+          ],
+          "depends_on": [
+            "1.11"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "Kx5x3HYBDls",
+            "8WBS0dT0h2I"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Micikevicius et al. 2017 — Mixed Precision Training",
+              "url": "https://arxiv.org/abs/1710.03740"
+            },
+            {
+              "title": "Dao et al. 2022 — FlashAttention",
+              "url": "https://arxiv.org/abs/2205.14135"
+            },
+            {
+              "title": "Dao 2023 — FlashAttention-2",
+              "url": "https://arxiv.org/abs/2307.08691"
+            },
+            {
+              "title": "Kwon et al. 2023 — PagedAttention (vLLM)",
+              "url": "https://arxiv.org/abs/2309.06180"
+            },
+            {
+              "title": "Shoeybi et al. 2019 — Megatron-LM",
+              "url": "https://arxiv.org/abs/1909.08053"
+            },
+            {
+              "title": "Rajbhandari et al. 2019 — ZeRO",
+              "url": "https://arxiv.org/abs/1910.02054"
+            }
+          ]
+        },
+        {
+          "id": "1.13",
+          "title": "Decoding",
+          "hook": "A distribution over tokens: how do we pick one?",
+          "owns": "A trained model",
+          "covers": [
+            "greedy, beam",
+            "temperature",
+            "top-k / top-p",
+            "evaluation"
+          ],
+          "depends_on": [
+            "1.12"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "resources": [
+            "EhU32O7DkA4",
+            "QRcjIOnIeOo"
+          ],
+          "cruxes": [],
+          "papers": [
+            {
+              "title": "Fan et al. 2018 — Hierarchical Story Generation (top-k sampling)",
+              "url": "https://arxiv.org/abs/1805.04833"
+            },
+            {
+              "title": "Holtzman et al. 2019 — Neural Text Degeneration (top-p / nucleus)",
+              "url": "https://arxiv.org/abs/1904.09751"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Post-training",
+      "status": "parked",
+      "parts": [
+        {
+          "id": "2",
+          "title": "Post-training (to be designed)",
+          "hook": "From predictor to assistant",
+          "owns": "A pretrained model (1)",
+          "covers": [
+            "instruction tuning",
+            "preference training (RLHF, DPO)",
+            "evaluation"
+          ],
+          "depends_on": [
+            "1.13"
+          ],
+          "status": "planned",
+          "lesson": null,
+          "cruxes": [],
+          "resources": [
+            "f6zqClXOh7Y",
+            "0PpxZ3kNPWo",
+            "bkUkcyL_Xxc",
+            "__OiQznq4ao",
+            "7m2jV7BOFkA",
+            "4yNswvhPWCQ",
+            "5PFXJYme4ik",
+            "TPDiqPnJDTs",
+            "iAvWWIDaUEw",
+            "0BsWItDlpxA",
+            "yXrGeDNuymY"
+          ],
+          "papers": [
+            {
+              "title": "Christiano et al. 2017 — RL from Human Preferences",
+              "url": "https://arxiv.org/abs/1706.03741"
+            },
+            {
+              "title": "Wei et al. 2021 — FLAN (instruction tuning)",
+              "url": "https://arxiv.org/abs/2109.01652"
+            },
+            {
+              "title": "Ouyang et al. 2022 — InstructGPT",
+              "url": "https://arxiv.org/abs/2203.02155"
+            },
+            {
+              "title": "Rafailov et al. 2023 — DPO",
+              "url": "https://arxiv.org/abs/2305.18290"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "branches": [],
+  "notes": []
+}

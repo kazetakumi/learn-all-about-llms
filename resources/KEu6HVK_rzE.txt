@@ -1,0 +1,655 @@
+Greetings fellow learners. In this video
+we are going to look at the swin
+transformer. The what, the why, and the
+how. So let's start with a broad
+high-level definition of what the swin
+transformer actually is. So the swin
+transformer is a hierarchical vision
+transformer designed to replace the
+convolution neural network backbone in
+vision tasks like object detection
+segmentation where object sizes may vary
+and it does so using a shifted window
+selfattension approach. Now there's
+probably like a lot of highlevel key
+terms over here but very you know
+quickly if we were to go through this in
+a highle overview the swin transformer
+is a hierarchical vision transformer. So
+what that means is that this will take
+an image and it will produce a hierarchy
+of tensors. So it'll produce multiple
+tensors of different resolutions.
+And these multiple tensors can then be
+used as the backbone in vision tasks
+like object detection and segmentation.
+And it does this with a very specific
+approach that we will discuss later in
+the video. So even though some of these
+terms might be a little bit iffy here
+and there but at a high level I hope
+that this makes sense.
+Now to understand exactly like why we
+need this swin transformer let's
+actually go through some historical
+context in order to build up the case.
+So let's consider a vision task where
+the size of objects matter. Specifically
+here it's object detection. You take an
+image and then you perform some
+localization
+as well as classification of the objects
+in that image.
+Now in 2015, faster RCNN emerged as a
+state-of-the-art for object detection.
+So, while this is a pretty complex
+diagram and we've explained this in
+other videos, at a very high level, it
+basically takes in an image over here,
+does a bunch of processing in order to
+get the localization and classification
+of different objects in the image.
+Now, a core component of this is this
+initial phase over here. This is going
+to take the image and it'll process it
+into a tensor which is then going to be
+used for further processing in this
+entire pipeline here. So you can imagine
+that this is a very important component
+and it's known as hence like the
+backbone or in this case it's like a
+convolution neural network. So it's like
+the convolution neural network backbone,
+right? And here we're going to
+originally train this to recognize
+images. So it's originally going to be
+pre-trained by taking an image and then
+just displaying what category of objects
+are in this image and then it's going to
+be used in this entire setup. So I hope
+the importance of this backbone makes
+sense.
+Now a couple years later in 2017,
+transformer neural networks were
+introduced to solve language
+translation. That is you have this you
+know transformer architecture with an
+encoder and decoder. It's going to take
+like an input English sentence and will
+display the output in French.
+And shortly after that through like 2020
+the state-of-the-art for many NLP tasks
+were transformerbased architectures like
+BERT and GPT.
+Now because of this success in NLP there
+have been many attempts to introduce
+transformer-based architectures in
+vision tasks as well. One such example
+of many of these attempts is ded. So
+this is the detection transformer. It is
+a transformer architecture for object
+detection where once again you have an
+input image over here. And then the
+output is going to be the classification
+and localization of objects in that same
+image. And you can see that in this same
+case we have a backbone architecture
+over here that's going to take the image
+and process it into a tensor which can
+then be used by this downstream
+architecture.
+And even in this data architecture the
+backbone architecture here is mostly a
+convolution network. It's like a ResNet
+architecture.
+So researchers then now ask the question
+why not use transformers as the backbone
+to process image inputs into tensors.
+Now some issues of using transformers
+with images are well first self
+attention has a quadratic compute
+complexity with respect to the input
+size. So just to clarify that a little
+bit if this is you know our architecture
+over here for the transformer neural
+network this self attention architecture
+is going to scale quadratically as the
+input size scales as well. So
+specifically this the core of the
+operation is going to be these matrices
+the query matrix is going to be
+multiplied by a key matrix. Now this
+query matrix is going to have the number
+of records is going to be the number of
+inputs that are given to it. The key
+transpose again will have num it's going
+to be also kind of a very similar um
+size tensor. And so when you multiply
+these you can see that you'll get like
+quadratic sizes with respect to the
+input and with images the input is going
+to be pixels. So you can imagine that
+for very high resolution images this
+processing by the transformer network
+becomes intractable and so we need to
+find different ways to handle such
+complexity.
+So how do we solve this? Well, we can
+modify the transformer attention
+operation to ensure it is linear with
+respect to input size instead of
+quadratic. And this is what the swin
+transformer actually does. So it can be
+used with images.
+Now a second issue that we see with
+transformers when operating directly on
+images is that objects of varying sizes
+are difficult to capture. So for
+example, if we have this image, you
+know, we have some large objects over
+here and then you have some very small
+objects over here. Now if you pass it
+into let's just say a transformer
+architecture as is, it's going to
+produce a single tensor. But analyzing a
+single tensor can underperform in
+detection of objects of different sizes.
+So how do you solve this? Well, we can
+modify the transformer architecture to
+ensure it outputs a hierarchy of tensors
+of different resolutions. And the swin
+transformer actually does this too. So
+overall to summarize the swin
+transformer will scale well with high
+resolution images since the attention
+operation is computed in of time where n
+is the size of the image and it can
+effectively detect objects of different
+sizes in an image as tensors of
+different sizes can be produced. So I
+hope that's clear.
+Now the swin transformer the idea
+overall is that it can be used as the
+backbone in let's say like faster RCNN.
+So we would take an image, pass it
+through a backbone and then have it
+processed over here to generate this
+output. And instead of the convolution
+network backbone, we can replace it with
+the swin transformer. And even more
+specifically, we can take advantage of
+the hierarchy of tensors in order to
+produce, you know, multiple tensors of
+different resolutions depending on the
+size of objects that we want to detect.
+And we can do this with techniques like
+FPN or feature pyramid networks. And
+I've discussed this architecture in a
+previous video, but it's also in the
+appendex of this slide deck, which I
+will share. You can just look in the
+description below. So now that we've
+looked at the what and the wise of the
+swin transformer, let's actually now
+look at the how. So here is the
+architecture for which we pre-train on
+image classification. So this is our
+swin transformer architecture. overall
+you pass in an image and you want to
+generate like the what this image
+entirely represents. So that's the image
+recognition problem and in doing so you
+can see that's processed you know
+there's a bunch of stages in which it is
+processed and this architecture allows
+us to create a hierarchy of tensors
+and on top of that each of these swin
+transformer blocks over here is going to
+be an efficient selfattension
+architecture that is linear time
+complexity with respect to the input
+size. So this way it can kind of handle
+the problems of processing images which
+we discussed previously. Now let's dive
+one layer deep into this swin
+transformer block over here. So the swin
+transformer block is essentially going
+to look like this. This almost looks
+exactly like the architecture that we
+saw in the attention is all you need
+paper. But the main difference is just
+these two blocks. Instead of the
+multi-headed self attention here, we
+have windowed multi-headed self
+attention. And then instead of you know
+[snorts] like the mass attention over
+here, we have the you know shifted
+window multi-headed self attention and
+these two architectures are going to be
+linear with respect to input token size.
+So this is kind of the second level
+zoom. Now let's look at this
+architecture but completely blow it up
+so that we can see exactly how this is
+done in linear time and that looks like
+this entire architecture. So let's zoom
+in. So what we do first is we take an
+image of you know HW3
+we will break it down into four across
+four patches. So what that means is you
+know four pixels we're just going to
+take each case of like four pixels over
+here and each pixel is represented by
+three numbers. So we'll just concatenate
+them. So that's 4 * 4 * 3 which is 48.
+And that's how you get the depth of 48
+here. And in the height and width would
+decrease by four to get this tensor. So
+it's effectively like a reshape. Next we
+perform patch embedding which is going
+to transform this 48 into some dimension
+C. We then enter the swin transformer
+block and this is going to first flatten
+the entire tensor the first two uh
+dimensions into h * w by 16.
+We will now perform windowed
+multi-headed self attention. Now before
+I get into this behemoth over here, the
+main idea of this is basically to take
+our tensor image. We are going to then
+divide it into M crossM windows and
+within each of those windows we want to
+perform selfattention.
+So that's what this multi-headed self
+attention windowed multi-headed self
+attention is effectively doing. So let's
+look at it now. So we perform some layer
+normalization followed by you know a
+reshaping in order to to just get you
+know the height the width and then some
+C dimensions. We'll partition this into
+M cross M windows. So we'll add you know
+M* M 2 dimension over here and that's
+just an effective reshaping.
+We'll also now reshape this to flatten
+the first two layers. So you can imagine
+the first two layers this now becomes
+the number of windows and this second
+term is going to be the number of tokens
+per window and C is just the depth.
+Now from here this I I will say that it
+is easier if you have some idea of how
+the original attention is all you need
+paper transformer works because this
+calculation is exactly as it was there
+as well. I have an entire playlist going
+through exactly how you can walk through
+this by hand along with some code. So I
+will link to that in the description
+below. But at a high level, we can still
+go through it and hopefully you can
+still understand what's going on. So we
+now take this tensor, we're going to
+transform it into query key and value
+tensors. All of them, each of them is
+going to be of this size. So when you
+concatenate it across this last
+dimension, you'll get 3C.
+Next, we're going to now perform
+multi-headed attention. So, this is
+going to be eight attention heads. And
+that's why you'll see like all of these
+tensors are divided by eight over here.
+Now, from this, we're going to extract
+the query and the key. And we'll perform
+the core attention operation. Now,
+remember this operation was quadratic
+with respect to the input in the
+original transformer. But here you can
+kind of see that we have an M square by
+you know M square cross C by 8 and this
+is a C by 8 cross M square when you
+multiply and apply them together it will
+be an M square by M² tensor and this
+will be for every single window over
+here. Now this operation you can see is
+only proportional to the product of H *
+W. H* W if you recall is going to be the
+number of pixels in our original image.
+And so you can see here that the
+operation is linear right here with
+respect to the input size H cross W. And
+this is the major win that we're seeing
+here.
+Next we're going to perform a softmax
+operation. And at this point there's
+going to be like a relative uh position
+encoding that's going to be added over
+here.
+We'll then get an attention matrix and
+use this to use the value tensor to
+compute you know the set of final value
+tensors over here. We're going to
+concatenate all of these eight attention
+head results from C by 8. This now
+becomes C.
+We will now at this point here we're
+just going to perform the reverse
+operation of what we did in the
+beginning which was you know reshaping.
+Let's go actually over here so we can
+see. So in the beginning over here we
+did a reshape followed by partitioning
+into M crossN windows followed by a
+flattening operation reshape. So we'll
+do the exact opposite of that. So we'll
+have now a you know instead of a
+flattening operation reshape we have an
+expanding operation reshape over here.
+We then merge our M crossm windows here.
+And then we're going to reshape to
+further you know flatten the first two
+dimensions. And so we end up with an HW
+by 16 cross C dimensional tensor. And
+that's the end of windowed multi-headed
+self attention. We partitioned the
+entire image tensor into M crossm
+windows and performed self attention
+within each window. That's all we did
+here.
+Next, it's the same as you know your
+original transformer architecture where
+we add like a residual connection
+perform layer normalization you know add
+like a feed forward layer over here
+again a residual connection in order to
+get the same shape tensor HW by 16
+cross.
+So now we take this tensor and we'll
+plug it into the second block over here.
+So that's the same tensor here. And now
+we will enter this new block where you
+know before we have a windowed
+multi-head self attention now we have a
+shifted window multi-head self
+attention. So what is the point of this
+now? Well in the original windowed multi
+head self attention if we only ensured
+that tensors are attended with with
+respect to each other if they are in the
+same mrossm window. But there might be
+pixels that are actually neighboring
+each other but we don't perform any
+attention you know nearby because they
+didn't lie in the same window. So in
+order to make sure that we are attending
+to other nearby pixels as well to
+capture uh that contextual information
+we are going to effectively shift the
+image. We're going to like perform some
+shifting. We're going to compute the
+windowed multi-headed self attention and
+then we will shift back and that's the
+only differences. So I'm going to
+highlight some key differences so that
+we can see exactly how that's done here.
+So before we know we did the reshape
+then partition right between the
+reshaping and partition we are going to
+do a cycle shift. So it's reshape cycle
+shift partition. So cycle shift is
+basically going to take all of our, you
+know, our pixels and it's going to shift
+it by s pixels to the left and then s
+pixels to the top. Right? And s is by
+the way going to be like the floor of um
+m over2 which was the m crossm windows
+we talked about
+now that's like one difference and then
+from here we'll do the partitioning and
+perform the exact same operations as we
+did before up here. Right? So we do the
+exact same operations until we hit this
+point over here. We perform Q * K
+transpose. And before doing the softmax,
+we're going to add in a mask. So what
+this is going to do is this is the
+second difference. So let me go back
+here. Where is this arrow coming from?
+It's coming from right over here. So we
+need to construct this mask. And now the
+point here is that when you perform the
+shift, right, you shift all the pixels,
+you know, to the top left. There are
+pixels though that were, you know, in
+the top over here, but because of the
+shift, they're going to be wrapped
+around and end up at the bottom. And so
+you might end up in a situation with
+this tensor where you have neighboring
+pixels in this tensor, but they were
+actually not neighboring pixels in the
+original image because of the
+wraparound. And so to account for this,
+we don't want to do we don't want to
+calculate the attention of those two
+pixels. They were not neighbors to each
+other. So we're not going to calculate
+um attention. And so we want to mask the
+attention for those computations. And so
+what we do is we first construct a mask.
+All right? And this is basically going
+to be it's going to be a binary tensor
+essentially that's going to be split up
+into nine regions. It splits up this
+original tensor into nine regions where
+the first region is going to be in a
+width s. The second region is like a
+width m and this entire thing is just
+the rest that's left. So you know from
+the other dimension like this is S, this
+is M and then this is like the rest. And
+the idea is just to make sure that like
+when you're doing the wrap around, we're
+only going to ensure that attention is
+performed you know is valid only if the
+pixels lie within the same regions. So
+everything within this region can be
+attended against each other and it's
+fine whe regardless of how the window
+partitioning happens. everything within
+this region over here is attended within
+only each other here regardless of how
+the window partitioning happens. Right?
+So that's kind of the idea where we're
+constructing now this mask
+and once we construct this mask we will
+add it to this query key transpose
+tensor perform softmax in order to get
+the attention values and then we're
+going to get the value tensors and do
+the exact same operations. So now once
+we concatenate all the attention heads
+over here, we're going to do it like we
+did before. Remember when we did a
+reshape followed by merge followed by
+reshape. Now we have to do the opposite
+what we did which was let's go back in
+the beginning just to see what we did.
+We did a reshape cycle shift partition
+reshape. So what we now need to do is
+the exact opposite of this, right? We
+need to do a reshape merge cycle shift
+in the reverse direction and reshape.
+And that's exactly what we see here.
+Reshape, merge windows, cycle shift in
+the opposite direction, and reshape. All
+this to just undo what we did
+previously. [snorts]
+And then we do the exact same operations
+like we do. We have layer normalization
+uh multi-layer perceptron passing it
+through like a a hidden layer
+effectively like a feed forward layer in
+order to get our final tensor of H W by
+16 cross C.
+And so I hope all of this the what the
+why the how now makes more sense.
+Now what's important to note is that
+what we just discussed is the
+architecture of just one instance of
+this swin transformer block. We did just
+one instance but you can see here in
+stage one there's like two instances
+here. There's two instances over here.
+There's six instances over here and
+there's two instances over here. And so
+you can imagine this is a very deep
+architecture
+and even then in between stages we
+perform patch merging. So you take this
+stage one right we have two swin
+transformer blocks we'll get the HWX 16
+cross C like we discussed previously.
+Now after that we were going to reshape
+this to get the first two dimensions and
+perform patch merging. So effectively
+what we're going to do is we're going to
+take two cross two local neighbors.
+That's two cross two 2 cross two 2 + two
+something like that right and we want to
+merge these together. And that's why you
+have like a half resolution when the
+width half in the height and then we
+also expand the channel depth. And so we
+get this final tensor here. And now we
+can pass this into the next stage of the
+transformers. Right? And this is how we
+can develop the hierarchy of
+transformers that we see over here. So
+effectively you're going to take an
+input image after all the swin
+transformer transformations. You're
+going to you know in between each stage
+you're going to end up with like a few
+tensors that kind of look like this
+right hx4 wx4 C and this will have 2 C
+and this will have 4 C and this will
+have 8 C, right? Just different depths
+and different richness of
+transformations.
+What we can do now is use feature
+pyramid networks in order to ensure this
+last you know like instead of you know
+having different you know dimensions
+here we want to be able to use this
+seamlessly in downstream architectures.
+So we'll ensure they have the same
+channel depth of like 8 C. And after all
+those transformations, you can now use
+this here in object detection to detect
+objects of varying scale more
+efficiently. And so we can use a swing
+transformer plus FPN as a backbone to
+take an image and process this into
+multiple tensors of varying resolutions
+with the same channel depth. And this
+can be used to just detect objects of
+varying sizes.
+So now let's take a look at like
+performance over here. So each of these
+is the original method for performing
+object detection well using like the
+Coco data set and imageet data and we
+can you know compare using different
+backbones. One is like the ResNet
+backbone and another one is using the
+swin transformer backbone and you can
+see if this is like performance larger
+the value better the performance. So you
+can see that swin transformer is more
+performant almost across the board with
+this kind of specific data set and
+setup. But we can also see that it's
+slightly slower for inference too.
+Something to to note. And so if we
+revisit our original definition, the
+swin transformer is a hierarchical
+vision transformer designed to replace
+the convolution network backbone in
+vision tasks like object detection and
+segmentation where object sizes may vary
+and it does so using the shifted window
+self attention. I hope this definition
+now makes a lot more sense than it did
+in the beginning of the video. Quiz
+time. Have you been paying attention?
+Let's quiz you to find out which of the
+following is true about swin
+transformers. A. A mask is required in
+shifted window multi-headed self
+attention to ensure pixels not near each
+other don't attend to each other.
+B. It is faster to infer than
+convolution networks.
+C. Windowed multi-headed self attention
+and shifted window multi-headed self
+attention performs attention within each
+window making it efficient for larger
+images or D. Cycle shift ensures pixels
+not in the same window can attend to
+each other. I'll give you a few seconds
+to answer this question and note that
+multiple options may be correct.
+The correct options are A, C, and D. Did
+you get them right? Please comment your
+reasonings down in the comments below
+and let's have a discussion. And at this
+point, if you think I deserve it, please
+do consider giving this video a like
+because it will help me out a lot. Now,
+that's going to do it for quiz time. But
+before we go, let's generate a summary.
+So we first walked through a definition
+of what the swin transformer is. We then
+built up some historical context and
+asked like why transformers can't be
+used as the backbone for processing
+input images into tensors. We then saw
+that there were two reasons for this.
+One was that self attention as a
+quadratic compute complexity with
+respect to the input size and the second
+is that objects of varying sizes are
+difficult to capture. However, the swin
+transformer can address both where the
+computation complexity can become linear
+with respect to the image size and it
+can effectively detect objects of
+different sizes and images by just by
+you know showing tensors of different
+sizes. We then saw exactly how this can
+be true in the actual architecture, how
+it can perform a hierarchy of tensors
+and how it can also make self attention
+more efficient. And we showed it with
+this architecture diagram.
+And so in like much larger object
+detection systems, we can take an image
+and process it with some swin
+transformer plus like a feature pyramid
+network in order to generate a hierarchy
+of tensors that can be used for image
+processing. And we also saw like how it
+can actually perform better than some of
+the convolution variants although it
+might be slower in inference. So I hope
+all of this makes sense. And that's all
+I have for today. All the resources will
+be down in the description below. So
+please do check them out. And if you
+think I deserve it, once again, please
+do consider giving this video a like
+because it will help me out a lot.
+That's all we got today and I will see
+you in the next one. Bye-bye.

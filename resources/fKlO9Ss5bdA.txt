@@ -1,0 +1,533 @@
+[Music]
+next we come to the important issue of
+time in knowledge graphs in other words
+temporal knowledge
+graphs Everything
+Changes Honolulu is a city of USA But
+even this is not an eternal
+truth it couldn't have happened before
+the USA came into existence for
+example Barack Obama was born in
+Honolulu at a certain point of time
+Barack Obama was President of USA
+through a particular time range during a
+disjoint other time range George W Bush
+was president of the USA and Barack
+Obama has been spouse of Michelle Obama
+since
+1992 as with many other things in the
+universe all of this pass Everything
+Changes change is the only constant so
+far the representations of knowledge
+graphs that we have discussed have no
+notion of time it's as if every fact
+holds throughout
+eternity in this part of this module we
+are going to discuss various ways in
+which temporal information can be
+incorporated in Knowledge Graph
+representations and
+inference here are the tasks which we
+might want to solve if we are are given
+temporal knowledge graphs for Simplicity
+we will limit our representation of time
+to either a single point of time a
+single interval of which a point is a
+degenerate case or recurrent instance
+through time that's an important type of
+thing for example an Olympic game
+happens every four years etc etc so a
+temporal tle or a temporal fact has
+subject Rel and object as before but it
+also has a time interval given by a
+beginning and an end if the beginning
+and end are exactly the same time then
+it's like an instant at what granularity
+are we going to measure time
+milliseconds or Millennia that depends
+on the application milliseconds may be
+more appropriate for Olympic swimming
+records whereas Millennia may be more
+appropriate for the rise and fall of
+civilizations for example Barack Obama
+was President of us starting in 2009 and
+finishing in
+2017 there are various link prediction
+tasks for example just like
+in standard Knowledge Graph completion I
+could leave the subject unknown or the
+object unknown in each of these cases I
+may provide positive and negative
+examples
+for example if I say Barack Obama
+president of between 2009 and
+2017 but I mask of the USA or I provide
+USA as the fact that's a positive fact
+whereas if I provide India in place of
+the object in that same time interval or
+for any time interval that would be a
+negative example similarly uh we could
+in fact keep the times the same but one
+of them has the correct precedent the
+other has an incorrect precedent so now
+link prediction gets much more
+complicated because we are providing the
+temporal information as
+well there's also now the new time
+prediction task where I might give the
+subject relation and object all three of
+them are given but I don't know during
+what time this relationship holds I
+could say Barack Obama president of USA
+and I could ask
+for the interv and 2009 to 2017 would be
+correct 2001 to 2009 would be wrong so
+these are now the new added kinds of
+tasks in case of temporal knowledge
+graphs how do we extend Knowledge Graph
+completion to temporal Knowledge Graph
+completion recall that earlier subject
+relation and object or their
+representations were inputs to my
+scoring function f and I got as output a
+belief in the fact now I also have start
+and end times as potential additional
+arguments remember that any of these
+five could be missing as inputs and then
+you have to maximize the belief with
+regard to choices of the missing input
+but how do these start and end times fit
+in how should F be redesigned or
+extended where should time start
+interfering with the workings of f
+should it modify the inputs the subject
+relation and object should those get
+time varying representations or should
+subject relation and objects have time
+independent representation and only f
+starts recognizing the start and end
+times these are very difficult questions
+and these are not merely of academic
+interest because even fairly
+sophisticated initial attempts at
+designing a temporal F had very serious
+shortcomings
+for example in the training fold we
+might have a triple or now a Quin triple
+which is shin era is married to CH poio
+these are all celebrities in
+Korea um from 1995 onwards that's
+already known in the train fold in the
+test fold there is a query Shin era was
+born in which
+year a recent temporal Knowledge Graph
+completion method responds
+with 2013 so this celebrity was born in
+2013 but got married in
+1995 that's a bit anti-causal which
+happens in movies but it's a real
+difficult to accept in real
+life a very early attempt to mitigate
+these kinds of nonsense outputs or
+inferences was he te hey as the name
+suggest
+used hyperplanes to model time so every
+instant of time was modeled using a
+hyperplane as is shown in this
+diagram entity and relation embeddings
+would be projected to the time
+hyperplane now here in this slide alone
+because I'm reusing diagrams from the
+paper the subject is also called The
+Head and the object is also called the
+tail the time is represented by a unit
+Vector ET so to is the
+time
+right
+and ET is the representation of the tail
+entity eh is the representation of the
+head entity all at this time and
+similarly the relation has a
+representation for the given time to
+pictorially consider to 2 as a
+time here is my head entity it gets
+projected down to the Head entity's
+representation at the time tow 2
+similarly the tail gets projected to the
+Tail's representation at time two and on
+this hyperplane the pink hyperplane I
+expect trans e to take effect recall
+that in trans e the head or subject plus
+the relation should approximate the tail
+or the
+object but now that happens not in space
+in general but only on the plane of the
+time point that I'm
+interested at a different time point to
+one these relations might be very
+different or different relation May hold
+between the head and the tail okay now
+this is all very nice but transi was a
+very weak model if you might remember
+that it couldn't support many too many
+relationships and so we prefer a
+stronger Baseline so let's now jump over
+to something like complex and see how
+such things can be enhanced with
+time recall that in complex the scoring
+function was the real
+part of the three-way inner product
+between the subject the relation and the
+conjugate of the object
+Vector this is represented by this upper
+diagram which says that there is all to
+all relationship between the three of
+them there is a three-way inner
+product and that's represented by this
+triangle on the right now that we have
+time like heighty but generalizing it we
+are going to embed time to another
+complex Vector in the same dimensional
+Place C to the
+D how can we design a score which now
+takes complex vectors boldest bold R
+bold o and bold T and puts them together
+T complex takes the very first step it
+says let me just do whatever was done
+earlier but I'm going to extend it to a
+fourway DOT
+product which also takes in times
+complex Vector as a fourth
+argument as as a simple homework you can
+show that this four-way do product is
+actually equivalent to any of these
+three forms in
+one time interacts with only the subject
+as a elementwise
+multiplication in the other time
+interacts only with relation or time
+interacts only with object conjugate and
+this is shown in the lower picture where
+we show that the triangle between Sr and
+O star is made more faint but we now
+have time possibly interacting with any
+one of them so
+any one and that's what T complex
+does in words time modulates exactly one
+of subject relation or
+object however this gives the impression
+that all relations are subject to
+temporal changes and that might not be
+the case some relations could indeed be
+time less or time
+independent TNT complex implements this
+extension it mixes the two parts so
+either it does what T complex was
+doing where we are sensitive to the time
+and in the second part we do standard
+complex where there is no participation
+of
+time RT is a representation of the Rel
+in a time sensitive Manner and R is a
+Time independent representation of the
+same
+relationship again one can show as a
+simple exercise that this formula is
+equivalent to that formula where we
+first
+take
+s we combine RT with t using an
+elementwise product but we add on the
+Timeless or internal aspect of R and
+then we take a
+three-way inner product or dot product
+like we used to do before so T acts in a
+very minimal way on only the r part not
+the s or The O Part training reveals
+what kind of relation R is if R is
+strongly time varying then RT will turn
+out to be the informative part of R's
+representation and R will dwindle to
+nothing or a very low noisy Norm vector
+whereas if R is actually Timeless then R
+will carry the brunt of the
+representation burden whereas RT will
+become either meaningless or low Norm
+TNT complex is generally better than
+high te and this is not surprising
+because highte depends on trans e as a
+Basel line whereas TNT complex depends
+on complex which is much better than
+trans
+e however we can go further than this
+and improve time sensitivity of complex
+even more
+earlier you could think of
+r as a relation with judges whether s
+and O can be related by it independent
+of
+time if you have taken a course on
+graphical models you might recognize the
+style of this diagram you might call
+this blue square a
+factor and these are variables in this
+case of course they are variable
+vectors so this factor is represented as
+can s
+participate with o involving relation R
+and so this Factor gives you the earlier
+score as per
+complex but now we add on many more
+factors can s participate in a relation
+r at time T at all if irrespective of
+O can anyone be president of any
+organization at age 10
+unlikely so who judges that this second
+Factor so rst a second representation of
+the relation after
+RSO judges if s can participate in that
+relation at time T independent of O
+there is no connection to O here
+similarly can o participate in a
+relation r at time T and that's judged
+by a representation R
+OT can anyone have any relationship to
+the company Google in 1980 where it was
+not even born no that is what this
+Factor
+judges
+finally can s and O interact via any
+relation at time
+T that is this last Factor
+for example could Mozart and Elvis
+Presley interact in
+2005 no because both of them are dead by
+that
+time so that's the four factors and
+these four come together to make a
+judgment of the confidence in the
+overall
+fact we reuse these three Factor scoring
+functions from complex so each of them
+looks very similar to complex except so
+all of these have the real
+Parts but these are weighted by these
+hyper parameters the weight hyper
+parameters and these have to be balanced
+through cause
+validation this model is already better
+than both T complex and TNT complex but
+there are actually two more signals
+still to exploit first it's often said
+that history may not repeat but it
+Rhymes if you look at all the years in
+which Winter Olympics are held they all
+differ by four
+years and this should give us enormous
+confidence that no win Olympics was held
+in say
+2015 I don't need to know anything else
+about the
+world but there are softer versions of
+this from births to getting
+married Obama spent 31 years from birth
+to his first marriage Einstein spent 24
+years
+from starting higher education to
+getting their highest distinction in
+life Barack Obama took 20 years and
+Einstein took 28 years given the nature
+of human life or even the nature of
+organizations of events there are strong
+regularities between gaps like
+these periodic events have almost exact
+gaps but others may be subject to
+personto person or organization to
+organization variations but there are
+strong regularities in this and we
+should be able to use that to avoid
+those kinds of blunders that people are
+married before they are
+born so what kind of temporal
+constraints are we talking about there
+could be recurrence as we mentioned
+Olympic Games elections league matches
+championships or nonrecurrence a person
+is born and dies only once there are of
+course important fic ious exceptions to
+this and then there are orderings
+between relations you have to be born
+before you marry or die and then there
+are distributions over time gaps between
+the relations some person do died in
+minus the person was born in is
+typically 70 years but this depends on
+which
+country which century of human
+civilization Etc so there is variability
+and our model should be robust to
+that I won't describe the model in
+detail but I'll give the gist and the
+intuition behind it suppose we collect
+two tables one table pertains to the
+born in relationship the other is the
+from the graduated from relationship so
+we know that Joe Biden was born in USA
+in
+1942 uh apj Abdul Kalam was born in
+India in
+1931 meanwhile from the graduated from
+table we see that Joe Biden graduated
+from the University of Delaware in
+1965 whereas Abdul Kalam graduated from
+the University of Madras in
+1954 now we construct a table of the
+differences between these years so for
+Joe Biden we compute
+1942 minus 1965 and we get minus
+23 for Abdul Kalam we get 1931 minus
+1954 also minus 23 and we model this for
+Simplicity you can do much better I'm sh
+here but as a first exercise using a
+normal distribution if we do this for
+real tables we might get a um mean of
+minus 22 and some standard deviation
+around it so this is a distribution of
+the number of years that elapse from
+birth to college graduation of the
+people in my knowledge graph and I can
+do this in principle for pretty much all
+pairs of temporal tables in my knowledge
+graph
+given this kind of data set and given
+this kind of distribution if I'm asked
+How likely is it that Obama was born in
+1961 suppose I want to give a likelihood
+for this
+well a human would say tell me something
+more about Barack Obama and Times of
+those events when did he graduate from
+college when did he become president now
+I'm going to use my distributional
+knowledge from other people to decide
+How likely it is that the gap between a
+proposed birth year and known graduation
+from and precedent years fits my
+pre-trained distributions those normal
+variables normal distributions and I can
+put them together through some suitable
+Network and come up with a confidence
+that Barak Obama was indeed born in 19
+61 you can find the details in the
+papers similarly we can also model
+recurrence in case of recurrence we know
+that there is this significant blip in
+likelihood almost like a ECG trace and
+now we can judge if a proposal is made
+that an election was held in the US in
+2016 well am I getting blips at 2020 am
+I getting a blip at 2008 if so 2016
+becomes more likely because they're
+multiples of four years we can model all
+of this and combine these three kinds of
+signals we can have the time Plex
+Baseline remember our molecule like
+diagram and then we can have
+plausibility from the recurrence model
+of a single relation and we can have
+plausibility from relation pairs R and
+RP Prime all over the knowledge graph
+various pruning heris sticks would be
+required to keep our complexity in check
+overall we can train it from gold
+positive and negative facts and those
+can back propop into all the three
+branches and train our older models as
+well as the mean and standard deviation
+of our temporal
+distributions and this really works
+magic uh even the templex base which is
+the molecule type diagram does better
+than TNT complex and complex of course
+but the full model with these temporal
+constraints works out far better than
+things we have seen before
+the evaluation measure now becomes
+non-trivial and has to be designed
+carefully I won't have time to get into
+that also in case of time interval
+prediction performance has to be
+measured much more carefully than just
+mrr Mr is now a bit more meaningless
+because the system output and the gold
+output in case of time are intervals in
+general so what is the intersection
+between the system interval and the gold
+interval we might be tempted to deal
+with it similar to our box or rectangle
+embeddings but that actually doesn't
+work because again here we would like to
+penalize as the Gap increases the score
+of performance of the system and there's
+a new measure called
+aeiou or area enhanced intersection over
+Union that you can find out in the paper
+but the more interesting experiments are
+like
+this suppose we fix a year and find its
+embedding complex embedding and we
+compared its embeddings to other years
+but remember these years have numeric
+years attached to it maybe this is 1960
+and that is 1980 which is 20 years off
+and here is 2000 which is 40 years off
+what happens as the Gap in
+years increases with regard to
+the vector distance between these right
+say L2 distance between these vectors as
+we can see here quite remarkably
+although no explicit attempt was made to
+actually Foster this kind of behavior as
+the Gap in ears increases the L2
+distance between the vectors also
+increases and this is quite
+remarkable next we come to what use all
+this is
+if we now
+ask in the
+training knowledge base there is already
+a labeled triple or quantile saying Shin
+is married to Chio from 1995 onwards and
+now in the test fold we ask what was the
+birth year of shin era in South Korea
+but I'm looking for the birth year if
+you look at standard um TNT complex
+despite trying to model time explicitly
+its distribution is very
+flat whereas because of our much more
+detailed modeling of how time goes into
+the complex Knowledge Graph model we see
+a clear peak of likelihood where Shin ER
+might have been born and in fact our
+prediction will be uh much uh
+earlier approximately 1965 or 1967
+whose aiio scod is much better than TNT
+complex's absurd prediction of being
+born after uh getting
+mared so the summary so far is that
+there has been a favish pace of recent
+work on temporal knowledge graphs here
+we just scratch the
+surface no matter how much training data
+we throw at a genetic Network like
+complex for scoring f it seems unlikely
+that Common Sense knowledge about
+durations time gaps recurrences and
+other temporal constraints will surface
+automatically in deep models without a
+Little Help from outside and I have
+given a vignette of a few models which
+try to incorporate time representations
+in a much more delicate way in the
+earlier Champion Knowledge Graph
+completion models such as complex

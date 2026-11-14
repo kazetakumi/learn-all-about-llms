@@ -1,0 +1,1608 @@
+[Music]
+hello everyone welcome to the course on
+large language models so in today's
+lecture we are going to talk about um
+neural networks Basics
+so uh you know as usual this is not
+possible to cover neural network deep
+learning in a single lecture so the aim
+of this part is essentially to give you
+a very very brief overview of nle
+networks how uh this networks operate
+and what are the ingredients of this uh
+networks right because at the end of the
+day large language models are also uh
+neural networks deep learning methods so
+so I thought you know I should also give
+you some ideas about neural networks
+although there are um you know many
+open-source uh lectures available on
+YouTube there are many good lectures
+available on on nput also on deep deep
+learning neural networks you can refer
+to those lectures but here I'll just
+give you a very brief of the neural
+network in
+general okay so when we talk about
+neural network um it basically goes back
+to long time back during World War I
+World War II uh you know 19 1940s
+1943's there was those were the time
+where people started thinking of how to
+mimic make human brain uh using
+computational approaches right so uh so
+if you look at the history of neural
+networks it goes back to 19 I think 1943
+1944 uh during that time when
+molok
+and
+pits so mikolo was a
+neuroscientist and P
+was a logician now interesting fact to
+note here is there's no computer
+scientist involved remember the time is
+1943 before Alan tuning's uh you know
+invention so uh at that time uh they
+thought of you know designing a very
+simple approach to mimic um you know the
+way neurons essentially
+interact okay and they came up with a
+simple method a simple model called mpet
+mops M and Pet's P MP Network
+mpet I'll discuss MP net later and then
+um
+in 1957
+1958 the years may not be CCT by the way
+this is just you know uh 1957 1958
+during that time uh Frank rosbert right
+um so he proposed the idea of the
+perceptron okay
+Frank R
+belt so he proposed the idea of the
+perceptron which is considered to be the
+first neural
+network a realistic neural network
+proposed some you know people often call
+Frank roselt as the father of neural
+network but there are
+debates and then uh uh later on uh
+around I think
+1965 19 uh 66 or 8 during that
+time U multile perceptron was proposed
+so this is this is single perceptron now
+multier
+perceptron we'll discuss all these
+models in today's lecture multier
+perceptron one propose so this was
+proposed
+and and Frank roselt uh you know so he
+said that so he speculated that the
+perceptron May eventually be able to
+learn to make decision and to translate
+language okay this was kind of a
+speculation at that time 1968 MLP was
+proposed it called MLP multier
+perceptron right and and later on in
+1960 I think
+1969
+Minsky and papered
+so Minsky some of you know Minsky is
+also called the father of computer
+science he was the founder of AI Lab at
+MIT Minsky and paper they identified a
+serious limitation of
+perceptron they showed that a very
+simple function called a zor function
+right a zor function um you know cannot
+be modeled uh using uh simple perceptron
+right and that was a huge setback
+because right after that you know kind
+of AI research got stalled for almost 20
+years okay and this time is called the
+AI winter time I think
+1969 to
+1986 um right during that time then you
+know after 19 86 I think around
+1986 uh the famous back propagation
+method was introduced and all of all of
+us know that back propagation is
+essentially the building block of all
+the training protocols that we use in in
+in in today's neural
+network and uh
+1989 I guess 1989 1990 during that time
+um it was shown
+that that
+uh uh you know this U multier perceptron
+right is kep capable of approximating
+approximating any kind of uh nonlinear
+boundaries that you can think of
+and that uh you know in that year uh
+they came up with an idea of universal
+approximation theorem
+Universal Universal approximation
+theorem
+uat was proposed and it was said that a
+multier perceptron with a single hidden
+layer can be can be used to approximate
+any continuous function right to uh to
+any deserved Precision right so it
+should so multi
+perceptron
+with uh a
+single hidden State a single hidden
+layer can approximate
+can
+approximate
+any um any continuous function and this
+was a big Claim by the way this was a
+big claim because
+now we can use MLP for any nonlinear
+classification that you can think of by
+the way I'm not going to details of this
+theorem as I mentioned this is basically
+introductory uh introductory part so if
+you're interested in understanding all
+the details of this uh you should uh you
+should basically go through a formal
+deep learning
+course nevertheless this is a very brief
+introduction of the history of neural
+network so when you talk about neural
+network right the term neural the term
+neural network is there therefore it has
+some connection with neuron
+right so you know that time 1960s 1970s
+1980s 1990s even 2000 early 2000 uh
+there had been a huge effort to
+essentially mimic the way human thinks
+right uh how neurons interact now you
+know in it it goes back to I think 1860s
+or 1870s where uh when people understood
+that human brain essentially Works uh
+through interactions of neurons right
+and neurons collect signals from the
+environment uh you know from other
+neurons and this neurons essentially
+past past signals do do some computation
+of course computation is a very big term
+but neurons basically do some operation
+and that operation is fed to the other
+neuron as a signal right so I think all
+of you are aware of biology the basic uh
+neuron structure right there are this U
+you know you can think of this neurons
+which look like this I'm very bad in
+terms of you know drawing things but you
+know you can think of these neurons
+right right so let's say this is one
+neuron and uh this is called uh uh axon
+right uh and and you have this then
+write and
+um um you
+know this is
+called
+synapsis right so um where two neurons
+through which two neurons essentially
+interact can think up another neuron
+here right sorry for the bad drawing but
+yeah and um and through basically
+through uh synapses you uh you collect
+signals from other neurons you pass it
+through axon
+and then uh you know you basically do
+some processing here this is the
+centralized part of the central part of
+neuron which is called um
+Soma right so so essentially the
+dendrite they receives
+signals
+from other
+neurons right uh signups is
+the the so these are the point of
+connection
+to other
+neurons point of
+introduction s is essentially
+responsible for
+processing the
+information and axon is responsible
+for
+for transmitting so it
+transmits the
+output of a
+neuron right to another
+neuron now in this way if you think of
+it in a very very high level right you
+have some neurons which are essentially
+collecting information right you have
+some centralized system which is the
+Soma in our case which processes this
+information and it pass this uh this
+basically it does some processing it
+outputs something that
+output moves to the next neuron right so
+you have some input PS X1 X2 uh dot dot
+dot
+xn uh it so in in here you do some
+processing right you can think of the
+processing uh as a
+function right uh which is parameterized
+which is basically which takes X1 X2 X
+xn as inputs and produces y as an output
+right so this is a very simple you know
+simple way of describing this complex uh
+neuron
+structure so now the impet right which
+was proposed that time as I mentioned
+earlier this because of P method so the
+impet was essentially uh designed to U
+mimic the simple system okay so for an
+impet uh what you have now this is
+mpet mol mol of pits
+Network you have inputs now this inputs
+are these inputs are binary okay
+these are these are basically either
+zero or one okay this is infinite the
+simple uh neuron uh structure that you
+can think of right
+and and then uh what it does it
+essentially um uh processes this here
+right I'll tell you what what do you
+mean by processing things and it outputs
+something called y this is also a binary
+variable Okay so
+what it essentially does it it basically
+takes the sum of all these inputs sum of
+all X size one to n any number of inputs
+in this case three inputs right so uh
+and let's say you have function here
+which is let's say G right you pass it
+through
+G right so if let's say uh if the sum is
+greater than equals to S threshold right
+you produce one
+otherwise
+zero okay a very simple
+structure and with
+this now this is a linear as you it's a
+linear function right now with this you
+can uh it's basically a St function
+right so with this you can think of
+modeling different types of operations
+right Boolean operations Boolean
+functions for
+example let's say uh let's say
+and okay we know that and uh this and
+operation X1 X2 is input y output 0 0 0
+0 1 0 uh 1 0 0 1 1 1 okay so how do we
+how do we uh use mpet to essentially um
+mimic and
+operation so if you want to mimic and
+operation what is going to be
+Theta think about it your input here
+there are two inputs right X1 X2 right
+and this is output y okay what is going
+to be my Theta so if both these inputs
+are zero it will produce zero if one of
+them is uh zero it will produce zero
+right if both of them are one it will
+produce one right so the threshold can
+be
+two right because 0 + 0 is 0 this is
+less than two it will produce 0 1 + 0 is
+1 less than two it will produce 0 0 + 1
+is 1 less than two it will produce 0 and
+1 + 1 is 2 this is this is equals to two
+it will produce
+one okay so to mimic and operation the
+function that that is going to be
+learned is essentially very simple X1 +
+X2 should be greater than equals to
+2 right so the line so line is X1 + X2
+equals to two and anything above this
+would be classified as one otherwise
+Z okay now if you think of uh the vector
+space right you have four points
+essentially is
+X1 X2 so uh let's say this is this is 1
+one right this is this is uh 1 0
+this is 0 0 this is 01 right so this is
+this should be for here y = to 1 y = 0 y
+= 0 y =
+0 okay and uh the line that you have
+drawn would look like
+this it will essentially touch this
+point X Plus X1 + X2 = 2
+now in this the same logic if you want
+to make let's say all which is 0 0 0 0 1
+uh 1 1 0 1 1 1 one what is going to be
+the Theta the Theta think about it okay
+very simple the Theta is going to be
+one right if any of them is one it
+basically uh attains the threshold Theta
+then it will produce the output one so
+in that case uh the line would look like
+so for for this one now this is this is
+one y = to 1 this point this is y = 1
+this point Y = 1 this point Y = to Z uh
+and the line is X1 + X2 = to 1 okay so
+it will basically would look like
+this so infinite is great when you have
+uh uh you know kind of Boolean inputs uh
+and bu an output right and data points
+are linearly separable okay now why I
+said that data points linearly separable
+think about it here so in both end and
+or we have seen that a linear boundary
+can separate data points right but think
+of a complicated function relatively
+complicated function let's say Z okay 0
+0 uh 0 0 1 1 1 1 1 1
+0 okay if you look at this diagram uh
+here y = to
+0 y = to 1 y = to 1 y = to zero so this
+case there are four data points you will
+not be able to classify these four data
+points with the with a linear
+boundary with the line right and this
+was the setback this was observed by uh
+uh you know Minsky and
+U uh puppet pet uh that time 1968 1969
+and they said that you know uh
+perceptron is useless because this is
+not able to classify a simple s MIM make
+a simple s operation okay uh later
+on uh you know this impet is is not very
+suitable right therefore the perceptron
+was proposed in uh in
+1957 right percepton is also not able to
+uh mimic
+zor right what is percepton how it is
+different from infinite let's look at it
+here
+now
+so so the
+perceptron not very different from
+infinite uh inputs
+here let's say X1 X2 X3 inputs are real
+numbers they may not be uh Boolean okay
+and now with every input there's a
+weight W1 W2
+W3 okay what does this weight uh
+indicate the weight indicates the
+preference right let's say let's say uh
+you are let's say the decision is
+whether you want to go uh to watch a
+movie or not right uh this is a decision
+that you need to take and what are the
+inputs the inputs are let's say the hero
+right uh the director uh the you know
+the duration of the movie and so on and
+so forth these are the inputs these are
+the features right now in case of mpet
+we have seen that all these inputs are
+equally likely right they are basically
+summed up right that means they their
+importance are equal now in this
+decision process often times what we
+have seen that some features are more
+important for example let say for me I'm
+a sarukhan fan right uh and let's say uh
+if I see that you know there's a movie
+where shuk Khan is a is a lead actor I
+will definitely go irrespective of the
+duration right the director and so on
+and so forth so for me the most
+important feature is who is the
+hero right because I have a die heart
+fan whereas let's say there are you know
+there are other uh uh other people who
+actually look at the other aspects the
+director right
+uh let's say the producer I don't know
+maybe maybe the also the cost of the
+ticket and so on and so forth for for
+them the other features are important so
+therefore you know uh considering all
+these features equally may not be a good
+approach we should also introduce
+weights and weights were introduced in
+perceptron therefore you know now your
+sum here the the in in the central part
+of the neuron right I will still call it
+a neuron remember this um today's deep
+Network for example all these LMS
+they are I mean if you call them neural
+network then people will essentially
+kill you okay so they are just nonlinear
+functions right generative AI all
+nonlinear functions that's all so there
+was a time you know 1960s 1970 during
+that time when people essentially tried
+a lot to mimic uh human brain but these
+days nobody cares about human brain
+right the task is essentially to to to
+to make this uh models more more complex
+more effective and so on and so doesn't
+matter whether they mimic you know human
+brain or
+not so here the sum is like this W1 X1 +
+W2 X2 + W3 X3 right along with this
+there's a bias term w0 we have seen all
+of you know right in machine learning we
+always use this bias term for many
+purposes right so we have this bias term
+w0 okay so now this sum will essentially
+be fed to uh some function G right we
+have seen this G function or G or F
+whatever right uh I think we use G here
+so uh this function will be fed to a
+g and the output of G will be given to
+to Y right in case of perceptron G was
+essentially a function which would look
+like this so G of G of
+X is minus one
+if x less than 0 it is 0 if x equal to 0
+it is + one if x is greater than zero
+right so this function is called Signum
+function this is called Signum function
+right so you take this input and process
+it right
+uh and if the input value is greater
+than zero it is it will produce one as
+an output right otherwise you know minus
+one or
+zero
+so later on when we again reformed this
+perceptron we observed that we don't
+need minus one 0 + one there are two
+levels which are enough so we modified
+this we said okay let us use this
+modified uh function which would look
+like this which will produce one or
+which will produce zero if x is less
+than Z otherwise one if x is greater
+than Z greater than equals to Z right so
+so we happy with two two levels one or
+zero because remember this uh these
+methods are proposed for classification
+mostly for binary
+classification okay
+so this is perceptron you have inputs
+weights to add those uh sum uh you
+basically sum them sum them up multiply
+by weights and sum them up and pass it
+through a Signum function and it will
+produce the output okay so if you do
+that let's
+see what happens with um and right this
+and
+so right so so what are the U what are
+the parameters that we need to learn
+here the parameters that we need to
+learn here in in in this case all these
+W's and w0 weights and
+bias okay so to learn to to mimic and
+right um
+there are two inputs x0 and X1 what
+about X1 and X2 right so this is W1 X1
+plus W2 X2 right plus w0 right you pass
+it through the signal
+G and how do we in case of and let's say
+if W1 is one W2 is also one right w0 is
+-
+1.5 Okay so it will essentially be
+nothing about it so the so this will
+look like X1 + X2 minus
+1.5 this is my classifier right the the
+line if X1 and X2 are zero both of them
+are zero then this is going to be minus
+1.5 which will be this which will
+satisfy this so the output will be zero
+if one of them is one then this will be
+minus .5 right this will again be zero
+if both of them
+are if both of them are one then this
+will be plus5 and this will be
+one okay so it is able to mimic
+and right similarly you will see uh to
+mimic or
+W1 uh should be one W2 should be one and
+this bias term
+w0 will be
+0.5 and you will see that it will
+essentially with this parameters you'll
+be able to uh mimic
+or so whatever uh functions that infinet
+can mimic perceptron can also M right
+here the advantages that we have weights
+you can give advantages to you know more
+emphasiz more emphasis to certain
+weights certain functions certain inputs
+and less emphasiz to uh certain
+features but the problem Remains the
+Same the zor right it is not able to U
+it is not able to classify zor because
+remember there is no nonlinearity here
+these are all lines right the 2D plane
+line if you see 3D plane a plane right
+3D coordinat a plane there is no
+nonlinearity the the this G right is
+still a
+function so how to address this zor
+function right so then you know mikolov
+and
+other scientists they came up with the
+concept of activation
+function right I intentionally have not
+used the term Activation so far right
+although you know all these G's right
+all the G's used in perceptron impet
+they are all activation functions but
+but I have not used them so far
+intentionally because when we talk about
+activation we mostly talk about we
+mostly refer to nonlinear
+activation okay the activation function
+or it is also called
+transfer transfer
+function all right
+so and this activation transfer function
+is mostly used in multier
+perception so so far we have talked
+about basic
+perceptron now we are talking about
+multier perceptron MLP MLP is used in
+transform
+everywhere in MLP what is the speciality
+here now here you
+have a concept of layers okay input
+layer hidden
+layers
+right and output layer okay
+X1 X2 X3 for example there are three
+inputs right all of them are
+connected so this is also called feed
+forward
+Network all of them are connected to
+each
+other
+right all of them are connected to each
+other
+it's a mess
+right
+so
+yeah okay
+now so this is input
+layer input layer this is the first
+hidden layer first
+hidden
+layer this is second hidden
+layer okay and this is output layer
+now if you notice my
+drawing I have intention intentionally
+made
+um two different hidden layers with
+different number of neurons in the first
+layer there are five neurons 1 2 3 4
+five second layer there are four neurons
+okay now each of these neurons itself is
+a perceptron isn't it uh if you look at
+this
+one inputs are coming here
+right and it will generate some output
+output this output is fed to all the
+other neurons in the next layer okay
+and with every connection there are
+weights these are weights right and here
+notations are very important by the way
+so you can use any convention but here
+in this lecture we will use a specific
+convention let's say
+uh input one is connected to input uh
+neuron 2 right so the weight will be
+w21 right so if x i is connected to a
+neuron whose index is J the weight is
+going to be
+wji this is the convention that I
+for uh right and and and there are
+different
+layers since
+input is in this layer and hidden state
+is in this layer so the weight will be
+for layer one so the superscript
+indicates the
+layer right for example let's say uh uh
+let's say this specific uh weight right
+now this is connecting
+I neuron
+in uh in in in in this layer right first
+layer to J neuron in second layer the
+weight is going to be W
+GI
+2 right so this one will be W gii 2 and
+this one is w
+ji
+1 okay so we assume that there are in
+number
+of again notations are very important so
+pay attention to the notation there are
+in number of inputs X1 X2 dot dot dot
+xn there are K number of
+outputs y1 Y2 dot dot dot y k capital K
+and there
+are let's say m number of neurons um a
+number
+of
+neurons in a hidden State and let us
+assume just to make things simple let us
+assume that there are layers and every
+layer the there are there are equal
+number of neurons the same number of
+neurons okay
+so the number of s in a neural network
+is called
+the uh
+depth of the neural network and number
+of neurons in every layer is called the
+width of the neural network and these
+are hyper parameters that you need to
+fix to start
+with
+okay now we see that how this uh MLP uh
+can he make uh the zor operation
+okay two
+inputs
+X2
+right uh let's say there are two neurons
+in a hidden state
+right okay and one output
+y Okay so now how to calculate the
+weights and biases right we'll discuss
+later when we talk about back
+propagation but let us assume that the
+weights are as follows this is one this
+is also one this also one also one okay
+and biases here is minus
+1.5 this is also Min -
+0.5 and this is one weight this is one
+weight and with this neural network this
+is with this perceptron the bias is
+minus
+0.5 okay now this is the
+structure right now this structure is
+enough to mimic the zor operation okay
+let me redraw again so
+X1
+H2
+H1
+H2 Y is one this also one this is one
+this is one right the bias here Min -
+1.5 there's a bias here -
+0.5 one is bias minus
+0.5 so think about it X1 X2
+right and U here also we use the uh the
+modified Signum function as an
+activation
+[Music]
+01 okay what is
+H1 here so
+H1 is the Signum function modified
+Signum
+function 0 *
+1+ 0 * 1 the weights these are weights
+this one and this one right minus
+0.5 okay
+okay and the output so this so this is
+minus 0.5 so the output will be zero
+similarly here you will see the output
+will be one this is one this is one this
+is the output of H1 so H1 essentially
+acts as a
+or
+H2 H2 is what H2 is
+Signum
+right um
+0+ okay you will see is it
+0 0 0
+1 this will act as an
+end
+okay output
+here
+y and is again
+Sigma is
+GN uh there's a small mistake here this
+would be minus one okay the weight here
+is one this this weight is minus one
+don't worry about you know how we came
+up with this weight let us assume that
+the weights are known to us later we'll
+see how we came up with this we okay so
+this is essentially H1 minus
+H2 minus 0.5
+right minus one
+okay and if you do the calculation you
+will see that this will produce zero
+this is one this
+is this is
+one
+and so this is zero this is one this is
+one this is
+zero okay so now with multier perceptron
+we'll be able to mimic this zor which is
+the Beast right the zor function so far
+we have discussed um basic architecture
+of perceptron multi perceptron now let's
+focus on activation functions which is
+uh activation function is essentially
+the the core part of neural network okay
+so but before that let us look at the
+architecture once again multile
+perceptron let's say there are two
+layers two hidden
+layers so sometimes we uh
+don't consider the input layer and the
+output layer as hidden as layers so when
+when you say three layers we basically
+uh refer to three hidden layers
+okay
+so yeah right this these are inputs
+right I'm not drawing the I'm not
+drawing all the connections right we
+know all the connections are
+there um let's say uh there are in
+number of inputs as I mentioned
+X1 X2 dot dot dot
+xn
+right there are M number of
+neurons okay Al
+connected connected and there are key
+number of
+output okay and the uh the notation uh
+you know the convention that we followed
+is that let's say there a connection
+from I input to J neuron the weight
+corresponding weight will be W of
+ji layer
+one
+okay
+uh so at every neuron at every neuron
+there are essentially two operations
+that are happening that are going on one
+is this aggregation operation right it
+Aggregates all this inputs right
+aggregation is just a sum weighted sum
+and then we we have a an activation
+function right so aggregation operation
+dened by
+a okay so let's say at this neuron at
+the
+J
+neuron of the first
+layer the first layer
+so
+AJ one so AJ is the aggregation
+aggregation right for that
+neuron so this is sum
+over all the inputs I equal to one to n
+right
+wji
+1 x
+I pay attention to the notation again
+right and we have a
+bias
+g0 now this bias is fixed or for a
+certain neuron for this neuron for J
+neuron the bias is uh wj0 let's say for
+I neuron the Y is w i0 and so on and so
+forth so this is the aggregation so
+after the aggregation what happens after
+the aggregation it will essentially be
+passed through an activation function
+right so the activation function
+activation function is denoted by let's
+say h
+right so h a
+J1 is the output of the activation
+function and let us denote it let us
+denote it by zed z of
+J1 right so Z is the output of the
+activation function of the J neuron
+right so a is called preactivation
+output and j z is called post activation
+out or whatever activation output
+okay so now this activation function is
+very
+important so far in case of perceptron
+infinite this was just a you know linear
+function step function right uh we'll
+discuss about this activation functions
+um you know in today's
+lecture but before that let's so here
+all these Zeds will be computed here in
+layer layer one first layer and the
+second layer what will
+happen let's say second layer um there
+is a neuron which
+is let's say um the the
+jth
+neuron of the
+second
+layer for this neuron what is going to
+be a
+J2 this will be sum over
+right all M because there are
+M neurons which will basically produce
+outputs and all those outputs will be
+paid to the to the to the next layer
+right to every neuron of the next layer
+so M ranges from one to
+M
+right
+[Music]
+um w
+W uh
+JM
+to
+z
+m
+one
+okay plus the
+bias
+W
+[Music]
+um g0
+two please pay attention to the notation
+okay this is very very
+important uh try to memorize the
+notation if
+possible so this is the preactivation
+output for the J neuron of the second
+layer right let's say this is the guy
+right J
+neuron uh jth neuron
+okay The Zed the post activation the
+activation output
+will be
+H
+right now what is going to be so this is
+the second layer now the output
+layer let's say
+YK YK is what YK is going to be sum over
+again let's say there are M number of
+neurons in the second layer m equals to
+1 to M right um w
+km Z
+M2 plus
+W W uh K 0
+two right so this is the this is the
+output okay so if you understood the
+notation let's now move on to this
+activation function H right so the basic
+activation function that you can think
+of is the step function that we
+discussed right
+so so let's say linear activation
+function a linear activation
+function
+uh let's say GX = to
+X okay if we take the derivative of this
+activation function why do we need to
+take the derivative of the activation
+function later on when when we'll talk
+about back propagation you will see that
+these derivatives would essentially
+contribute to the weight update okay we
+we need to take the derivative of the
+error function with respect to different
+weights now when we take the derivative
+of the error function with respect to
+the first weight for example you you
+need to follow the chain rule right so
+whatever actually follows between the
+weight and the error all those
+components will be considered while
+taking the derivative right and one of
+these components is going to be this
+activation the derivative of this
+activation is very important right uh
+let's
+say let's say you have an activation
+like GX = to 1 okay a constant
+activation function whatever you in
+input you give you always always
+produces a
+number a constant number so the problem
+here is if we take the derivative
+right uh this will be
+zero okay so Z deriva doesn't make any
+sense if we have a linear uh activation
+like this CX = to X so if you take the
+derivative of this C of x equals
+to G Das of X is going to be
+one this is again a constant derivative
+so constant uh contribution will be will
+be will be added or subtracted right to
+the existing weight that is is also bad
+right so therefore what people thought
+people thought is this is the right
+place to introduce
+nonlinearity
+so so what are the what are these
+nonlinear activation
+functions uh the simple nonlinear
+activation function is the sigmoid uh
+sigmoid
+function which you all know the sigmoid
+this is used heavily right 1 by 1 +
+minus X okay
+so and we know that the sigmoid
+essentially
+um right essentially squashes everything
+between between 0 to one this is 0.5
+this is one this is 0 so whatever input
+you give uh is X and this is sigo X Y
+AIS is sigo X whatever input you give it
+always fores everything between 0 to
+One the good part about Sigma is that
+you take the derivative of this
+let's say g-x is sigmoid into 1 minus
+sigmoid you don't need to compute the
+derivative explicitly if you know the
+sigmoid you will get the derivative of
+the sigmoid very
+easily so this is a good activation
+function the problem here is as follows
+the problem here is the derivative if
+you take the derivative of sigmoid if we
+draw it right you see it would look like
+this okay
+at zero you see that the value is 0.5
+and then after certain threshold so this
+is X and this is g- X the derivative of
+the
+sigma after certain threshold you see
+the value of the uh derivative is very
+very small right this is this is
+generally minus 3 and three if the input
+is uh less than three or greater than
+three
+you see that uh the the output will be
+very very small that means it will
+contribute to uh the weight update you
+know very very
+small and this would further lead to
+Vanishing gradient and all the other
+problems right Vishing gradient problem
+we'll we'll discuss in the RNN part of
+it right so this is the first problem
+Vanishing gradient
+problem this is not exactly the
+finishing gradient problem but let us
+refer to it as a Vanishing gradient
+problem gradient will vanish
+slowly the second problem is that the
+sigmoid is is not symmetric around zero
+right this is not symmetric around zero
+what do you mean by symmetric around
+zero let's say instead of this function
+if we had a function like
+this okay something like this this is
+zero so this is symmetric around the why
+this is important this is is important
+because we'll see later that you know uh
+generally um you know symmetricity is
+always important always always good okay
+so this is not
+symmetric
+around
+zero how to address this to address this
+uh people came up with another
+activation which is called the tan
+H tan H activation this the hyperbolic
+function right so tan H is G of
+x^ minus
+X okay and the derivative of this G of X
+is essentially 1
+minus tan Square tan Square h t Square
+X here also you don't need to explicitly
+compute the gradient So Tan h what it
+does it squashes everything so tan H so
+this is the tan H function right it
+squashes everything between minus one to
+one minus one to one uh you know unlike
+sigmo which reduce everything to 0 to
+one this essentially reduces everything
+between minus one to one and this is
+symmetric the bad news here is here also
+you see the same kind of plot for the
+derivative
+okay this is one after certain threshold
+the value will be the value 10 the value
+tends to be uh very very
+small okay tends to become very small so
+the same Vanishing radient problem may
+occur meanwhile people also started
+using so this is this is one this is two
+the third activation is uh soft Max so
+you all know what is soft Max right sof
+Max is used everywhere so sof Max is
+essentially G of x uh you know basically
+X1 x2t do dot xn E
+power one by S power x
+i okay it produces a
+probability
+[Music]
+um the other popular activation function
+is
+Vu rectified
+linear
+unit and it is used everywhere it's very
+popular what is Ru so Ru function is
+very simple FX = to x if x is greater
+than equal to Z otherwise
+zero that means it chops off all the
+negative values right it looks like
+this positive values are linear so this
+is X this is FX and otherwise
+zero
+okay
+so now this is very interesting because
+this is a very simple uh uh activation
+function uh that turn out to be very
+effective but here the problem is as
+follows so let's say if the weight uh is
+if the input is negative right now
+remember this activation function is
+applied on top of a what is a a is a
+preactivation value so if the
+preactivation value is negative there
+will be no activation if it is negative
+it will be zero post activation this
+will be zero it means that that
+particular neuron will be
+dead right so this is called Dead neuron
+problem and that that that that's
+bad because you expect that you know the
+model should be able to capture the
+negative part the positive part suitably
+right
+so if we take the derivative of this
+this will produce one and uh this is
+again
+zero so constant addition for positive
+values but zero addition for negative
+values this de neuron is a is a bad news
+you know about uh
+Ru to address this many variations of
+values have been proposed right leaky
+Ru leaky is one variation which
+essentially says that f of x is
+X otherwise 0 point um 01 of X right you
+give you give some weightage here so it
+basically looks like this this and some
+weightage to the negative part
+also so this addresses the problem of
+dead
+neuron because you have some value uh
+for this negative preactivation
+preactivation
+neuron there something called pre uh
+there something called
+parametric parametric
+R where instead of fixing this to
+0.01 make
+this where a is a a is a learnable
+parameter
+now sometimes you can
+see or you can say that you know
+negative part is bad but we should also
+capture negative part in some ways so
+instead of taking ra of X can we take
+the ra of minus
+X right uh that would solve the problem
+of the negative part right so another
+variation of RA is proposed which is
+called
+concatenated
+ra now here it will will produce a
+vector of size two okay the first Vector
+is Ru X and the second component the
+first component of vector is Ru X the
+second component is Ru minus X
+right so Ru minus X will essentially
+capture I mean if the preactivation
+value is negative it will be positive
+right uh there is another variation
+called el e exponential
+linear
+unit right it is x f of x is x if x is
+greater than equal to zero otherwise
+alpha e^ xus
+1 they introduced this exponential uh
+component
+here
+so now these are small variations of Ru
+let's look at some of the major
+variations of Val right there is another
+variation called jelu
+gelu
+goian
+error linear
+unit right so
+J of X is x
+times f of x what is this f of x Pi of
+X is the
+cumulative
+standard
+normal
+distribution what is
+that so it is x * P
+of is a standard cumulative function
+this is basically captures the
+quartile the percentile percentile um
+rather than the
+signal okay so this is J now let us look
+at another Paradigm of activation which
+is called GL
+luu right this is
+G
+linear unit we'll talk about getting
+mechanism in the lstm gru
+part okay now what is this jalu
+Activation so let us assume that you
+have
+uh this uh hidden neurons right inputs
+hidden
+neurons okay and let's say A1
+A2 A3
+A4 they
+are preactivation values right in J what
+you do you just duplicate this one here
+okay duplicate this so let's say A1 A2
+A3 A4
+okay you pass it through some
+weight w
+weight this weight is different from
+this weight by the way okay and then
+what you do and then you also have bias
+right so this will be a so w transpose a
+plus
+b okay and you pass it through a
+sigo so you have original a and you have
+a sigmoid of a sigmoid of a or B
+whatever Sigma of a comma B right and
+then you do getting and what is this
+getting this getting is an elementwise
+multiplication remember a is a vector
+which consist of A1 A2 A3 A4 the sigmoid
+is also a
+vector right so let's say this is A1 is
+0.4 this is 0.5 this is 0.6 0.1 right
+and after sigmoid let's say this value
+is going to be 0.9 let's say this is
+zero right what whatever 0.01 this is
+and these are all imaginary numbers by
+the way okay these are all imaginary
+numbers so
+0.2 something like that
+0.8 okay so when we do element wise
+multiplication this will basically
+be 4 *
+0.9.5 * 01 6 * 2.1 *
+8 and this will produce another set of a
+A1 A2 A3 A4 now these weights are
+learnable these are trainable parameters
+B is also a trainable
+parameter all
+right uh here this is called getting
+mechanism
+because uh you will essentially train or
+learn these W's in such a way that some
+of these
+outputs but this outputs will control
+the impact of this
+preactivation uh preactivation values to
+the next layer let's say this is 0.9
+that means you give more weightage
+here this is 01 you give less wattage
+here this is0 2 you give slightly less
+weightage here and so on and so
+forth okay so you can think of
+so this
+inputs okay you think of uh so this is
+A1 A2 A3 A4 you think of a Glu layer
+here
+Glu okay which will produce
+numbers G you remember is parameter W
+and P that you need to
+learn
+okay so the
+next part the next uh activation
+function is called swis activation there
+are there are tons of activation
+functions which are publicly available
+and people are still proposing new new
+activation functions every day SS
+activation
+uh is very interesting this is um so
+swis X is x *
+sigmoid beta
+X beta is the is again uh trainable
+parameter right so essentially you are
+multiplying a nonlinear part with a
+linear part right so the beauty of this
+swis function is as follows
+so if let's say
+um beta is
+uh 10 it would look like this
+uh if beta
+is my drawing is not good by the way
+beta is 0.1 it looks like
+this if beta
+is one it looks like
+this
+so if you see this
+when beta is 10 it is almost a r
+function
+okay if beta is
+one it is quite it is basically a
+linear
+okay
+um and you have things in
+between so with with the tuning of beta
+you can get function Rel function and so
+on and so
+forth uh sometimes this is also called
+cellu C SI L uh
+sigmoid linear
+unit
+okay um and in another paper people
+combine Swiss activation and Glu
+activation and people call it Su Glu
+looks like this x so G of X is
+X
+swis WX +
+B
+okay this is this element wise do
+product that we used
+here all right there are many other uh
+activations like
+soft
+plus right uh max
+out and so on and so forth some of them
+are computationally challenging
+computation complex remember this
+gradient so we need to take the gradient
+of the activation right therefore um
+this should be computationally easy
+right so that is another Factor all
+right so the next part of the lecture
+we'll talk about back
+propagation let's draw a diagram again
+okay a simple uh multi
+Peron
+and let's assume that there is only one
+hidden
+State and only one output okay let's
+make our job
+simple so this is his
+I input J neuron K output right so this
+is
+W
+J1 and this weight w
+kj2 this is input
+XI now as I mentioned every neuron has
+two operations right a
+and activation H which will produce this
+Zed right so let us bifurcate this to to
+activation right to uh
+operation okay let's assume that in this
+component a is being computed here Z is
+being
+computed all right
+does okay W KJ
+2 okay
+so
+uh when we compute this
+YK right we also know let us assume that
+you also know the ground Truth for this
+input right and the ground ground truth
+is
+TK so what is the loss the loss is YK
+minus TK and let's say let's say here
+the loss or the error is uh square error
+right Square loss so error E
+is sum
+over total letteror right so how many
+how many outputs are there there are K
+outputs YK minus
+TK squ and we we take this half because
+later on we need to uh take the
+derivative this two and half will cancel
+out so this is my error now we will um
+take the derivative of this error with
+respect to all the weights and we'll
+update all the weights
+right so we'll take the derivative of
+this
+error this is the derivative of the
+error right uh let's say with respect to
+W some W okay and this will be let's say
+this is this is
+a uh convex
+function so
+weight will be updated this is the
+learning
+rate standard concept standard machine
+learning concept uh sastic gradi
+descent and this will be my
+updated
+ER updated weight okay so let's first
+focus on this weight update W
+kj2 so to update this we need to take
+the partial derivative of
+this with respect
+to W
+kj2 okay that means we need to take the
+derivative of this with respect to W kj2
+right so this is x² so 2x so two two and
+this half will cancel
+out so this will be sum over
+y i uh y k minus TK K = to 1 to
+K okay now we also need to take the
+derivative of this with respect to the
+partial derivative
+of y k minus
+TK with respect to W
+KJ
+now when you take the derivative of TK
+DK is a constant it's a ground truth so
+this will be zero what is YK
+YK what is
+YK YK is sum
+over okay so I forgot to mention another
+thing let us assume that the activation
+here at the output is a linear
+activation hsal to
+X whatever input you get that's going to
+the output so YX is essentially the
+ation
+right
+W uh
+KJ where J goes from one to M there are
+M number of neurons
+and
+Z J now when I'm this is two when I'm
+taking this derivative with respect to
+kj2 only that that element will
+contribute right so this is essenti this
+is going to
+be and this one okay this is one doesn't
+matter there's only one layer but still
+it's
+okay
+so so the output of this will be this so
+the total output like
+this now remember
+here so this is straightforward because
+um there is only one hop now when we
+update this one this is difficult right
+so d
+e
+d
+w
+GI one okay now from
+here this is error this is
+e till here what are the operations that
+we have performed we have performed uh
+Zed and
+a so we have to use the same rule right
+so this is
+essentially d
+e
+um
+Del
+Zed 1 Del Z
+J1 d L W J
+i1
+okay now what is this let's look at this
+one first now
+d
+z
+J1 D WJ
+i1 is what so we have another
+intermediate part which is this one
+because I'm now moving from this to this
+right there is an intermediate part
+which is a
+have to take the partial derivative with
+respect to a
+also D
+A 1 Del a
+J1 Del W J
+i1
+okay what is this what is this Zed so Z
+J1 is nothing but this activation
+function let us assume that the
+activation function here is 10
+H okay so this is essentially tan h of
+A1 what is the derivative of this this
+is 1 minus tan h² right which is this is
+the derivative right which is this is
+derivative this is 1
+minus Square
+so this will be 1 minus z z 1 squar this
+part this part now what is this
+part think about it so AJ here
+aj1 aj1 is nothing but the weighted sum
+right weighted weighted sum of all the
+inputs right and when we are taking the
+derivative with respect to WJ i1 only
+the corresponding input will be
+responsible all the other inputs will
+act as constant right so this derivative
+will produce x
+i if it is not clear please go back and
+check the chain rule
+okay so this is my result for this
+component what about the other component
+d e
+d j Z1 right
+this is z Z1 and d
+e so so e is what e is uh this one right
+right where we already know that Y is
+this one right so when we take the
+derivative of this with respect to uh
+sorry Z is this one when you take the
+derivative of this with respect to z z
+what will happen is that first this will
+act as simple x² 2x right two and two
+will cancel out the derivative of this
+and then uh we need to take the
+derivative of that component again only
+uh what will happen only the
+corresponding Zed will will basically
+come out right we taking the derivative
+of this with respect to Z so only W part
+will come out okay so D let me write
+here d e
+d z
+Z1 is sum
+over y k minus TK
+K is to 1 to
+K okay um then the partial derivative of
+this YK minus
+TK a
+one okay and this
+is y k minus
+TK okay TK is constant here so YK is
+this one
+so this will result in W
+KJ
+2 the final derivative d e d WJ
+i1 will consist of
+this okay which is sum over K = to 1 to
+k y k minus TK W KJ
+two right so this part and this
+part which is 1 minus z
+z
+Square X I now think about it so so this
+is this Delta
+e right with respect to w g
+i1 so when you do the forward part this
+is back back propagation backward pass
+right when we when you did the forward
+pass you already stored the value of y
+the output you also know the ground
+truth t and what is this w w KJ W kj2 is
+the is a existing weight right which
+will be updated right so existing weight
+is also known to
+you Z J is also known to you this was
+told during the forward
+pass and
+XI is the input so all the components
+are known to you therefore this gradient
+will also be known to you and we will
+use this learning rate multiply this
+with the gradient and that is going to
+give you the updated
+W ji with respect to uh wji at
+IA now think about it as we increase the
+number of layers
+okay you will have to to
+multiply several suchar
+gradients right think about it so this
+error and there are let's say hundreds
+of layers right and you want to update
+the weight of the first layer so you
+have to take the gradient of the error
+with respect to that weight right so all
+the intermediate components will be
+considered while taking the derivative
+right and let's assume that the
+gradients of the the gradient of the
+error with respect to these components
+are very very small right so what will
+happen the result is so a lot of zeros
+lot of small numbers will be multiplied
+and therefore the resultant multiply
+multiplication value the multiplication
+output is going to be very very small so
+this is called Vanishing gradient in
+case of multi-layer perceptron feed
+forward Network as we increase the
+number of layers the contribution of the
+first layer the the the contribution of
+the error in updating the values of the
+weights and the initial layers will be
+very small so initial layers weight will
+not be updated at all right uh this is
+Vanishing
+gradient we'll discuss Vanishing
+gradient uh in uh RNN recurrent neural
+network right there are many ways to
+address the vanishing gradient Problem
+by so that's it this is back
+prop what are the parameters here the
+parameters are all the weights bias
+right learning rates learning rate is
+hyper parameter
+uh sometimes we fix learning rate and
+sometimes we also use some sort of
+dynamic learning rate um you know with
+respect to Epoch so sometimes we use
+something like this one minus DK time OC
+time
+DK learning
+rate also for
+regularization
+right because what happens is that
+neural networks if you have small amount
+of data deep neural network the models
+over fit there are many ways to address
+this one is early stop you don't need
+you you you will not allow the model to
+basically produce 100% accuracy or zero
+error in your training set on your
+trading set right so you stop the model
+early before convergence right the other
+option is of course L1 L2
+regularizer right so what you do that
+along with the error right whatever
+error you have let's say uh square error
+or uh you know log likelihood some sort
+of uh cross entropy error you also add a
+regularizer there right the other option
+is called
+Dropout where you essentially freeze a
+fraction of neurons for being
+updated so you're basically uh you know
+uh making the neural networks pass right
+again there are different ways to uh
+update this things
+update identify the neurons which need
+to be dropped out okay uh there are many
+many Concepts important Concepts there
+in deep learning which we have not
+covered because this is not a deep
+learning course there are as I mentioned
+there are many deep learning courses
+available even on
+NP you can check them out the vanishing
+gradient problems I mentioned exploding
+gradient problems are also mentioned
+some of these things are written in the
+book also the I mean my book so you can
+you can look at chapter 2 uh for uh you
+know detailed description of some of the
+concept that are discussed here okay
+with this I stop here and this is this
+was about the introduction of neural
+network and deep learning right uh in
+the next lecture we'll move to the the
+the main concept of uh large language
+models thank you
+[Music]

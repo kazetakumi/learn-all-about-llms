@@ -1,0 +1,718 @@
+Hi, welcome back to the attention family
+lecture series. In this series, we will
+be discussing various different
+attention mechanisms starting from the
+very early scale dot product attention
+all the way till the latest attention
+mechanisms that are proposed in papers
+including Kim delta attention and
+various other attention mechanisms that
+are extremely popular.
+However, before jumping into different
+attention mechanisms or even the basic
+foundations of attention mechanisms,
+it's very important for us to understand
+what is the relevance or what is the
+significance of attention mechanism in
+the first place. What existed just
+before that and what were the
+shortcomings of the architecture which
+was introduced uh before attention
+mechanism was in existence and how does
+attention mechanism help us make the
+process of let's say language to
+language translation or paraphrasing or
+even text generation etc better.
+[clears throat]
+So today's lecture is about what existed
+before attention and uh primarily we
+will be discussing about neural machine
+translation or sequencetosequence models
+which had a major bottleneck. However, I
+thought of including this lecture as one
+of the foundational lectures in this
+series because this lecture will teach
+you a few different concepts like
+embeddings, context vector etc. So I
+thought it is very important for you to
+have a mental picture of what the word
+context vector means because this word
+we'll be using in almost every single
+vector from here on uh almost every
+single lecture from here on so let's get
+into the lecture
+so a quick recap of what we discussed in
+the last lecture last lecture in the
+last lecture I introduced you to what
+this series is about uh I literally
+named around 37 different attention
+mechanisms and although I did not
+explain any of them because that was not
+the intention of the last lecture. It
+was just to show you just the sheer
+volume or sheer number of various
+different attention mechanisms and there
+are many more. There are 50 plus very
+popular attention mechanisms. But in
+this series, we are not going to be
+randomly studying these attention
+mechanisms as I have promised in the
+last lecture. What we are going to do is
+we will look at attention mechanisms but
+we'll try to classify them or we'll try
+to bucket them. And uh I had shown you
+one figure with seven different buckets
+which I will again show you in today's
+lecture at the start. And our goal is to
+understand attention mechanism from the
+perspective of okay how are these two
+attention mechanisms different? Is it in
+the way the tokens are attending to each
+other? Is it in is it in the way we
+deploy this on GPU? Is it in the way the
+fact that attention one of them is
+scaling its order of magnitude of
+computation with square of number of
+tokens? The other one is less than n
+raised to two. Is that the difference?
+So this picture we will we should have
+in our mind by the end of this lecture
+series so that even hopefully one day
+you might be able to come up with your
+own attention mechanism that is better
+than what is existing today. So today's
+lecture is not about any of these
+buckets yet because we are yet to get to
+the attention mechanism. Today's lecture
+is why did people think of creating this
+thing called as the attention score. So
+attention score is in the bucket number
+one. So this is the picture that I had
+shown you in the last lecture. We have
+seven buckets. First bucket is about
+scoring. How exactly is attention uh
+score calculated? Second is about
+connectivity. Which tokens are attending
+to allowed to attend to which other
+token. Third is about attention heads
+and KV cache. Fourth is about uh you
+know having quadratic or sub quadratic
+order of magnitude of complexity when it
+when it comes to attention score
+calculation. Fifth is with respect to
+implementation of this in GPU. This is
+where flash attention comes into
+picture. Sixth is about injection of
+position embedding or position
+information into the attention scores or
+into the context vectors. So that we
+will this this is not the sixth lecture
+by the way. This is the sixth bucket.
+Okay. So we may discuss about position
+embedding in one of the earlier
+lectures. It's not necessary that we
+have to discuss position embedding
+towards the last part of the series.
+That may not be the case. And we will
+also discuss about attention mechanisms
+from the perspective of uh whether it is
+applicable to text or graph or video or
+image whatever the domain is. Okay. So
+before we get into the attention score
+calculation part which primarily comes
+in the next lecture we have to
+understand
+before this what existed and why did we
+think of something called as the
+attention score. So today's lecture is
+divided into three parts. In the first
+part we will discuss uh the translation
+or neural machine translation which was
+basically the architecture that we could
+use for converting let's say English
+language into French or vice versa and
+how this architecture had a encoder
+decoder setup and what the basic
+architecture of NMT or neural machine
+translation was and between the encoder
+and decoder the information was passed
+in the form of a vector called as the
+context vector. So we will also discuss
+regarding this context vector and how
+this one single vector carries the
+entire information present in a sentence
+whether it's a long sentence or short
+sentence and of course from that itself
+you can imagine what the difficulty is
+because if it's a long sentence this one
+context vector cannot possibly hold that
+much information. So that is an issue
+and we will see we'll discuss about that
+and we'll also discuss how this context
+vector is constructed and in the last
+part of the lecture we will discuss why
+this kind of a context vector based
+encoder decoder architecture which was
+used in neural machine translation
+before attention mechanism and that that
+was using a
+architecture called recurrent neural
+networks RNN and we will discuss why
+this was breaking breaking meaning if
+the sentence length is longer than a
+certain threshold like more than 20
+words or so you could see that the
+translation quality drastically drops
+down drastically decreases.
+So these are the points that we will
+discuss in today's lecture. So welcome
+to the lecture. So first let us look at
+the architecture behind the neural
+machine translation or
+sequencetosequence model. So here is an
+example where you have an English
+sentence. This is a car converted into
+its French equivalent. You can already
+you already know this but you can
+already observe that the number of first
+of all the number of words in English
+and number of words that are coming out
+in French it is different. So there is
+no guarantee that the words number of
+words need to be equal and also
+depending on the sentence if the car is
+at the end of the sentence in uh English
+there is no guarantee that that has to
+be the case in French. In this case car
+is still at the end. However, there are
+sentences where European economic zone,
+if you try to translate it into French,
+the equivalent for European will come at
+the end. The zone will come at the
+beginning. Uh the French equivalent of
+zone will come at the beginning. So
+there is no guarantee that the order in
+which the words appear is exactly one to
+end mapping there. It's not like in
+language we translate the first word
+first, second word second. That's not
+how it works. Right? So here we are
+inputting four words and coming out what
+is coming out of this sequence to sequ
+sequence model is three words in French.
+Okay. Now let's see in detail how this
+works. But before that we also have to
+understand what happens to these words.
+So these words are also called as
+tokens. And you might be familiar with
+that terminology called tokens. It's
+very popular in the LLM architecture.
+And uh in many tokenizer schemes, one
+word is not necessarily equal to one
+token. Usually one token is a subword
+and that really depends on what kind of
+tokenizer we use. But there are many
+different tokenizers. But we are not
+going to discuss tokenizer right now.
+For all practical purposes, for
+simplicity today, we can say that one
+word is equal to one token. So here you
+have four tokens in English in the
+output and in the input and in the
+output you have three tokens in French.
+Okay. And what is done internally to
+represent these words in English or
+French is you convert those words into
+vectors. And this can be done by passing
+the words uh through a neural network.
+So there are there are word to which are
+libraries which you can import in Python
+which will help you convert word into a
+given vector. The vector itself can have
+large number of dimensions. So here I'm
+just showing you one example or a set of
+examples where I'm just showing you two
+dimensions. So this is obviously a very
+simplified picture but in reality the
+number of dimensionalities will be 768
+or much bigger than that and usually
+vectors point into a certain direction
+of space. So this is the vector
+corresponding to apple. So this dot is
+basically the tip of the vector. Vector
+is actually something a line with the
+direction that's how we represent right
+but but we can also replace the line by
+just the tip of the vector. So here
+these dots are basically the tips of
+those vectors and you can see that the
+vector corresponding to apple, orange,
+mango etc are pointing to the similar
+region of the space. You can say that
+this is a semantic region in space
+corresponding to fruits. Similarly if
+you had vectors corresponding to cat,
+dog, cow etc. they may point to a
+different region in space a semantic
+region in space which corresponds to
+let's say animals. In general uh it is
+known that uh you might you might have
+already seen many examples on the on the
+internet. Basically vectors that have
+similar meaning typically point in the
+similar direction of the space and those
+vectors have very high cosine similarity
+also. Cosine similarity meaning if you
+look at the cosine of the angle between
+these two vectors the angle is very
+small and cosine of a small angle is
+closer to one. Cosine of 0 is one.
+Cosine of a small angle is closer to
+one. So high degree of cosine similarity
+these vectors will exhibit. Okay. Now
+how does the neural machine translation
+work? So I will come back to this figure
+in a moment. But before I go into this
+figure, I want to show you uh another
+figure how the translation exactly
+works. So this is how the neural machine
+translation or sequencetosequence
+translation works. There is an encoder
+and there is a decoder. Encoder is
+responsible for taking the input from
+English. So this is the English uh input
+part and the input is passed in the form
+of these tokens or uh these words and
+then the words are converted into
+corresponding vectors and encoder does
+something which we will see in a moment
+that converts this sequence into one
+single vector called as the context
+vector. So this context vector is
+nothing but it's a vector of let's say
+768 dimensions that captures the entire
+meaning that is present in this whole
+input. You can already imagine the
+problem with this. If the input sentence
+was let's say 20 words or 30 words, here
+it's just four words. If the input
+sentence was longer, still the context
+vector is expected to carry the meaning
+from those that entire long input which
+is too much pressure on one single
+vector. How can you expect one single
+vector to carry that much meaning? But
+yet this is how neural machine
+translation was working. And then this
+context vector is passed as the input
+into something called as decoder. What
+decoder will do is decoder will
+sequentially produce tokens in in this
+example in French language and this
+decoder's final output final uh sequence
+of tokens which forms the final set of
+output is the English to French
+translation. Okay. Now the question is
+let's try to slightly in in a bit more
+depth let's try to understand what is
+happening inside this encoder and what
+is happening inside the decoder. You can
+already imagine the problem with using
+this context vector. Now let's go back.
+So what happens inside the encoder is
+something like this. So you have
+individual tokens right? So this is the
+token number one, token number two,
+number three and number four.
+So you might think that here what is
+shown in the diagram is different
+recurrent neural networks assembled in
+sequence. That is not the case. These
+are different. You can imagine this to
+be different time steps. Here it's not
+like there are different recurrent
+neural networks aligned in sequence.
+That is not the case. Okay. It's just
+that we are representing different time
+steps in this way. So recurrent neural
+network is basically a neural network
+which takes some couple of inputs in
+this case and it produces one output. So
+what are the inputs that go into the
+recurrent neural network? There are two
+inputs that go into this recurrent
+neural network. One is the hidden state.
+Hidden state here is represented by H.
+You can imagine the hidden state also to
+be like a vector. and another vector
+that goes into this recurrent neural
+network is the vector embedding
+corresponding to your uh token. So in
+the first time step the token is this
+the that particular token is converted
+into vector embedding that vector
+embedding along with the initial hidden
+state H0 which you can imagine to be a
+random vector uh initially because there
+is no token in the beginning random
+vector this h0 is passed into the
+recurrent neural network along with the
+vector embedding corresponding to this
+and then the output from the RNN is the
+new hidden state which we call as H1. H1
+meaning hidden state after step one. Now
+what goes into the same recurrent neural
+network again? So ideally if I want to
+draw this I should draw it something
+like this. This output is coming out and
+this output is passed back into
+you know uh where this hidden state is
+passed. But since I don't want to do
+that because that will make the diagram
+look very uh cluttered. Let me just uh
+remove that.
+Instead of that I'm just showing one
+more RNN but this is the new time step.
+It's essentially the same RNN. Now what
+goes into this RNN? Again the the new
+hidden state H1 which is again a vector
+plus the vector embedding corresponding
+to the token is. Then again it produces
+the new um new hidden state H2. And this
+repeats until the final hidden state H4
+is produced. Now what is this hidden
+state H4? that final hidden state after
+every single token is uh passed through
+is called as the context vector. So this
+whole sentence now H4 carries the
+information or carries the meaning
+contained in this whole sentence.
+Now we have taken a very simple example
+here but obviously this sentence could
+have been much longer. In that case,
+instead of H4, it could be H20 or H H50
+depending on whatever the length of the
+sentence is. But basically, what it
+produces is the same a vector that lives
+in the same space as that of whatever
+the rest of the vectors were. So if H0,
+H1, H2, etc. were living in a 768
+dimensional space, this final context
+vector will also live in the same space.
+Now the decoder takes the following
+input. So as I mentioned already decoder
+the initial input into the decoder which
+is also a recurrent neural network based
+architecture is the context vector and
+this context vector is coming from the
+encoder final output right so this
+context vector is the first input into
+the decoder RNN which produces the
+initial output initial output is the
+output vector corresponding to the first
+French token in this case it is cest I
+don't know how to pronounce this exactly
+but uh this is the first French word
+that is produced by the RNN then again
+into the same RNN and and by the way
+this RNN also produces one more output
+which is the first uh hidden state
+corresponding to the decoder called S1.
+So these two outputs output vector and
+S1 is produced from the RNN in the first
+time step with the context vector as the
+input. In the next time step actually
+there are two inputs that go into the
+same RNN. So again this is not multiple
+RNN sequentially aligned or anything.
+These are different time steps of the
+same recurrent neural network. So in the
+next time step we have the hidden state
+s1 corresponding to the decoder passing
+into the RNN. Along with that the vector
+corresponding to the first French word
+actually not the English uh not the
+French uh token itself but the vector
+corresponding to it is passed into the
+RNN and corresponding to these two
+outputs sorry these two inputs the new
+two outputs are produced. What are the
+new two outputs? The first output is the
+output vector corresponding to the next
+French word. Second is the the new
+hidden state S2.
+Like this the words will be produced in
+French token after token. And finally to
+know whether the token sequence
+production has ended maybe it can rely
+on an end of sequence token or some
+special token production. But basically
+this is how a decoder converts your
+context vector into French sentence. So
+now if you look at what is the only
+input the decoder is depending on to
+produce the French sentence. The only
+input that this is depending on is the
+context vector. Decoder knows nothing
+else. Decoder has no idea what sentence
+was passed into the encoder. The encoder
+passed the sentence that was passed into
+the encoder could have been very very
+long. The decoder has no idea. Decoder
+only looks at this context vector to
+produce this sequence of French tokens.
+And that is exactly the problem with the
+uh this encoder decoder architecture
+which is dependent on the context vector
+alone in the neural machine translation.
+So now let us discuss the last part of
+today's lecture. Why this kind of an
+architecture breaks? Obviously uh as the
+input sentence size increases you can
+imagine that more information has to fit
+in the limited number of uh dimensions
+available within the context vector. So
+a vague way to think about this is
+imagine that your your context vector
+dimensionality is 800. Okay. And let's
+say in one case in the input you have
+eight words. Which means uh this is not
+the right thing to say. I know that. But
+what I'm saying is if you have 800
+dimensions in your context vector and
+the number of words you are trying to
+fit in the context vector is 8. Roughly
+100 dimensions are available to
+represent one word. However, imagine
+that you have 40 words in your sentence.
+It's let's say it's a very long sentence
+and same 800 dimensions are uh still
+available to you know jam-pack all of
+this information in these 40 words.
+Basically now you have what uh around
+20 dimensions available per word right
+in the first case you had 100 dimensions
+available per word. This is not the
+right thing to say. It's not like
+dimensions are assigned to words or
+anything like that. But if you think of
+the total number of variables you need
+to store information, the more you have
+number of variables, the more
+information you can store. But the more
+the length of this sentence, you are not
+proportionally increasing the
+dimensionality of your context vector or
+anything like that. The context vector
+remains constant of constant
+dimensionality because it is belonging
+to a certain representation space or in
+a certain embedding space. So the more
+the number of words the more the chances
+of this whole neural machine translation
+via sequence tosequence model uh breaks.
+There is also one more thing actually we
+should uh think about which is long
+range dependency. Let's say we have a
+sentence like the teacher who was
+teaching the uh students smiled. Okay.
+So here what may happen is that in the
+final state which is basically the
+context vector the information which
+came in the beginning because RNN is
+something which happens uh sequentially
+right in the RNN you are passing the
+first token first English token then the
+next English token then the next English
+token so really the information which is
+there in the beginning part of the
+sentence especially if it's a long
+sentence that information will be lost
+in the final context vector whereas it
+will have information more information
+regarding whatever came towards the end
+of the sentence. So this is one issue
+with respect to using this kind of a
+context vector to pass information from
+encoder to decoder in the uh sequence
+tosequence model. There is one more
+issue uh this is the issue which I
+wanted to mention in the previous slide
+which is called long range dependency.
+Look at this sentence. The teacher who
+was teaching a difficult concept to the
+students smiled. Now if you really think
+about this word smiled who smiled in
+this case is it teacher or students?
+Actually it is teacher who smiled it's
+not students but if you simply look at
+the geometric proximity or simply look
+at the proximity between these tokens
+the token corresponding to students and
+token corresponding to smile they are
+very close to each other. So it's very
+difficult for a language model to
+understand that in fact the smile is not
+associated with students. Smile is
+associated with the token teacher and
+look at the positioning of teacher.
+Teacher is located at the beginning of
+this long sentence. Smile is located at
+the end of the sentence. So in sequence
+tosequence models especially that is
+based on recurrent neural networks. What
+happens is this teacher token came at
+the very beginning in the one of the
+initial steps but smiled is coming at
+the later time step. So it's very
+difficult for the translation model to
+understand that the the person who
+smiled is actually not students, it is
+teacher. This kind of long range
+dependency capturing is very difficult
+using uh RNNs. RNNs by the way is not
+the only architecture which existed uh
+until attention mechanism came. There
+was also LSTM which was an advanced
+version of uh I would say advanced
+modification made to recurrent neural
+networks. However, um irrespective of
+that up until attention mechanism came
+into picture, it was very difficult to
+make sure that long sentences are
+captured appro appropriately using
+context vectors. It was also difficult
+to capture long range dependency um in
+the absence of attention mechanism.
+So, uh there is a famous graph I'm sure
+you might have seen this kind of a graph
+I think on LinkedIn. This was uh I I
+remember seeing a lot of this kind of a
+graph in 2022 etc on LinkedIn posted by
+people. But in general the reason why we
+need attention mechanism which we have
+not yet discussed like we have we are
+yet to discuss what exactly is attention
+mechanism but the reason why attention
+mechanism kind of shot up in popularity
+is because it did not matter whether the
+sequence length increased. attention
+mechanism could still capture the
+information with long range dependency.
+Which means if you are performing a
+language translation task, the
+translation quality which is plotted
+here on the y-axis did not decrease with
+the sequence length which is plotted on
+x-axis. On the other hand, in the neural
+machine translation in the sequence
+tosequence models which depended on one
+context vector vector without any
+attention mechanism, you could see that
+the quality diminishes significantly
+once the word count in the sentence
+increases beyond 20. So this was the
+biggest issue with respect to the
+traditional uh before attention
+mechanism came into picture. Uh so that
+brings us almost to the end of today's
+lecture. So I just wanted to say this
+much before we even discuss about the
+concepts like attention or badano
+attention or dot product dot product
+attention or scaled dot product
+attention or um m you know causal
+attention etc. Before we come to all of
+that I just wanted you to be aware of
+the fact that this is the reason why you
+know capturing information using a
+context vector from long sentences it's
+very difficult. Now in the future also
+the same terminology called context
+vector you will come across but you
+should not imagine that context vector
+is a bad thing. No that's not the case.
+Context vector is an amazing concept.
+But the way information is captured into
+the context vector that is what matters
+here. The way it is captured is not
+basically using attention mechanism. It
+is using uh passing of sequential tokens
+into recurrent neural network. So there
+is there is no way for the context
+vector into context vector to look back
+and say that if I have a sentence like
+the
+cat
+drank
+milk
+because
+it so let's say this is the sentence so
+far it's not possible for the uh
+sequence to sequence business model is
+to uh look back and say hey here it
+refers to cat or hey here it refers to
+milk. So it's very difficult for that
+kind of um you know preferential
+attention um payment. So it's it's not
+possible for this mechanism to pay more
+attention to cat or more attention to
+milk because uh here anyway the full
+sentence is looked at already in the
+encoder and the the whole information is
+already captured in the context vector.
+Now the decoder has to entirely rely on
+just that one context vector uh to
+produce the final output uh sequence.
+But that's not the case when it comes to
+attention mechanism which we will look
+at in the future lectures. So in the
+next lecture we will look at the
+attention mechanism itself. So let's say
+we are converting this this sentence the
+cat sat today into French. So the French
+so the way this uh translation will
+follow will be la
+shad.
+So the will translate to L. Cat will
+translate to chat. So if if let's say
+the decoder is currently writing the
+second token which is chat then the
+attention has to be paid maximum meaning
+maximum uh focus should be on the token
+cat [clears throat] because chat is
+directly translation. It's a direct
+translation of cat. So here this 75 is
+like an attention score simply how much
+importance is assigned to that
+particular token. The degree of
+importance assigned to cat when the
+decoder is writing the French equivalent
+of that should be the highest. So 75 out
+of one that much attention is paid into
+cat 0.05 is paid to the very small
+attention is paid into sat and small
+attention is paid into today. So like
+this the decoder can actually change
+these numbers will change depend on uh
+which token or which French word the
+decoder is writing at in this moment and
+that made the attention mechanism so
+special but that we will discuss in much
+more detail in the next lecture. So
+allowing the decoder to look back
+completely changed the game and we will
+start with badano attention uh which was
+proposed in 2014 and by the way badano
+attention is also called as addictive
+attention. So we will see why it is
+called additive. And after that came the
+dot product attention and after that
+came the so dot product attention came
+in 2015 and after that came the scaled
+dot product attention in 2017 which was
+proposed in the attention is all you
+need paper. So we will discuss these
+things in the subsequent lectures. So
+thank you so much. See you soon in the
+next lecture. Bye.

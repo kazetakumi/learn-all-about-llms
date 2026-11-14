@@ -1,0 +1,503 @@
+[Music]
+welcome back so far we have tried to
+model knowledge graphs as Sr o triples
+where R can be any general
+relation the only property of R which
+has mly interest are so far is the
+matter of
+symmetry or asymmetry or anti- symmetry
+however another very important property
+of R is whether the relation is
+transitive or
+not what's a transitive relation if
+person one is an ancestor of person two
+and person two is an ancestor of person
+three then person one is an ancestor of
+person three directly
+that's a transitive relation or if a
+camel is a mammal and every mammal is an
+animal then a camel is an animal if
+Einstein was a physicist and every
+physicist is a scientist then Einstein
+was a
+scientist this defines type hierarchies
+in the knowledge graph for the purpose
+of question
+answering as well as interfacing to
+large language models understanding type
+hierarchies in a knowledge graph is very
+important so now we are going to look at
+how hierarchical relations can be
+modeled in a Knowledge
+Graph so if camel is a mammal and mammal
+is an animal then camel is an animal and
+this might be useful if you're asking a
+query like deserts are home to which
+animals the word animal may not even
+appear in an answered document the
+document might just say that camels are
+called the ship of the desert because
+they're used for transportation and food
+right and you know that that passage
+answers this question only if you know
+that Camel is an animal from a Knowledge
+Graph there are many popular type
+hierarchies like this in all the major
+knowledge graphs but people have cleaned
+up bits and pieces of them and separated
+them out from for individual
+experimentation figer and the Google
+find type systems were some of the early
+type hierarchies with about 100 types in
+them whereas dbpedia has about 700 types
+in it and typet which is partly pictured
+in this slide has approximately a, types
+in it generally speaking the type
+hierarchy is a deducted ecli graph and
+not not always a tree nodes May merge
+from multiple parents as well as fan out
+from ancestor types the root type here
+is all entities in the world whereas
+more fine types such as fluid or station
+broadcasting station communication
+systems a liquid can be a beverage which
+can be a food or nutrient those would be
+finer and finer types under the
+hierarchy so one question is the
+techniques we have learned so far
+translation rotation and factorization
+are they really adequate at capturing
+hierarchical information like this and
+the answer seems to be no that we need
+separate kinds of techniques to
+explicitly capture the representation of
+hierarchical nodes or entities or types
+in the knowledge
+graph there are at least two views of
+embedding hierarchies like this one
+is to embed a hierarchy or a deducted
+acylic graph in a space that is still
+basically ukian so we would like to have
+some notion of a distance in this space
+such that the distances in the dag are
+approximately preserved by distances in
+the embeding space and we'll see a
+sequence of techniques in that style of
+work now inherently this is a bit
+complicated because if you think about
+say a full binary tree where one node
+fans out to two nodes and then those fan
+out to two nodes each and so on and so
+forth within very few levels you have an
+exponential number of
+leaves and you still want to make sure
+that this parent say node three is
+closest to four five and two compared to
+all the other nodes for that you have to
+make sure that those ukian distances are
+very large compared to the distance
+between three and four this means you
+need a lot of space near the leaves to
+embed the tree properly and that could
+be a
+problem so the other option is to not
+really go after ukian distance in the
+embedding space we can say that the
+embedding space doesn't care about eidan
+similarity all it cares about is whether
+we can check the ancestor descendant
+relationship efficiently using the
+embedding in the Target
+space apart from
+this these embedding should work with
+incomplete supervision because just like
+any other relation the containment type
+containment relation will not be
+complete in any Knowledge Graph so it
+should work with incomplete supervision
+well and it should also cooperate with
+other embeddings such as that we get
+from
+words the embedding we're going to
+discuss just now they don't directly
+support this working well with other
+word embeddings but as we get back
+toward large language models we will
+highlight some techniques to bring these
+worlds together and to align the
+topological world of the type hierarchy
+graph with the textual world of the
+corporate
+let's start with A Brief Review without
+any proofs of the theoretical results
+known which show that low Distortion
+embeddings may be quite difficult in the
+sense of idian distance
+Distortion suppose a graph G which is
+characterized by nodes V and edges e has
+a single node like small V and that node
+is embedded to a vector X of V in D
+dimensions in some equan
+space the graph distance between u and v
+is called D subg of u and v for example
+this could be the shortest path
+distance in case of a tree that would
+mean the path through the closest
+ancestor or in a
+dag the Distortion of this
+embedding G or embedding with respect to
+the graph G will be given by this
+quantity it will have a numerator and a
+denominator the
+numerator
+is the maximum over all pairs of nodes
+in
+G of the distance in the embedding
+space divided by the distance in the
+graph space
+and we take the max in the numerator in
+the denominator we still have the
+embedding distance divided by the graph
+distance but this time we take the
+minan the larger this quantity is the
+more Distortion we have in the embedding
+and this is fairly
+intuitive
+also the hardness of embedding a graph G
+in general would be the smallest
+Distortion I can get with regard to any
+embedding scheme so you could think of X
+as providing and embedding
+scheme for all the nodes in the
+graph and no matter how smartly we
+choose X the embedding scheme we are
+going to get a distortion of at least
+this quantity the infimum over X the
+Distortion of uh x with regard to G
+now from the domain of Idan embeddings
+the following facts are known about
+Distortion if you allow the ukian space
+the target space to have as many
+dimensions as you need D can be
+arbitrarily large then any graph with n
+nodes can be embedded with order log and
+Distortion if the graph is also known to
+be planer that is it can be drawn on a
+plain surface without edges crossing
+over then it can be embedded in our
+squared in only 2D space with order n
+Distortion trees can be embedded with
+order square root n
+Distortion with large enough
+dimensionality D any tree can be
+embedded in R to the D with ordered log
+log and
+Distortion binary trees can be embedded
+in a line with order n over log and
+Distortion and in R to the D with order
+n to the 1/d over log and
+Distortion Distortion of a
+multiplicative error of 1 plus Epsilon
+is not possible in any of the bullets so
+far but it is possible in hyperbolic
+space not in ukian
+space so hyperbolic space therefore has
+a lot of interest and we'll see a few
+slides about them a few slides down in
+this
+segment so how does hyperbolic embedding
+work we have to first Define the
+hyperbolic AR C or inverse cosine of a
+which is defined as a natural log of a
++qu < TK of a s + 1 that graph is shown
+in this chart over
+here now we will embed All Points like y
+strictly inside the unit
+circle and in there the hyperbolic
+distance between X and Y will be defined
+as the hyperbolic Arc cosine of
+1+
+twice this looks like the ukian distance
+but it's normalized with two terms 1
+minus the square of the norm of x X and
+Time 1 minus the square Norm of Y okay
+it can be shown that basically we
+measure the distance between X and Y not
+as this straight line but along the
+geodesic following this
+hyperbola so as X and Y approach the
+perimeter of the unit
+circle the norm of X tends to one or the
+norm of Y tends to one therefore these
+terms go to to zero and the hyperbolic
+distance goes to
+Infinity this is a very nice cheap fix
+it basically says that looking at this
+disc from the ukian point of view it has
+finite
+perimeter however looking at it from the
+point of view of hyperbolic space it has
+infinite perimeter
+because the unit dis in ukian space has
+infinite perimeter in hyperbolic space
+we can now easily embed trees in it and
+remember that the motivation for
+embedding hierarchies comes from type
+hierarchies which are mostly
+trees so hyperbolic discs provide a very
+natural way to embed trees but there is
+a caveat that mathematically it may seem
+like the periphery is infinite in
+hyperbolic space in a computer
+representation nothing is really
+infinite in the sense of real numbers
+and therefore these Precision bits used
+to embed these entities is not really
+free we still have to encode everything
+with regard to finite bits of precision
+in a computer that plus hyperbolic
+embeddings don't really play that well
+with the kind of word embeddings or
+entity embeddings from the earlier
+embedding strategies for this reason
+work on hyperbolic embeddings started
+out with a bang but not too much
+happened about it particularly with
+regard to its integration into language
+models and other embedding
+systems however that doesn't stop us
+from embedding large type hierarchies
+like wnet which has at least 15,000
+types into hyperbolic spaces and we can
+get very nice diagrams like this where
+the root of the noun hierarchy of
+ordinance which is all entities is at
+the center and then more constrained and
+specific types appeared near the
+periphery of the disk such as
+mathematician and gaus was a
+mathematician uh her uh so a herb is a
+plant a scientist is a person a
+mathematician is a scientist a person is
+an organism and so on right uh animal to
+mammal to sperm whale uh matter to food
+to bread and prad Etc so it's pretty um
+natural
+however remember that our driving
+application was question answering
+suppose we want to answer a question
+like scientists who played musical
+instruments or mammals that live in the
+desert right so in that case the ukian
+distance from
+camel to entity or to animal is not as
+important as as whether camel appears in
+the subtree of animal or
+mammal so the real test we need is
+whether something is in the subtree of
+something else not their equilibrium
+distance to that end we will now discuss
+a different approach to
+it so Computing ukian or hyperbolic
+distance between items or nodes is not
+the only choice
+we make up some notation suppose the
+partial Order X
+precedes y means X is a descendant of
+Y in case of a tree such as the one
+shown in this slide we can associate
+with every item such as
+x two numbers we start the traversal at
+the root a we enter a at time one
+we enter B at time
+two we Exit B at time
+three we enter
+c at Time
+4 we enter D at time five we leave D at
+time six we enter e at time 7 leave e at
+time 8 leave C at time 9 leave a at time
+10
+this is called an in order
+traversal and it gives every item X an
+interval I of X so let's plot it on a
+number
+line our interval a will now occupy the
+interval from 1 through 10 that is our a
+under it B will occupy the interval 2 to
+3 but c will occupy the interval 4
+through
+9 okay you see what's going on to test
+if x is a descendant of Y all we need to
+do is to test whether the I of X is
+contained in the I of Y if the interval
+containment holds then the ancestor
+descendant property also
+holds this is also a kind of embedding
+it doesn't involve distances it only
+involves comparing the end point points
+and testing for Interval
+containment so that means that if we
+didn't care about idian distance nodes
+of a tree can be embedded in just one
+dimension to answer ancestor descendant
+queries in constant time once I have
+found this in order traversal numbers
+for every node and I store it as an
+embedding if you later ask me is this
+node an ancestor of that node or a
+descendant of this node I can answer
+that by just comparing two pairs of
+numbers in constant
+time this can be generalized from a
+single number line to multiple
+dimensions and the corresponding de uh
+concept there is Vector
+dominance for
+example people can be represented by
+this particular Apex marked by the Red
+Dot and every point which has its x or y
+coordinate greater then that Apex is
+supposed to be a person or an instance
+of
+people so X
+is a descendant right X is preceding y
+if the vector of X dominates the vector
+of Y for example I could say that since
+all All actors are people the Apex of
+actor has to dominate the Apex of people
+so U of
+actor has to dominate you of people
+element wise every element has to be at
+least as large as the apex of the
+superet
+okay politicians will form another such
+open
+cone whose Apex would gener generally be
+different from people and actors and
+then some elements may be shared between
+actors and politicians such as Arnold
+schwarzer Now using this intuition we
+have to design a training loss function
+why training what we'll be doing is
+every
+type will be mapped to this epex
+Vector which would be the variable of
+the optimization
+if x is a subtype of Y like actor is a
+subtype of people I would like actor to
+dominate people right which means I
+take U of people and I subtract U of
+actor okay what should happen if I take
+U of Y minus U
+ofx Since U of X is always larger this
+difference should always be zero if it
+is successfully zero I should not have
+any loss if it is negative that's okay
+if it is positive I should be unhappy if
+it's positive I will take a rectified
+linear unit or a Ru so that
+means this red expression will be some
+over
+Dimensions
+Max of zero and u y d minus uux of
+D you can verify that if I achieve true
+contentment of actor in people this
+quantity will go to zero but if the red
+part sticks out then I will pay with a
+loss if actor is sticking out of people
+then that results in a loss area
+okay now now there are some asymmetries
+in this loss function in particular if I
+do not want X to be contained in y then
+I actually want this violation I
+actually want some part of the red type
+to stick out of the blue type and I'll
+Implement that by taking two relu I'll
+actually have a margin Alpha and I'll
+subtract the earlier Ru from that you
+can verify in exercises that this will
+give the desired
+Behavior this still does not recognize a
+certain asymmetry in the loss because
+this is a sum over dimensions and that
+is also a sum over Dimensions remember
+that in multiple Dimensions it's enough
+for the actor to violate its constraint
+in one dimension it doesn't need to beat
+it in both dimensions so if I want X to
+be a subtype of Y I want it to dominate
+I want X to be
+contained if it's not a subtype of Y it
+should violate in any one of the D
+Dimensions so there's an and in this
+case the violation however has an or so
+it can only violate in one of them
+that's enough for me so how do we
+Implement
+that if x is less than y or X is a
+subtype of Y then for all Dimensions D
+we want uxd greater than equal to U
+yd and then we can Implement l+ as the
+maximum so over all the dimensions what
+is the worse
+violation okay whereas if X is not
+supposed to be a subtype of D then there
+has to exist some Dimension where uxd is
+less than uid and that can be translated
+you can verify it in exercises with this
+L minus expression over here okay now
+this scheme works we have tested it but
+it still has a limitation that these
+cones if you will are all upward open we
+only characterize it by one
+corner and then any Vector above that
+corner is a member of that type but this
+is a bit bad because if I have people
+over here and I have politicians over
+there it's true that politicians is
+contend in people but the volume of them
+are both equally infinite and that
+doesn't make sense because the number of
+politicians is strictly less than the
+number of people so less volume should
+be allocated to politicians than people
+it's also hard to model negative
+correlation because if you fan out
+enough in the positive orth everything
+overlaps you cannot for example
+explicitly model that if x is a fruit
+then X cannot be a scientist for this
+reason we are going to generalize from
+open cones to closed rectangles and that
+will solve our
+problem these rectangles will be in high
+dimension D Dimension so we can call
+them hyper rectangles or boxes box
+embeddings each type or item X will now
+be characterized by an interval for each
+Dimension so the item X or the Type X
+will be identified by bxd and hxd
+the base and the height of X in
+dimension D okay and type to type
+containment will be characterized by
+interval containment in all Dimensions
+this is like laying out vend diagrams
+using rectangles Einstein which may be a
+point is contained in a rectangle called
+physicist which in turn is contained in
+a rectangle called scientist angular
+Markel is another physicist who is
+therefore also a scientist George Bush
+is a politician but most decidedly not a
+scientist and a banana is none of them
+so it's disjoined from all these so the
+question is given a training type
+hierarchy like we're drawing in the very
+first slide which gives us relations
+like X is a subtype of Y or X is not a
+subtype of that
+why can we train our bases and our
+Heights or the upper Corners that is the
+optimization problem in fitting box
+embeddings
+[Music]

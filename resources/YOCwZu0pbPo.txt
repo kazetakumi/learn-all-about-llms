@@ -1,0 +1,1382 @@
+Hello everyone.
+This is the concluding session for this
+course. I hope you enjoyed the course.
+We tried to make it dense in terms of
+content and
+I hope you you
+enjoyed the entire lecture series. So
+the way we are going to conclude this
+lecture, so we thought that we'll have a
+panel discussion where we will discuss
+you know different aspects of LLM
+research you know in in industry as well
+as in academia and the way people
+actually look at
+you know this problems, right?
+So
+we have with us
+you know eminent researchers from both
+industry and academia as well as
+students
+and
+the way we will essentially
+follow this panel discussion is that we
+we will ask a few questions right to all
+the panel members and we will get their
+views.
+Okay, I hope you know the
+answers that we get from the panelist
+will essentially help students and you
+know listeners audience understand the
+current landscape of LLM in India and
+across the world. Okay, so with this let
+me start. My name is Tanmay. I'm a
+faculty member at IIT Delhi. I work in
+in NLP.
+So welcome welcome you all to this panel
+discussion. So I request you to
+introduce yourself very briefly. You
+just introduce
+you know your research very briefly and
+maybe we'll we'll take it from there.
+Yes. Hello everyone. I'm Jatin and I'm
+working in the conversational AI team at
+IBM Research.
+Currently I'm focusing on fine-tuning
+language models
+for a specific client or or in a
+domain-specific corpus. Hi, I'm Gaurav
+Pandey and
+I'm working as a research scientist at
+at IBM Research and my current research
+focuses on reinforcement learning and
+search techniques and incorporating
+search techniques during training for
+language models.
+Hi, I'm Sourav Dasgupta. I'm a professor
+at Dhirubhai Ambani Institute of
+Information and Communication
+Technology.
+Uh my research area is
+uh trying to understand to what extent
+large language models have
+personalization capabilities in
+different types of downstream downstream
+NLP tasks. And also trying to figure out
+whether we can build energy-efficient
+smaller models which are specialized
+uh for personalization tasks.
+I'm Anubhav. I'm a PhD student at IIT
+Delhi and I mostly work on
+interpretability of different
+capabilities of LLMs. Trying to
+understand how LLMs work and
+making them as a white box instead of a
+black box. Yeah.
+Thanks very much.
+Uh so my first question to
+uh my friends from from industry, from
+IBM. You know, we we have witnessed last
+2 3 years in a huge size models, right?
+Uh
+you know,
+those models are designed by all
+industry giants like IBM, Microsoft,
+Google, Anthropic and so on and so
+forth. So what are the most pressing
+challenges in deploying these LLMs in
+real-world applications? What do you
+think your team thinks?
+So right, I mean I think we can
+bifurcate the question and the answer
+into two parts, right? One is in terms
+of the scale, right? Imagine a couple of
+years ago or 5 10 years ago, when a
+company would deploy a model, it would
+be on them. It would be a neural network
+but it would be deployed on them and
+they would train on their specific data
+and so on and so forth, right? But now
+with such big large language models,
+this This unthinkable,
+right? Now we as academicians can't
+think of this. them.
+Maybe industries have different
+different
+Yeah, but many small scale industries,
+right?
+They will not have capabilities to
+develop these language models on their
+own. So, that is that is why you will
+see you know, that is why these are
+being served as a service. We have
+language model as a service.
+Right. Right.
+Right. If you're trying to deploy on
+frame, then that require another level
+of expertise, right? I mean, VLN
+technologies like VLN have helped in
+simplifying that, but still that
+requires different expertise, right? So,
+they are being run on the cloud by few
+experts, and that brings in a lot of
+challenges. For example, there is a
+challenge of privacy.
+You know, client's data is going on the
+server. Can they trust it or not? There
+are other challenges as well, right? So,
+this is one aspect of it, which is this
+in terms of scale, right? Now,
+going forward, language models are going
+to be a service. We will not have It'll
+be difficult to have small language
+models, right?
+The second challenge is intrinsic to the
+language models themselves. So, for
+example, the biggest challenge that I
+see at present is that of hallucination.
+Currently, the way language models are
+used, uh
+you always have a verifier at the end.
+They are not working in autonomous
+fashion,
+right? Without If there is an adversary
+at the end, then you are doomed,
+right? For example, if there's a chatbot
+deployed by the company, and there's a
+client
+who is trying to dupe the company, they
+can do that,
+right? So, hallucination is the biggest
+challenge at this point in time. How do
+you control? How do you put real guards
+on it?
+I think these are the things
+Okay. Thank you. Um Gaurav,
+so, we all know that these LLMs are, you
+know,
+data hungry. They need a lot of data
+sets, right? To to for for training. So,
+so how do you I mean, in industry, how
+do you
+how do you think of addressing problems
+like data scarcity, like representation,
+legal concerns, right? As Yatin was
+mentioning that if some of the
+private data is leaked, then you are
+gone, right? So, so, so how do you
+address this copyright privacy issues?
+Right.
+So,
+And this is this is more important from
+industry perspective because again, from
+academia side, we don't care much
+because we always work with
+publicly available data sets, which are
+which are presumed to be cleaned or
+whatever, right? But industry, you have
+private data, data from customers,
+right? Yeah.
+Right.
+So, yeah, so there are two parts. One
+So, one the first part was about, I
+think,
+how do you deal with data scarcity,
+right?
+And
+in recent years, synthetic data
+generation has come
+a long way, actually. I started with
+chain of thought data generation and now
+people are using search techniques to
+get even better
+higher quality data
+and fine-tuning the models on using
+that. So, things like approaches like A*
+and stuff have been able to address the
+problem of data scarcity to some extent.
+But for yeah, and in terms of
+representation
+But do you Sorry, sorry to interrupt,
+but do do you do you think the synthetic
+data generation problem
+or the synthetic data generation models,
+right, right, would always be helpful
+for applications like healthcare, for
+example, or very specific applications
+which
+which is not very, you know,
+prevalent, right? Because
+at the end of the day, you'll basically
+have to have some some automatic way of
+generating text which may be readable,
+right?
+Right.
+Right. Uh
+So,
+domain-specific synthetic data
+Again, if
+the task that you have a bunch of, uh,
+documents, medical documents, and, uh,
+you have to answer queries related to
+documents, that can be done. Like, you
+can feed those documents, convert them
+to question answer, train your model on
+top of those question answers that you
+created from the documents. So, that can
+be done to some extent. Uh, similarly,
+tasks related to document summarization
+for related to the medical documents or
+finance documents, that also can be done
+using the synthetic data approaches.
+Uh, so, yeah.
+So, you, you feel that synthetic data
+generation is the way to go?
+It might be, uh, there's,
+uh, there
+needs to be a verifier, a human being
+who, uh, can, who should be able to
+judge the data and see if it is of
+sufficient quality, and also the model
+that you train, uh, it should be able to
+answer the queries that you care about,
+right? Uh,
+so, it, yeah, currently it appears that
+synthetic data might be the way to go.
+Uh, yeah, that's the way.
+Yeah, what about the copyright issues
+and other ethical concerns?
+Right.
+Uh, so, right, yeah.
+The, the issue of having rep- diversity
+in the data representation in data, uh,
+that in some way, uh, that probably
+requires, uh, more careful data, uh, uh,
+getting the data from different sources,
+uh, basically ensuring that you're
+getting the data from that, uh,
+represents different views, also that
+represent different, uh, groups, uh, so
+that, uh,
+there is enough representation. Now, uh,
+the last part, which is basically, uh,
+ensuring that dealing with copyright
+stuff, I think that is a bit more
+challenging, uh, and I,
+uh,
+uh,
+there, uh, there is something called
+federated learning where you try to, uh,
+do, uh, training and inference on
+premises, uh, basically where you the,
+where you don't share the data, but,
+You mean for something like
+Yeah, right, correct.
+And, uh, you,
+uh, basically the net, uh, you, your
+part of the data stays on, on your
+machine, and that you do training on
+that part. So,
+there are approaches that deal with it.
+Uh, other concerns, you, uh, by ensuring
+that data that you use is not
+copyrighted is something that is looked
+by the legal team.
+Uh yeah.
+Okay.
+Yeah, got it. Thank you. So, uh
+before before moving into sorry,
+uh
+maybe uh let me again get back to
+uh Yatin. So,
+Yatin, what do you think like the way um
+you know, um
+the the way this industry academia
+collaboration is happening, right?
+Uh
+do you know from India's perspective,
+right? You we need more such industry
+academia partnership. And sometimes I
+have seen uh being being academia
+academician, I have seen that
+industries, although they are willing to
+collaborate with academic folks, but
+they're also bit hesitant in terms of
+sharing data, in terms of sharing ideas
+because of this IP issues and so on and
+so forth. But, the way LLM research is
+happening, I firmly believe that there's
+always I mean, we always need a strong
+industry academia collaboration, right?
+So, so so how can industry academic
+partnership be improved to accelerate
+research while ensuring practical
+applicability?
+So, I think that's a this is a very
+pertinent question especially in today's
+era, right? I mean, a few couple of
+years ago, we could think of academic
+research independently. But, I think
+going forward it's going to be become
+more and more difficult. The kind of
+resources which are required for doing
+research,
+you know, academia may not be able to
+afford. And that is where
+industry comes in, right? In terms of A
+giving good resources and B coming up
+with pertinent problems as well. Right?
+Because industry people are more close
+to the the problems which are being
+faced by the clients and in the real
+world applications, right? So, this is
+this is where industry will come in and
+now this collaboration has to
+strengthen, otherwise,
+you know, that will be bad for both
+industry as well as academia. Academia
+will be short of resources and industry
+will be short of maybe good talent and
+you know that independent thinking which
+comes with academia.
+Right? This is
+true that
+when you are collaborating with
+industry, unfortunately because of
+business needs, most of the focus is
+toward client specific problem whereas
+in
+in academia you would need you know free
+thinking and blue sky research as well.
+So there definitely is a gap and I think
+you know programs like I attend which
+IBM has
+I believe such program more and more
+such programs should come up and other
+industry and other companies should also
+promote such programs where there is
+enough freedom for the academic research
+and in the end I mean in the long run it
+always helps. Right? It's not always
+about solving the current problem at
+hand within the industry as well.
+Right? So I think leaders within the
+industry also need to envision and think
+that you cannot
+make big progress by taking just small
+step and the immediate next step.
+You definitely need blue sky research
+which comes that perspective comes from
+academia.
+I think that is very crucial. It's going
+to be very crucial. Otherwise it's going
+to be bad for both industry as well as
+academia.
+That's what I also feel. Yeah. Okay,
+thanks. Just to you know continue with
+this discussion Gaurav. So recently I
+visited one of the leading industries in
+India. Okay? I don't take the name.
+Then I I mean there I realized that I
+was talking to some of the researchers
+there and I realized that
+the that industry they actually don't
+allow
+the breakthrough research
+to be published.
+Right? They don't allow them to publish
+good techniques for example which they
+invent, right? They they keep it
+confidential, they keep it secret
+because they essentially want to deploy
+this those techniques to their
+their own LLMs, right? And they only
+allow researchers to publish let's say
+data sets and big papers or like those
+those those innovations which don't have
+high valued intellectual property,
+right?
+Now, let's say when
+a good PhD student after completing PhD
+joins us such industries, right? They
+they would also they they might feel a
+bit frustrating because
+because you know they also feel that
+their innovation will be published,
+right? And the way this LLM race is
+going on, right? I have seen many of
+such cases, not one industry, many
+industries. They actually keep their
+confidential thing, I mean their their
+high valued research confidential and
+low valued research published. Right?
+So, what do you
+what is your opinion on that? Because if
+this continues then I think good I mean
+the talented PhD students, they would
+also think twice before joining
+industry. They would think that okay,
+you know, let me stay back in academia
+and then let me continue this.
+Have you seen the same same thing in
+your industry?
+Uh no, at least in at IBM this is not
+the case.
+Uh but so uh
+I think this is happening right now
+because people feel that there is a lot
+of money to make out of using that
+People are insecure, I think.
+Yeah, so people are feeling that okay,
+there is a huge
+huge amount of money that is available
+and if you have the algorithm to
+You know, there is there is something
+called first mover advantage, right?
+Yeah.
+Even if you
+you know, even if you publish, right? I
+mean these days the way people write the
+paper, there are many gray areas that
+you don't reveal, right?
+Correct.
+You already you already built this
+thing, you already deployed this thing
+and then you basically communicated your
+paper.
+Correct.
+So, you already have a first mover
+advantage. Now, why people are so
+scared?
+I think
+so, I mean with many of the companies if
+they found an algorithm better than what
+they have currently, they will probably
+release the current algorithm, I think.
+I mean
+so
+so as you said the first mover thing I
+think you I am guessing many of the
+company will be happy to release things
+that they believe is now worse than what
+they have currently.
+The outdated ones, yeah. So yeah, so I
+think that
+slowly the craze
+around this LLMs will
+yeah it will become better actually. I
+mean we will still have a good research
+coming out of it but hopefully people
+will realize that I mean the race this
+race will slightly flatten and then
+because we know before
+Before years, two years, five years, I
+don't see any hope.
+Before 2020 before the strategy came out
+everybody was
+happy to share all their research and
+everybody was
+I mean the research there were no such
+secrecy among the
+and this is just a recent phenomenon
+when
+when people are realizing that maybe
+there is a lot of money to be made out
+of it. Yeah.
+Yeah but it's not good for
+yeah it's not good for open source and
+also not good for research in general,
+right? The science will progress at a
+much slower pace. Yeah. So science will
+progress at a much slower pace and the
+boundaries will be pushed much much
+slower than they would because there is
+a number limited number of people in a
+research lab. How much
+what they there is a limit to how much
+they can innovate and
+Thank you. By the way, so while while
+I'm asking these questions to some to to
+to individuals, feel free to
+give your opinion. So moving to sorry so
+again a distribution change right from
+industry to academia. So
+you know we academicians always
+feel
+very difficult to teach courses like NLP
+these days, right? Because you know how
+to teach because we have statistical NLP
+and now all these LLM based research
+LLM based NLP. Right? And sometimes it
+is not possible to teach NLP in both the
+semesters, you don't have the liberty,
+right? So so how do you think how how
+one should
+teach NLP these days?
+Do you do you have some suggestion?
+See the way I
+usually do it like I I I used to teach
+one classical NLP course.
+Mhm.
+And then the following semester I would
+teach a neural NLP course. I just just
+just finished one.
+going to be possible.
+Yeah. Yeah. Like as an example in our
+own university, they scrapped off the
+classical NLP.
+Yeah.
+So, now
+now what what what I've done is that
+what I'm thinking
+even in this semester what I've done is
+the very first
+few lectures
+Mhm.
+I would make them ground in the more the
+basic elements of classical NLP starting
+from linguistic properties, morphology,
+all of that.
+Mhm.
+Syntax
+and then
+So, one month is gone?
+Not one month.
+This.
+Not one month but three weeks
+definitely.
+Yeah. But at the same time while working
+on those topics, I would also
+teach them how these heuristics can be
+used to design neural models.
+Right. Like as particularly how one can
+use them as inductive biases
+into into models and do interesting
+things.
+And then
+you know, I would move into the you
+know, word to vec and all of those sort
+of things. But at the same time I also
+make sure that
+So, HMM CRF?
+Yeah. So, so that's that's where I'm
+coming. So, at the same time I'm I also
+make sure that the you know, how they
+can interpret
+these let's say word to vec and other
+kind kind of models.
+How one can interpret them in a
+probabilistic manner. Like let's say
+that how what's the correspondence
+between these models and probabilistic
+graphical models like CRF or HMM or so
+on.
+CRF.
+Yeah. And in that way I sort of not in
+in the depth. Definitely I can go I
+can't go into the depth of the different
+algorithms and so on and so forth, but
+at least some idea of what used to be
+what used to happen and what is the
+reflection of that in in in modern
+modern architectures and also
+recognizing those elements which were
+there in classical NLP, recognizing
+those those elements in in you know in
+in the newer architectures and
+trying to give them a perspective
+interpretation of how these neural
+models
+how to interpret these neural models in
+a in a more linguistic fashion.
+So that usually I try to
+look at it that way.
+Okay.
+Okay, cool.
+The second question to you is
+um you know
+um again from academic prospective we
+have
+constraint in in terms of computing
+facilities and stuff like that, right?
+Data sets also. So how do you envision
+the role of academic institutes in
+fostering open research on LLMs? Because
+See I Yeah.
+I I I think first of all
+either at a state level or at an
+university level there has to be a
+consortium and government has to come
+forward and set up consortium in terms
+of
+you know data centers where we can
+share
+resources depending upon
+the a few such projects are coming up,
+but I think more and more such projects
+should come out at I think state level
+is the is a better way that every state
+should have their own
+resources installed
+and I think
+Yeah, sharing is also going to be tough,
+right?
+Yeah.
+Particularly countries like India.
+Right, right.
+say hypothetically assume that the state
+government will implement something,
+will have some data centers, but who
+will maintain this and how would the
+other institutes basically share that
+resource?
+Right, right. So, so basically
+maintenance cannot be done by the
+university people or it has to be some
+dedicated government uh you know, it can
+be taken up by government agency itself
+that they they maintain the resources
+and all. And also the sharing and all of
+that like if if what I was thinking of
+like this way I'm I'm not an expert in
+this, but
+if library if we can if library
+resources can be, you know, there's
+infinite I don't know. So, if library
+resources can be, you know, shared
+across the country,
+you know, why not
+at a state level? Why not
+and also that not everybody is doing
+high-end
+LLM research and all of that. So, why
+not queue it up and and do it that way?
+And I think the IITs and the IISc's have
+to take the lead
+in in setting up these sort of things.
+I mean, in that aspect I would actually
+go with what you have been mentioning,
+right? I mean, personally what I do is
+that whenever I feel that I need I mean,
+I want to do something
+for which I need large resources, I just
+go and talk to industries. Right? And
+they are actually happy to collaborate
+number one because they also feel that
+this is important in academic
+collaboration is important. Number two,
+they also have resources which they
+actually want to share happily. And I've
+been successful
+over the years like with industry
+support from Google, from IBM, from
+Adobe and so on so forth. I think they
+are also apart from along with state
+support, I think industry support might
+also be
+Right, right, right.
+Things are becoming obsolete at a very
+high
+Yeah, that is
+Yeah.
+So, I mean
+I know
+800 is obsolete. Can you imagine that? I
+was thinking of
+That is another argument
+800 is no longer there. Have to buy is
+200.
+Yeah.
+That is another argument that yeah.
+Right here I think that is another
+argument that our
+institution keeps giving that you know,
+okay, let's imagine we we we tell
+Reliance and we can you can buy this
+then what? I mean what when things get
+obsolete.
+So from that perspective you know,
+industry I think is better placed at
+utilizing those resources and generate
+some revenue out of it.
+Yeah.
+Exactly.
+So you you don't have
+resources sitting idle.
+Right, that that is true.
+You have the bandwidth which you can
+utilize for academic collaboration as
+well.
+So we we we have to think about how to
+monetize that even if government pitches
+in, there has to be a plan for
+monetizing that as well.
+Right, right. Otherwise otherwise it
+won't work. Yeah, that's true.
+That's true.
+Okay,
+moving to online. So
+set of different questions, right? So
+from students' perspective, right?
+So you have been working on LLMs. And
+you have also been
+I think reading papers published by
+other labs outside India, right? So
+I always you know, motivate students to
+stay in India and continue their PhD,
+right? For example, Yatin did from IIT
+Delhi. He did from IISc. You are doing
+in IIT Delhi, right? So
+and and and and and all of your research
+is actually very very good, very very
+motivated, influential. So So why you
+think that you know, so the the kind of
+tradition, right? That you know, after
+B.Tech, after undergrad, you actually
+want to go to go go abroad for PhD
+versus you actually want to stay here,
+right? Do you see a major difference in
+terms of research quality? Number one.
+And number two in terms of
+prospect, job opportunities and your
+future growth. So
+what do you think about it?
+I guess
+it's a kind of a historical side effect
+to it. I,
+when it started, uh, say in 2005-6,
+that time, that India was not, uh,
+properly placed in terms of this IT
+resource. But, I guess nowadays things
+are changing with all the big techs
+having their research labs in India.
+And, uh,
+over the friends and seniors I have, I
+guess
+a lot of people who have done their PhDs
+from say these top institutions have
+joined industries apart from academia.
+In, uh,
+uh, previously, we used to see that most
+of Indian PhD students used to go to
+academia because there were no
+industries. So, I guess things are
+changing. There are not, uh, much
+difference in terms of research quality.
+Of course, there is, uh, difference in
+terms of the volume of research, which
+is very understandable because countries
+like US, they have, say, 100, uh,
+institutions working on a field compared
+to India where
+In a lab, there are 30 PhD students
+Yeah. 40 PhD students. We are working at
+a much smaller scale than them.
+But, if you normalize it, if you
+normalize the quantity in terms of
+number of students, right?
+Yeah, but when we see at conferences
+like nobody normalizes. Like, when we go
+to any conference, say, any top
+conference like NeurIPS, ICLR, we always
+see that at least 60-70% students are
+either Chinese or US.
+So, Indians are less over there or the
+people who are there are mostly US PhD
+students.
+Because it's understandable about the
+volume. So, I guess things are changing,
+but, uh, I guess students are not aware
+of the shift, especially in field, in CS
+or more specifically in NLP, I will
+talk. Um, I guess we are kind of now at
+par at a more, like, normalized
+So, what would be your advice to the to
+the students who are now applying, uh,
+to the US for their, uh, PhD? And I'm,
+I'm just, you know, submitting LOIs
+every day, 15-20 LOIs every day.
+I guess they should start, uh,
+And the most interesting part, Anmol, is
+that, uh, all the students who are
+applying, uh, for them I'm writing LOIs.
+They have already published two, three
+papers with me in their undergrad, but
+they still think that our lab is not
+not their their
+their next place.
+It's somewhat about the both the brand
+value and how do you We need better
+marketing, I guess.
+Well, IIT is also a brand value, right?
+I mean, of course, we don't compare
+ourselves with Stanford CMU, but if you
+look at let's say second tier, third
+tier
+institutes in the US, we actually are
+better in terms of human strength here.
+Yeah.
+I think it might also be have to do with
+exposure.
+The
+The students that are studying outside,
+they get a lot of exposure in these
+research labs that are there open in IIT
+Bombay and all the research labs and
+they do internship every year and all
+that. So, maybe that's
+Here also we have exposure. For example,
+let's say if somebody wants to go to IBM
+or let's say Google,
+they they always recruit interns.
+I think
+My
+you know, because I did my PhD over
+there and
+I've done my PhD over there and
+you know, I have half of my family over
+there and I'm seeing what was going on.
+I think also one another reason is that
+there's still this lingering
+myth is basically a myth that life is
+going to be a lot better over there.
+Once you go over there and that is a
+complete myth.
+And I'm a I'm a practical example of
+coming back to India immediately after
+my PhD. So, I didn't even
+have you know, spend much time to
+realize that.
+So,
+For the time being, sorry, if we assume
+that the life is better there, why not
+doing PhD from India and go there after
+doing PhD? Let's say postdoc and then
+settle down.
+Yeah, and and I think that's another
+thing that they have, you know, these
+kids
+have that that's a much upstream
+task in the sense of landing in US
+without having a US degree. And and
+that's sort of a like a common notion, a
+general notion that it may be a bit
+difficult to to settle in there.
+Okay. So, the second question on my to
+you is um
+uh what are the unique challenges you
+face while working on LLM research as a
+student, especially balancing ambitious
+ideas with resource constraints?
+Yeah, like as Yatin was also mentioning
+that it's uh always a good idea to
+collaborate with the industry during the
+PhD. And probably that has helped me a
+lot in my journey because
+obviously there are areas like which are
+still academics can pursue with uh
+comparatively low resources, like things
+like evaluations of LLM, which maybe
+industry are not that much interested
+in. But
+there are a lot of complaints how do you
+evaluate a particular LLM and things
+like that. So, maybe things like that.
+And also we work on interpretability
+with we start with toy models, which are
+a GPU is not required. We have collab is
+enough.
+So, problems like that obviously one can
+start, but when you go to more ambitious
+things, um tweaking with the model,
+doing uh more
+designing new methods or say alignment,
+fine-tuning, you need resources because
+at least for publishing papers reviewers
+are every time like why don't you try
+with 70 billion models?
+We need resources, but I like think it's
+always a good idea to collaborate with
+industry. Unfortunately, nowadays in
+India, at least in the field of LLMs, I
+see
+we always collaborate with all the big
+techs. So, I think that's a plus point.
+And I think uh
+you know, resource constraint also gives
+you a different perspective, right? For
+example, I always give this example that
+we we are able to send a space a
+spacecraft to moon with less budget of a
+of a of a of a Hollywood movie, right?
+So, there is a different challenge. So,
+if you have low resources, low data,
+maybe one or two 800, right? How do you
+build better models? So, as Hardis was
+telling that he works in uh this
+uh energy-efficient models, I also work
+in uh small language models. So think
+these are these are good. Right?
+Like for example,
+this EMNLP paper that we just recently,
+you know, the I Copernicus paper that we
+had this time.
+So it's just because we didn't have the
+resource, the GPU resources, we started
+converting all the models, all these
+large models into Jax.
+Mhm.
+And then, you know, thanks to Google
+that we got the TPU resources and we we
+ran all of that into TPU resources and
+then we got got the results.
+Mhm.
+So yeah, I mean and also writing more
+efficient code and
+you know, so so so so you start thinking
+about a lot of different ways in which
+you can optimize things, you know, when
+you have
+limited resources or constrained
+resources and so on.
+Just to add to this,
+if you look at the ways or the paper
+that are published, many papers
+published in ACL venues, ACL venue these
+days, you see a lot of papers are on
+exploration of LLMs on a on a certain
+aspect. Right? They just took some LLMs
+and they ran those LLMs on uh big big
+GPUs clusters and they discovered
+something. Versus let's say we we don't
+have resources, we think of it in a
+different way because we know that
+that's not
+that that's that's different thing and
+we won't be able to do that. Right? And
+then we basically focus on model design,
+optimization and so on. I think that is
+also a good good perspective. Isn't it?
+But of course this is this this should
+not be an excuse. Uh
+we need more GPUs, more resources to
+train the model.
+No, even in in my personal opinion is
+that even to come up with smaller
+models, you have to understand what's
+really going on in these LLMs and why
+they are.
+Yeah. Yeah.
+All right, I think these are very very
+interesting
+responses. I really enjoyed. So now just
+to conclude this session, I have a few
+general questions to all of you, right?
+Uh feel free to raise hands to respond
+to this. So,
+So, the first one is the way the scaling
+laws, right?
+You know, the the the the increasing
+size of LLMs and stuff like that. Do you
+think that an alternative paradigms
+paradigm is emerging, right? Which will
+be
+which will essentially surplus
+the traditional AI research in general.
+I mean, the my Let me rephrase. So,
+given that scaling laws dominate
+discussions, right? What alternative
+paradigms should we explore for
+advancing AI?
+So, uh
+So, uh
+Uh uh
+Or or or or it's a different AI
+altogether.
+Right. So, yeah. So, we have seen that
+the more data and the bigger these
+models are, the there are emergent
+capabilities with every, let say, 10
+times increase in data size and model
+size,
+uh we are seeing some emergent property
+uh
+from the models in context learning and
+instruction following behavior and a lot
+of other stuff that probably smaller
+models are not that that well adapted
+at. Now, ultimately we So, we have Llama
+3.1 which is trained on 15 trillion
+tokens uh
+and uh Granite models, I think, are also
+around 12 trillion tokens. Now,
+uh the
+ultimately we are going to run out of
+data that to train train on. And uh so,
+the emergent properties now will
+uh cannot be from the data that is
+already there on the internet. It has to
+be So, the my That's my gut feeling that
+the emergent properties that will emerge
+from now on will be you based on
+synthetic data.
+But, Gaurav, you are just talking about
+text.
+Right.
+There are images, there are videos,
+there are other dimensions of data set
+that you can collect.
+That's true, yeah. That is Yeah, and
+those
+Yeah, I'm not talking from more from a
+text perspective that what all behaviors
+can emerge uh
+now that we are running out of data for
+textual data. And
+uh my gut feeling was that
+uh as we are now for example, now the
+way data is being generated is that
+given a query you try to search try to
+get the
+result using search using a different
+verification and then pick the result
+and fine tune on top of it, right?
+So that data is basically is not
+something that LM is generating as it
+is. It's It's basically you are
+searching on top of the result and then
+fine tuning it on it. And if you find
+and probably if you train bigger LMs in
+this with this new emergent proper new
+data that you have found using search,
+it might be uh better adopted at it
+might be a do a better reasoning than
+what the
+what a smaller LM can do. So the So
+that's what my feeling is that
+new data the new the void will be filled
+by synthetically generated data but it's
+just a kind of intuition. I cannot I'm
+not sure.
+That's That's correct. Um
+Uh do you Any Anybody else wants to
+Yeah, I think that there are other kind
+of
+alternative paradigms of models that are
+coming up especially
+one of the interesting models you know
+which do not need that much of
+parameters is like the CAN model the
+Kolmogorov Arnold sort of model. It's
+interesting model of course it's a bit
+of a
+bit of a more of a claim than what
+And I think that idea of the activation
+functions you are learning them you're
+you know and and also you know that
+leads for me that leads to all sorts of
+possibilities including neurosymbolic
+techniques while you're applying those
+activation functions. It's a more logic
+driven uh
+techniques and so on and so forth and
+and and and the the very fact that do we
+really need that many number of features
+and are are those that many number of
+features even helping in terms of the
+final decision? And usually we see that
+much of the you know the parameters are
+sparse, right? So So that leads us to
+that thing that okay we start with very
+large models but how much of that large
+model we are actually really using in
+terms of the final final decision,
+right? So, I am very hopeful in coming
+up with alternative paradigms. You know,
+kind of like uh
+uh bringing back some of the stuffs of
+olden days, logic-based techniques or
+symbolic techniques, but at the same
+time trying to figure out, you know, how
+we can apply some of those techniques
+into
+uh into the newer
+ideas that that is coming out of the LLM
+world.
+Okay. Okay. Okay, so maybe uh you want
+to say something or maybe can I ask the
+next question maybe? Yeah?
+Uh so, I think, you know,
+they will go through their own evolution
+as in any other technology, right? We
+have to go all in to see where it ends.
+Right? And and once it saturates, then
+of course alternative ways are going to
+come, right? So, for example, Gaurav
+mentioned search.
+So, that is I think that is the next
+thing that has come very recently with
+with 01. Right? So,
+right? So, so basically you equip the
+model with search and verification
+techniques, and then you have a better
+uh better tech
+high-quality data
+high-quality data or high-quality uh
+output. Right? So, I think once this
+saturates, then distillation of the same
+expertise into smaller models will
+definitely is going to come in, right?
+I'm sure that, you know, that will
+happen, and then
+the other question is that do we really
+need such large language models? Do we
+need one model which can do everything?
+Or do we need specialized models? And if
+we have specialized tasks or specialized
+domains, then
+can smaller models suffice? And I think
+that is an active area of research.
+Exactly, right? Exactly. Okay.
+All right, maybe the last question.
+So,
+so as LLMs become more integrated into
+our daily life, right? How do you
+envision their role evolving in kind of
+in collaborative environments with
+human?
+Because we have been talking about human
+AI collaboration, right? And
+I think
+it's still
+in fancy in
+in in the in since in the sense like
+I think
+human AI collaboration is something
+which is which is the future, right? So
+so so what do you think? I mean, what is
+what is your perspective about this and
+how how we as a researchers can take
+this thing forward so that so that, you
+know,
+normal citizens our country, right?
+Across the globe, they can also use AI
+more judiciously.
+What do you think? Anybody wants to take
+this up?
+I can maybe start. So I think the
+paradigm shift has already come. Right?
+AI has already become an integral part
+of people's life. Whether they may be
+know they may be knowing it
+knowingly or unknowingly. For example,
+if you look at WhatsApp, right? There
+you can ask you can use Lama 3.2 model
+and people do not know what they're
+using underneath.
+So I'll I'll give you an example. So my
+wife is a doctor and she had to
+you know, create a survey or some
+questionnaire for some training in the
+hospital.
+Right? So she asked she opened WhatsApp
+and asked Lama. It gave some questions
+and then she used that for you know, for
+for training purposes in her
+organization.
+And then, you know, so a few years down
+the line a few years ago, this was not
+imaginable.
+So this has already started touching
+people and general people who are not
+tech people.
+Tech tech tech savvy.
+Yeah, who are not tech savvy. So I think
+AI as an assistant is already there
+where users are very fine.
+In the industry code LLMs have become
+very powerful and you know, I'm sure
+almost every one of us is using them for
+coding. They're assisting us in coding.
+For drafting emails, for writing formal
+notices and all, people are general
+people are also using it, right? Now
+envisioning AI
+models as an autonomous agents,
+Mhm.
+I think I don't know. Maybe that is that
+is the future. But, at this point in
+time, I don't know whether we are there
+yet or not.
+Mhm. Mhm. Right? Okay. Yeah.
+Okay.
+Uh cool. I think we are running out of
+time. Um
+I will ask each one of you the last
+question, okay? So, to Soarish, what
+would be your message to the students,
+right, who are learning LLMs and
+generative AI, right? How How would they
+prepare themselves for, let's say, for
+placement or for research?
+I think first of all, don't forget the
+fundamentals.
+Uh the fundamentals of machine learning,
+the fundamentals of NLP.
+And uh if you are using LLMs for
+computer vision and all, the
+fundamentals The fundamental classical
+techniques are extremely important
+because if even if you look into the
+LLMs, if you really want to understand
+uh and then build on it, and not just
+use it as a plug and play because that
+would only take you to certain level.
+And after that, it will it you'll hit a
+wall. So, that is bound to happen.
+You have to be very strong in the
+fundamentals. So, that is this one thing
+I would I would say.
+Okay.
+Uh to both of you, um let's say, after
+taking this course, the students will
+will uh will call themselves experts,
+right, in LLMs and generative AI for
+text, whatever, right? So, so when they
+apply for job, let's say, to IBM, for
+example, or to say Google, Microsoft,
+right? What kind of qualities you expect
+uh from candidates, right, when you take
+interviews? What are the qualities that
+you expect that they they they fulfill?
+I think one of the things would be how
+much of the See, here what we taught was
+mostly uh
+uh
+up let's say, theorems and some
+some uh some ways of doing the coding.
+But, the
+real uh use case will be if they could
+apply if they can transfer that
+knowledge to a new problem.
+And if they uh if they can implement
+some of these approaches or
+so that would be the quality that we
+would be looking at. How much are they
+able to transfer what they learned in
+the class to an actual real world
+problem?
+Okay. Okay. Good then.
+So I think here I kind of agree with
+Saurish that fundamentals are the most
+important.
+What do you mean by fundamentals?
+I'll tell you. Can you back propagate?
+Can you write a function which will you
+know like find the gradient of some some
+function?
+Like if I ask you to write the
+transformer layer, do you know what are
+the operations which are going on?
+Without using hugging face transformer,
+can you write a plain PyTorch code in
+that?
+Right? So see if
+also ask let's say questions from linear
+linear algebra, probability statistics
+in the in the interview? To to that
+level or not?
+So I do.
+You do?
+I do.
+Okay. Okay.
+But but I don't know about others. But I
+definitely ask questions from linear
+algebra. And also I ask people to you
+know to write
+let's say a transformer layer for me.
+And and maybe
+Yeah, the coding
+coding part, right? And so see if if if
+a biochemical engineer is using an LLM,
+I don't expect him to know the
+intricacies of the model, right? I don't
+expect him to know what is a transformer
+layer and all. But if you are hiring an
+ML expert, he how will he push the
+boundaries if he doesn't know
+you know what lies inside?
+So I think I don't know you said that
+students are going to call themselves
+experts. I don't think that I am an
+expert in LLM at this point in time.
+Nobody can claim.
+Yeah.
+Yeah.
+The pace at which the field is moving,
+we know very little.
+So you still assess the fundamentals.
+That's what you're saying, right?
+Absolutely. Without that it is not
+possible to push the boundaries. Right?
+And the coding skills?
+That comes into play, right? If I'm
+asking you
+kind of coding skill? Like
+C C++ old school coding, competitive
+coding or like email coding?
+So so there are see there are two
+aspects I would say in in in the
+research, right? One is
+putting the AI models. For that we need
+by torch. So we don't we are not
+deploying models. We are researchers, we
+are not deploying models. We don't need
+knowledge of C++ and other frameworks.
+So we primarily focus on by torch and
+python and the other minor thing is
+whenever you have the data, you need to
+have the ability to analyze the data.
+For that little bit knowledge of
+statistics and you know tools which are
+there
+by data frames and all, right? Can you
+use them or not?
+I think these are the two aspects that I
+mostly test.
+Okay.
+The last question to Anway. So
+imagine that your next door neighbor,
+your brother,
+he is kind of hesitant, he is not very
+he is very confused whether to apply
+abroad for studies versus India. What
+would be your message?
+At least come work with us for six
+months and then decide. Take an informed
+decision at least.
+Mhm.
+Okay. All right. Thanks very much. I
+think this was wonderful session. Thank
+you. Thanks. Thanks for your your
+opinion and you know
+responding to questions. I think
+audience also enjoyed this one and
+hopefully some of these advices, right?
+Might be useful for you guys to let's
+say apply for higher studies, apply for
+jobs in top industries and so on and so
+forth. With this
+we officially conclude this lecture
+series. I hope you enjoyed and we you I
+I also hope that you recommend this
+course for to to your friends, to your
+to your colleagues, right? And please do
+feel free to write to me, write to other
+instructors, right?
+Whether you enjoyed the course or not
+and what are the
+what are the aspects you thought might
+might have been you know better in terms
+of quality. Thank you very much.
+Hey.

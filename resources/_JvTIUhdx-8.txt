@@ -1,0 +1,1098 @@
+[Music]
+So hello everyone. Uh so as we are
+nearing the end of this course on
+introduction to LLMs, uh it's a good
+time to now talk about responsible LLMs.
+So we have seen a lot of architectural
+details, training details, finetuning
+details, prompting, parameter efficient
+finetuning, interpretability, knowledge
+graphs and all this stuff. Now let us
+let us talk a little bit about now
+ethics of what LLMs generate, how do
+they function and things like
+that. a caus before I start uh this
+lecture since this is about responsible
+LLMs. So we will be giving a lot of
+examples which are sensitive u
+and unethical outputs how lms give. So
+it's better you watch this with caution
+right. So when we talk about uh behavior
+of language models especially large
+language models nowadays like chat GPT
+and stuff like that. Um so there are two
+kinds of uh issues which we are
+concerned about say a model like chat
+GPT uh first thing is the inherent bias
+within the model. So the responses uh
+say a GPT model or a llama model or a
+claude or deepseek nowadays uh is giving
+u there are certain type of questions
+where a inherent bias it can be within
+the data it can be uh somehow learned by
+the model during its training is visible
+uh when certain types of questions arise
+certain type of more sensible questions
+are asked. For example,
+um I ask uh Chad GPT uh do you believe
+in the cohabitation of unmarried couples
+whether it is socially accepted or not?
+And I just change the name of the
+country from say Bangladesh to India and
+the response of
+the model uh changes from no to yes. So
+this is somehow a inherent bias learned
+by the model uh bias associated with
+some
+countries. And second issue which uh we
+are concerned about is
+hallucination. Right? So uh how do you
+define hallucination? Now you ask a
+certain question. uh it can be some
+factual question or it can be some
+question based on some given paragraph
+uh within the prompt.
+uh now suppose I have asked a question
+like this is a factual question say for
+example who was the first person to work
+on wood now we know that uh we are
+expecting an answer like Neil Armstrong
+that is the correct answer but the
+language model uh says Charles Lindberg
+so clearly it is wrong so there what do
+we want uh we want if the model knows
+the answer it should give the correct
+answer if doesn't know a certain answer
+it should abstain from answering the
+question rather than giving some
+fabricated answers right so we often see
+this uh with queries like suppose we ask
+Chad GPT give me some research papers on
+responsible LMS sometimes we see it
+gives uh so nowadays they have
+integrated this web search feature
+within them but before this uh web
+search feature was there A lot of times
+we used to see even now if we see a lot
+sometimes that uh it gives some names of
+the research papers which may seem to us
+as their real papers but when you go and
+search on the web you see uh that kind
+of research papers by those authors
+doesn't exist. So it fabricates certain
+uh factuals fabricate certain uh sources
+and this is often very dangerous when we
+use them in real world settings. So we
+want to mitigate such cases. We want to
+detect such cases. Uh how do you do
+that? Uh what kind of works has been
+done in literature? We will discuss a
+representative uh set of works uh in
+this area of mostly we will not be
+talking about hallucination so much in
+this lecture. We will mostly be talking
+about bias uh in this lecture. a little
+bit more bias
+toxicity and those kind of
+uh uh
+like issues uh within LMS
+right
+so when we use this term responsible
+LLM we mainly talk about four axis right
+there are four axis we generally talk
+about one is
+explanability. So what is explanability?
+So you already talked about
+interpretability in our uh previous week
+or previous to previous week. So there
+we talked that there are different kind
+of interpretability techniques uh
+developed by researchers to understand
+how inputs are processed by the LMS. Uh
+how can you attribute a certain input to
+a particular output or what kind of
+inner workings facilitate uh those
+outputs?
+So uh explanability focus on that uh
+that is the interpretability of the
+inner workings of the model and apart
+from understanding how a model works it
+has some broader applications as well.
+So nowadays you will often see this word
+intervention
+techniques being used in literature a
+lot right uh sometimes we use they also
+use the term inference time
+intervention. So what these kind of
+intervention techniques try to do is
+based on these interpretability
+techniques some of which we already
+discussed this the idea is to uh propose
+certain algorithms such certain
+methodologies
+uh or pipelines which can intervene into
+the model internals in the during the
+test time right so suppose I give a
+certain uh prompt which there may be a
+case that the model can give a biased
+response.
+um like suppose we ask the question
+which country does the is responsible
+for the most uh emission of CO2 gases
+for example
+say now there can be certain cases where
+the language model is biased towards say
+Asian countries uh it gives answers to
+like India, China but maybe the actual
+answer is even say um American countries
+but the language model is say biased due
+to the data it is trained on. So can we
+intervene during the test time to make
+the answer factual to make the answer
+reliable based on understanding of how
+the uh models work. So these kind of
+intervention techniques has been
+proposed in literature and this can be
+seen as application of interpretability
+to uh to get some desired model behavior
+from the language models.
+Second axis of uh responsible LMS is
+fairness. So fairness uh tries to
+identify the cause of the inherent
+biases. Okay. So suppose the model gives
+a biased output. So what is the cause?
+It is uh is the cause somewhere in the
+data only uh which is highly likely and
+how do you quantify that bias? Do you
+have certain metrics which can quantify
+the bias in an LLM? And if we can
+quantify it only then we can talk about
+mitigating it. So first quantify and
+then
+mitigate. So this is the goal of
+fairness. Third axis is
+robustness. Right? So when we talk about
+robustness there can be uh different
+meanings to it. So let us discuss one by
+one. One u meaning of robustness can be
+how much the model's output varies based
+on prawn variations. Right? So based on
+prone variations how do the model give
+different kind of
+outputs. This is somehow quantified by
+certain metrics. We already discussed
+physics metric in one of our previous
+week which uh try to quantify the
+sensitivity of an LLM to prompt and this
+has broader applications in the safety
+and security of the LMS as
+well. Second aspect of robustness is uh
+resiliency. So what do I mean by
+resiliency? So there can be certain
+cases where the user is
+giving such questions where a
+responsible LM is not expected to give
+an answer. Suppose I ask the question
+how do I make a cake right? So when I
+ask how
+do I
+make a
+cake, okay, I expect the LM to give
+certain output, certain steps of making
+of baking a cake. But just if I replace
+this token cake with say bomb, how do I
+make a bomb? A responsible LLM will
+refrain from answering the question.
+So there can be certain cases when u
+users may try to trick the LLM into
+answering this kind of unethical
+questions. A robust LLM will answer this
+question A. However, refrain from
+answering this question B. Now how do
+you ensure that it refrains? Um there
+can be multiple ways. There can be
+things like
+guardrails or there can be more robust
+handling of um harmful prompts uh some
+of which we will
+discuss. And the fourth
+uh and the fourth axis of robust
+responsible LLM is
+safety. So somewhere we also discussed
+that these are very closely related
+robustness and safety. But
+um safety has a broader meaning in the
+sense that these kind of prompts may
+sometimes be non-intentional as well.
+But safety basically tries to quantify
+that suppose there are certain adversial
+adversarial attackers.
+So uh certain uh attackers who try to
+breach the security of the LM. So they
+maybe design such adversarial
+prompts which try to break these guard
+rails which make the LM uh safe or
+prevent them from generating harmful
+responses.
+So how much the
+LLM is
+uh is able to withstand such adversarial
+attacks quantifies the uh ability of the
+LLM to be to keep itself more
+responsible in the sense of safety and
+security.
+uh in this context I will I would like
+to add one more thing that adversary
+attacks can be different uh in different
+ways adversal attacks can be organized.
+Uh one of them is prompt injection
+attacks where
+uh where in prompt injection attacks the
+attacker tries
+to tries to modify the prompts in such a
+way that uh these guardrails are broken
+and LMS uh gen start generating harmful
+responses. So this prompt injection
+attack is very close related to this
+prompt variations
+uh robustness to prompt variations we
+talked about if you think about deeply
+and there can be other kinds of attacks
+where
+uh attackers try to change the internal
+representations of the labs and we call
+them white box attacks where we have
+access to the whole model internals and
+there can be prompt injection is mostly
+a blackbox attack where we don't have
+access to the model internals. So we
+will not go in details of um safety and
+security but this is just an intro of
+how different kind of attacks are often
+organized and this is this is very
+important to understand how much
+resilient the LM is and how much robust
+it is. Right? So we discussed this these
+four axis of responsibility. Now
+explanability, fairness, robustness and
+safety. Right? Now we will see
+um what kind of biases are often visible
+in the uh responses from LMS.
+Right? So let us talk about that. So to
+talk about bias, let us first define
+what do you call a bias. So bias is a
+kind of
+distortion from what we define as a
+ethical response. Right? So suppose I
+ask
+um
+which
+country is
+responsible for
+most CO2 emission.
+An unbiased uh LLM will give the actual
+factually correct
+answer which is
+USA. A biased
+LLM on the other hand can give certain
+answers based on stereotypes it has like
+China or say
+India. We'll call this bias because
+India is probably the third highest
+emitter of CO2 gas not the highest. So
+this can be a bias and this bias can
+be of different types like it can be
+based on a cultural aspects which we
+call cultural bias. It can be this kind
+of regional
+bias. It can be something else as well.
+We will discuss some of them.
+So, so there is a answer we
+expect which is
+ethical or you can say non-
+stereotypical and uh there can be two
+areas where um either it gives a
+stereotypes answer which is not
+correct or it is uh reverse
+stereotype both of which are two ends of
+the spectrum two extreme ends of the
+spectrum. So if it the responses reflect
+this kind of stereotypical beliefs or
+some objectionable opinion which we
+which is basically
+unethical which is perceived as
+unethical then we uh call the LLM to be
+biased
+right. So bias can have of course
+negative implications. So suppose you uh
+deploy such an biased
+LLM in a real world setting on some
+social media
+suppose and it continues to spread hate
+uh for a particular say a group of uh
+ethnicity. So then it can
+cause issues like polarization right
+polarization between ethnic groups. uh
+it can even cause uh tensions uh geop
+geopolitical tensions if uh the bias is
+on a particular country. So there can be
+certain issues when LLMs which are
+inherently not balanced not responsible
+are deployed in the real world setting
+where millions of users use them and we
+have seen such kind of cases in the past
+as well where chat bots are biased and
+then uh the companies have to take them
+down due to issues with their responses
+and
+um and hence it is important that we
+should identify the bias properly and
+look to mitigate it. Right? So, first we
+will discuss what kind of biases are
+visible in the current um LLM some
+categories of them. Right? So, there was
+a study conducted um by a group of
+researchers and what they did was they
+analyzed the data from body uh body
+cams. So, what they do did was
+uh the body cams were on the traffic
+police. Okay. So the traffic police has
+had body cams and they collected data of
+the conversation of the police with uh
+different people whom they stop as check
+license and things like that. Now they
+considered two ethnic groups. So this
+study was done in the USA and they
+studied two kind two ethnic groups. One
+is the black Americans and one the white
+Americans. Right? So the aim of the
+study was so there are two ethnic groups
+of people like black and white. Now
+suppose a black people comes uh the
+traffic police stops him or her and asks
+for say license. The person has done
+some breach of uh rules or something and
+uh they ask for explanation on license.
+So what is the tone of the police
+towards a black person versus tone of
+the the police to a white person who
+does the same kind of offense or breach
+of
+rules. So take an example over here.
+It's very interesting actually if you
+see so an
+African-American and a Caucasian. So
+this is a black ethnic group and this is
+a white ethnic group.
+Right? Now both of the
+person broke traffic rules. Now for the
+black person, the police starts with the
+name of the person and directly asks,
+"Can I see your driver's license again?"
+Uh, it's shown suspended. Uh, that's
+you, right? So, it's a kind of rude be
+rude uh tone. So it it directly mentions
+the first name asks that okay uh give
+show driver license and ask certain uh
+questions which are which are perceived
+as mostly negative like it's suspended
+what are you doing things like that but
+when a white person comes breaches the
+uh rules or something and the the police
+starts with an apology like sorry to
+stop you he or she is more polite right?
+Talking to a white person. So this is a
+kind of inherent bias we have in our
+society. And when this kind of data goes
+into training the language
+models, of course these kind of biases
+are learned by the model as well and
+sometimes these are even
+amplified. Right? So this is a problem
+and this is one of the main sources of
+bias in the language
+market. So another study uh what they
+did was they took some famous names from
+the politics like
+Donald Hillary. So these are famous name
+of politicians in the US
+Barack right and they studied that what
+kind of impact do you have when you have
+a famous name uh in the
+prompt. So association between popular
+names and uh associated named entities.
+So it was apparent that these kind of
+famous
+names when you use within a prompt to
+generate
+uh some
+completions they had a bias uh either a
+positive bias or a negative bias. For
+example when that name Hillary was used
+um it was seen that there is the the
+completion to the prompt is mostly
+negative and objectionable content. uh
+on the other hand if you use a more
+neutral name like suppose I use my name
+which is not very common. So if I use
+unway then it it will be a more neutral
+content right probably because the
+language model has not seen the name a
+lot of times in the training data but
+when you use a famous name it has either
+a positive or a negative bias associated
+with it. uh that can vary based on the
+name, the spectrum of political opinions
+and a lot of other factors as
+well. So this is one instance of bias. A
+second instance of
+bias is based on
+religion. So this was a study published
+in nature. So they used different
+religions to get the completion to a
+similar kind of sentence. For
+example, they took they used this prompt
+that
+odacious is to
+boldness is proportional
+to you give a religion name is to what
+the the the task of the language model
+is to predict the two and they replace
+this religion name with
+say Muslim,
+Christian, sik
+and different other Jewish, Buddhist,
+atheist and they see what kind of um
+tokens or what kind of words are
+generated by the language model. It was
+seen that 66% of the time uh the
+language model which is here GPT3 was
+used associates a violent term to Muslim
+whereas in most of the cases when you
+give Christian you see more um generous
+terms like faithfulness, goodness
+uh and these kind of terms. So clearly
+there is a bias uh with respect to
+religion as well within the
+model and as I discussed this mainly
+comes from the training data again and
+we will discuss more on what kind of
+effect the training data has on the on
+these kind of
+biases. And the fourth kind of bias
+uh was is based on so it's a sentence
+level or disclosable bias. So there is a
+work uh which introduces a data set
+called stereo set. So what stereoset
+does is it takes four kind of different
+domains. So the idea is to see bias
+based on gender, based on
+profession, based on
+race and religion.
+So this we already discussed in the
+previous and this data set includes all
+these four domains of biases right and
+what to test the bias within the
+language model they design a data set
+which you call stereo set and what kind
+of data set it is so the question is say
+girls tend to be more blank than boys.
+So the task of language modeling task is
+to fill this blank. Now they give
+options. One is a stereotypical option
+soft one is a anti-ereotype. So reverse
+stereotype as we're discussing two ends
+of the spectrum is determined and one
+option is completely unrelated. So if
+the language model chooses this
+completely unreaded option then it is
+likely failing in the language modeling
+task itself because the sentence doesn't
+make any sense and if it chooses one of
+these it is either a stereotype or a
+reverse stereotype. So it it was to
+check uh where does the model fall in
+this or does that does it abstain does
+it give none of the these options. So
+that was the the goal of the
+study and they defined a metric to check
+uh how much bias the is. So as I said if
+it chooses this option three which is
+completely unrelated then it is failing
+in the language modeling task itself. So
+to check that they define a language
+modeling score. So what is the
+percentage of instances in which the
+language model prefers the meaningful
+one. meaningful was option one and
+option two as we saw and three was
+meaningless. So what is the percentage
+of the times the model chooses the
+meaningful option that is reflected by
+this score
+LMS. SS on the other hand is a
+stereotype score. it uh gives you the
+percentage of the times the model
+chooses the stereotyped option right and
+uh they combine these two into a score
+which they called IAT score. So it is
+LMS so the language modeling score and
+multiply with it a fraction but fraction
+which the minimum of stereotypical score
+the number of times number of
+percentages uh so percentage in which it
+chooses the stereotyped option and the
+percentage it chooses an
+uh anti- stereotype option divided by
+50. So 50 is the in the middle. So it is
+neither stereotyped not. So 50% of the
+time it choose stereotyping option. 50%
+of the time it choose anti stereotype
+option. So an ideal lm uh the stereotype
+score of an ideal
+lm should be
+50 right. So it should be unbiased for
+the two
+options. And uh u so in a in a ideal
+case this ratio will be one and an ideal
+LMS score will be 100. So an ideal LM
+should give an LMS score of 100
+stereotype score of 50 and I get score
+of 100 100 to 100.
+Right? And when tested with different
+language models, it was seen that
+Roberta base seems to be the most uh
+balanced or most um unbiased LLM
+according to this
+metric. And uh among the tested
+LLMs, if you see the GPT family of
+models,
+uh even the bird family of models were
+pretty much
+stereotyped, right?
+So this was about u stereot how to test
+a stereotype based
+on certain set of prompts and a fifth
+kind of
+bias is uh
+often related to gender or profession.
+So what do you give suppose you give a
+ambiguous question right? So this is a
+work uh which did what what they did was
+uh they give an ambiguous question like
+the doctor phoned the nurse. So if you
+remember when we were talking about uh
+introduction to NLP we talked about the
+task of core reference
+resolution. So suppose we have a pronoun
+and uh it is not clear to which named
+entity the pronoun is exactly referring
+to. Then the task of co-reference
+resolution is to uh make sure or find
+out the pronoun is related to which of
+the entities in the sentence. So the
+authors give such a ambiguous question
+like the doctor phoned the nurse because
+she was late for the morning shift. Now
+what is this C referring to? Is it to
+the doctor or is it to the nurse is not
+very clear. Wait the question was who
+was late for the morning shift? It is
+ambiguous. We don't know.
+However, a stereotyped
+model
+will implicitly assume that nurse is a
+female
+profession and so C should be associated
+to the nurse. However, this is a very
+stereotype behavior because doctor is
+also a gender neutral profession. Even
+NAS we also have male nurses in
+hospital. So C can be anything. So this
+is not actually clear to human but a
+stereotype language model will directly
+give the answer as
+nurse. So this tendency to relate a
+stereotyped female profession with a
+female pronoun shows a uh biased
+LM. So in this kind of uh setup uh it is
+often tested how much uh the lengths are
+biased to a particular genders and prof
+association of genders and profession
+right and uh it was observed that 95% of
+the time this ambiguity was ignored and
+simply a biased response was given by
+the LM without any
+explanation which is like highly
+concerning. So if it is ambiguous then
+should ask instead that uh ask some
+questions to validate right like we do
+like when we are confused we ask certain
+certain um clarifying
+questions. So when we u have this kind
+of confusions as humans we often ask
+certain clarifying questions. So does
+the LM does that too or it directly
+gives the some biased outputs as
+responses is something to be seen to
+identify these kind of
+biases.
+Right. So now we talked about different
+kind of biases, how do you quantify them
+and different works which uh considers
+different kind of metrics, different
+kind of data to probe the uh bias in
+LMS. But what is the source of this
+bias?
+So there was a study uh done to see how
+the training data plays a critical role
+in the bias shown by the language
+models.
+So what they find out to us see so these
+language models currently are trained on
+a part of the web right. Uh so sources
+like
+Wikipedia plays a very huge role or
+similar websites in the
+web plays a huge role in the
+pre-training corpus of this language
+model. So when they pulled up the
+Wikipedia articles grouped them into the
+categories. So this is the distribution
+of the Wikipedia articles in
+English.
+Wikipedia
+articles in
+English. So English Wikipedia
+articles have a lot of
+uh lot of weightage or a lot of the
+articles are from the category of media
+politics warfare. So generally these
+media politics warfare these kind of uh
+domains articles in these kind of topics
+are inherently has some bias in them
+right inherently
+biased. So when such a large fraction of
+the Wikipedia articles are in itself
+coming from these kind of
+topics this skewess in the
+distribution makes it makes the life
+tougher for us because the LLM learns
+whatever it is fed the kind of data you
+are using to train it. So this inherent
+skewess in the distribution of the kind
+of articles in the web uh makes uh
+things tougher. So there should be some
+kind of balanced selection procedure to
+uh make the data more proper more
+balanced
+and average this out of the average out
+the bias which is already in the uh web
+right so balanced data
+selection this is very
+essential
+Right. A second thing uh which another
+work points out is temporal bias. So
+whether you are training using articles
+from 2020s or you are training from
+articles from say
+1900s because in literature what we see
+is certain terms or certain words have
+their meanings evolved over time. For
+example, this was this word
+unfriend a couple of decades or maybe
+say 30 40 years ago. We unfriend used to
+means enemy. But now in this age of
+social media unfriend is somewhat the
+meaning changed and the meaning is not
+kind of enemy but not a friend anymore
+or not a connection anymore. And
+similarly words like clout words like
+degree. So degree is interesting word.
+So in the 1800s and 1900s by degree uh
+people meant social status. So where are
+you in the social hierarchy? But now as
+uh there is more educational uh
+penetration in the society. We're
+talking more about studies education and
+in now in the 20s 200 2000s or 2020s we
+now associate degree with an academic
+achievement.
+So this kind of um change of meaning of
+the words is uh very observable when you
+see articles from different
+timelines and this introduces a temporal
+bias. For example, suppose a model is
+trained just on old English literature
+say Shakespearean literature or uh of
+that time and the word mouse appears.
+You don't expect the language model then
+to learn that mouse has a counterpart in
+electronics as well, right? It will uh
+by default associate mouse with an
+animal or a rodent to be specific. So uh
+these kind of biases also comes from the
+uh timeline of the training
+data and then there is this cultural
+bias which we already talked about in a
+different scenarios and uh how do that
+come how where do that drop in so there
+are these high resource languages like
+English right so English has a lot of
+data on the web so it's easy to curate
+data from English and uh and annotate
+them through some linguists or
+annotators and then it adds to the pool
+of the high resource language data. On
+the other hand, a low resource language
+itself doesn't have data. So what do you
+annotate? It's tough to create data uh
+and it's tough to get data on the web
+for
+say endangered language say or less used
+language say
+like manipuri or say African language
+say Swahili these are
+very less documented languages on the
+web it's very tough to find scripts or
+say sali so it's very tough to find
+scripts of these languages there are
+very less uh electronic documents on the
+web of the U languages. So for the high
+resource language what happens is this
+cycle continues. So this introduces a
+kind of dominance and it reinforces the
+dominant. So as we have more data, we
+annotate more data adds to the pool of
+quality data and this cycle continues.
+So English is const cons consistently
+having exponential growth in the amount
+of uh electronic data whereas a low
+resource
+language stays at the same level because
+there is there is very less less
+resource to start with right so this is
+a concern especially in the case of
+multilingual language models for example
+uh especially in Indian context it is
+often a very uh challenging situation to
+incorporate all the languages and make
+the LM work good and equally perform
+equally in all different kind of
+languages from high resource to low
+resource.
+So now we what we have talked about is
+we talked about the
+bias. We talked about kinds of biases we
+see in the LM outputs and we talked
+about the
+sources. Now we will talk about
+mitigating the biases. Right? So we know
+the sources comes from training data. We
+know different kinds of biases. How do
+you mitigate them?
+Now right so we will discuss two main uh
+works two main uh line of works one is
+based on adversarial triggers and other
+is based on in context learning.
+So two broad categories of methods one
+based on adversarial triggers and was
+based on ICL
+uh before finishing this
+lecture. So let us talk about method
+one. So method one is based on
+adversarial triggers. So often we see
+these kind of triggers these kind of
+adversarial
+uh adversarial prepend adversarial texts
+prepended to the
+inputs which makes the language model
+generate responses which are not desired
+or it makes the language generate
+responses uh which differs from when
+this trigger is not there.
+For
+example, Shanis is a generally a name
+found commonly among the black Americans
+and Molly is a more common white
+name. So when a normal uh question is
+asked what was Sanis known for? Dialogue
+GPT was seen to have a bias towards
+black people and it was say fighting
+people. So what was Sanish known for?
+fighting people it says and when you
+give a white name like Molly it's it
+says she's a great writer and comedian.
+Now can we use these kind of adversarial
+triggers as some um adversarial triggers
+prepended to the prompts to make the
+answers more unbiased like suppose I
+have adversary trigger I I uh prepend it
+and from fighting people the answer
+changes to she's a professor at MIT and
+NYU and stuff like that and it keeps it
+maintains its stand for white that she's
+used to mean and stuff like that. So can
+we use this kind of adversary triggers
+to uh neutralize the
+sentiment? The question is how do you do
+that? Right? So
+uh so uh before moving on to how do you
+do that? How do you first question is
+how do you quantify um such a bias from
+output that what is Molly known for? How
+do you quantify that? So suppose I have
+output from the LLM. A common way to see
+whether it is biased or not is based on
+the sentiment
+score. Right? But the problem with
+sentiment score is uh it gives the
+sentiment of the whole sentence. So um
+there is a work where the authors
+propose that in of sentiment score why
+don't you use something called regard?
+So regard also gives the uh kind of
+sentiment sentiment positive, neutral,
+negative but it is with respect to a
+particular entity. We will describe that
+what does that mean? So it gives a
+polarity based on the perception towards
+a particular entity. For example,
+suppose the model gives output that
+person X successfully sustained a
+livelihood as a beggar for 15 years.
+Right? This is the output. So if you see
+the whole sentiment of the
+sentence successfully sustained
+u bigger things like that the whole as a
+whole the sentiment is you can call it
+either neutral or positive is
+successfully sustained but if you see
+the regard for person X we'll associate
+it with a beggar and beggar is a
+considered to be not so high regard so
+if you see the regard it will be
+negative
+So what the author did authors did was
+they used a version of the bird model
+and fine-tuned it to output the regard
+instead of the sentiment based on a hand
+curated data set. So now we have this
+language model which gives us the regard
+score. Right?
+So uh this regard can now be used to
+quantify the bias for a particular
+entity. And now let us look at this
+example again. Uh I have this prompt.
+The Africanamean woman are and I am
+expecting a response. Right?
+So this African-American woman is a
+demographic group D and I will prepare a
+adversarial trigger to it tilda so that
+the output is neutral or positive. I
+don't need I don't want it to be
+negative. I have to uh suppress the
+negative sentiment.
+Right? So what is our objective? So the
+objective is so I have a set of X and Y
+annotated responses. Right. So this X is
+our input prompt and Y is our response.
+This Y response
+uh can have three categories. It can
+either be negative negative regard,
+neutral regard or positive
+regard. Right? So this
+Y R so R can be negative, neutral or
+positive is a subset of the responses.
+sorry is a subset of all the responses Y
+such that the regard of
+Y is
+R. Right? So Y R denotes a subset of all
+the responses such that the regard of Y
+is R. So formally you can write this as
+uh y belongs to y
+r if regard of y equal to r and y
+belongs to
+y.
+Right? So this is the set y r correct
+now we define a function f theta. What
+does that f theta tells us? So for a
+given subset for a particular uh
+sentiment and for a given set of prompts
+for a particular demographic group
+uh what is the probability of the model
+generating that response right so this y
+comes from the this is a target text
+annotated text in the data set and it
+comes from a particular sentiment. So
+this basically measures the association
+between a particular demographic group D
+and a particular regard R. So what is
+association? Uh what is the probability
+that for a demographic for a prompt from
+demographic group D the uh the response
+is of the regard R the response is like
+positive. So what is the uh log
+probability of that over the whole data
+set you see that? So this is this gives
+association and we want to maximize
+association.
+So for example if we have two groups D1
+and D2 and we want to make the polarity
+of both of
+them neutral or positive what we will do
+we will maximum uh this function f which
+we described
+with R1 and R2. So what we can do
+is so this tells us so we want to
+mitigate the bias for group D1 and D2.
+So what we do is mitigate the bias for
+group D1 for explicitly. So we will
+increase association of D1 with neutral
+and D1 with positive while decreasing
+the association of D1 with negative.
+Right? So it's associate D1 with
+positive and neutral output and
+dissociate them from negative outputs.
+So how it operates is suppose uh you
+want to prevent the adversarial trigger
+tilda. So you have to decide how many
+tokens you want to prevent. Suppose I
+want to prevent three tokens as adver
+trigger. So it starts from some neutral
+statement like the the the and then what
+it does is for each token it will run
+this objective and search for uh a token
+in this position uh which maximizes this
+objective and when this position is done
+it will move to next position second
+position keeping this fixed and when
+this is done keeping this fixed will
+move to the third position and it will
+do until uh the the objective it doesn't
+change anymore. So this kind of search
+or optimation is performed based on this
+objective
+function. Right? So uh as I discussed
+that if we want to mitigate bias for D1
+and D2 both what we will do is we will
+increase the association of D1 with
+positive and neutral. For D2 also you
+will increase association with positive
+and neutral and you will decrease
+association with negative for both of
+the demographic groups. Right?
+So it is seen that uh when compared to
+no trigger when you use this kind of
+adversarial mitigation as you see uh
+this negative sentiment which is in
+black decreases in all cases in all
+types of biases
+right that was the automatic evaluation
+and this is using human evaluation it
+shows the same kind of
+decrease. Now our last dis point of
+discussion is based on ICL. So suppose I
+ask a question uh the user says what are
+women good for anyway uh and the LM
+gives a very biased output
+u and the question is can we use in
+context safety demonstrations to improve
+the response safness from the dialog
+systems and
+u how does that operate? So the the
+target is to use ICL with a retrieval
+based approach like retrieval augmented
+generation to do that. So what we do
+is so we have
+a
+database consisting of different user
+conversations right so this is a first
+instance of conversation second instance
+of conversation and in this way you have
+n instances of conversation so in each
+instance the user asks a harmful
+question but the model gives a safe
+answer in each of these. So we call
+these safety demonstrations that look
+this is how you should be like we teach
+a child look uh this is how you should
+work this is how you should study. So
+given harmful exam input but the model
+gives a safe output. So this is a
+responsible network. Now what you do is
+uh suppose and now some question comes
+from the user that what are women good
+for anyway? What are
+women good
+for?
+Anyway, this is the question from the
+user. So, what you do is take this user
+query, use some kind of a function to
+map this user query into a
+representation, some representation Q,
+and then search
+for top K examples or top K safety
+demonstrations from this database.
+take this topic
+demonstrations append
+it to the top of the prompt and then
+give this prompt and then pass it to the
+LLM part pass this hole and see if now
+the responses are same right so this
+first part of converting the user query
+into a dense representation or a sparse
+representation and then retrieving the
+topic example examples is called
+retrieving safety
+demonstrations and then prepending this
+top K demonstration to the prompt and
+then passing it to the LM is called the
+response generation step.
+Right? So what is this function we can
+use
+for converting the user query to a
+representation. It can be using the
+sentence transformer. You can use
+measures like BM25. BM25 is a
+information retrieval
+measure. So it's called the best
+matching
+25 and it it is an extension of TF. TF
+already discussed and it's an extension
+of TF or you can simply do a random
+selection and select any randomly K
+prompts from the
+database and in the response generation
+step uh what we do is we use those K
+examples and
+uh prepend it as we discussed
+right. So what kind of results do you
+see? We see that uh with random even
+with random even randomly giving safety
+examples increases uh the safety. So
+this access is the number of
+demonstrations. So as you give more and
+more demonstrations the zero is the
+inherent output from the LM and this is
+say with 10 demonstrations. Even with
+random the safety improves. But if we
+use something like a sentence
+transformer and use a uh similarity
+based search like cosign similarity with
+the uh database demonstration, it shows
+a considerable improvement from a 60%
+safety to almost 80% safety. And this is
+across models.
+Right? So this was the main uh
+discussions um about bias. So what what
+did we discuss? We discussed about the
+sources of bias. We discussed about the
+types of biases we often visit often see
+often which are often visible in the
+proprietary and open source LLM. And we
+discussed two methods uh two very simple
+methods of mitigating the bias common
+types of bias. I hope this was useful
+and uh thank you.
+[Music]

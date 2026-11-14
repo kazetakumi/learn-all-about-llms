@@ -1,0 +1,1578 @@
+In the last class, we have been
+discussing attention, right? We
+completed RNN, different variations of
+RNN, LSTM, GRU, right? And uh
+we also understood uh
+how back propagation through time
+happens, right?
+And uh
+specifically through LSTM and GRU, how
+we can use gated gated mechanism, right?
+To address the vanishing gradient
+problem, right?
+And we also discussed in the last class
+about sequence-to-sequence model,
+right? Where I mean, we discussed in the
+context of machine translation, where um
+we have an encoder encoder block, we
+have a decoder block, right? Encoder is
+responsible for scanning the the the
+source sentence, let's say let's say the
+task is machine translation, English to
+Hindi to English. So, an encoder is
+responsible an encoder RNN is
+responsible for scanning the the input
+source sentence, and the decoder RNN is
+responsible for uh translating the
+source sentence into the target
+sentence, right?
+And we also discussed a problem called
+the bottleneck problem.
+I hope you remember, right? The
+bottleneck problem is that right, the
+last hidden state of the encoder block
+is responsible for storing the entire
+input, right? And uh so, there's a
+bottleneck in terms of information
+storage, right?
+So, to address this uh
+we have introduced the concept of um
+uh attention, right? In the attention,
+the idea is that you have direct
+connection from the decoder to encoder,
+right? Every decoder block has a
+connection to the encoder block, right?
+Each of the encoder blocks, right? And
+we do some sort of dot product, right?
+Between
+between the decoder state and the
+encoder state, right? And this dot
+product indicates a similarity between
+the encoder state and the decoder state,
+right? And then first we compute
+attention score. Attention scores are
+basically the similarity scores between
+a particular decoder and all the
+encoders. And then from attention score,
+we pass this scores through a softmax,
+which will give you a distribution. This
+is the This is the attention
+distribution, right? And then we
+consider the probability in the
+distribution as weights. And then we
+take the weighted average of the encoder
+states, right? And that's going to give
+you the attention vector.
+So, in this class, we will
+discuss the problems of the attention
+mechanism, right? And we introduce the
+concept of self-attention, right?
+And then we move uh gradually move
+towards discussing the concept of the
+transformer model.
+Okay. So,
+the question that we are asking here is
+whether the attention
+that we have discussed so far is all we
+need or not.
+Right?
+Maybe the attention mechanism that we
+discussed so far is not enough, right?
+We need something else to address the
+problems that are already there.
+So,
+so in normal RNN, what were the
+problems? The vanilla RNN, the problems
+were number one, the bottleneck problem.
+Number two is
+vanishing gradient problem. Number three
+is
+the I mean, it is not You were not able
+to access the entire
+all the tokens in parallel, right? You
+have to do this thing in in a sequential
+manner, isn't it?
+So,
+attention partly addresses the vanishing
+gradient problem,
+right?
+Attention also addresses the bottleneck
+problem, but attention attention till
+its current form that we discussed so
+far is not able to address the problem
+of the sequence
+sequential access versus parallel
+access.
+Right? So,
+till now we access all these tokens.
+Let's say we have token W1, W2, dot dot
+WN. We access all these tokens in in
+sequence, right? Meaning that for every
+at time at time T when you compute the
+hidden state, right? You have to wait
+till time T minus 1.
+So, in the last class again it's again a
+very quick recap of the last class
+attention, right? By the way, attention
+is not restricted to only the sequence
+sequence to sequence modeling problem. I
+discussed last day that attention is a
+very generic concept, right? You can use
+attention to a single RNN. Not
+necessarily a sequence to sequence
+problem where there are two RNNs, right?
+So,
+well, let's focus on the sequence to
+sequence model problem again. You are
+given an input sentence this.
+Okay? And your task is to translate it
+to
+target sentence.
+And these are the hidden states. H1, H2,
+H3 are the hidden states in the encoder.
+Now, this is this is my encoder, right?
+And this is my decoder. A0, S1, S2, S3,
+these are the decoder hidden states,
+right? What we do in the normal
+attention what we do, we consider each
+of these decoder hidden states as query
+as a query. And then what you do? Then
+we take let's say let's say we are
+focusing on this decoder state. We
+basically take a dot product between Q1
+Q1, Q1, Q1, K2, Q1, K2. What are these
+K1, K2, K3 by the way?
+So,
+in normal attention, right? Last day I
+mentioned that
+Uh, are called queries, right?
+Right? And
+the encoder states are called values.
+Right? You can also think of the encoder
+states as keys. We will introduce a
+concept of query.
+So, so far we talked about query value.
+We'll introduce a concept of query key
+and value
+today.
+Very same as the information retrieval
+concept, right? Where
+uh, let's say when we type a query, I
+mean, you basically search that query,
+right? Uh, with all the uh, possible
+keys present in the documents. Now, what
+is the key in a document? Let's say you
+want to retrieve a document.
+Right? Using information retrieval
+mechanism. What is a key? The key can
+be, let's say the metadata, or the key
+can be the keywords, for example, which
+describe that particular document,
+right?
+So, in a very vanilla setting, normal
+setting, what we do, we take the query,
+which is the user's query, and we look
+at the similarity between that query
+with each of the keys, each of the
+keywords corresponding to the documents,
+right? And we do some sort of similarity
+matching. Let's say a cosine
+similarity-based matching, right? And
+then we identify a particular document
+that has the highest similarity, right?
+Then what we do, we retrieve the
+document.
+So, we may not want to retrieve the
+entire document, right? We may want to
+retrieve a part of the document which is
+relevant to the user's query.
+Right?
+Let's say in a document there are
+multiple concepts, but the user is
+user is interested in a specific
+concept,
+specific paragraph, right? So, you may
+not want to retrieve the entire
+document, you may retrieve only that
+paragraph which is relevant, right? So,
+here the entire document acts as a
+value.
+So, the uh, so you may not want to
+return the entire document, right? You
+want to return a part of the document.
+Now,
+user's query acts as a query, okay? And
+the metadata information of every
+document acts as a key.
+You take a sim- you measure a similarity
+between the query and the key. You
+measure the similarity between a query
+and all the keys corresponding to all
+the documents, right? And then, based on
+the similarity, you
+return the corresponding value. The
+value is the document, the entire
+document. You may not want to return the
+entire document. You You want to return
+a specific part of the document which is
+relevant to the query.
+Right? And how do you know which is
+really Which part is relevant? We
+already got the dot product, right? We
+know that this is the similarity. And we
+do a maybe another round of similarity
+between that query key dot product with
+all the values present here. Values are
+essentially all the paragraphs in a
+document, right? And you want to return
+a part of the document, not the entire
+document. The idea here is the same.
+Exactly same, okay?
+So, here,
+in a vanilla attention, okay? The one
+that we discussed so far,
+we have a query
+Q1, right? Corresponding to this decoder
+state, right?
+How do you get this Q1? In a vanilla
+attention setup, this query is nothing
+but the hidden state itself.
+Right? Q1 is basically S0.
+Okay? And what is K1? K1 is H H1, K2 is
+H2, K3 is H H3, and so on and so forth.
+Right? Then, you take a dot product
+between S0 so S0 H1, S0 H2, S0 H3.
+Okay? These are the attention scores,
+right? And then, we pass these attention
+scores through attention distribution,
+right? It will give you a distribution,
+right? So, these are essentially
+weights, let's say W1, W2, W3, and so on
+and so forth.
+Right? And then,
+once you got the distribution one once
+you got the similarity score now these
+similarity scores
+will act as weights. Then what we do
+then essentially you retrieve the
+corresponding value, right? What is the
+value here?
+Let's say
+along with K1 along with this key you
+also have a you also have access to a
+value V1.
+This value is also generated from the
+hidden state.
+In the attention setup this value is
+also H1.
+Keys and values are same
+in attention.
+Right? So values are basically so
+V1 V2 V3 are essentially H1 H2 H3
+respectively.
+So after this weights then we what we do
+we take the weighted average of all the
+values meaning W1 V1 plus
+W2 V2 plus
+W3 V3.
+Right? This will produce a vector and
+this vector is called the attention
+vector.
+Right? So this is the vanilla attention
+mechanism.
+And then again you take another decoder
+state you take the dot product of the
+decoder states with all the encoder
+states values attention scores
+distribution and so on and so forth.
+Right? So this is RNN on top of RNN you
+have attention.
+Now here is the question that we are
+asking.
+The question is
+if a decoder state by the way as I
+mentioned this is not restricted to
+encoder-decoder setting you can also
+think of simple RNN like this single RNN
+not necessarily encoder-decoder a single
+RNN and every RNN state can access to
+all the previous RNN states.
+Right?
+Okay? So query can come here.
+And these are basically keys. K1 Sorry,
+K1, let's say K2, K3. And you do the
+same operation.
+Okay?
+So, the question here we are asking is
+as follows.
+If
+through attention mechanism
+if a decoder state can access to all the
+encoder states
+right? Through Through attention
+mechanism we see that every decoder
+state can access to all the encoder
+states.
+Right?
+Why do we need these recurrent
+dependencies?
+Why do we need these dependencies
+between H1 to H2, H2? So, if this guy
+can access to all the previous guys
+why do we need these connections?
+Now, these connections are the
+bottlenecks.
+Why they are bottlenecks? Because
+because of these recurrent connections
+you were not able to access all the all
+these tokens in parallel.
+If these had not been there
+right? You could have accessed all the
+tokens in parallel.
+Isn't it?
+So, the question that we are asking is
+do we really need the recurrent
+connections if we have attention?
+Okay? So, what we do in the
+self-attention mechanism is that we
+remove these dependencies.
+Okay? If we remove these dependencies,
+now now tell me now it looks like this.
+Now, uh the hidden states looks like
+this, right? And these are inputs.
+Now, each of the states, let's say this
+state can access to
+can basically access to all the other
+states.
+This guy can access to this
+this and this. This can access This can
+have access to this and this.
+Now, each of these operations
+are independent of each other, right?
+When you compute the operation for this
+guy, you can do the same thing for other
+guys, also.
+Okay?
+So So, this is the
+This is the premise behind the
+self-attention mechanism. But, here's a
+problem.
+What is the problem?
+The problem is that when you discard
+these recurrent links,
+you basically lose out the information
+of the sequence.
+Right?
+You do not So, since this
+Now, think about it. This is H1,
+H2, H3, and H4. H1 H2 on at H1 at H2 H3
+H4, you do all these attentions
+independently.
+Right? So, this is equivalent to another
+network
+where let's say this is H3, this is H1,
+this is H2, and this is H3 H1 H2 H4.
+If you shuffle the hidden states,
+right? You get the same output.
+Because there is no dependency between
+the hidden states.
+Okay?
+So
+So So, it basically means that the
+temporal dependencies which are
+preserved in recurrent neural network
+that will not be preserved if we do
+self-attention. If we remove the right
+recurrent connections. How do we address
+them? We'll discuss later.
+But, before that, let's focus on the
+self-attention part.
+So, in self-attention, what we do,
+let's say you are given inputs X1, X2,
+X3, X4. These are essentially tokens,
+right?
+And denoted by XT.
+We pass it through some sort of linear
+layer followed by non-linearity, right?
+This is a linear weight W, learnable
+weight, and non-linearity, and we obtain
+hidden states H1, H2, H3.
+Okay?
+Now, from each of the hidden states,
+I will now generate three vectors.
+From each of the hidden states, I will
+generate three vectors. One is called
+the query,
+other is called the key, and the the
+remaining is called the value.
+Okay? And how do we do that?
+Very simple idea. How do we do that? We
+do this using three parameter matrices.
+Uh
+for query generation, we use the
+parameter matrix WQ. For key, we use WK.
+For value, we use WV.
+These are the learnable parameter
+matrices.
+Right? It basically means that we
+multiply H1
+with WQ, which will produce the query
+Q1.
+We multiply H1 with WK, which will
+produce
+K1.
+We multiply this with
+WV, which will produce V1.
+Similarly, you multiply H2 with WQ,
+which will produce Q2.
+Right?
+WK, which is produced K2, and WV, which
+will produce V2.
+And similarly, Q3, K3, and V3.
+The same set of parameter matrices are
+used to generate uh queries, keys, and
+values for all the tokens. The parameter
+matrices are shared.
+Okay?
+So, So, value you obtain uh through uh
+WV. Key you obtain from uh using WK. And
+query you obtain from WQ.
+These are the linear transformation.
+Linear transformation, right?
+Then what we do? The same process.
+Same as attention. Let's say you're
+focusing on this one.
+Right? So, this query
+this query and the key will basically be
+combined through dot product. So, we
+will get
+Q2 K1. Then you
+do a dot product between Q2 and K2.
+Right?
+So, Q2 K1
+Q2 K2 and then
+Q2 K3.
+Q2 K3. So, every query is multiplied
+with all the keys.
+Right? So, at this position you have Q2
+K1, Q2 K2, Q Q2
+K3. At this position you have
+Q1
+K1
+Q1
+K2, Q1 K2, and at this position you have
+what? Q3
+K1
+Q3
+K2
+and Q3
+K3.
+Right? So, at this position at let's say
+at this position Q1 K1, Q1 K2,
+and Q1 K3. At this position you have Q1
+Q1
+Okay? Now, these are attention scores.
+We denote these scores using E.
+What is E L T? The index L corresponds
+to query
+and T corresponds to key.
+Okay? So, you got
+attention scores. Then we pass this
+attention scores through a softmax. We
+we got then we'll get the
+attention distribution. Right? So, this
+attention distribution this
+probabilities alpha one, alpha two,
+alpha three, they will act as weights
+and then these weights will be
+multiplied with the values. So,
+essentially alpha one V1 plus alpha two
+V2 plus alpha three V3.
+Okay?
+So, so this is my attention vector.
+AL
+Right?
+Now,
+so we can generate this attention
+vectors independently irrespective of
+the positions, right?
+Now, you can think of the entire
+operation that I discussed so far,
+right? This query key value generation,
+then dot product and distribution, etc.
+etc. You can think of this as a layer.
+Right? So, once we obtain the hidden
+states, you can think of the remaining
+part that we discussed so far as a layer
+and within the layer all these things
+are happening. Right?
+So, we call this layer as self-attention
+layer.
+Okay?
+Self-attention layer.
+So, we can repeat the process, the
+self-attention process multiple times.
+So, you have the input, we basically
+place a self-attention block, right? The
+self-attention block will produce what?
+The self-attention block will produce
+attention vectors,
+right? And then on top of this you can
+again add another self-attention block.
+You can keep on doing this thing
+multiple times.
+Right? Remember,
+for every self-attention layer,
+right? The
+query key value pair the query key value
+matrices are unique.
+Meaning, at the first layer you have,
+let's say, WQ1, WQ, WK1,
+WV1. at layer two. Let's say at layer
+two you have W
+W uh
+Q2, WK2, WV2.
+These matrices are not shared across
+layers.
+Matrices are shared across tokens.
+But not across layers, right?
+So, as you
+as you have access to bigger and bigger
+larger and larger data set, you keep on
+stacking uh the self-attention layers
+one by one.
+Okay?
+And you keep repeating this thing.
+So, this is one step towards the
+transformer model. Okay? So, we
+understood what is self-attention now.
+Self-attention Through self-attention
+you can access the tokens in parallel,
+right? So,
+in that case, you can use the modern GPU
+machines, right? To process things in
+parallel, right? So, the one problem of
+the one major problem that all these RNN
+methods, LSTM,
+RNN,
+uh I have problems that that uh is now
+addressed, right?
+Now, the second problem that I mentioned
+earlier
+is that So, for addressing the
+non-sequential access, what we missed
+out is the position information. So,
+this is position invariant. So, we need
+to basically come up with some sort of
+information which will give you the idea
+of the position of every token. Let's
+say the man eats a cheese or versus a
+cheese eats a man.
+Right? It just the position of the word
+man and cheese actually matters. If you
+swap them, then the meaning will change,
+right? But in a self-attention
+mechanism, these things can't be
+distinguished.
+So, now we'll discuss uh positional
+encoding. So, positional encoding uh
+is a mechanism
+through which you can encode positions
+of tokens.
+I will not go into details of positional
+encoding in this lecture. I will take
+another separate lecture on position
+according where we'll talk about the
+encoding mechanism that was proposed in
+the Transformer paper as well as some
+advanced position according methods.
+But,
+in a high level, what it does, uh the
+position according method does, it
+essentially gives a position information
+to every token. Let's say X1, X2, X3,
+X4. These are the inputs and let's say
+the corresponding embeddings are E1, E2,
+E3, E4. What are these embeddings? These
+embeddings can come from uh one hot
+encode encoding or it this can be this
+kind of this can be obtained from word
+to vector glove, right?
+What you do on top of this, you derive
+the positional information of these
+tokens, P1, P2, P3, P4. Now, this is a
+vector, E1, E2, E3, E4, these are
+vectors. P1, P2, P3, P4, these are also
+vectors.
+So, a position is encoded through a
+vector.
+And then you add them.
+Okay? So, here the resultant vector is
+E1 plus P1,
+right? Add means element addition is
+element element of addition, right? So,
+E2 plus P2,
+E3 plus P3,
+E4 plus P4. This is now fed to the
+self-attention block. So, instead of
+feeding E1, you now feed E1 plus P1.
+Now, how do you get this P1? I will
+discuss later.
+For the time being, you assume that this
+P1, P2, P3, P4 are obtained using some
+process.
+And they are unique.
+Right? They have certain properties, the
+distance properties, the sequence
+properties, these are these are all
+preserved. Okay?
+So, I will not discuss this one right
+now.
+All right.
+Let's move on to the next concept,
+multi-headed self-attention.
+Now, let's see
+what additional thing we can do on top
+of the self-attention.
+Why we want to do so many things?
+Because now we have access to huge
+amount of data. Right? We can add as
+many parameters as we want.
+So, let's see the concept of
+multi-headed attention. So, in
+multi-headed attention or multi-headed
+attention,
+in a single attention, what we do, use
+query, key, and value matrices, right?
+And we obtain
+Q1,
+K1, V1, Q2, K2, V2, and Q3,
+K3, V3, using these three matrices.
+Right?
+In multi-headed self-attention, what we
+do, we repeat the same thing multiple
+times.
+Meaning, we have one set of
+parameter matrices, we will take another
+set of parameter matrices, right? Which
+would look like this, WQ. Let's say this
+is 1 1 1, WQ2,
+WK2,
+WV2. This is another set of parameter
+matrices.
+Okay? So, from first set of parameter
+matrices, we obtained Q11,
+uh V11, this one. This one one. So, the
+super superscript indicates uh different
+attention head.
+Right? And using this, we obtain another
+set of vectors, Q12,
+K12,
+V
+1
+2, right?
+2 2,
+K22,
+V22,
+and Q
+2 3,
+K23,
+V23.
+Is it clear?
+Okay, so the superscript indicates so
+each of these parameter matrices, right?
+The set of these parameter matrices is
+called attention head.
+So this is attention
+head
+one.
+This is attention
+head
+two.
+So through this attention head, through
+one of each of these attention heads,
+you generate an attention vector.
+So through one attention head, you
+generate one attention vector, right?
+This will be processed
+through another attention head. So
+through attention head one, you will
+essentially process all these things,
+right? Through the way that we discussed
+earlier, and it will produce an
+attention uh attention vector, which is
+let's say A
+right? A 1 1.
+You process all of these things,
+right? And this will produce
+attention
+vector
+two.
+So A 1 1, A 1 2, this is this will be A
+what? 2 2, sorry, 2 1
+A
+2 2 right?
+A 3 1, A 3 2.
+There are two attention heads.
+Right? So every attention head will
+produce an an attention vector.
+Now for every token,
+we have two vectors in this example.
+Because we have two attention heads.
+You can you can have multiple such
+attention heads. Let's say in the
+Transformer paper, they tested their
+model with two setups. Uh eight
+attention heads is the standard one. Now
+why do we need these attention heads?
+This is the question. Why do we need
+multiple such parameters?
+Right?
+Now the idea essentially is influenced
+by uh the convolutional neural network
+architecture.
+So, in CNN, if you are aware of CNN, you
+may know that when you focus on a
+specific patch of an image, right?
+Right, let's say
+this is the RGB vector, and you focus on
+one part of the image, you use a kernel,
+right? And you you do max pooling, mean
+pooling, whatever, right? In fact, we
+use multiple kernels on a single patch.
+And the hope is that each of the kernels
+will be will correspond to
+one particular aspect of that patch.
+Let's say there's an image of a dog,
+right?
+And uh you want to classify this uh
+whether it's a dog or a cat, right?
+You want to look at the the ear, the
+eyes, right? Nose and tail, whatever,
+right? These are different aspects.
+So, when you focus on a particular part
+of the image, one kernel will be
+responsible for fetching information of
+the eye.
+Another kernel will focus on fetching
+information of the the ear, for example.
+Another kernel will focus on fetching
+information of a tail or nail, whatever.
+Right? So, you are essentially fetching
+different aspects of a specific region
+through different kernels.
+Through different filters.
+Here also, you use these attention heads
+to fetch different informations from a
+specific token.
+Now, what are these information? Let's
+say
+you are interested in whether you are
+interested in understanding whether this
+specific token is used as a subject or
+not.
+Right? So, one attention head will look
+at that aspect.
+You are also interested in knowing
+whether this is a
+pronoun or noun or not.
+POS tagging.
+So, another attention head will look at
+that that aspect. You want to understand
+whether this is a named entity or not.
+Another attention head head will look at
+this aspect. Now you can ask
+who will tell you that this attention
+head will look at this aspect.
+Right?
+This is just just for the illustration
+purpose, right? We do not know which
+attention is corresponding to which
+aspect,
+but as we increase the number of
+attention heads, we basically assume
+that uh
+different aspects of that token will be
+captured through different heads.
+Okay?
+This is called multi-head attention,
+multi-headed attention.
+So these are heads.
+Okay?
+Now from every Now for every token, we
+have multiple attention vectors.
+What are the size What is the size of
+this vector?
+The size of this vector is same as the
+input vector size. Let's say the size
+the dimension is D. Each of these
+attention vectors will have dimension of
+D.
+Right? So if there are two attention
+heads, what's the resultant vector size?
+D and D.
+Right?
+Then what to do with these two vectors?
+Because remember, the next layer
+has a this self-attention block, right?
+Whose input is a vector of size D.
+But now you obtain two vectors of size
+D. What to do? You concatenate them.
+Right? If you concatenate them, the size
+will be 2D.
+How do you get that
+D vector from a 2D vector? You pass it
+through a linear layer whose size is
+linear layer that is basically a matrix
+W of size 2D cross D.
+This will project a 2D vector to a D
+vector.
+This is called output output matrix.
+We'll discuss later. Okay? So we need
+another projection which will project a
+2D or if there are eight vectors eight
+attention eight D vector to a D vector.
+Okay?
+You got it?
+Multi-headed attention is clear?
+This is just for the purpose of
+illustration. So, So, in this example,
+there are three heads. You see there are
+three attention vectors, right? And
+three attention vectors are
+concatenated. Let's look at this very
+interesting illustration. See here.
+This is
+the sequence.
+Right? This is the These are the tokens.
+For For every token, I generate a query,
+which is the blue blue vector, key, red
+vector, and value, the green vector,
+right? And then uh
+This is my uh This is the
+This is the attention vector.
+Right? When we use a single attention
+hit. Right? And
+uh So, this So, sorry. Uh These are
+essentially not attention vectors. These
+are essentially the similarity values,
+right? Meaning the attention
+The attention scores.
+From attention scores, you you obtain
+the attention vector
+for every token.
+Now, in multi-headed, you have multiple
+such vectors.
+Okay? Multiple such vectors, multiple
+such attention distributions, right?
+Okay? And then what you do, you
+concatenate them, right? And pass it
+through some sort of linear layer, and
+this will result in a
+uh vector which has the same dimension
+uh
+of the input vector.
+Right?
+Let's move on to the next concept.
+So, we discussed three things.
+One is self-attention.
+Position encoding
+Positional encoding we briefly
+discussed. We understood at least what
+it does. And then multi-headed
+self-attention.
+So far, what we have discussed,
+all these operations are linear.
+By the way, what is the complexity of
+the self-attention block?
+If there are n number of tokens,
+so every token is attending to all the
+other tokens, including itself. So,
+complexity is order of n squared.
+Okay? So, and we'll see that this
+attention self-attention is a linear
+operation. Although it looks very
+complicated, but ultimately it's a
+linear operation. We'll show this thing.
+Okay? Let's see.
+And we'll show this thing using one
+attention head.
+One attention head. W1 Q1 W WQ
+WQ WK WV.
+So, let's say this is my key key
+query Q QT KT and VT. Okay?
+And what is alpha LT? Alpha LT is the
+uh is the is the score after um So, so
+ELT is the similarity dot product, and
+alpha alpha LT is computed after this,
+which is the uh softmax output. Okay?
+And the attention vector
+is the probability, the weight, and the
+corresponding value.
+Okay? Alpha LT times VT. Okay? And this
+ranges from T. What is T? T indicates
+the keys.
+And L indicates the query or values,
+whatever. Right? All these positions.
+The T ranges from 1 to T, whatever. T is
+a
+If you replace VT
+by WVHT,
+you'll get this one.
+Right? WV is independent of T. Right?
+You can keep this thing outside.
+Now, it is essentially alpha LT, which
+is the attention score, right? And HT.
+HT is the hidden state, the input.
+So, essentially what is happening is
+that you are multiplying
+the hidden state
+with and weight.
+You are multiplying the hidden state
+with and weight.
+And this weight is computed This weight
+is computed through some sort of
+non-linear operation.
+So, the weight is a non-linear
+operation.
+Right? But, this multiplication is a
+linear operation.
+Okay? This weight is coming through a
+non-linear process, but ultimately this
+is a linear operation. This is linear in
+the hidden state hidden states, right?
+This multiplication is a again a linear
+projection.
+So, self-attention is linear.
+If self-attention is linear, we all know
+that linear models have many problems.
+Right? We always want to add more
+non-linearity at different parts of the
+network.
+So far, we have not added any
+non-linearity.
+How do we add non-linearity?
+We add non-linearity to another layer,
+which we call feed-forward layer.
+Okay? What is a feed-forward network? We
+all know what's a feed-forward network
+is, right? You have multiple layers,
+right? It's a multi-layer perceptron
+type, right? Multiple layers, you feed
+some input, and those inputs are
+combined, and then some sort of
+non-linear non-linear operation happens,
+right? And then you pass it through to
+another layer, some again another round
+of non-linear operation, and so on.
+These non-linear operations can be
+sigmoid, can be softmax, can be ReLU,
+right? GELU, whatever activation
+function you want to take.
+Okay. So, let's see how it works.
+So,
+let's look at this part, right? Till
+this part. So, we have we have this
+input. We applied a self-attention
+layer.
+Single head single head self-attention
+layer, and you obtain these three
+uh attention values. Attention vectors.
+Okay, A1, A2, A3. What we do
+So, this is position one. So, this is
+A1. This is A2. And this is A3. Now,
+remember
+A1, A2, A3 are vectors.
+Okay? What we do, we apply a
+feed-forward network at every at every
+position. Right? Meaning we'll apply a
+feed-forward network like this.
+It's a two-layer kind of I mean, one
+hidden layer.
+Right?
+Something like this.
+So, this is a feed-forward network.
+There are two layers.
+So, what it will do, it will essentially
+do this thing.
+So, so this is the attention This is the
+attention vector that we obtained,
+right? X whatever X or A1. Okay? You
+first
+pass it through
+one layer. Right? Meaning you multiply
+this with a matrix, which is W1.
+And the bias.
+Right? And you do some sort of
+some sort of non-linear operation here.
+Right? And then you pass this pass the
+resultant one through another
+matrix W2. So, this is W2. This is W1.
+And the bias.
+And this feed-forward network this this
+non-linear operation can be can be
+sigmoid. In the paper, they use ReLU.
+But you can use sigmoid or other
+operations also.
+So, how many parameters are introduced
+here? If you discard bias for the time
+being,
+two parameter matrices, W1 and W2. And
+these parameter matrices are shared
+across all the tokens again.
+And this is called position-wise
+feed-forward network.
+Position position-wise feed-forward
+network. Why?
+Because at every position at every
+position I have a feed-forward network.
+Whereas attention self-attention was not
+position-wise.
+Right? Self-attention was applied across
+all the tokens. Now, this is
+position-wise feed-forward network.
+What is the purpose of this
+position-wise feed-forward network?
+Think about it carefully.
+So, self-attention essentially allows
+you to exchange information from
+different tokens.
+So, from one token you get some
+information and you add that information
+to another token and so on and so forth.
+So, all this message message passing
+basically happens through
+happens through this self-attention
+block.
+Okay?
+You can think of this as some sort of
+memory fetching. What is memory
+fetching? You assume Let's assume that
+all these attention vectors all these
+attention vectors are stored in a
+memory.
+Okay? So, when we
+fetch Let's say when we consider one
+attention vector as a key as a query
+another attention vector as a key and so
+on and so forth and then then you do all
+the dot product you are essentially
+fetching one vector from the memory
+another vector from another another
+vector from another part of the memory
+and you are doing some sort of
+operations.
+Some sort of mixing is happening.
+Right? And you produce a result you
+basically produce another set of another
+configuration of the memory.
+The actual processing happens in
+feed-forward network.
+You fetch information from memory and
+you do some processing. Again, you fetch
+information from memory to do
+processing.
+Because this is non-linear,
+so this is non-linear, right? Feed
+forward network is non-linear because
+you are applying multiple non-linear
+functions, activations.
+Okay? So, you can think of attending
+master self-attention as fetching
+information from memory or message
+passing and feed forward network as
+actual processing unit.
+Okay? Feed forward network is also
+considered as internal memory
+of the transformer model.
+Because you see the amount of parameters
+that are being used here. W1 and W2,
+these are two huge matrices.
+Now, generally the dimension of this
+one, the dimension of every embedding is
+512, generally, but you can use you can
+increase.
+Now, another thing I
+forgot to mention is that if you look at
+the shape of the feed forward network,
+it first
+projects the vector to
+to a higher dimension, meaning
+a 2D vector a D vector is projected to a
+2D vector or 3D vector.
+Right? This
+This layer, the first hidden state.
+And that 3D vector will be again
+projected to a D vector.
+Now, the size of the
+the dimension of the hidden state is a
+is a hyper parameter.
+If you want to increase the memory, you
+increase the size of the hidden state,
+right? The parameter matrix will also be
+increased.
+There are two parameters W
+W1 and W2, the the size of these two
+matrices also increase.
+Okay?
+Now, why do we need this up projection
+down projection? Why not down projection
+up projection?
+Because
+If we do up down projection up, we will
+discuss later when we discuss the inner
+principle of transformer.
+Uh when we do down sampling then
+upsampling, uh down position up up
+project down position up projection, you
+lose many information. It is always
+better to project it to to to a high
+dimensional space and then you
+downsample it.
+Okay?
+So,
+what we have learned so far?
+Input,
+self-attention,
+and feedforward. So, self-attention
+feedforward uh for self-attention block,
+feedforward block, these two blocks
+constitute one block of the transformer
+model.
+And you repeat this block multiple
+times. So, every block has a
+self-attention and feedforward network.
+Right? In a vanilla transformer model,
+they repeated it six times and 12 times.
+Transformer uh base model and
+transformer large model. Transformer
+large, there are 12 such layers.
+And transformer base, there are six such
+layers. Okay, let's move on. Now, this
+is the resultant picture now. So, so far
+we discussed this till this part. Now,
+we have a feedforward network which will
+result in another vector.
+Okay?
+So, we have added non-linearity.
+Now,
+let's look at mask attention. We have
+missed out a uh very subtle details in
+in self-attention.
+If you remember self-attention, every
+query is attending to all the keys
+present in the sequence.
+Right?
+It means that if the sequence is, let's
+say, I am
+going to school.
+Right? This guy is also attending to
+going to school.
+Right? Two is also attending to school
+and so on and so forth.
+If you think of decoder,
+remember this encoder-decoder model that
+I discussed earlier, right? You have an
+encoder, you have a decoder. What is the
+responsibility of decoder? Decoder
+responsibility to generate uh or to
+translate this uh sentence into uh the
+target sentence, right?
+Let's say "Main school jaa raha hu."
+Hindi, right? And you want to translate
+it to English.
+So, when we generate I
+right?
+When you generate I
+the corresponding decoder hidden state
+doesn't know what is going to come at
+the next state at the next timestamp.
+Because you generated till this part.
+So, this guy
+should not know what is or
+So, this guy will not know what is going
+to come at the second position, what is
+going to come in the third position,
+fourth position, and so on and so forth.
+So, a hidden state
+of a decoder
+will not have access to the future
+hidden states.
+Whereas in the encoder
+encoder is given, the sequence is given,
+the input Hindi sentence is given. So,
+each word has access to all the other
+words.
+But decoder, the English sentence is not
+given to us
+during the inference time.
+So, I generate one
+one token, then based on that I will
+generate the next token and so on and so
+forth.
+So, the normal self-attention mechanism
+will not be applied in decoder.
+Okay?
+What we do here
+we apply something called a mask
+self-attention.
+What is a mask self-attention? Let me
+draw this, okay? Let's say
+Now, here I will discuss this thing in
+two ways. One, during the training time
+what will happen? And two, during the
+test time what will happen? Okay?
+So
+Let's say this is the decoder, okay?
+Uh
+1 2 3 4 5. Now, remember during the
+training time
+you were given both the input and output
+sentence, source and target sentence.
+You know the entire target sentence.
+Right? You know the entire target
+sentence during the training time.
+But during the test time you do not
+know.
+Right? So, in the training time, if you
+if you access the future decoder states
+that will be a cheating for the test
+time.
+Because at the test time you won't have
+access to the future states.
+So, you have to do some tweaks, some
+tricks
+uh, in the self-attention block such
+that
+in the training time also, the decoder
+block the decoder hidden state will not
+not get access to the future decoder
+state.
+Okay? So, what we'll do? Look at here.
+Let's say this is Q1
+uh, Q1 K1 V1
+Q2
+K2 V2
+Q3 K3 V3
+Q4 K4
+V4
+Q5
+K5 V5. These are query, key, and value
+vectors obtained from every decoder
+state.
+We need to make sure that
+that let's say this hidden state
+will have access to all the previous
+hidden states. This is obvious. Right?
+But the fourth hidden state will not
+have access to this one.
+Right? Will only have access to third,
+second, and first.
+The third hidden state will have access
+to only second and first, and of course
+the state itself, third.
+The second hidden state will have access
+to state two and state one.
+And so on and so forth.
+Okay?
+How do we do this?
+In practice? Now, remember in practice
+all these vectors will not do vector
+operation. We'll basically do matrix
+operation.
+Right? Meaning I have a matrix
+called a query matrix Q.
+Right? Where all the queries are
+present. Let's say Q1 Q2 Q3
+Q4, right? These are queries.
+Okay? If you don't do matrix operation,
+then you won't be able to leverage these
+GPUs and TPUs for example, tensor
+processing units, right?
+Um
+and then let's say the key vector, the
+key matrix
+contains all the keys. Let's say these
+are keys. And then let's say keys are
+stored
+column-wise, right? K1 K2 K3 K4 K5.
+Okay? So, this is your
+your Q
+and this is
+K.
+Okay?
+Q1 Q2
+K1 K2. When you multiply them
+when you multiply and this
+multiplication is essentially
+element-wise multiplication. This is not
+a matrix multiplication when you
+multiply like this. I mean, it's it's an
+element-wise multiplication.
+So
+So, this part
+will be multiplied with this guy.
+Right? So, the resultant
+matrix will be
+Q1 Q1. Let me write in this way here.
+Q1
+K1
+Q1
+K2
+Q1
+K3. These are all dot products, right?
+All dot products. Dot dot dot Q1
+KN, where N is the size of the decoder.
+Okay? Similarly, dot dot dot here
+QN
+Right? QN
+K1
+QN K2 dot dot dot QN
+KN. What is this one? This one is Q2
+K1
+Q2
+K2
+Q2 K3 and so on and so forth. Right?
+Look at here.
+So
+is it allowed
+for the Q1
+to get multiplied with K2?
+No, right? Q1 is not allowed to be
+multiplied with K2 because K2 is the
+future state with respect to Q1.
+Right? So this is not allowed.
+This is also not allowed.
+This is also not allowed.
+Only this is allowed.
+Look at this part.
+This is allowed. Q2 K1, yes. Q2 can
+attend to K1.
+Q2 can also attend to K2. So this is
+allowed. But the rest of them not
+allowed.
+This is not allowed.
+This is allowed.
+So if you think of it carefully,
+essentially you are dissecting the
+matrix diagonal wise.
+And the upper part of the diagonal
+elements are not allowed.
+And lower part of the diagonal is
+allowed.
+Right? How do we do this thing uh uh
+computationally? I mean
+uh
+coding wise?
+So in the training during the training
+time, although you can generate the
+entire matrix, but you are not allowed
+to process the entire matrix. You can
+you are allowed to process only the
+lower diagonal part of it, not the upper
+diagonal part of it.
+What we do,
+this QK
+K
+will be multiplied with another matrix
+which would look like this.
+One, this is the diagonal part, the same
+dimension.
+Minus infinity.
+Why minus infinity? I'll tell you.
+If you multiply this, then what will
+happen?
+This part will be replaced by minus
+infinity.
+Right? In the resultant matrix.
+And the
+the the the lower part will remain the
+same.
+Okay? And this part will be minus
+infinity, and this will remain the same.
+Now, why do Why are we doing this minus
+minus infinity multiplication? Because
+Remember,
+once we so So, these elements are query
+key dot product. Right? After query key
+dot product, what is the next operation?
+Softmax. We need to pass them through
+softmax. Right? And what is the softmax
+formula? E to the power X.
+Minus.
+So,
+so when we multiply this
+when you multiply this with minus
+infinity, it will produce what?
+Let's say Let's say there's an element.
+Let's say E to the power minus infinity
+is what?
+Zero.
+Right? After softmax, this part will
+become zero.
+And the remaining part will essentially
+follow the softmax rule.
+So, in this way, you will not allow the
+model to look to basically attend to the
+future states.
+Now, this is happening during the
+training time.
+When you have access to the future
+states also.
+Now, during the test time, what will
+happen?
+Now, during the test time, you already
+learned WQ, WK, WV.
+Huh? The WQ, WK, WV are learned based on
+all these things, right? So, you pass
+Let's say you generate Let's say you
+generated the first token, which is I.
+Right? My school ja raha hu, English is
+I.
+You generate the first token. That token
+will be passed through all these
+weights, right? Layers and so on. It
+will produce a distribution. From the
+distribution you sample one token,
+right?
+And then that token will be passed
+through again the same set of
+parameters. It will generate another
+token and so on and so forth.
+By the way, so far I only mentioned that
+this layers are stacked, right?
+Self-attention feed forward,
+self-attention feed forward. So, the
+last layer will also have self-attention
+feed forward.
+Right?
+Okay?
+And
+the outputs will basically be vectors.
+Now, I hope you remember the difference
+between
+the unmasked self-attention in the
+encoder and masked self-attention in the
+decoder.
+Unmasked self-attention you have access
+to
+the entire sequence. Masked attention
+you don't have access to the future,
+right?
+There are some some parts which are
+still missing.
+This in So far, whatever we discussed So
+far, encoders and deco encoder block,
+encoder stack, and decoder stack,
+they are not linked.
+Are they linked so far?
+Whatever you discussed so far.
+Encoder blocks in encoder sequence is
+processed independently with a set of
+parameters matrices W K W Q K V, and
+this is also processed independently.
+Parameters are also not shared.
+Okay? So, I need some mechanism which
+can connect
+the decoder with the encoder.
+Okay?
+How do we do that? We will do that
+using
+using another layer called cross
+attention. What is a cross attention?
+This is encoder.
+Okay?
+And let's say these are final outputs.
+Right? Let's say
+um let's say H1
+H2 H3 H4 last layer.
+Okay? And this is my decoder block.
+In the decoder block, first
+first component is what?
+What is the first component? The first
+component is masked self attention.
+Right? And we also discussed feed
+forward network FFN.
+Okay? And all these attentions are
+multi-headed.
+In between this, we will introduce
+another sub block called cross
+attention.
+Right? In cross attention, what we will
+do?
+Let's say this is the decoder D1 D2 D3.
+Right? And after the masked self
+attention, you obtained
+let's say M1
+M2
+M3.
+Okay? So, here also I will apply this
+attention self attention concept. Right?
+Query key value.
+But here
+the query so unlike the previous self
+attention where every token generated a
+query and a Q and a value
+here
+the query will come from the decoder
+token.
+And key and value vectors will come from
+the encoder token.
+Meaning
+that from here you will generate key to
+Q1 V1. Right? Q1 V1.
+Q2 V2. Right? Q3 V3. How do you
+generate? Again, you need another set of
+parameters.
+Right? And from M1, we generate Q1.
+So, Q1 will attend to all the keys in
+the encoder.
+Right? Similarly, Q2, which will be
+generated from here, this will attend to
+all the keys in the encoder.
+And so on and so forth.
+This is called cross-attention.
+Okay?
+Is this masked or unmasked? Do you Do I
+need to mask it or unmask it? There is
+no concept of masking at all here.
+Because here, decoder states are not
+attending to each other.
+Decoder state will act as a query.
+And
+encoder states will act as keys and
+values. It is not that a decoder state
+will attend to another decoder state.
+And that's why the masking is not needed
+at all.
+Okay? So, this constitutes So, now we
+are done with the with the single
+decoder block of transformer. Now, look
+at here. This is a single decoder block
+of a transformer.
+Multi-headed mask multi-headed
+self-attention.
+Then, this is cross cross-attention. And
+this is feed-forward network.
+And this is
+uh
+but this is a block of an encoder. We
+have unmasked multi-headed
+self-attention and feed-forward network.
+Now, you repeat these blocks in number
+of times.
+Okay?
+We missed out few details here. For
+example, we missed out this positional
+encoding.
+We missed out the details of this this
+add non block.
+Right? We also missed out the
+details of this links. This is called
+residual connection.
+Okay? So, residual connection, add non
+block, and positional encoding will
+discuss in the last in the next uh uh
+lecture.
+Okay?
+Thank you.

@@ -1,0 +1,567 @@
+[Music]
+today we will continue with Knowledge
+Graph completion and its evaluation as
+we mentioned recently knowledge graphs
+are very
+incomplete and we need to complete them
+either as hard decisions or as soft
+probabilistic
+judgments in this setting an incomplete
+Knowledge Graph is provided and a
+modeling or machine Learning System
+first fits embedding representations of
+the entities and relations in the
+knowledge graph within this Paradigm
+there are two possibilities one is that
+these representations are based on the
+topology or the shape of the knowledge
+graph alone and then there is the
+realistic and
+beneficial setting where we supplement
+the knowledge of the graph topology with
+the text aliases of the entities and
+relations that we briefly viewed in the
+last
+part after these embedding
+representations are fitted these will be
+applied back to the knowledge graph to
+infer missing fact triples in the
+knowledge graph with a certain level of
+confidence
+so in short Knowledge Graph completion
+consists of proposing a function
+f the inputs to this function are the
+subject the relation and the
+object while training we would like to
+provide all the three inputs but while
+testing one of these inputs may be
+withheld or
+unknown the output of f is the belief in
+the fact which connects the subject
+relation and
+object now most Knowledge Graph
+representation and completion algorithms
+will represent each entity which may be
+a subject or an object and each relation
+as some kind of continuous geometric
+artifacts such an artifact may be a
+point in space some kind of high
+dimensional space where the kg artifacts
+are living or it could be a vector or a
+displacement it can be a projection or a
+hyperplane onto which these points are
+being projected it can be a rotation it
+can be all kinds of real or complex
+artifacts without getting into the
+detail of that yet the purpose of the
+scoring function f is to take this
+representations as input and output some
+measure of belief in subject relation
+object as a triple for example if I say
+Barack Obama president of us as the
+three inputs to f f should output a high
+level of belief If instead I say
+something like Barak Obama discovered
+theory of relativity then the output of
+f should be very low we shouldn't
+believe in that fact based on what else
+we know about these entities and
+relationships during training we will
+provide the identity of these subjects
+relations and objects and we will tell
+the algorithm whether that fact is true
+or false by the way when I say fact in
+this lecture I it basically means some
+kind of a claim so a claim can be either
+true or
+false during training I will give
+triples like this and their ideal belief
+value be it one or be it
+zero and the algorithm will fit the
+represent presentations like those
+points or vectors or displacements or
+rotations after that once the model is
+fitted we can then infer unknown triples
+which would be similar to predicting
+links in a social network some of you
+may be aware that in social networks we
+might have a person P1 who is already
+friends with some people say P1 uh P2 P3
+and P4 and now there may be another
+person person P20 and based on their
+behavior patterns and linkage patterns
+we might ask does the link P1 to P20
+exist or should it exist it's a bit
+similar to that except that now our
+links are very richly endowed with
+features like links represent relation
+types and even the entities have Rich
+features but that's true even in social
+network
+analysis now in
+principle neural networks are Universal
+function approximat so if we plug in a
+sufficiently strong or high capacity
+neural network into the box f it should
+be able to learn a function which
+outputs the correct belief in every
+proposed fact or claim in practice
+though the design of f is something of
+an art and hundreds of papers through
+the last five or six years uh have
+invented and proposed me mechanisms for
+the design of F and to fit it to observe
+Data before we proceed further let us
+set up some notation we will represent
+entities as e in general and when an
+entity takes the role of a subject it
+will be written as s when it has the
+role of an object it will be written as
+o now why do we distinguish between
+subject and object in relations that's
+because not all relations are symmetric
+if the relationship is sibling off then
+obviously what is subject and what is
+object doesn't matter but if the
+relation is asymmetric like parent of or
+CEO of a company then we cannot switch
+subject and object and so e will have to
+be specialized into either s or
+o when the learning system has fitted a
+representation for the entite we will
+write it as Vector e or we will write it
+as a bold pH
+e like this as a vector with an arrow on
+top or of bold face
+e um so subjects and objects will have
+corresponding embeddings bold s or bold
+o and similarly relations will have
+representations which are written as
+Bard face R now depending on the exact
+nature of the model the exact shapes of
+s o and R might change in some cases
+there may be vectors in other cases
+there may
+matrices and so on and so
+forth now this function f will apply to
+s r and O given as inputs and output a
+real number generally speaking this real
+number may be positive or maybe even not
+positive it's a raw confidence core it's
+not already a probability to turn it
+into a probability we may have to apply
+certain functions to
+it if a particular Sr triple is known to
+to be true in our knowledge graph we'll
+call it a positive triple or a positive
+fact whereas if S Prime RP Prime o Prime
+is not in the knowledge graph there are
+a couple of ways to think about it
+remember that our knowledge graph is
+incomplete so if S Prime R Prime o Prime
+does not appear in the knowledge graph
+that doesn't necessarily prove that it's
+false but there are ways to sample s
+Prime RP Prime o Prime which makes it
+very unlikely that S Prime R Prime o o
+Prime is true we shall visit one or two
+ways to do that in the upcoming
+slides if S Prime R Prime o Prime is
+known to be false we'll call it a
+negative triple or a negative
+fact now earlier I was saying that this
+F return value is not really a
+probability if we wanted to turn it into
+a probability we need some kind of a
+probability
+space one example of this is to fix two
+of the three items in the triple like
+the subject and the relation and then
+say what's the probability that the
+object is O for example I might say
+probability of Hawaii given Barak Obama
+and born in and that probability should
+be high whereas if I say probability of
+Tokyo given Barac Obama and birth place
+that probability should be low and it is
+defined in a straightforward soft Max
+like fashion we take the raw F scores
+which could be positive or negative
+reals and we exponentiate them in the
+numerator we will keep e to the power
+FSR o and in the denominator we will add
+that value over all possible values of O
+which we call O
+Prime this normalizes the numerator and
+makes it add up to one over all
+candidates
+o so think of a little Edge R between s
+and an unknown o we are trying to find
+out which particular o it might be
+similarly and conversely given the
+relation and the object we might want to
+find out what the subject is now already
+you see the effect of asymmetry and that
+will not be tackled for the first couple
+of models but we will eventually get to
+it uh in the form of birthplace so if I
+say what's the probability of Barack
+Obama given birthplace and Hawaii
+because so many people were born in
+Hawaii the probability of one Barak
+Obama will be quite
+small and so the interesting thing to
+observe here is that Barak Obama is now
+competing with everyone born in Hawaii
+for the fixed chunk of probability one
+and this are interesting implications
+for inference and its use in language
+models somehow in the literature fixing
+subject and object and then trying to
+sample or find the probab of R has been
+relatively rare I don't exactly know why
+now if SRO is in the knowledge graph we
+want the probability of O given Sr to be
+large and we want probability of s given
+r o to be also
+large how do we turn the probability to
+a loss function that's fairly standard
+now in machine learning and deep
+learning given a knowledge graph with
+known triples I would like over all the
+triples in the knowledge graph the log
+probability of s given r o we add all of
+these up and then we also add the
+probability of O given Sr take the log
+of that and then take the sum over that
+we want this entire sum to be maximized
+to turn that into a loss we can negate
+that so it's minus log probability of s
+given R plus minus log probability o
+given Sr and then we sum of our all
+triples in the kg
+and we want to minimize this negative
+law so this only indirectly encourages
+small F of S Prime R Prime o Prime for
+the negative triples remember that this
+probability has denominators and to make
+the whole thing large I need to make the
+denominator for all the wrong triples
+small so that's how training would
+work observe also that the probabilities
+in the denominator involve summing Over
+All elements in the knowledge graph and
+so that could be quite expensive to save
+computational cost we might want to
+sample the
+denominator so we take a positive fact
+SRO o and then we replace S with a
+randomly sampled entity S Prime so in
+our running example we say Barak Obama
+born in Hawaii
+and this is my positive
+triple now I cancel out bar and replace
+by random samples like
+Gandhi so this is assumed to be posit to
+be
+negative why is that because there are
+so many people in the world that by
+random sampling we would get another
+person born in Hawaii would be fairly
+small this is called the local closed
+World assumption it's not really valid
+given that Knowledge Graph is very
+incomplete if we are sampling for people
+born in Hawaii versus elsewhere this
+might succeed but for classes which are
+much broader we have to be really
+careful in not mistakenly sampling
+positive things and thinking their
+negative even so this helps replace the
+full sum in the denominator with
+more efficient to compute sampled
+estimates we could do uniform sampling
+but that would be too expensive so we
+could sample k out of the E entities
+uniformly at random Suppose there are
+total of e entities and we take K
+negative samples then our expectation of
+that denominator has to be adjusted for
+that K right so we have to invert that
+by multi lying it by E over K or k over
+e depending on which way the sampling is
+going and that restores the denominator
+to the expected sum over all entities in
+the knowledge
+graph now here one problem is that if
+I'm doing this sampling of K things or
+entities uniformly at random I might
+actually make the mistake of leaving out
+the gold or the true o so we may have to
+introduce it back by force into this
+denominator sum and this may further
+bias my estimates so those are certain
+standard problems that we live with in
+defining this efficient sampot
+estimates the other approach is to not
+bother with probabilities at all so
+instead of trying to shoehorn an
+expression for a probability using a
+soft Max we might say that look the
+positive fact has a score F of
+SRO and any negative fact fact has a
+score of f of S Prime R Prime o Prime
+right and the understanding is that at
+least one of them is
+wrong and therefore the whole fact is
+wrong so now we might say we want the
+good score which is the score of the
+correct triple to beat the bad score
+which is the score of a triple which is
+wrong in at least one place by an
+additive margin so this is similar to uh
+support Vector machines for those of you
+that are familiar with
+svms this can be turned into what's
+called a hinge or a r loss so we say Max
+of zero and then margin plus bad score
+minus good score if our system if our
+function f and the Learned weights are
+already perfect or close to perfect
+then the good score will exceed the bad
+score not by itself but even when
+assisted by the margin and therefore
+this quantity over here will go negative
+because it goes negative My overall loss
+taken with a maximum of zero will turn
+out to be zero and that's when we can
+stop the training because the system is
+already
+trained otherwise if this loss turns out
+to be positive we can differentiate this
+loss with regard to the shape of the
+function f and the embeddings of the
+entities and relations that participate
+in this expression and that starts of
+back propagation into the model
+weights the problem again with this
+formulation is very similar to the
+summing over a large number of entities
+because there are e entities and R
+relations the number of possible facts
+in the universe are e^ s r Each of which
+could be true or False only a small
+fraction is positive so that means the
+number of constraints between good and
+bad is the number of good times the
+number of bad so that's an astronomical
+and infusible
+number now generally the strategy that's
+followed is that I'm not going to take
+uh F uh s o and then perturb all three
+of them in all possible ways I'm only
+going to perturb one thing at a time and
+that limits the search space between the
+good bad
+pairs so we would uh take SRO and only
+knock out the object or we'll take SRO
+and only knock out the
+subject so this leads to the formation
+of a batch for training a stochastic
+gradient based Optimizer for each
+positive fact SRO in the batch we would
+sample K presumed negative fact by
+perturbing either the subject or the
+object or maybe
+both and then we would accumulate the
+losses over these K
+samples in each we'll apply the hinge
+loss as I mentioned before uh where we
+do margin plus bad minus
+good so this is the good that is the bad
+and we want the good to be the bad and
+this whole sum to come down to
+zero um so this is how many um Knowledge
+Graph modeling and completion algorithms
+are
+trained so far we have assumed that a
+large score F makes the triple SRO o
+more likely and a small score makes it
+less likely some models may work with
+the opposite
+polarity some models may use a notion of
+distance as we shall see in that case a
+large distance F will make Sr less
+likely and a small distance will make it
+more likely usually the loss and the
+optimization can be adjusted without
+much trouble to this flipped
+polarity how are Knowledge Graph
+completion algorithms tested or
+evaluated for this people have defined a
+whole bunch of Knowledge Graph
+completion Tas tasks or challenges the
+knowledge graph is first sampled into
+three folds which are usually disjoint
+the training fold the dev fold and the
+test fold the dev fold is also called
+the validation fold
+sometimes given a test query eventually
+when the system is deployed which may be
+of the form Sr question mark or question
+mark r o the training the trained system
+must provide a ranked list for the
+blanks
+for example if the test queries Sr
+question mark the trend system should
+output candidates o1 O2 O3 and so on and
+in the Judgment of the system o1 should
+be the best or most likely
+answer on this list we will Define
+standard ranking measures like mean
+reciprocal rank or the number of hits at
+k let's take the second one first
+because that's easier to explain so we
+go down to K elements and among the K
+elements we see whether o1 is correct O2
+is correct and so on and we count up the
+number of correct options and we divide
+it by K so that's the hits at hit it's
+like you go to Google and do a search
+and the top 10 or topk results are given
+to you how many of them make you happy
+now this of course makes sense if in
+general if there are multiple objects
+for which the triple is true and this
+can happen for relations that are not
+one is to one a person can be only born
+in one place so that's many to one
+actually many people are born in a
+particular place but there could be also
+the opposite which is Barak Obama
+attended which academic institutions and
+he might have attended two schools and
+three colleges so it's one to many one
+Barak Obama attending multiple
+educational institutions so every time I
+get a hit I will increment a counter and
+then eventually I'll divide it by
+K now mean reciprocal rank is a bit
+different so think of
+um going down this list again until I
+hit the first relevant entity which is
+in this example at rank two
+if I do that my reciprocal rank will be
+half because two was the rank at which I
+hit my first success so mrr is good for
+situations where there's exactly you
+know one correct answer whereas hits at
+K is useful if there are multiple
+correct answers now think of what
+happens if I hit my correct object at
+rank one in that case reciprocal rank
+will be equal to 1 / one which is one
+which is the maximum possible value as
+the rank of the first correct answer
+goes down reciprocal rank will dwindle
+to zero okay just like hits at K ranges
+between 0 and one reciprocal rank will
+thus also range between 0 and one okay
+now observe that the penalty for
+dropping something from rank one to rank
+two
+is to go down from 1 to half whereas the
+penalty for dropping something from 2 to
+Infinity is to go down from half to zero
+so that's sometimes found a bit extreme
+for that reason mean reciprocal rank is
+sometimes called the mean reciprocal
+rank it's very mean uh it penalizes you
+as much for dropping something from 1 to
+two as dropping from two to Infinity
+where you wouldn't even see it there are
+other measures of Knowledge Graph
+completion efficacy which we won't have
+time to get into but you can read about
+it from the
+references how about data sets U there
+are a few very prominent data sets that
+are used in this area of work there is
+wet 18 which comes from the semantic or
+lexical Network called wordnet wordnet
+is a network where the nodes are words
+or sin sets so Words which are synonyms
+of each other are collected into the
+same node and made into a sense set or
+sin set synonym set and the edges
+represent word to relation types like
+hypy a camel is a mammal is a living
+being or synonymy that envy and jealousy
+are sometimes considered to be
+synonyms um the training and Dev and
+test folds have sizes 141,000 5,000 and
+5,000 and there are 18 relation
+types another popular data set in use is
+uh fb15 K which has 15,000 freebased
+entities connected with
+1,345 relation types and the training
+Dev and test folds have about 480,000
+and 50 to 60,000 fact triples in them
+there have been refinements on these
+data sets these data set have been found
+to be somewhat simple in the sense that
+certain algorithms can cheat and to
+prevent them from doing that modified
+enhanced data W8 RR and fb15k
+d237 have been evolved over time there
+are other data sets like Yago yet
+another great onology and several other
+tasks one important last note about
+evaluation is the element of
+filtering so as I said your query might
+be subject relation question mark and
+now the ranking system has to provide a
+response list o1 O2 Etc and so on
+suppose o06 and 8 are the designated
+gold correct
+answers in that case we might say the
+mrr is 1/ six because that's the rank at
+which I found the
+first correct response and mean average
+Precision is the third measure we might
+as well go into it uh mean average
+Precision says to get my
+first relevant response I had to go to
+rank six when I went to rank six I found
+only one relevant response up to that
+time for the moment ignore the green
+color on
+O2 if I walk down two more steps to rank
+eight I see two namely six and eight
+correct responses I will now average
+them up 1 16 + 28 divided by half so
+that's called mean average precision and
+the mean reciproc rank is one in six as
+we already saw but now suppose that in
+the training set O2 was already known to
+be a correct answer then you might say
+look it's unfair to penalize position 6
+and 8 as 6 and 8 because training
+already revealed to us that 2 was
+relevant so maybe we should knock O2 out
+of the list and regard the mrr as one
+out of five and the map as the average
+of 1/5 and
+27th this is a simple modification but
+it's an important evaluation convention
+that is not followed sufficiently
+uniformly across papers so when you
+compare the numbers reported in papers
+you have to be careful about whether the
+did a filtered evaluation or an
+unfiltered evaluation next we will start
+looking at what kind of functions can go
+into that box marked F and what form the
+input subject relation and object vector
+or embeddings can take
+[Music]

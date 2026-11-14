@@ -1,0 +1,859 @@
+[Music]
+hello everyone welcome back to the
+course on llms so we were discussing
+alignments of large language models and
+in the last class we discussed how you
+know uh human generated uh feedback can
+be uh can be injected to this model for
+further refining things right so
+specifically we discussed that we have a
+policy model right the policy model is
+the llm that you want to uh you know
+refine that you want to um fine tune
+right and then this policy model will
+generate certain output this output will
+be scored by a reward model this reward
+model itself is another llm right so it
+will produce a
+reward and based on this reward we will
+uh further refine this policy model
+right we also discussed that uh only
+reward maximization is not enough
+because what what happens if we only
+maximize the
+reward what would end up happening is
+that the policy model will start hacking
+the reward model meaning that it will
+start producing such responses for which
+the reward model will produce higher
+reward values right uh but the responses
+may not be realistic
+for example uh the policy mod will start
+producing uh lot of emoticons right uh
+it will start producing sentences which
+are veros lendy and so on and so forth
+not to the point and so on and so forth
+which you do not want right therefore uh
+to address this reward hacking um you
+know um this loophole what you do you
+have another component in the objective
+function which you want to minimize and
+what is this component this component is
+basically Ally the Divergence scale
+Divergence between the old policy and
+the updated policy right the old LM and
+the updated LM right so you do not want
+the uh updated llm to be very very far
+from uh the starting LM right uh so we
+discussed uh maximizing the reward which
+is uh the expected reward that that you
+optain given a uh policy so the policy
+model is Theta so this is this is
+parameterized by Theta
+you uh essentially sample uh you know
+given a prompt x uh this policy model
+will generate a y and this uh for this y
+you have this reward okay so for example
+X is a prompt The Prompt is where uh
+where is Taj Mahal located and let's say
+the Y is the response let's say the
+respones Taj Mahal is located uh in in
+utar Pradesh or Taj Mahal is located in
+France and so on and so so forth and
+based on that you give High reward or
+low reward right and the second term
+right this term is essentially the kale
+Divergence
+between between the uh the the the uh
+the updated uh uh updated policy model
+and the reference policy model okay uh
+so Pi Theta and Pi so so reference
+reference llm reference policy model is
+the one from which you started your uh
+reward maximization process okay and
+then these two components will be
+combined so you want to maximize reward
+and minimize uh the scale Divergence and
+there is this beta scaling Factor now
+this this Lambda essentially uh is uh is
+is responsible for scaling uh these two
+components if you want to give more
+weightage to scale Divergence you
+increase the value of Lambda and so on
+and so
+forth right so this we discussed
+so now the question is or given this
+regularized reward maximization why this
+is regularized reward because this
+component you can think of this as a
+regularizer right this is your objective
+and this is your regularizer so
+regularizer tries to balance uh both
+these things so this regularized reward
+maximization will be used to further
+refine the policy model policy model is
+the llm again the policy model is the LM
+that you want to rectify you want to uh
+refin so how do you do in practice so
+given a prompt let's say the prompt is
+write a poem uh you have this policy
+model Pi
+Theta the policy model will generate uh
+in number of poems for each poem you
+calculate the reward uh using reward
+model and the kale Divergence right so
+for every response you have the reward
+and the kale Divergence reward and the
+kale Divergence right
+and since this is expected right what
+you do I mean it's it's not possible to
+calculate expectation so what you do you
+essentially sample um you uh sample
+sever several responses from the
+policy and you make an average of this
+right and this is going to be your uh
+your uh total reward uh regularized
+reward function which you want
+to uh maximize right now in order to
+maximize this uh you know so so through
+this maximization process you will
+essentially learn this
+Theta right which is our main objective
+your objective is to basically Define
+the parameters in the policy model so uh
+when you have this kind of picture
+diagram what is the way to essentially
+uh do this kind of uh maximization let's
+say this is this is some average this
+this is some loss or sorry in this case
+this is essentially the uh reward
+maximization objective right you
+calculate the partial derivative of this
+this is you you do a normal gradient
+descent right with respect to all the
+parameters present in the
+system right by taking the derivative
+partial derivative of the objective
+function with respect to
+parameters the problem here is you
+cannot use the
+traditional the vanilla version of
+gradient descent here why think about
+it the reason is this
+part okay this is highly
+non-differentiable because here what you
+are doing you are generating multiple
+responses you're basically sampling
+multiple responses you are generating
+multiple responses and this is non-
+differentiable highly non-
+differentiable okay this is not one
+sample this is multiple samples right so
+standard gradient uh algorithm won't
+work here so we need some other ways to
+essentially uh address these issues
+right so let us
+see so this is something that we'll
+discuss today so our regularized
+regularized reward looks like this so
+this is our reward this is the kale
+Divergence and this is the
+expectation right let us denote this
+term by R subx
+XY right so essentially you are
+essentially you are U you are uh you are
+maximizing this r subx
+y again maximizing the regularized
+reward ensures that high reward outputs
+as decided by the reward
+model the outputs will have high reward
+because of this term and outputs that
+have reasonable probability under the
+reference model okay that will take that
+will be taken care of by this Factor so
+under the reference model it should not
+be very different okay so now let's look
+at how to maximize this so we will use
+some algorithm called and this is a very
+straightforward algorithm in
+reinforcement learning if you know
+RL uh you may have heard of this term
+this Al algorithm called reinforce
+algorithm right so let's again Rec uh
+relook at the objective function so the
+objective function that I mentioned in
+this in this uh in this slide is this
+one expectation of this
+one okay now so this one I need to
+maximize so I need to take the gradient
+of this with respect to Theta so
+gradient of
+this and this is expectation so
+essentially it means what does it mean
+it means that you generate a sample
+output right from this policy model
+which which belongs to all possible
+sample outputs that the model can
+generate once a sample output is y and
+the probability of this sample output is
+this
+one right and this is the
+reward okay so if we do not want to use
+this expectation you can unfold it in
+this
+way so given sufficient number of
+samples uh which are part of the output
+set you take one of each of the samples
+one by one and this is my probability
+and this is
+my uh reward now think about it this
+reward is fixed with respect to
+Theta Theta is the parameter of your
+policy and this is my reward reward
+model and this reward model generates R
+of s right and so when I take the
+gradient of with respect to Theta this
+is constant right therefore
+uh when I move this gradient uh when I
+move the derivative inside this will be
+the
+part okay and this will be separated
+this is this is not a part of this uh uh
+this gradient
+okay
+so now think about it again so this is
+this is exactly the one that we just
+derived okay
+um Del
+Theta I Theta y given X reward X comma
+y
+okay
+so now uh exact computation of this
+gradient is intract intractable because
+you do not know the outut space you do
+not know this out outut space why
+because LM can generate infinite number
+of uh responses right so can we
+approximate
+it in order to approximate
+this I need to rewrite this expression
+in terms of some sort of
+expectation okay so I need to rewrite
+this in terms some sort of in terms of
+expectation which would look like this
+so what would be the exact expectation
+formulation that we will discuss okay
+okay so this is the
+desired form that we wanted to uh that
+we that you want to want to produce from
+uh from this equation right
+okay don't worry about all these
+equations okay this is very
+straightforward I will explain these
+equations one by one
+so so what I will do here I will do some
+sort of log derivative tricks and this
+is a very old trick okay okay nothing
+fancy what does it say it says
+that you take the derivative of
+this what is this term why this term uh
+from where this is coming I will explain
+later let us assume that there's a term
+this log of Pi Theta y given X and you
+are taking the derivative of
+this so this will be one by this one
+times uh derivative of uh
+derivative of this one log of Zed right
+1 by Z and then DZ DX okay
+so now you move this
+here okay so if you move this here then
+you will have this term which is this
+and this times this this times this
+here okay now why this is important
+because why I derived this now look at
+the expression that I had earlier okay
+this
+is this
+one okay uh y given capital Y right Pi
+Theta
+uh right and then um and then we also
+had um uh
+derivative derivative with derivative of
+this Pi Theta y given X and rs XY
+right so this is the
+expression okay derivative
+of right so what I will
+do and then this art
+ter okay I will replace this by
+this okay you replace this
+here okay so now if you look at this
+very very
+carefully this is actually an
+expectation right this is probability
+this is samp
+right expectation so what is this
+expectation this is this expectation so
+if you move this
+part separately if you keep this part
+separate if you only focus on this this
+is nothing but nothing but expectation
+and you can write in this
+way right so expectation
+of uh this right so essentially you
+sample a y from the policy model then
+the reward of that Y and then the
+derivative of U the log of the reward
+this is the expression uh expression so
+I wanted to get an expression like
+this from here that I got okay so now we
+have this expectation right so let's
+see so again let's let's look at the
+same figure prompt policy policy model
+all this responses are generated right
+you have reward model reward model uh
+gives a reward with these are the
+rewards right and
+then then then we have so we we need
+essentially two terms the reward and the
+derivative of the policy right
+derivative of the uh of the policy model
+uh you know given this prompt uh and and
+this
+why so this is this part right poem one
+given x x is the prompt po two given X
+and so on and so forth right then what
+you do you take the average right and
+why this is called Monte Carlo this is
+again a fancy term whenever we use
+sampling uh as a replacement of
+expectation we use uh Monte Carlo term
+okay then we average and then we uh you
+know back proot
+it so but uh you know the game is not
+over yet you know a long way to go by
+the way so just started so uh
+if you think of this response right um
+this response poem one for example this
+is why okay this response constitutes
+multiple
+words okay A1 A2 dot dot dot a t
+multiple tokens right so this is the
+response
+and I am calculating the reward of the
+entire response
+right the entire response this is very
+important to remember I'm not
+calculating the reward for every token
+in the response this is the entire
+response so it means that I need to wait
+uh till the end of this response
+generation right and then I I'll be able
+to calculate this reward right so once
+the response generation is complete I
+give it to the reward model and the
+reward model will generate the response
+value
+right so nevertheless so if you look at
+uh
+this term again right uh uh Pi log of Pi
+Theta uh y given X log of theta y given
+X Y is essentially A1 A1 A2 dot do do a
+so so what you can do you can uh right
+so you can actually think of uh think of
+it as a as a as a as a as a cumulative U
+you know cumulative uh gradient right
+for for every token so this is
+essentially log of let's
+say let's say uh Taj
+Mahal is in up right so log of um the
+policy
+Taj
+given right the state and what is the
+state the state is essentially uh The
+Prompt and the respones generator so far
+right so this is this plus log
+of I Theta
+Mahal given um
+so this is H2 right this is S1 S2 what
+is H2 by the way H2 is the prompt where
+is Taj Mahal located prompt and Taj
+right together and plus log of
+right is S3 what is A3 prompt Taj Mahal
+right and so on and so forth so this is
+this right um and um we uh move this
+gradient inside right we move this
+gradient
+inside you can also move this reward
+inside right so this is my compact
+version again if you look at the divort
+part carefully there is no T involved
+meaning that this is independent of
+every token in y this is only this
+reward is calculated for the entire
+response okay this is written here for
+every token you use the same reward that
+is calculated for the inter
+sequence and uh now this is the
+implementation of this reinforce
+algorithm this is the prompt where is
+Taj Mahal
+assist assistant colum colon tajal is in
+Agra
+right so the policy model uh essentially
+the policy model generates this right
+and uh you get reward this reward value
+R right for every token now for every
+token now you calculate this log
+probability right every token you can
+calculate the log probability states are
+different by the way okay and then you
+take the sum of all these rewards right
+and then you back
+it
+okay but here is the problem the problem
+is in order to find the contribution of
+the word Taj
+here right I'll have to wait till this
+number one number two is uh let's say
+the the model produces that the Taj
+Mahal is in France right which is wrong
+therefore a negative uh reward will be
+generated so that negative reward will
+also impact the word Taj because the
+same reward will be used for all the
+tokens
+separately right but this should not
+have
+happened why because the word t is
+correct right so we should not use the
+same reward for all the tokens present
+uh in this response okay so how to
+address
+this now what I mentioned is basically
+written here the reward at token Taj
+depends on the tokens generated in the
+future if the model had generated Taj
+Mahal is in Paris the reward would be
+negative the probability of generating
+Taj would be decreased right if the
+model had gener Taj m is in Agra reward
+will be positive and the probability of
+generating Taj would be increased right
+this variance in the reward leads to
+unstable training obviously right
+so to address this what we'll do we'll
+take the average reward this is very
+important the average reward over all
+likely
+sequences that generate Taj for the
+first token
+what does it mean it means that you look
+at all the responses generated by the
+policy model which starts with the what
+Taj Taj Mahal is in Paris Taj Mahal is
+in uh up Taj Mahal is in um you know LNO
+Taj Mahal is in uh West Bengal whatever
+uh responses that the model generates
+given the prompt of
+course right and then you calculate some
+sort of uh reward right some sort of
+cumulative lward for the word
+t and this is called Q function okay uh
+you know some of you may know uh um
+reinforcement learning now this is
+essentially a very popular method in
+reinforcement
+learning
+so as you see
+here I use this Q function okay now here
+instead of using r
+I use Q function which is which is
+uh right which is essentially a function
+of the
+state and the uh the current action
+right what is the action the action is a
+token that you
+generate so here you use this Q function
+now in this case the state is S1 and the
+token that you generated Mahal right
+here the state is is2 and the token you
+generate is e and so on and so forth
+okay now what is this Q
+function so the Q function intuitively
+this is average reward of all likely uh
+you know the all likely sequences that
+start with
+Taj right so you look at all sequences
+again hypothetically you look at all
+sequences given the prompt you look at
+all sequences starting with Taj you
+calculate the reward of all the
+sequences one by one right and then you
+take the average of this and this will
+give you some ideas about the uh you
+know the likelihood of the of generating
+the token
+T okay so let us again discuss Q
+function uh you know uh mathematically
+so Q
+function I wrote this thing in the slide
+so that you read and you remember the Q
+function for a state action pair is the
+average discounted cumulative reward
+received at the state after
+taking it is repeated after taking the
+specific action okay I'll
+explain
+so why average because I will I will
+take multiple such uh you know such
+actions and then then I will I I'll I'll
+take the average or some expectation
+right why this is
+discounted this is discounted
+because what it will
+do let's say you generate Taj Mahal is
+located in West Bengal right so and you
+you want to calculate the importance of
+or likelihood of the word Taj so the
+word Mahal will impact more towards this
+likelihood the word is will impact
+little bit less towards this uh uh the
+word t towards this likelihood and so on
+and so so forth and the word West Bengal
+will essentially impact least towards
+the likelihood of
+touch it means as we move on in the
+sequence the importance of those words
+towards the current state action pair
+will
+reduce and we captured this using this
+gamma discounted Factor okay so gamma is
+a discount Factor so you see that
+the Q function of the state action pair
+is
+expectation of the reward of the first
+state action plus gamma of the second
+state action right plus gamma squ R is t
++ 2 a t + 2 right third state action and
+Gamma Square gamma ranges between 0 to
+one let's say gamma is 0.9
+so this will be 0.9 this will be 0.81
+and so on and so forth so the importance
+of this will
+reduce okay and so on and so
+forth so therefore discounted average
+why average because we take expectation
+here why cumulative because we take the
+sum of all the rewards so cumulative
+reward received at the
+state okay so it what it is what it is
+doing given the model Theta you generate
+multiple such responses of size let's
+say size T okay from the state
+St let's say let's say St is the current
+state for the word Taj right and action
+is the word Taj and what are this
+sequences the sequences can be Taj Mahal
+is located in West Bengal Taj Mahal is
+located in Agra Taj Mahal is located in
+Mumbai and so on and so forth these are
+all uh sequences now for every sequence
+you measur this cumulative reward
+cumulative discounted uh uh reward and
+you take the
+average so this is Q function Q function
+is a function of the state action pair
+whereas the value function is a function
+of the state only state so what is value
+function value fun function is the
+average discounted cumulative reward
+received after reaching that
+state okay so this is not an this is not
+a function of action and state by the
+way so what's the difference between
+this equation and this
+equation only this
+part
+okay
+so so
+so in order to generate the next state
+next token my state will be S
++1 you generate
+Taj right which is my
+at okay and you have this
+prompt the next state is so this is my
+st+
+one okay
+St was this one till this
+part okay
+so so Q
+function if you think of it
+carefully if you look at these two
+equations
+carefully
+Q St
+a
+is the
+reward h
+a right the reward is T A and
+sorry this this will be t+1 this should
+be t + 1 okay this should be t + one why
+because VT + 1 will start from t +
+1 okay this this T this is also t t +1
+will start from T +1 right and what is
+so to to calculate this Q I need
+the dward at T and then the value in the
+next
+St
+okay so if you make some adjustment now
+you can use this Q function
+here in the reward part okay but it
+turned out empirically that this Q
+function is not enough I need some other
+function which is called the advantage
+function what is the advantage function
+Advantage function is basically Q
+function minus the value
+function for stability for better
+stability okay
+so Advantage function captures the
+contribution of the action over an
+average action at the same state it's
+very straightforward okay if you look at
+this very carefully okay it is
+essentially the contribution of the
+action
+okay over all possible action that that
+you can think of at that particular
+state so once this average this
+Advantage function is calculated right
+now you replace this this part which was
+earlier a q
+function before that it was reward right
+then it was Q function now this is
+Advantage function so the advantage
+function you replace all these rewards
+by Advantage function
+okay and then then the remaining part is
+straightforward the same
+process so now this is called reinforce
+with Advantage
+function now how do we implement this
+thing in neural network so I need to
+learn this value
+function right it's a value so what what
+I can do on top of every uh every
+embedding of the token right we have all
+these tokens now uh course into every
+token we can add a linear layer now this
+linear layer
+will essentially serve uh so this linear
+layer will learn uh let's say this is
+parameter by five and this will learn
+the value
+function right now how do you learn this
+value function by the way because we
+need some sort of objective function
+right so what is my objective function
+so given the input
+X we samp Le a response y right from the
+policy
+model I have this linear layer which
+will which is parameterized by five
+which is responsible for calculating uh
+the value right and what is my OB what
+is my ground truth value the ground
+truth is essentially the
+reward what is reward so given this uh
+so I have this reward model right so
+given uh this response
+right I can calculate the
+reward the uh the cumulative reward
+right uh discounted cumulative reward
+which is this one right the inter
+response to the inter response is known
+to
+me okay and this is this this is
+called the uh reward to
+go and then my task would be to
+essentially move this value towards this
+RT
+right so I'll
+minimize this uh mean square
+error so minimize over all token the the
+value and the reward difference right
+and through this I I mean when we back
+prop I will also update uh the linear
+layer which is responsible for value
+value
+function
+okay so this is my vanilla policy
+gradient
+method um so we sample given a prompt we
+so so first we first sample a batch of
+prompts right B now given a prompt you
+sample
+outputs y
+right for each Y which is essentially A1
+A2 do do a t you calculate the reward r
+t for every sequence for every token at
+right then you calculate the uh now this
+is my this part
+okay then you calculate the cumulative
+uh cumulative discounted reward RT right
+which is this
+one then you compute the value and
+advant Advantage function at right that
+you already discussed
+right right so I I will get Q from R I
+will get V from the linear layer from
+there I in the advantage
+function
+and for every token then what we'll do
+we apply the reinforce method right um
+and um with this Advantage function this
+is my reinforce method right this is my
+reinforced method with Advantage
+function and
+uh we we basically use uh to to to
+essentially train the value function
+right the linear layer that that that I
+mentioned the linear layer I'll
+calculate the MC the MC and this will
+help me uh get the uh parameters uh
+fine-tuned uh in this linear layer
+okay that's it but
+uh there are still some problems okay so
+what are the
+problems the problem is if you look at
+uh the reward carefully
+this part
+carefully what we are
+doing for every updated policy
+model I am generating its corresponding
+response okay isn't it if you look at
+this algorithm
+here for every updated policy model so
+Theta gets updated for every updated
+policy model I I need to generate a
+response from the response I will
+calculate all these things reward
+Advantage function and stuff like that
+now after every update if you start
+generating things that would be time
+taking right so can we do this thing
+beforehand okay so this is the idea the
+idea
+is so this is my reward um function
+right what I will do so first let
+me um
+let us uh you know expand this
+expectation in terms of summation right
+so this will be my probability and this
+is the
+reward what I will
+do let
+us use an old model which is Theta K
+Theta K is the old model right so I will
+use a term here which
+is the old model and the W model
+essentially this will cancel out so I
+add this
+ter okay and
+then I move this term here I move this
+term here and this term here
+so Pi Theta K will come
+here Pi Theta will go
+here and then the
+reward right so now I'm doing this
+expected
+calculating the expectation with respect
+to the old model so it means that given
+a prompt from the old model I will
+generate
+responses okay and I will measure the
+probability of those responses from the
+new model and from the old
+model so I don't need to generate this
+responses from the new
+model I will use the old model generate
+responses calculate the probability uh
+with respect to the old model which is
+the denominator we just put to the new
+model right and
+then I have the
+reward so this can be
+addressed
+okay and this component is called
+importance
+weight okay so this is the reinforced
+reinforced algorithm
+with importance
+weight we have been modifying this
+algorithm right again and again so now
+along with the the advantage function I
+have the importance
+WS we almost
+done so in po now this is reinforce
+algorithm in popo proximal policy
+optimization uh it turned out that that
+you know this important functions this
+important weight this important weight
+uh can change drastically if you if you
+use if you if you uh do this thing for a
+specific batch of prompts and some fixed
+output you will see a major uh change in
+terms of important in the importantance
+S values so we can bound
+it we can bound it
+between 1 minus Epsilon and 1 plus
+Epsilon what does it mean it's called po
+clip what does it mean it
+means that
+uh if the advantage is Advantage
+function is positive then I will take
+the mean of this and
+this so I clip I don't allow this this
+uh importance weight to be greater than
+this
+one if the advantage function is
+negative then I will take the max of
+this and this okay I not allow that the
+importance weight to essentially go
+below 1 minus
+F it's a tricks essentially to make this
+thing
+stable okay so what is my current
+algorithm this is po clip batch of
+prompts we have uh for each prompt we
+have
+samples for every sample we C the
+reward right for every token in the
+sample we calculate the cumulative
+discounted
+reward
+we calculate the advantage function and
+then we use po
+clip okay with the advantage values
+computed above and we use MSE for
+training the uh the linear layer for
+Value function
+okay so things to
+remember log derivative trick is very
+important
+right
+um log probability of the tokens should
+be weighted by the advantage function
+importance SS should be used right and
+importance SS should be clipped in
+vpu okay that's it so so this is about
+aligning the model
+Al aligning the policy model with uh
+human feedback reward model is used to
+generate the reward reward model is
+trained with human feedback and reward
+model will help uh update the policy
+model okay with this I stop here and
+then the next lecture we'll meet again
+thank you
+[Music]

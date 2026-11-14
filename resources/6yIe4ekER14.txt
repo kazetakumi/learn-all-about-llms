@@ -1,0 +1,1057 @@
+Hi, welcome back to a new lecture from
+the attention family lecture series.
+Today's lecture is about additive
+attention. However, this attention is
+more famously known in the name of
+Bahdanau attention.
+This was actually introduced a while ago
+in 2014.
+And it's very important for you to
+understand Bahdanau attention if you
+really want to appreciate the attention
+mechanism, the self-attention mechanism
+that we are eventually going to discuss
+in the upcoming lectures. So, today's
+lecture is purely about Bahdanau
+attention or additive attention.
+A quick recap of what we discussed in
+the last lecture. In the last lecture,
+we looked at neural machine translation
+through sequence-to-sequence models. The
+model was actually having an
+encoder-decoder architecture.
+The encoder will have input as the
+English sentence and decoder will have
+output in the form of French
+sentence.
+So, English is the input which is
+getting translated into French and we
+also discussed the biggest shortcoming
+of this architecture, which is the
+context vector.
+The context vector as an idea is an
+amazing idea. The only problem here is
+that this context vector is one single
+context vector, which is expected to
+capture the full
+information that is there in this
+sentence irrespective of the length of
+this sentence. Whether it is four to
+four words or four tokens or whether it
+is 20 words, it doesn't matter. The
+context vector is expected to capture
+all of this information, which is too
+much pressure on one single vector. And
+that is exactly the reason why this kind
+of architecture failed when the length
+of the sentence exceeded, let's say
+um,
+you know, above a threshold of 20 tokens
+or 20 words rather.
+So, in the last lecture, we discussed
+how this encoder-decoder architecture
+worked
+based on recurrent neural networks. And
+this kind of architecture existed till
+around 2014. And uh
+the recurrent neural network converted
+the inputs into a hidden state and the
+final hidden state from the encoder is
+the context vector. The context vector
+goes as an input into the decoder
+and the decoder will one by one produce
+the output tokens.
+Now,
+we all In the first lecture, we
+discussed that whenever we talk about an
+attention mechanism,
+we will not be just learning about the
+mechanism. We will learn where to fit it
+in our bucketing because if there are 50
+attention mechanisms, all of them can be
+nicely fit into few different finite
+number of buckets. Even if in the
+future, a new attention mechanism comes,
+we will be able to fit it fit in the
+these one of these seven buckets.
+And this figure I had shown you in the
+first lecture where there are seven
+buckets. First bucket is about scoring.
+Scoring meaning how the attention score
+is calculated. So, in today's lecture,
+we will discuss primarily about the
+attention score calculation. We will not
+be discussing any other aspects.
+The second bucket is connectivity
+meaning which tokens are allowed to
+attend which. We will see that in the
+upcoming lecture about the
+self-attention. Then third is about
+number of attention heads and the KV
+cache. Fourth is about the complexity of
+the attention calculation, the attention
+weights calculation. Usually, it is
+quadratic, but there are architectures
+which make it sub-quadratic. Fifth is
+about how the attention mechanism is
+implemented in GPU. For example, flash
+attention is a great
+example for this.
+And how position injection position
+information is injected into the
+attention mechanism. That is the bucket
+number seven the bucket number six.
+And bucket number seven is what is the
+domain in which we are implementing this
+attention mechanism, whether it is text,
+video, audio, image, or whether it is
+graph.
+So, in today's lecture, whatever
+attention mechanism we are discussing,
+the additive attention or Bahdanau
+attention is coming under this bucket of
+scoring.
+It does not mean that there are other
+other mechanisms which does not fall in
+this bucket. That is not the case. There
+are other mechanisms which which
+maybe compute attention mechanism
+slightly differently, which we will
+discuss in the next lecture. So, that
+next lecture also most probably fall
+under this scoring bucket. And later
+when we learn newer and newer attention
+mechanisms, we will see how the rest of
+the buckets are also coming into
+picture.
+But ultimately, irrespective of the
+number of attention mechanisms that we
+are going to discuss in this lecture
+series, all of them can be nicely fit
+into one or few or of these buckets.
+So, today's lecture Bahdanau attention
+and next lecture will be about dot
+product attention followed by scaled dot
+product attention. So, I'm hoping that
+these two attention mechanisms I can
+discuss in the next lecture.
+So, we will divide today's lecture into
+three parts. In the first part, we will
+see the idea behind Bahdanau attention,
+which is literally the attention
+mechanism, and why is it fixing
+something which could not be fixed in
+the
+RNN-based sequence-to-sequence models.
+And we will also see the full
+architecture of Bahdanau in the second
+part of our second section of today's
+lecture. And in the last part, we will
+also discuss how we convert the
+attention scores into attention weights
+using softmax.
+And we will also see why Bahdanau
+attention is actually called as additive
+attention. That we will see in the last
+section. It's actually very simple, but
+I will show you exactly the
+architectural reason why it is called as
+additive attention.
+Okay.
+So, firstly, the core idea behind
+Bahdanau attention. The core idea is
+this.
+Whenever decoder is producing a new
+token,
+okay?
+Don't rely on the
+on a single context vector. When I say
+single context vector, I mean the
+context vector that was produced in the
+encoder-decoder architecture in the
+sequence-to-sequence model was a single
+context vector. It was not changing.
+That context vector alone was
+responsible for producing the every
+single token in the output.
+Here on the other hand, the context
+vector keeps changing depending on
+what token we are producing. For
+example,
+if we are producing the
+French equivalent of cat. So, this chat
+is basically it's not English word chat.
+It's like the French word for cat. So,
+let's say we are translating this
+sentence the cat sat today into French.
+And let's say currently we are decoding
+uh we are basically producing in the
+output the word in the French word
+corresponding to cat which is chat.
+If that is the word that is being
+produced,
+the
+degree of attention or degree of focus
+that we have to pay to the incoming
+tokens or incoming hidden states should
+be such that cat should get the highest
+attention. Because now cat is being
+directly translated. Of course,
+translation is not a word-by-word thing
+directly, but sometimes it is.
+So, in this case, if we were to say how
+much attention we have to pay or how
+much focus we have to pay to every
+single incoming input token or every
+single encoder states,
+we should say most of the attention
+should be paid to the this uh the hidden
+state corresponding to cat.
+And remaining we should be paid to the
+rest of the tokens or to the rest of the
+hidden states. We will see the exact
+architecture, so don't worry about that
+yet.
+This is the idea behind
+um
+devising something called as attention
+scores.
+We will also see how attention scores
+are calculated, but these are the
+attention scores. So, this is the
+attention score between the and chat.
+This is the attention
+score between cat and chat. This is the
+attention score between sat and chat and
+so on.
+So, now you might be thinking what do
+these attention scores do?
+So, before we try to understand what are
+we going to do with these attention
+scores, let's take 30 seconds to recap
+uh how the architecture of the encoder
+looked like in the last lecture. In the
+last lecture, we discussed regarding the
+recurrent neural network based
+architecture for sequence to sequence
+models for neural machine translation.
+And what we had was something like this.
+So, if you had an English sentence, this
+is a car,
+each of those English tokens are passed
+into the recurrent neural network
+along with uh so, initially along with
+the
+initial hidden state,
+this English word is converted into a
+vector embedding. So, along with this
+hidden state and this vector embedding,
+RNN will produce a next hidden state,
+which is passed again into the same RNN.
+Here, we are not displaying multiple
+RNNs in series. Here, instead, these are
+different time steps. This we had
+discussed in the last lecture. So, this
+new hidden state along with the
+embedding corresponding to is is passed
+into the RNN. And finally, we have the
+context vector. So, once this context
+vector is produced, it is constant.
+It's not going to change irrespective of
+what token we are producing in the
+decoder. This same context vector was
+responsible for producing the entire
+output sequence.
+But in the case of attention scores,
+what we actually do is the following.
+What we do is
+we have the attention scores,
+which will vary depending on what token
+we are producing next. So, if we are
+producing the French equivalent of cat,
+which is chat, the attention score will
+be highest corresponding to the token
+cat.
+So, now what the decoder receives will
+be a context vector, which will depend
+on this current attention scores.
+The
+um
+context vector will be a weighted sum
+of the
+vector embeddings of
+all of these tokens. So, the will be
+converted into a vector embedding. So,
+this is the vector embedding
+corresponding to the that will be
+multiplied with 0.05. This is the vector
+embedding of cat. That vector will be
+multiplied with 0.75 and all of these
+vectors which are weighted are added.
+And what are these weights? These
+weights are nothing but the attention
+scores that we calculated. Technically,
+a better term to say this instead of
+attention scores is to call it as
+attention weights because these numbers
+essentially add up to 1.75 + 0.15 is
+0.9. 0.9 + 0.05 + 0.05. They will add up
+to one.
+So, now the difference between what was
+done before Bahdanau attention versus
+what happens within the Bahdanau
+attention is that these weights changes
+depending on what token we are
+producing.
+And based on that, the resulting context
+vector, which is a weighted sum of these
+embeddings, that will also change. So,
+that is the key difference that you have
+to remember. All right?
+Uh so, that is what I have written here
+in this this one sentence. Just pay
+attention to this. Earlier, the decoder
+got the same squeezed vector at every
+step. What is that same squeezed vector?
+It is the context vector.
+Now, so now meaning when we have
+attention mechanism, it it meaning
+decoder, decoder gets a fresh mixture at
+every step focused on whatever it
+currently needs. So, if the decoder is
+producing the equivalent of cat right
+now, the context vector will look
+different versus if if the decoder is
+producing the equivalent of
+today,
+the context vector will will look
+something else.
+So, this diagram should once and for all
+make it very, very clear for you
+forever. So, before attention mechanism,
+you just had one context vector
+uh which was agnostic to what token you
+are producing at the output. Output
+meaning at the decoder. Whereas with
+attention, you have different context
+vectors. So, C1 will be the context
+vector that we will have when we are
+producing the first token at the decoder
+output. C2 will will used when you are
+producing the second token at the
+decoder output and so on.
+So, this is the major difference that I
+want you to remember
+what the attention mechanism managed to
+do. And this has profound effects. This
+is not something that is too simple. You
+have to understand that this has very
+far-reaching consequences.
+So, now
+um what is
+attention?
+Attention is basically how much focus
+you are paying to each token or each
+vector embedding in a given moment.
+And these attention
+scores can be converted into attention
+weights. So, scores are raw numbers,
+but they can be converted into attention
+weights, which will add up to one. So,
+it will look like a probability
+distribution
+by passing the attention weights through
+something called as softmax function.
+So, we will discuss about softmax
+function soon, but basically scores are
+passed through softmax function to
+produce attention weights. So, which
+means when you are multiplying the
+individual with the with their
+corresponding weights and when you are
+adding those embeddings together,
+essentially you are doing a weighted
+average or I would like to call it as a
+weighted sum.
+Uh okay. So, now
+now that we are clear what is attention,
+that definition is out of the way, let's
+look at how the Bahdanau attention
+mechanism worked. So, we have to discuss
+that in part two.
+And in part three, we will also discuss
+why Bahdanau attention is called as
+additive attention. What is additive
+about Bahdanau attention? Let's see that
+also.
+So, in Bahdanau attention, this is what
+happens.
+You have an encoder. I have one more
+diagram which shows the full detail of
+Bahdanau attention mechanism, but this
+is a simplified version. You have the
+encoder over here.
+And you have the decoder over here.
+Now, let's say the current state of the
+decoder is such that the word le le is
+the translation for the the French
+translation for the. Let's say that is
+already written.
+Now next we are trying to write the
+second French token, which may be the
+translation for cat. But obviously
+translation does not work like that,
+right? It's not like you translate the
+first word, then the next word, then the
+next word. Language does not work like
+that, but in this specific example, yes,
+we are translating cat.
+So now what is the context vector? The
+context vector is C2. Why is it C2 and
+not C1? Because the first token is
+already produced using C1.
+First token lay was produced when we had
+C1, but now we have C2. And how is C2
+produced? To produce C2, you make use of
+H1, H2, H3, H4.
+What are these? These are the hidden
+states. Basically, these are
+hidden states produced by the recurrent
+neural network
+uh by utilizing the these inputs. So
+these inputs are converted to
+corresponding embeddings. That embedding
+uh along with the output of the RNN from
+the previous step is utilized for
+producing these series of H. And what is
+this H? H is the hidden state. This is
+hidden state one, H2, H3, etc. And these
+are also vectors living in a certain
+multi-dimensional space.
+Now how do you get context vector using
+these H1, H2, H3, H4? The context vector
+C2 is 0.05 * H1 + 0.75 * H2 + 0.15 * H3
+and + 0.05 * H4. So it's the weighted
+average of these hidden states.
+Now this context vector is now the only
+input that goes into the decoder.
+The decoder also has RNN architecture,
+and this time this RNN is having
+two inputs. One input is the decoder
+state S1. This decoder S state S1 was
+produced by the same RNN in the previous
+step. In the previous step where it
+produced lay,
+this hidden state or the the state S1
+was produced. So, along with S1, this
+context vector C2
+is also passed into the RNN, and this
+RNN produces two outputs. One is the
+next French token or next French word.
+Now, this This is not English word chat,
+this is chat. I'm not sure if I'm
+pronouncing it correctly, but this is
+the French translation for cat.
+So, the French translation for cat is
+produced by the RNN,
+plus
+the next hidden state or next decoder
+state S2 is also produced.
+Now, you can imagine what will happen.
+Now, in the next step, you are supposed
+to uh the output decoder at the output
+is supposed to produce S3 using S2 and
+C3.
+And how will C3 be produced? C3 will be
+again the weighted sum of H1, H2, H3,
+and H4. However, this time what will be
+different? These weights will be
+different.
+The weights will depend on
+uh what is the next token that you are
+going to produce. Okay? So, I'm not
+showing you visually that detail here.
+Hopefully, in the next diagram, it will
+be clear for you.
+But, this is This is the true essence of
+Bahdanau uh
+mechanism. These attention scores, which
+are varying dependent on which token is
+being produced, is the core essence of
+Bahdanau attention.
+Now, this is a slightly more detailed uh
+view of Bahdanau attention, and uh let's
+Let me show you this time how the scores
+are influenced by the decoder hidden
+states also. Because here, in the
+previous figure, you might have a
+question, "Okay, these scores, how
+exactly are these scores computed?"
+Um what are the inputs that go into the
+computation of these scores? Let's Let's
+actually have a look at it. So, this
+diagram, although it looks a little bit
+involved and maybe a bit intimidating,
+don't worry, it's actually very simple.
+I'll walk you through this.
+Again, these are the inputs in English,
+the cat sat today, and we have to
+produce the French equivalent.
+Now, let's say already the first token
+is produced. So, le is produced already.
+It's already written. Now we are about
+to produce the next French token, which
+is corresponding to cat, so it is chat.
+So first, the cat sat today is converted
+into hidden states H1, H2, H3, and H4.
+Who's doing this conversion? The
+recurrent neural network is doing the
+conversion that you already saw in the
+previous diagram.
+Now somehow,
+H1, H2, H3, and H4, along with the
+decoder state S1, somehow we need to
+convert into attention scores.
+Okay? So attention scores are computed
+using these functions F. What are these
+functions actually? These functions are
+simple neural networks. I will show you
+the architecture of this neural network.
+It's extremely simple. But basically,
+there are these tiny neural networks
+which will So this F, which is a neural
+network, is taking H1
+and S1 as an input.
+And with these two as an input, it will
+produce the attention score
+corresponding to that the
+encoder state H1.
+Similarly,
+this neural network, it's the same
+architecture, it will take H2
+and S1 as an input, and with those two
+things as the input, it will produce the
+corresponding attention score. Like
+that, four attention scores are
+produced. Now please note, these are
+attention scores, these are not
+attention weights. These are raw numbers
+which will not add up to one.
+Now you can convert these numbers
+which will not add up to one into a set
+of numbers that will add up to one,
+like a probability distribution, by
+passing it through softmax. Softmax, I
+hope you know the softmax function.
+Softmax function is nothing but e raised
+to xi
+divided by
+sigma
+e raised to xi.
+So this is the softmax function. So if
+you pass through this softmax function,
+you can convert the numbers into
+corresponding attention weights.
+And then you take the you you calculate
+the context vector C2
+by taking the weighted average of the
+or weighted sum of these encoder states.
+So, H1 multiplied by 0.05 + H2
+multiplied by 0.75 + H3 multiplied by
+0.15 so on and that will produce C2.
+Now, using C2
+and S1
+the recurrent neural network can produce
+so using these two things as the input,
+the recurrent neural network can produce
+two outputs. One is
+the C3 which is the next
+sorry which one is S2 which is the next
+state and second is what the next token
+should be.
+So, one way to do that is you can
+kind of concatenate C2 so C2 is a
+vector, right? C2 is a vector why
+because these encoder hidden states are
+vectors. Let's say the dimensionality is
+768 dimensional space.
+So, you have C2 which is the context
+vector and S1 is nothing but the decoder
+current decoder state vector. So, these
+two vectors are concatenated and then
+they can be passed through a particular
+linear layer. Linear layer is nothing
+but a layer which will have so let's say
+this is 768
+{comma} 768 so total dimensionality is
+768 multiplied by 2. Whatever that
+number is. Is it Is it 1526?
+Um
+let me do that. 768 * 2.
+No, 101526 1452. My
+Yeah, anyways. Um
+so
+14
+52
+How is it 1452? It's 768 multiplied by
+2, right?
+I typed wrong.
+Yeah, 1536. Okay.
+So, this is 1536.
+Let me just erase this.
+Now you want to go from something which
+is of 1,536
+dimensions into what?
+You want to go from that many dimensions
+to whatever is your French vocabulary
+size. So yes, let's say your French
+vocabulary size is 50K. Basically token
+size, not necessarily French vocabulary
+size. Whatever is your vocabulary size.
+So if it is 50K, you are having now a
+linear projection layer which will
+project from 15 1,536 dimensions to
+50,000 dimensions. Okay? And while doing
+that projection, you will also pass
+through a softmax function so that 50K
+raw logits you can convert into
+a probability distribution over 50,000
+numbers. Then among that, whichever has
+the highest probability you can
+>> [clears throat]
+>> you can pick. It really depends on the
+sampling technique. Sometimes there are
+greedy techniques which will pick
+whichever has the highest probability.
+Sometimes there are top top K techniques
+where you will be sampling from top K
+items. But essentially this is how the
+next token will be produced. And you can
+also have one more layer in the
+recurrent neural network which will
+produce the next state
+uh which is S2.
+And that S2 will be another vector. So
+in this case, since we are talking about
+vectors of dimension 768, this S2 will
+be a 768 dimensional vector. Then that
+S2 will basically take place over here.
+And then S2
+and H1 will produce the next score. S2
+and H2 will produce this score. S2 and
+S3 will produce this score like that.
+And those scores will be used for
+multiplying and adding these H1, H2, H3,
+H4 to produce C3. Then C3 and S2 will be
+used for producing the C4. Not C4, the
+next token and S3. And like that, this
+process will continue until end of
+sequence or some special uh sequence uh
+special token is arrived at.
+So this is in a nutshell how Bahdanau
+attention is working and the core part
+of this Bahdanau attention mechanism, in
+comparison to what was happening before
+Bahdanau attention, is this attention
+score plus attention weights, this this
+this part.
+This is the core part of
+or rather I should draw a slightly
+bigger rectangle. So,
+this plus the context vector. Because
+the context vector was there before, but
+this time the context vector is very
+dynamic. So, this whatever is there in
+this red color rectangle,
+uh that is the core contribution of what
+the attention mechanism could do.
+So, uh here I'm just once again
+mentioning the same thing. So, here S0
+is the uh current uh state of the
+decoder and um
+uh to decide S1, to decide the next
+state, the current token and the current
+context vector is used. To decide the
+state after that, we have a new context
+vector C2.
+So, this is the only thing which I want
+you to notice. The context vector C1,
+C2, C3, etc. are different context
+vectors. They are not the same context
+vectors.
+Uh this I have already discussed in
+detail, so I'll be skipping this.
+And
+um yeah, this also I have discussed, but
+just one one thing to notice is
+currently, if the next token that is
+being written in French is the
+equivalent for cat, which is chat, the
+attention attention scores or attention
+weights might be distributed in such a
+way that in this moment, cat may have
+the highest attention score. Basically,
+the attention score between chat and cat
+will be the highest.
+On the other hand, if we are writing
+this noir, noir is the equivalent uh
+translation for black, the attention
+score between noir and black will be the
+highest. The attention score will be
+noir and cat, noir and the, they will be
+low. So, see the attention scores are
+dependent on what is your current
+decoder state.
+Okay, this also I have uh
+already mentioned. Basically, this slide
+is trying to ask the question, what
+happens if the number of words in your
+input sentence, which is English, and
+number of words in output, which is
+French, are different? And of course,
+they can be different. There is no
+guarantee that translation results in
+the same number of words. But that's not
+a problem because in the decoder state,
+as we are producing new tokens, at some
+point the decoder may produce the end of
+sequence token. At that point, you will
+you will say that your translation is
+complete. So, the point at which that at
+which that happens need not necessarily
+be after exact same number of tokens are
+produced at the output. Maybe the output
+has produced lesser number of tokens
+than the input. Maybe the output has
+produced more number of tokens than the
+input. It depends on the language, what
+exact sentence are we trying to
+translate, etc.
+So, finally, uh this matrix called
+attention weights matrix is something
+which we are
+forever going to see as long as you are
+working with transformer architecture.
+Throughout this series, you will be
+seeing this kind of a matrix.
+Uh in this case, it's a it happened to
+be a square matrix, but there is no
+guarantee that we will be looking at a
+square matrix because these are the
+attention scores between or attention
+weights between two different sequences.
+So, please note in this case, it's
+technically not self-attention.
+We have not discussed self-attention
+yet. It is still in the upcoming
+lecture.
+But
+uh self-attention means you are
+attending one sentence is attending to
+itself.
+Which means the attention weights matrix
+will be a square matrix. The number of
+tokens
+uh over here
+and number of tokens over here will
+exactly be the same if it was
+self-attention. In this In this case,
+technically, it is not self-attention
+because a sentence in English
+is attending is paying attention to a
+sentence in French.
+In this specific case, the number of
+words in the input in English and number
+of words in French output happened to be
+the same because of which you are seeing
+a square matrix. Otherwise, this would
+have become a rectangular matrix.
+Now, pay attention to individual rows.
+So, these rows are
+showing the attention scores. So, this
+0.8, 0.1, 0.1 will add up to one. Those
+are the attention scores between lay and
+the lay and black and lay and cat.
+And similarly, this row, they will also
+add up to one.
+Because those are the attention scores
+between chat and the chat and black and
+chat and cat. And obviously, the
+attention score between chat and cat
+should be the highest because chat is
+the direct translation of cat.
+So, you can make a lot of sense by
+looking at which of these cells in the
+attention weights matrix is the dominant
+ones because those are basically the
+tokens that are paying most attention to
+each other. All right? And this kind of
+insight you will also be able to derive
+later when we look at self-attention
+between
+a set of tokens in a sentence with its
+own with its own tokens.
+Okay.
+And
+this is another example where you are
+looking at a sentence The European
+Economic Area.
+That's the English sentence. And la la
+zone économique européenne.
+This is the corresponding French.
+Obviously, my French pronunciation is
+not pronunciation is not correct, but
+one thing you can notice is that it's
+not like this attention weights matrix
+is having dark colors or, you know,
+prominent values across the main
+diagonal. There is no guarantee. That
+would have happened if languages were
+translated in such a way that one word
+is translated first, second word is
+translated next. If the language
+translation was working like that, then
+yes,
+most probably in this case this main
+diagonal elements all would have been
+dominant. But here you can see that here
+um
+it's it's I would say in the transverse
+direction of the direct diagonal. That's
+because here area is translated to zone,
+but zone is coming in the second
+position. Similarly, European is
+translated to European, but that's
+coming at the last. So, uh if you look
+at the attention scores, yes, the
+attention score between European in
+French and European in English, they
+should be highest, which is the reason
+why this 0.83 is highest. Similarly,
+zone and area are
+translations of each other, which means
+this cell which captures the attention
+score between those two tokens, it is
+the highest. Right? So, this is how
+attention map
+visualizes how your attention scores are
+laid out.
+Now, the last part.
+How exactly are we computing attention
+scores within the neural network? So,
+earlier I showed you a function F. That
+F was taking two inputs. One was the
+hidden state H, and one was that the
+hidden state H from the encoder, and one
+was the
+decoder state called S. So, from these
+two inputs, how exactly are we
+calculating the
+attention
+weights
+attention scores? Let's look at that.
+And let's also discuss why the Bahdanau
+attention mechanism is called as
+additive attention. So, firstly, the way
+we go from attention scores to attention
+weights. We have already discussed this.
+The scores, let's say they are 2 4 1 3.
+These are raw attention scores. You have
+to We have to convert this into
+probability distribution called
+attention weights
+by passing through a softmax function.
+So, obviously, whichever number was
+dominant before, that number will
+dominate after even after taking
+softmax. But, there are certain nuances
+here like the way you take softmax.
+There is a normalization that is
+typically done, but none of those
+techniques were introduced in the
+Bahdanau attention paper. By the way,
+the Bahdanau attention paper is a very
+famous.
+It has around 45,000 citations if I
+remember correctly, 44,000. So, this is
+the This is the paper. And this came out
+in 2014 and the first author the surname
+of the first author is the is Bahdanau.
+So, that's how this name came.
+This is He's like a very researcher. You
+can check the Google Scholar more than
+100,000 citations, like a a very big
+name in the modern artificial
+intelligence.
+So, this is the first step, which is the
+score converted into weights.
+The other step which I called uh which
+which is the additive attention part is
+coming in the function F. So, earlier
+this whole setup
+whatever is there in this
+red color rectangle
+I had called as a function F.
+So, I told you that uh
+when I have a function F, there are two
+inputs, the hidden state from the
+encoder and hidden state from the
+decoder, right? So, encoder state is H2.
+Decoder state is S1. These are both kind
+of vector embeddings and both will go as
+the input into this function F and
+somehow the score is coming out. And how
+is it happening? It's happening in this
+way. So, first W1 multiplied by S1. So,
+W1S1. Obviously, whether it's W1S1 or
+S1W1 depend will depend on the
+dimensionality.
+W1S1. So, we are we are multiplying with
+a weight. So, weights multiplied by the
+S1 plus
+W2H2.
+Okay? So, this is addition. So, this
+addition is happening and that's the
+reason why we are calling Bahdanau
+attention as additive attention.
+And then, you pass this through a tan
+hyperbolic activation function
+to bring non-linearity. Otherwise,
+whatever you do here will be linear
+additions. But, uh neural networks if
+neural networks needs need to be
+helpful as a universal function
+approximator, if neural network wants to
+be able to approximate any kind of
+pattern
+there should be uh non-linearity in the
+form of activation function. It can be
+tan hyperbolic, it can be
+uh sigmoid or uh ReLU. But, tan
+hyperbolic is applied on top of uh So, I
+hope you know the tan hyperbolic
+uh graph.
+It's it basically
+runs from minus one to one Uh on Y axis
+and X axis inputs can be anything. So,
+like something like this. Sigmoid will
+run from zero to one.
+So, this is the tan hyperbolic graph.
+And
+then there is one step called doing a
+dot product with a vector V.
+So, what is happening here is So, when
+you do tan hyperbolic of W1 S1 plus W2
+S2, here basically these are vector
+additions. So, S1 lives in a certain
+space, S2 lives in same dimensional
+space. So, you you are doing or if if
+that is not the case, the W1 will
+basically project it from one space to
+another. So, W1 will project S1 from its
+current space to another dimensional
+space. W2 will do the same. But,
+ultimately the dimensionality of the
+resulting spaces after W1 S1
+multiplication and W2 S2 multiplication
+will be the same. That's the reason why
+you are able to add them element wise.
+So, whatever is resulting will be like a
+vector.
+Now, what do we want at the out at the
+output of this F? At the output of F, I
+want one number. That number should be
+the attention score between H2 and S1,
+right? So, if I want one number, one
+number means it's a scalar. So, somehow
+this this
+product which results after tan
+hyperbolic operation, which is a vector,
+I want to convert into a scalar. So, for
+that you do a dot product with a V with
+a vector V. And this vector V is
+actually a learned parameter. It is not
+something which we define. It
+The vector V
+emerges evolves as a process of as a
+part of um
+training of this function F. So, when
+you do the dot product, the result is a
+scalar and that scalar is the attention
+score. And then the attention scores you
+get from get between H1 and S1, H2 and
+S1, H3 and S1, and H4 and S1. Those
+attention scores you pass through
+softmax to get attention weights. So,
+this is the
+this is the additive part and that's the
+reason why we are calling Badanov
+attention as additive attention.
+So, that's all for today's lecture.
+Let's do a quick recap. So, what we
+learned today is about additive
+attention. It's additive because the
+final attention score is V dot product
+with tan hyperbolic of W1S + W2H.
+So, this weighted
+decoder state plus
+weighted encoder state. The sum of those
+two, that's that the fact that we are
+doing that sum is the reason why this is
+called as additive attention. Uh and the
+attention scores are converted into
+attention weights.
+And what we did not discuss today is dot
+product attention and scaled dot product
+attention. We also have a few more
+details to discuss regarding why the
+scaling works, etc. in terms of
+from the perspective of softmax. That we
+will discuss in the next lecture.
+But uh if we were to look back at this
+particular
+uh bucket. So, this bucket we looked at
+in the last two lectures. So, today we
+focused on this scoring part, how the
+attention score is computed. We compute
+attention score using a neural network.
+But in the next lecture, we will see how
+attention score can be easily computed
+without any neural network with a simple
+dot product and the logic behind that
+dot product. So, uh we are still in the
+bucket number one. It doesn't mean that
+future mechanisms do not use the bucket
+number one. Of course, it uses bucket
+number one. Every future mechanism that
+we will learn, every future attention
+mechanism that we will learn will use
+the attention score calculation, which
+is predominantly scaled dot product
+attention which we will discuss in the
+next lecture. But uh please understand
+that currently we are yet, you know,
+still focused on this particular bucket
+in this lecture as well as in the next
+lecture.
+Okay. So, in the
+next lectures, what we will be doing is
+we will look at how the field evolved
+from additive attention to dot product
+attention, which was uh proposed in this
+Luong paper in 20 2015. This paper has
+around 11,000 or 12,000 citations,
+pretty famous paper. And then probably
+the most famous paper in the history of
+artificial intelligence, the attention
+is all you need paper where they
+implemented scaled dot product
+attention. So we will discuss about dot
+product attention and scaled dot product
+attention in the next lecture. After
+that we'll be fully ready to move
+towards self attention mechanism. So I
+hope you are enjoying the series. Thank
+you so much for listening. We will meet
+again in the next lecture. Take care
+until then. Bye.

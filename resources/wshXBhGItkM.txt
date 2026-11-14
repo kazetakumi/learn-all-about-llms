@@ -1,0 +1,1417 @@
+Hi, welcome back to a new lecture from
+the attention family lecture series. In
+today's lecture for the first time, we
+will be discussing about query key and
+value. We will discuss the intuition
+behind that, and we will also see how to
+implement it mathematically.
+I will give you a brief recap of what we
+discussed in the last lecture, but
+today's lecture in one sentence is
+purely about self-attention with
+trainable parameters, which are query,
+key, and value weight matrices.
+So, in the last lecture, lecture five,
+what we discussed was a simplified
+version of self-attention, which did not
+have separate query, key, value
+parameters. Instead, all of those
+parameters were represented by the same
+input embedding X. So, our formula was
+softmax
+of instead of query times key transpose,
+we had X times X transpose
+divided by square root of D
+multiplied by X.
+In some examples, in an even more
+simplified examples, this dividing by
+square root of D sometimes will be
+eliminated. So, instead of using scaled
+dot product attention, in some examples,
+people show normal dot product attention
+also, but this is what we done what we
+had done in the last lecture.
+And I hope you remember what this is.
+This is the context vector, Z.
+So, our goal was to convert the input
+embeddings into context vectors because
+input embeddings are
+basically independent of the available
+context.
+So, if there are embeddings for
+individual words or individual tokens,
+we need to change those embeddings
+slightly or we need to modify them
+slightly depending on the available
+context.
+So, we realized that to do that, we have
+to construct attention scores.
+And that too, when we are constructing
+attention scores, we have to convert the
+input embeddings into context vector by
+taking the dot product between the
+individual embeddings. Take the softmax
+so that the attention scores are
+becoming attention weights, and then you
+take a weighted sum of the same set of
+input vectors, which are X, to get the
+context vectors. So, this is what we did
+in a nutshell in the last lecture. If
+you have not watched the last lecture,
+please go ahead and watch the previous
+lecture on simplified self-attention.
+That way, today's lecture will make a
+lot more sense for you.
+But, at the end of the day, we need uh
+context vectors corresponding to every
+single input embeddings. So, input
+embeddings are denoted by X, context
+vectors are denoted by Z.
+All right.
+Now, when we take one more step back, we
+are discussing about attention
+mechanisms in this series, right? And we
+said that in the very first introductory
+introductory lecture, there are many
+different attention mechanisms, probably
+50-plus relatively famous attention
+mechanisms, and we have to study them by
+bucketing them. And this figure we will
+be coming back again and again, coming
+back to again and again. Uh in the
+second, third, and fourth lectures, we
+looked at the scoring mechanism. So, we
+discussed Bahdanau attention, we
+discussed dot product attention, and
+scaled dot product attention, which was
+all about constructing attention scores.
+And then, in the last lecture, we looked
+at the simplified self-attention, where
+we are we discussed for the first time
+tokens attending to each other. In fact,
+in Bahdanau attention, we had something
+like a cross-attention, where tokens
+from one sequence was attending to
+tokens from another sequence. But, in
+the last lecture, we looked at
+self-attention for the first time. And
+in today's lecture also, we are
+continuing to look at the
+self-attention. I will show you an
+outline or a map of where we are headed
+in today's lecture as well as in next
+lecture in in one more slide.
+And in the future lectures, whenever we
+discuss about new attention mechanisms,
+you will learn about mechanisms that
+introduce multiple attention heads, KV
+cache, attention mechanisms that reduce
+the attention calculation complexity.
+Because we know that the complexity is
+square of number of tokens, so it's
+usually n squared, but there are also
+sub quadratic complex attention
+mechanisms. We will discuss about
+attention mechanism implementation on
+GPU, injection of position information,
+and then finally attention mechanisms
+implemented to different input domains
+like text, image, video, graph, etc.
+So, in today's lecture, we will learn
+about attention mechanism self-attention
+with trainable weights.
+And in the next lecture, we will learn
+about self-attention with masking or
+masked masked self-attention or causal
+self-attention.
+So, this is where we are headed.
+So, in the last lecture, simplified
+self-attention is done. We do not have
+query key value weight matrices, but
+this time we will talk about WQ, WK, and
+WV, which are weight matrices, which
+will project the input embedding X into
+query space, key space, and value space.
+We will also briefly discuss
+why are we first of all converting the
+input embeddings into query, key, and
+value. Because if we don't do that, you
+will not understand why this is even
+existing in the first place. In the next
+lecture, we will discuss about masked
+self-attention, and then after that, we
+will discuss about multi-head attention.
+So, once multi-head attention is clear,
+we can later move on to more advanced
+concepts like multi-head latent
+attention and so on.
+Group query attention, etc. So, there
+are many concepts that we want to
+discuss further ahead in this lecture
+series.
+So, this lecture has three parts. In the
+first part, we will discuss why taking
+raw dot products will fail. When I say
+raw dot product, I mean the raw dot
+product between the input embeddings,
+because that's what we are currently
+doing or that's what we were doing in
+the last lecture. We said the attention
+scores are nothing but X dot X
+transpose.
+So, this is like the same input
+embedding is being used for, you know,
+on the both ends of the dot product. And
+then we will if we want to scale, we
+will scale it by square root of D, and
+then these scores are converted into
+weights using softmax.
+So, this will give us the context
+vectors.
+Now, in the second part of So, first
+part of the lecture is regarding what's
+the issue with this kind of a
+a setup. In fact, this value vector was
+not existing. It was um X only, which
+was the input embeddings. So, instead of
+query, key, and value, we had input
+embeddings only.
+So, once we understand the problem with
+this kind of a setup, we will realize
+the need for transforming the input
+vectors X into something else. That's
+the reason why query, key, and value is
+existing. And a couple of lectures ago,
+we had discussed in detail why we are
+dividing by square root of D. It is to
+make sure that the softmax scores will
+not become saturated. So, we will not be
+spending too much time on that, but
+we'll be implementing it.
+And then finally, we will discuss the
+famous formula for context vectors,
+which was introduced in the Attention Is
+All You Need paper, which is softmax of
+query times key transpose.
+query.key transpose divided by square
+root of D multiplied by value vector.
+So, basically, the context vectors are
+nothing but attention weighted sum of
+value vectors. So, we will we will
+discuss that
+definition or that particular
+English
+description of context vectors. Because
+this formula is something that might you
+might find intimidating, but actually,
+it's very simple. And if you truly think
+logically what we are trying to do here,
+this formula will make even more sense.
+So, we will have a brief discussion
+regarding that also in today's lecture.
+Apart from all of this, we will have a
+walk-through through this Google Colab
+notebook, in which there are I have
+already written a bunch of blocks of
+code, which will show you visually what
+happens to the context vectors in
+presence and absence of the
+query key value vectors or query key
+value conversions. Okay.
+So, first let us discuss why this raw
+dot product is not the greatest of
+ideas. So, x.x transpose, instead of
+doing this to calculate the raw
+attention scores, we may want to do
+something else. So, first of all, let's
+see what's the problem.
+The problem is the following. Look at
+this sentence. The dog chased the ball,
+but it couldn't catch it.
+So, here you have two
+two tokens which are the same, which is
+it.
+The first it refers to what? It refers
+to dog.
+Second it refers to
+ball. Right?
+Now, if you look at the dot product
+between two tokens, let's say dot
+product between it and dog,
+versus dot product between it and ball.
+Okay? So,
+if you were to take the dot product
+between the this first it
+and first dog,
+ideally, the attention score should be
+very high.
+Ideally.
+Because here it is referring to the dog.
+On the other hand, if this it was being
+taken as a dot product with the dog,
+ideally, attention score should not be
+very high because this it is referring
+to
+ball. It is not referring to dog.
+However, will that difference be there
+actually
+in our dot product based attention setup
+where the input embeddings are directly
+used for constructing the dot product
+like x.x transpose?
+Will this difference be there?
+Will there be any difference between the
+dot products? There won't be any
+difference because the input embedding x
+corresponding to this it and
+corresponding to this it, they are the
+same because input embeddings are
+independent of
+the position of the token. Right? So,
+when we simply take input embedding
+directly and dot product it with
+whichever token we are trying to attend
+to,
+it can result in a situation where you
+end up having similar dot products.
+So, this is this is one example where we
+are trying to construct the dot product
+between two different its with
+dog.
+There could be other situation where you
+want the same it. So, there could be one
+more example where I'm I'm looking at
+this one particular it
+and it attending to dog versus it
+attending to ball.
+Obviously, the attention score in this
+case also need to be different.
+Right? Because um
+um the it is paying more attention to
+dog and it should pay less attention to
+ball. But, there could be situation
+where those two attention scores are
+similar. So, it really depends on the um
+input embeddings.
+So, we can't really rely on just the
+input embeddings alone
+to construct the attention scores. We
+have to do something else to the input
+embeddings. The best way to remember
+this is let me just clear the screen
+once.
+So, the best way to understand this
+example is looking at
+these two its. So, instead of looking at
+it dot product with dog and it dot
+product with ball,
+look at this case. This it being dot
+products with dog and this it
+again dot product with dog. Clearly, the
+attention scores they should be
+different, but they will will not be
+different because it is the same token
+being your your taking the dot product
+between the same two pairs of tokens.
+So, obviously, the attention scores in
+the naive dot product case will be the
+same.
+Now,
+this is the main reason why people
+thought of
+you know, making some changes to the
+input embedding so that when you take
+the dot product, the dot product will
+make more sense. So, look at this
+example, okay? Let's say my tokens are
+living in the embedding space with three
+dimensions. So, this is a
+three-dimensional vector corresponding
+to it. This is a three-dimensional
+vector corresponding to dog and ball.
+Okay?
+Now, depending on the position of it, it
+should pay more attention to dog in some
+sentences and it should pay more
+attention to ball in not in some
+sentences in some cases it should pay
+more attention to dog in some cases it
+should pay more attention to ball. So
+let's say currently we are in the we are
+looking at this first hit
+where we have to pay more attention to
+dog, okay?
+Or rather ball. We can take the second
+hit because that's the example that is
+shown in the next slide. So if we are
+considering this hit
+the attention score should be highest
+between it and ball rather than it and
+dog because here it refers to ball.
+So let's see how we can accomplish that.
+So here you can see that when you take a
+dot product between it and dog
+the dot product is 0.51. It is 0.5
+multiplied by 0.9 plus 0.5 multiplied by
+0.1 plus 0.1 multiplied by 0.1.
+Now what about the dot product when you
+take the what about the score attention
+score when you take the dot product
+between uh it and ball?
+It and ball will also be the exactly
+same value. When you take the dot
+product between it and ball it's 0.5 *
+0.1 + 0.5 * 0.9 + 0.1 * 0.1. It will
+also be 0.51.
+So here although you are expecting the
+attention score between these two tokens
+to be higher
+than these two tokens that is not
+happening because you are taking raw
+attention scores. Sorry, you are taking
+raw input embeddings.
+So actually we can do something
+interesting to these input embeddings.
+So assume that we have a
+a matrix which is actually called as a
+weight matrix
+and actually these empty cells are not
+empty those are zeros. So here it is
+zero.
+This is zero.
+Zero.
+Zero and zero. So let's say this is the
+W K matrix. Basically
+key weights matrix.
+So in this example that we have given
+can you imagine what is the query and
+what is the key?
+Query is the token
+which is attending.
+And key is the token that is being
+attended to. So here, it is attending to
+dog in the first example and it is
+attending to ball in the second example.
+So query is it in both cases and key is
+dog in the first case and key is ball in
+the second case. Okay. We are yet to see
+key and query in detail, but just for
+your understanding.
+So here, this WK, which is key weights
+matrix, is something which transforms
+keys. It does not transform query, it
+transforms keys. So what that means is
+these two embeddings, so this is the
+original input embedding corresponding
+to dog and this is the original input
+embedding corresponds to corresponding
+to ball, those two vectors will be
+transformed by this transformation
+matrix. And let's see how the
+transformation looks like. So when the
+dog vector is multiplied or acted upon
+by this uh
+this matrix, basically first of all,
+what's the dimension of dog? Dog is 1 by
+3, right? And this is 3 by 3.
+So the multiplication is nothing but X
+multiplied by WK.
+Right? Because 1 by 3 multiplied by 3 by
+3 will give you 1 by 3. The resulting
+uh vector will have
+starting dimension of one and second
+dimension of three, correct?
+So what will be the result? 0.9
+multiplied by 1,
+so that will be 0.9. Rest of the
+elements are zeros. 0.1 multiplied by 0
+plus 0.1 multiplied by 2 plus 0.1
+multiplied by Sorry, 0.9 multiplied by 0
+plus 0.1 multiplied by 2 plus 0.1
+multiplied by 0, which will be 0.2. That
+That's the second element. Third element
+will be 0.9 multiplied by 0 plus 0.1
+multiplied by 0 plus 0.1 multiplied by
+1. So the last item will be 0.1. So
+after transformation,
+the
+the vector corresponding to dog got
+transformed into 0.9, 0.2, .1.
+Originally, it was .9, .1, .1. So, the
+second item got
+changed.
+What about ball? What happens to ball?
+When the same matrix transformation
+matrix is used for transforming ball,
+the result will be .1 multiplied by 1 +
+.9 multiplied by 0 + .1 multiplied by 0.
+So, first element will be .1 only.
+Second element would be .1 multiplied by
+0 + .9 multiplied by 2 + .1 multiplied
+by 0. So, that will be .9 * 2 1.8. So,
+second element will be 1.8. Similarly,
+third element would be simply .1
+multiplied by 1, which is .1. So, you
+see, the vector corresponding to ball
+was initially .1, .9, .1. Now, it became
+.1, 1.8, .1.
+Okay. Now, let's see what happens to the
+dot product. Now, if we take the dot
+product between it and dog and it and
+ball. So, here we are not yet
+transforming it. That we will do in the
+next upcoming slides. But, here we are
+only transforming the keys. The queries
+we are not transforming. Query is the
+the token that is
+uh
+attending to other tokens. Keys are the
+tokens that are being attended to. So,
+in this case, dog is being attended to
+by it. Ball is being attended to by it.
+So,
+the dot product between it
+and transformed dog will be
+um .5 multiplied by .9 + .5 multiplied
+by .2 + .1 multiplied by .1.
+Right? So, this will be .45 + .1 + .01,
+which is .56.
+So, the dot product has changed a little
+bit. Earlier, the dot product between it
+and the original version of dog was .51.
+Now, it became .56. But, that's not the
+interesting part. The interesting part
+is the next one.
+If you look at the dot product between
+the original input embedding of it and
+the transformed embedding for ball,
+it would be
+.1. Sorry, .5 multiplied by .1,
+which is .05 plus
+.5 multiplied by 1.8 which will be .9
+plus
+.1 multiplied by .1 which is .01 and
+that will become .96.
+Now you see
+it as a token is now attending paying
+more attention to ball
+and less attention to dog because that
+is the case. In our case,
+the example sentence that we said we
+said we are looking at this particular
+it.
+And this it is referring not to the dog,
+it is referring to ball. Which means the
+attention score between it and ball
+should be higher. So here, the attention
+score should between it and ball is
+actually higher.
+But which ball are we talking about? Are
+we talking about the original input
+embedding for ball? No. We are talking
+about the transformed input embedding
+for ball.
+Similarly, the it also we have to
+transform for same reasons like
+there might be a case where the the
+query also requires transformation not
+just key, right? So in a in an ideal
+world
+when two items are being you know,
+attending to each other by taking a dot
+product X.X transpose, we will not we
+will not use X as such here. We will
+transform it to something like query.
+Here also, we will not use X as such, we
+will transform it to something called
+key. So key transpose.
+And this transformation is brought about
+through these matrices called as
+transformation matrices or WK, WQ, WV,
+etc.
+Now the whole art of
+I would say one big part of training the
+large language model is figuring out
+what are these good transformation
+matrices. How do you transform your
+input embedding in embeddings into rich
+query representation, rich key
+representation, and value
+representation? Because if the if the
+transformation matrix is good
+and after transformation, your dot
+products will make more sense. So in
+this case
+after step three, the dot product makes
+more sense.
+Why? Because the dot product between it
+and dog is smaller than the dot product
+between it and ball, which is that is
+how it is supposed to be in that
+particular example sentence. All right?
+So, in short, this is what I have
+already mentioned. In general,
+every embedding, so if a if a sentence
+has six tokens,
+all the tokens, which we can in general
+denote using X,
+is transformed into query Q,
+key K, and value V.
+Earlier, in the previous slide, we saw
+how X is transformed into K. X is
+transformed into K using WK. So,
+basically, K is equal to
+in the previous example, it was X times
+WK.
+It can be opposite also, depending on
+the dimensionality. In some cases, you
+might multiply WK times X, so it
+completely depends on what's the input
+dimension and what's the expected output
+dimension. Similarly, Q, the query, will
+be X times WQ,
+and value will be X times WV.
+So, here, what's happening to your input
+embeddings?
+In one step, you're converting your
+input embedding into query space. This
+is a different dimensional space. The
+dimensionality of the query space can be
+different. In the previous example, it
+was the same. It was still a
+three-dimensional space, but there are
+cases where it could be different. In
+some cases, um
+in another case, you are converting the
+input embedding X into key.
+So, key space, query space, and value
+space, all of them will have uh same
+dimensionality, but that dimensionality
+may be different from the dimensionality
+of the input embedding space. And the
+same X is also converted into value
+space.
+So, instead of,
+you know, instead of doing something
+like softmax of
+X times X X dot X transpose divided by
+square root of D multiplied by X,
+what is actually done, and this is the
+context vector, right? The formula for
+producing context vector. This is also
+from the Attention Is All You Need
+paper. Um in that paper, what we have
+instead of this is this X is replaced
+with query.
+This X is replaced with key. And this X
+is replaced with value. So, we never use
+the input embeddings as such for um for
+a simple reason which I showed you
+earlier because if we use it directly,
+the same token may mean different things
+depending on what is the available
+context. So, um
+in this equation at every every place
+you use transformed versions of input
+embeddings. So, that is the idea behind
+query key value. So, just to recap, in
+lecture five, which was the last
+lecture, we are working we were working
+in the raw input embedding space. So,
+the same input embedding we used for dot
+product to produce the attention score.
+So, attention score was dot product
+between X and X. And then um the output,
+which was the context vector, was
+nothing but uh the score, which is
+converted into weights, which we can
+call as W. So, scores when you do divide
+by square root of D and when you pass it
+through softmax, you get the attention
+weights. That attention weight
+multiplied by the vector themselves. And
+you sum it up. That is the final context
+vector. Whereas in current case, what we
+do is we before we do the dot product,
+we convert the embeddings into uh query
+space, key space, and value space. So,
+this is the embedding converted to
+query. This is the embedding converted
+to key. So, the resulting queries and
+keys are what we do the dot product
+with. And that will give us the
+attention scores. Attention scores are
+converted into attention weights by
+dividing by square root of D and by
+taking softmax. And then that resulting
+quantity we will multiply with uh the
+value vectors, which is also resulting
+from the input embeddings. Input
+embeddings are converted into values,
+value vectors, and the attention
+weighted sum of these value vectors is
+our final context vector. So, when we
+say output here, essentially what we are
+talking about is context vectors.
+So, in both in both last lecture and
+current lecture, we are doing the more
+or less the same thing. We are somehow
+figuring out what's the best way to
+convert the input embeddings to context
+vectors. That is what we are doing, and
+we realize that just taking direct dot
+product between the tokens is not the
+best idea. We have to convert the token
+into a different space, and that will
+help us produce richer representations,
+right? So, now if I say the context
+vector Z is attention-weighted sum of
+value vectors, do you understand what it
+means?
+So, this is the formula, right? Softmax
+of query
+query.key transpose divided by square
+root of D multiplied by W multiplied by
+V. Attention-weighted sum of value, what
+does that mean? So, element-wise, this
+is how the multiplication with value
+will look like. W of J multiplied by V
+of J. What is V of J? V of J is value
+vector number J.
+W of J is the corresponding attention
+weight.
+And you sum this across Basically,
+you'll you'll be doing summation of
+sigma
+J equal to 1 to
+let's say five. If there are five
+tokens, you will do J equal to 1 to 5.
+So, attention-weighted sum of value
+vectors is what the context context
+vector is, right? And when you when
+somebody now says this statement, you
+should be able to visualize this
+equation. So, this is the value vector.
+You are and this is the attention
+weights.
+You are multiplying attention weight
+with the value vector, and you are
+summing those value vectors to get the
+context vector. Okay?
+All right.
+Now, let's do a quick query-key-value
+calculation by hand for the example
+sentence that we will choose. The
+sentence is the dog chased the ball,
+okay?
+The dog chased the ball. We have 1 2 3 4
+5 five tokens, and every token is living
+in a three-dimensional space.
+Now, let's say these are our query, key,
+and value matrices transformation
+matrices WQ, query weights matrix, key
+weights matrix, and value weights
+matrix.
+You should be already be able to imagine
+what happens to the the tokens after
+conversions. Do you think the tokens
+will still remain in the
+three-dimensional space after
+conversion? Because conversion is X * WQ
+or X * WK.
+And X is 1 by 3.
+And WQ, WK, etc. are 3 by 2.
+So, the resulting vector will be of 1 by
+2 dimensionality, right? So, the
+dimensionality of the space
+is different. Dimensionality of the
+query space, key space, and value space
+is two-dimensional.
+Whereas the original input embeddings
+are living in three-dimensional space.
+So, here you can see that the
+dimensionality of the space is changing
+after you project your input embeddings
+into query space, key space, and value
+space respectively. Okay? So, just note
+this. This can happen. Like there are
+many architectures where the query, key,
+and value space are not necessarily of
+the same dimensionality as that of the
+original input embeddings. So, 5 by 3
+because you have five tokens.
+1 2 3 4 5. And the dog the dog chased
+the ball. You have five tokens. Each of
+them are of three dimensions. And
+transformation matrix is 3 by 2. And
+resulting query is 5 by 2. Key is 5 by
+2. Value is 5 by 2. What does 5 by 2
+means? You have If you have five input
+tokens, you have five queries. If you
+have five input tokens, you have five
+keys and five values. Original input
+tokens were in three-dimensional space.
+Resulting query, key, and value, they
+are all in two-dimensional space. There
+is a small mistake in the diagram here
+actually. Here there are only four rows
+actually. There should be one more row.
+Fifth row should be there. Okay, that's
+that's just a simple image rendering
+mistake.
+But that is what happens to the input
+embeddings.
+Now, the keys, queries, keys, and
+values, which are resulting from our
+input embeddings, will look like this.
+We can actually do a proper calculation
+in the Google Colab notebook. But here
+I'm just showing you for initially
+before we run the Colab notebook. So,
+now this is the query corresponding to
+the query corresponding to dog chased
+the ball, right? These are all the
+queries. These are all the keys
+corresponding to the same set of tokens,
+and these are the values corresponding
+to the same set of tokens.
+Now, once we have the query, key, and
+value,
+um
+let's say I want to calculate the
+context vector corresponding to one
+particular token, because
+we are essentially converting tokens to
+context vectors. So, in our case, we
+have five tokens, right?
+Five total tokens, which means we will
+have five context vectors, five Z's.
+We had five X's.
+Five X's meaning uh X is the input input
+embedding. We had We had five of them.
+The dog chased the ball, which means we
+will also have five context vectors.
+So, let's try to understand how one of
+these context vectors are calculated.
+So, let's say we are trying to calculate
+the context vector associated with ball.
+So, when we say we are calculating
+context vector associated with ball,
+ball is what? Is it query, key, or
+value?
+Ball is the query.
+Ball is the query against every key. So,
+when we take dot product, ball will act
+as the query, and every token in the
+same sequence will act as the keys.
+So, first what we do is
+we will calculate the dot product
+between
+Q of ball. So, let's actually number
+them. This is one, two,
+three, four, five, right? So, Q We are
+always taking Q5 dot K1.
+Because you will convert the token
+corresponding to the into key and query.
+And here also you are doing Q5 * K2.
+Here you will do Q5 not times dot
+product Q5 dot with K3.
+Q5 dot with K4.
+And in the last case, it will be Q5 dot
+with K5.
+And this dot product will give us the
+attention scores. Where are the
+attention scores? And you will also
+divide by square root of the
+dimensionality. But these are the raw
+attention scores. 2.89, 2.82, 3.42, etc.
+These are the attention scores which are
+dot products between your queries and
+keys.
+Now, these dot products, the raw
+attention scores, you divide by square
+root of two. Why are we Why are you
+dividing by square root of two? Because
+two is the dimensionality of the query
+key value space in this specific
+example.
+So, after dividing by square root of
+two, you get the scaled attention
+scores.
+Then, these scaled attention scores you
+convert into attention weights by
+passing through softmax. You now have
+0.17, 0.16, 0.25, 0.10 0.10 and 0.31.
+Now, how do we get the context vector?
+Context vector is nothing but 0.17 times
+V1 plus 0.16 times V2 plus
+0.25 times V3 plus 0.10 times V4
+plus
+0.31 times V5.
+So, this is the weightage given to V1.
+This is the weightage given to V2.
+This is the weightage given to V3.
+Weightage given to V4. And weightage
+given to V5.
+So, you are essentially adding up V1,
+V2, V3, V4, and V5. These are value
+vectors. But you are not directly adding
+them. You are adding each of them by
+having a pre-factor or a weight. What
+are those weights? Those are the
+attention weights. So, attention
+This is the attention weighted value
+vector.
+This is also attention weighted value
+vector. This is also attention weighted
+value vector. You are taking in the sum
+of those attention weighted value
+vectors to get the context vector. And
+which context vector will this give us?
+Is it Z1, Z2, Z3, Z4, or Z5?
+This is going to give us the context
+vector corresponding to query number
+five. So, this will give us Z5.
+Okay. Similarly, if you wanted Let Let's
+say Z3 is what you had what you wanted.
+What is the change that you would have
+made here?
+If you wanted Z3, instead of Q5 over
+here,
+you will use Q3. You will do Q3.K1, here
+Q3.K2, Q3.K3, Q3.K4, and Q3.K5. That
+will give you another set of
+attention raw attention scores, which
+you will do by divide by square root of
+D, which will give you new set of
+weighted sorry scale attention scores,
+which you will convert uh through
+softmax into attention weights, which
+will give you new weights, uh and those
+attention weights again you will
+multiply with V1, V2, V3, V4, and V5
+respectively. You will add them to get
+what? In that case, you will not get V
+Z5, you will get Z or Z3.
+So, this is how the context vectors can
+be calculated for the token number one,
+two, three, four, or five, right? And
+all of this can be represented in the in
+a very compact manner using uh matrices,
+but that is in my opinion slightly more
+difficult to sometimes visualize than
+this. So,
+this is what I mentioned in the previous
+slide. The context vector of ball
+is a mixture of values. Values meaning a
+mixture of value vectors V,
+not the mixture of embedding X.
+Okay? So, V of the which is V1
+multiplied by 0.17 plus V2 multiplied by
+0.16 plus V3 multiplied by 0.25 plus V4
+multiplied by 0.1 plus V5 multiplied by
+0.31. The sum of those will give you the
+Z corresponding to ball, which I can
+also call as Z5.
+And that will obviously be in a
+two-dimensional space.
+Because uh our query key and value
+vectors are all in the two-dimensional
+space. So, when you are doing a sum,
+weighted sum, or a normal sum, whatever
+it is, when you when you add vectors,
+the resulting vector is living in the
+same space. So, it will live in the
+two-dimensional space. So, now context
+vector corresponding to ball is
+two-dimensional, whereas the original
+input embedding corresponding to ball
+was three-dimensional in our specific
+example.
+So,
+this we had already discussed in the
+previous lecture the the need for
+dividing by square root of D. So I'm not
+going to spend too much time in this
+lecture because it's it's now very
+clear. If it is not clear why, just go
+to the lecture number
+three where we discussed about the dot
+product attention and scaled dot product
+attention. If you watch it, you will
+completely understand why we are
+dividing by square root of D. But I can
+quickly give you a recap. What happens
+is when you take dot product between Q
+and K, Q.K transpose, and let's say the
+query is a
+um
+uh random, you know, initialize you you
+initialize the query as a random vector.
+Key also you initialize as a random
+vector and let's say this is the
+dimensionality of the embedding space.
+This dot product basically scales by
+proportional to square root of D.
+So when what happens is when you scale
+uh the attention scores as a square root
+of D, you may end up the the raw
+attention scores, what will happen is uh
+sometimes you may have attention scores
+like in one case let's say attention
+score is 5,6. Raw attention score, let's
+say.
+In another case let's say the raw
+attention score is
+500,505.
+Okay?
+After you convert this into a softmax
+format, okay?
+What do you think will happen?
+In which case do you think you will get
+a saturated softmax like this? A
+saturated softmax meaning one item is
+like this, another item is completely
+dominating. So let's say this is 0. uh
+one and this is let's say 0.9. Because
+this is close to a saturated softmax.
+In which case? Is it in this case or
+this case you will get a saturated
+looking softmax?
+You will get a saturated looking softmax
+in this case. You know why?
+Because softmax formula is e raised to x
+divided by sigma e raised to x or e
+raised to x i divided by sigma e raised
+to x i.
+So in this case the softmax will be e
+raised to 505
+divided by e raised to 505 plus e raised
+to 500. That will be one of the numbers.
+The other number will be e raised to 500
+divided by e raised to 505 divided by e
+raised plus e raised to 500. So, if you
+compare e raised to 505
+versus e raised to 500,
+this is a very big number compared to
+this number.
+On the other hand, in this case, it is a
+comparison between e raised to 5 versus
+e raised to 6. Yes, of course, e raised
+to 6 is bigger than e raised to 5, but
+not by that much of a margin.
+So, this is the reason why the the
+relative size difference between
+e raised to 5 and e raised to 6 versus e
+raised to 505 versus e raised to 500.
+That is the reason why we have to scale
+down the raw attention scores by
+dividing by attention scores by
+square root of d. So, what happens is in
+that case, the magnitude of
+query.key_transpose
+on an average will stay as a flat line.
+Basically, magnitude of
+query.key_transpose will not depend on
+the dimensionality. It will not I mean,
+when we plot query and key transpose, we
+are not saying that all the query and
+key transpose values will be the same.
+No, that's not what we are saying. What
+we are saying is query.key_transpose
+value, that will be independent of the
+dimensionality. Even if dimensionality
+becomes 5,000, it will not affect the
+magnitude.
+Because we are dividing by square root
+of d. This we had discussed in detail in
+the two lectures ago.
+So, please go ahead and have a look at
+it. So, finally, this is attention
+is all we need paper's famous formula,
+attention of query key value equal to
+softmax of query.key_transpose divided
+by square root of d multiplied by value.
+From here on, you should be very
+comfortable thinking about this formula.
+What is this formula, by the way?
+This is context vectors. This is a
+formula for calculating
+context vectors.
+So, context vectors as a function of
+query, comma key, comma value. This is
+the I like to call it call this as the
+formula for obtaining context vectors as
+a function of query key value.
+The as a function of query key value, we
+get context vectors using this formula.
+And by the way, how did you get Q? Q you
+got by doing X times WQ.
+How did you get K? You get you got K by
+doing X times WK.
+And you are taking the transpose of
+that. And then you are doing square root
+of D. And you are taking soft max. I'll
+just call it as soft soft max multiplied
+by value. How did you get value? X times
+WV.
+In the simplified self-attention in the
+previous lecture, this WQ, WK, and WV
+was non-existent. That was a difference
+between That's the difference between
+the previous lecture and the current
+lecture.
+Now, I think it's a good time to
+um go to the
+Google Colab notebook and do our
+implementation, but just just remember
+this picture. This picture is telling
+what the same story what the formula is
+telling you. This is the input
+embeddings. You have five embeddings.
+The dog chased the ball.
+They are living in three-dimensional
+space. You project them into query
+space, key space, and value space. The
+picture has a mistake actually. Here,
+I'm only showing three rows, but
+actually it's not three rows, it's five
+rows. Dimensionality is two, but there
+are five rows, okay? So, just don't be
+mistaken by the this picture. Ideally,
+the picture should have been something
+like this.
+So, it's just a rendering issue in the
+picture, but apart from that,
+you know, there should be five rows in
+all of these uh query key and value uh
+matrices.
+Matrices as in they are the collection
+of vectors. And then query.key transpose
+will give you attention uh scores.
+Attention scores are divided by square
+root of D and taken soft max to give you
+attention weights. And then those
+attention weights you multiply with V to
+get the final context vectors. So, this
+is the final Z context vectors. You have
+five context vectors living in
+two-dimensional space, which you obtain
+from the five input embeddings, which
+was living in three-dimensional space.
+Okay. So, now let us move on to our
+Google Colab notebook.
+So, uh it's very simple. I'm not going
+to walk you through line by line. It's
+very, very simple, but I'll give you the
+gist of what we are trying to do here.
+So, the same vector embeddings you saw
+earlier. This is the vector embedding
+corresponding to dog. This is
+corresponding to ball, and this is
+corresponding to it.
+And if you take the raw embeddings, and
+if you try to reproduce the dot product,
+the dot product between the embedding
+corresponding to it and dog is 0.51. It
+and ball is also 0.51. But in reality,
+the it that we are talking about right
+now is the second it. The dog chased the
+ball, but it could not catch it. So, we
+are talking about this particular it.
+That it ideally should have more
+attention towards ball and lesser
+attention towards dog, because this it
+is talk talking about ball.
+So, but here the attention scores are
+the same. So, the fix is nothing but
+uh, introducing a a WK matrix. Actually,
+you know, this is uh, not a vector. This
+is a matrix. Here Here we are already
+defining it as a diagonal matrix. So,
+torch.diag dot diag means you just need
+to define the diagonal elements, okay?
+So, these three will become the diagonal
+elements. So, after
+uh, transforming our
+dog and ball using this diagonal matrix,
+the dog will become something like
+Actually, we can print
+print the dog, right? So, print
+um,
+WK
+multiplied by dog, and we can also print
+WK multiplied by
+uh, ball.
+So, we can see after transformation how
+these uh, vectors also look like. They
+will be three-dimensional because here
+the transformation matrix is 3 by 3.
+It's not two-dimensional. So, this is
+the transformation of the um,
+dog. This is the transformation of ball.
+And this example we already saw. So,
+after taking now Now, the new when the
+new dot product is taken between the
+original embedding and the con- the
+transformed dog and the original
+embedding and transformed ball,
+the attention score is higher uh,
+between it and ball. Okay?
+Now, similarly, we can have a set of
+input embedding. So, these are our five
+input embedding, actually six input
+embeddings. Green, big, and work for it.
+So, this is the sentence. So, you have
+six tokens, and as a result, you have
+six input embeddings. By the way, how do
+you get the input embeddings? Input
+embeddings you get from a embedding
+matrix or embedding table. That we have
+not discussed in any lectures because um
+when we are talking about attention
+scores, we are already assuming that we
+have input embeddings available.
+So, these are the original input
+embeddings corresponding to these
+tokens.
+And um
+uh what we have is we have the query
+weights matrix, key weights matrix, and
+value weights matrix. In our current
+case, we are defining them as a random
+weights, random matrices. Okay? So,
+torch. rand torch. torch. rand.
+Now, we can print them.
+So, this is the query weights matrix.
+Similarly, we can print key weights and
+value weights.
+So, WQ,
+WK,
+and W value.
+Okay? So, these are the WQ, WK, and WV.
+They are 3 by 2, which means you have
+three
+um you will result the the resulting um
+context vectors will be of dimension
+Sorry, the resulting query and key and
+value projections will be of dimension
+um
+So, this is 1 by 3. This is 3 by 2,
+which means result will be 1 by 2. So,
+you are projecting from three dimensions
+into two dimensions.
+Then, uh let's do let's take one
+particular query. The query token that
+we are interested in picking is this
+one. So, we will say this is the query
+which we want to convert into context
+vector. Okay? So, this is the item
+number one, right? Index number one. So,
+the query X2 is inputs of one.
+So, now,
+how do you convert X2 into query? You
+convert X2 into query by multiplying it
+with a W query vector. You convert it
+into key by multiplying with the W key
+vector. Sorry, not W key vector, the W
+key matrix. And you convert the same
+into value using W value matrix. And
+attention scores can be calculated by
+taking the dot product between the
+current query
+and all the keys, right? Because you
+have you just So, this is just a Here we
+are we're just printing the attention
+score between query number two and key
+number two, but we need attention score
+between all of them. But this is just a
+sample, okay?
+So,
+we're just scoring it against itself
+here. But we actually need to take the
+attention scores where we are taking the
+dot product between the query number two
+and key number one, query number two and
+key number two, query number two and key
+number three, and so on.
+So, now the queries are inputs inputs is
+this this matrix.
+This is the inputs matrix. So,
+we get all the queries by multiplying
+input matrix with W query, all the keys
+by doing the same with W key, and
+similarly values by multiplying with W
+value. Attention scores are the product
+of queries multiplied by keys transpose.
+So, queries This is matrix
+multiplication symbol in Python. Key
+transpose is keys.t. So, this is
+basically the transpose operation. And
+then we print the attention scores. We
+can actually print the actual attention
+scores, not just the shape.
+So,
+let's just print this.
+So, now these are the attention scores.
+We have 6 by 6. We have six queries and
+six keys.
+Then we scale by square root of D. So,
+dimensionality of the keys is the
+dimensionality of the
+basically the total number of columns in
+our
+weights matrix. The call number of
+columns is basically two. So,
+that's the dimensionality. And attention
+weights are nothing but attention score
+divided by square root of D. Then you
+take softmax and when you take softmax,
+you are taking it along
+uh rows.
+You want the rows to add up to one, not
+the columns. So, that's why here you
+give the additional uh parameter
+dimension equal to minus one.
+And then we can just print the
+attention weights. So, attention weights
+corresponding to big is this row.
+And um
+the
+we can also see what is the sum of every
+single rows. So, every single row should
+add up to one. So, this this line is
+basically printing that. I don't even
+want to print this, so I can just remove
+it for simplicity. So, now these are the
+attention weights corresponding to the
+token query. So, this is the dot product
+between uh Q1 and uh sorry, Q2 and K1.
+This is between Q2 and uh K2. So, when I
+say Q2, I mean query number two, which
+is
+which is this guy. Inputs of one, okay?
+Inputs of one is query number two.
+So,
+this is the dot product between Q Q2 and
+K1. This is between Q2 and K2, Q2 K3,
+Q2.K4, Q2.K5, and Q2.K6. It's not just
+dot product, you take dot product, you
+divide by square root of D, and then
+take softmax. And this is the final
+result.
+Now, how do you get context vectors?
+Context vector is nothing but this times
+V1 plus this times V2 plus this times V3
+plus this times V4 plus this times V5
+plus this times V6. That's the context
+vector.
+Um so, let's now do that. Let's
+calculate the context vector. So, now
+this is the So, this this cell I'm
+deliberately skipping because it's just
+showing you um with and without division
+with square root of D. This we had
+already discussed in detail
+uh in the past lecture, so I'm not going
+to spend time on this.
+But now the context vectors are nothing
+but these
+uh attention weights
+multiplied by values. So, attention
+weights
+multiplied by values. You could also do
+something like this. Context vector
+number context vector for two is
+attention weights
+of one
+multiplied by values. And here you can
+just print
+context vec context context vec two.
+This will print the same thing.
+Right? So, instead what we are doing
+here is I go back. We are calculating
+all the context vectors by taking all
+the attention weights and all the
+values. And then out of all the context
+vectors, we are only printing the
+context vector at the index number one.
+The context
+vector at the index number one is the
+one corresponding to the token big. So,
+that is 0.2274, 0.7362.
+Then uh I think this we have um this we
+will not be doing right now. We can We
+can discuss the actual
+uh Python implementation of the
+self-attention a bit later. So,
+actually, you know what? I don't want to
+uh keep these cells right now. This we
+can
+implement in future lectures. I'm just
+going to delete this.
+Because when I share the this code block
+with you, I don't want you to feel
+overwhelmed.
+All right. So, that's all I just wanted
+to show you in today's lecture. So, I
+hope you get a pretty good idea now how
+context vectors are resulting from
+the
+um
+attention of QKV formula from our
+attention is all you need paper.
+So, that brings an end to today's
+lecture. Now, one thing we did not
+discuss here is how exactly the WQ, WK,
+and WV V values are obtained. Uh I mean,
+those matrices are obtained. Those
+matrices are uh they will start as
+random matrices, but their values will
+evolve as you proceed with the large
+language model training. Okay? So, um
+that it's not something which which
+somebody knows in advance. Nobody knows
+it in advance.
+So, uh
+that's one takeaway that I wanted to
+mention. Now, in the next lecture I want
+to discuss one important thing, which is
+masked self-attention. So, in the
+self-attention which we discussed today,
+every query was allowed to attend to
+every other query.
+But, that is not true when it comes to
+models that generate text. When a text
+generation model is being trained, the
+current query, let's say query number
+two, should not be allowed to attend to
+key number five or key number four.
+Current query should only be allowed to
+attend to keys up until itself. So, if
+you are looking at Q3, Q3 should attend
+to K3, K2, and K1. It should not attend
+to K4 and K5. We will discuss the
+reasoning behind this and reasoning
+behind
+masked self-attention
+um and why is it needed for generating
+text in the next lecture, but that is
+what we will cover in the next lecture,
+masked self-attention. So, if you go
+back to one of the figures that I showed
+you in the initial slides, I think it
+was slide number four or something.
+Yeah, and if you look at uh slide number
+this slide,
+we in today's lecture, every tokens were
+allowed to attend to every other token.
+We are still in the connectivity bucket.
+And in the future lecture, we will see
+why every tokens are not allowed to
+attend to every other tokens, especially
+in the case of masked self-attention.
+So, that's all for today's lecture.
+Let's wind up. Uh we will meet again in
+the next lecture. Take care until then.
+Bye.
