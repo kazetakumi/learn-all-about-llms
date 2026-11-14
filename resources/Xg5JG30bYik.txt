@@ -1,0 +1,184 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to talk about the full Transformer
+architecture code it's about 300 lines
+of code here and the way that I'm going
+to explain this is we've already taken a
+look in past videos about the encoder
+separately along with its architecture
+and code and the decoder with also its
+architecture and code and so this is
+just going to marry the two together and
+I'll only be giving details that I
+didn't really explain in detail in those
+videos so it's probably going to be a
+short one
+but let's get to it so as a reminder we
+are currently in the process of building
+a translator from a language called
+English to a language called kannada
+which is a language that's spoken in a
+specific state in India and the way that
+we're going to generate the translation
+for an English sentence is we're
+generating one Canada character at a
+time and not one word at a time or one
+byte parent coding at a time as you
+would see probably some other
+implementations do so you pass in
+English sentences over here and for each
+character we will get a vector that
+encodes some contextual meaning to it
+and we'll take these vectors pass it
+into the decoder architecture along with
+the Canada vectors which are transposed
+like by one word there's going to be a
+an additional start token preceding the
+sentence and then we'll have during
+training the entire kind of sentence but
+without the start token and so in the
+end this is a way to parallel train the
+model also that it's much faster in
+training and during inference time
+though we would just use the start token
+and Pad the rest while passing it into
+the entire decoder architecture to
+generate the first Canada word that word
+is then taken and passed in to the
+output section whatever it says here in
+order to generate the second word and we
+do this until we get the end of sentence
+token to generate the full Canada
+sentence one character at a time now
+with that context out of the way we can
+actually look at the code so this here
+is the Transformer class that implements
+or extends the torch modules we have D
+model which is going to be the
+dimensions for every single character
+Vector typically in this case we take it
+as 512. FF hidden is the hidden layers
+for the feed forward layers that we see
+throughout the network which is 2048.
+num heads is the number of heads that we
+see in the multi-headed self-attention
+and also multi-headed cross attention
+drop prob is used for Dropout as the
+probability that we will switch off
+neurons to promote generalization
+through the network this is typically
+0.1 num layers is the number of encoder
+layers as well as the number of decoder
+layers and we can set this to be like
+five or something
+Max sequence length is the maximum
+number of characters in a given input
+sentence which we in our case we set it
+to about 200
+KN vocab size is all the possible
+characters that can occur in the kannada
+sentence or translation
+then we have English to index which is
+taking a dictionary it's a python
+dictionary that Maps a character to a
+unique number same thing for Canada
+and then we have a start token end token
+and padding token which would be the
+start and end in padding tokens
+respectively now during the Transformer
+call to the forward pass we will be
+taking in X which is the English
+sentence or rather more specifically
+it's the batch of English sentences why
+is the batch of Target Canada sentences
+then we have a couple of masks here so
+we have the encoder self-attention mask
+which is going to incorporate the
+padding masks then we have the decoder
+self-attention Mass which is going to
+incorporate both the padding mask as
+well as the look ahead masks and then we
+have the decoder cross attention mask
+which will also incorporate the padding
+mask and these four other parameters are
+going to determine whether we should
+include a start token and an end token
+to our encoder and decoder inputs and
+outputs in this case false means that we
+do not include it and true means that we
+do so we'll first start by taking the
+batch of sentences X passing it through
+the encoder in order to get the list of
+character vectors that are eventually
+going to be context aware we then take
+those vectors into the decoder along
+with the batch of Canada sentences which
+is why in order to finally get the
+output of that decoder
+and we're going to be eventually passing
+this into a softmax activation when
+we're Computing the loss function if we
+take a look at the encoder so this x
+here as the input is going to be the
+batch of English sentences we're going
+to construct the sentence embeddings
+this is going to eventually take every
+single sentence we're going to use the
+the character we have to map it to
+integer values for every single sentence
+and every single character in the batch
+and then we're gonna pass it through the
+encoder and the self-attention mask is
+going to be just the padding mask
+because we in the English sentence are
+allowed to look forward and Look
+Backwards so we don't need that look
+ahead mask here
+and so we're just going to get a list of
+contextually aware characters in the
+form of vectors the decoder on the other
+hand is going to take these list of
+vectors X but also the batch of input
+sentences y we're going to perform the
+sentence embedding that is we're going
+to perform like the tokenization of
+characters and then we're also going to
+include whether we include like a star
+token or n token and this depends on
+whether it's the input to the decoder or
+the output of the decoder so the input
+to the decoder is only going to include
+a start token but the output is not
+going to include the star token but it
+will include that end token we then pass
+it through the decoder passing in the
+self-attention mask and the cross
+attention mask and then we get the
+output which is a set of Canada
+character vectors I'm going to be
+uploading this entire file in this
+GitHub repo where it has all of my past
+code experiences here in the last like
+dozen videos that we have made on this
+and it's essentially going to be the
+combination of the Transformer encoder
+explained and current swimmer decoder
+explain but you can see that I've
+actually broken this out and spelled out
+individual outputs but there's also
+accompanying videos for each of these
+files so I do recommend you check it out
+for the next video I did plan on showing
+you the exact translation of like let's
+see this entire thing in action but I am
+running into some issues and I've
+actually been using some Chad GPT to
+help me try to debug those issues I
+haven't been able to do it yet but I'm
+gonna leave that for the next video to
+just ask you as the audience to help me
+with something that chat GPT potentially
+couldn't really help me with so stay on
+the lookout for that video and until
+then thank you all so much for watching
+and I will see you in the next one bye

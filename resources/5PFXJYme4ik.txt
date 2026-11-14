@@ -1,0 +1,3021 @@
+yeah hi and welcome to part six of the
+supplementary coding Along video series
+for the build a large language model
+from scratchbook my name is Sebastian
+rashka and I'm the author of the book
+and yeah these supplementary video
+series are meant as a additional
+resource where I guide you a bit through
+the code in a more casual way so in part
+five what we have done so far is we
+pre-trained the GPT model and now we can
+finally take advantage of that and build
+a interesting application on top of this
+model so let me just show you where we
+are in this book so in the beginning we
+coded the data sampling the tension
+mechanism and the llm architecture and
+then in part five here we essentially
+pre-trained the model but pre-trained
+models are only I would say the
+beginning so with a pre-trained model
+they are quite interesting but they are
+just the base model or the foundation
+for more interesting applications so for
+example when you use something like chat
+gbt you are probably thinking of a model
+that is capable of interacting with a
+user by yeah addressing or answering to
+certain queries for example summarize
+this text tell me who was the first
+president of the US
+or other kinds of things so translating
+summarization writing a paragraph
+rephrasing things answering questions
+these are all things that you would
+expect from a chatbot or personal
+assistant and this is what we are going
+to do in part seven first so in this
+part in part six I want to show you a
+simpler application of fine-tuning so
+part six and part seven they will be
+both um concerned with fine-tuning the
+model so fine-tuning essentially means
+that we're taking the pre-trained model
+and train it further or fine-tune it for
+a certain Target application where a
+Target application could be
+classification or developing this
+personal assistant so in this case this
+will be called instruction fine-tuning
+as we will see in part seven but um yeah
+actually um I want to start with
+fine-tuning um this GPT model that we
+pre-trained or essentially also the
+model where we loaded the pre-trained
+weights from OPI as a classifier because
+I think this is a great introduction to
+fine-tuning and it's also by the way one
+of my favorite applications of llms or
+small llms because it really shows
+uh what we can do with smaller models
+because you know not every application
+in reality requires a general chatboard
+there are so many applications in this
+world especially in the business world
+where you just need a prediction you
+don't need necessarily something that
+gives you a text response or that can do
+multiple things at the same time like
+summarizing and translating text
+sometimes you just need a model that
+predicts something for example customer
+sentiment or I don't know like stock
+market trends or something like that so
+there is an infinite amount of things
+you can do uh in this chapter we will
+focus on a simple application of email
+spam classification because you probably
+all yeah are familiar with emails and
+spam emails and traditionally spam the
+problem of implement a Spam classifier
+was done with yeah more traditional
+models so even going back to um for uh
+like logistic regression or naive base
+classifiers and so forth if I recall
+correctly I even one of my first
+tutorials even was a naive based
+classifier it just comes to mind while
+I'm talking here but maybe I can um same
+problem again I can just show you and
+find it if it's not too distracting here
+but um
+so one of my earliest blog post I think
+was on naive
+base um here it's 2014 um so traditional
+methods for developing a Spam classifier
+and these are methods that are very fast
+um so they're very popular in cases
+where you have a large customer base so
+if you are running a um classifier on
+your
+computer I mean you you don't really um
+the only limitation is the hardware you
+have in a small llm like the one we
+developed before it is fine to run on a
+local computer but if you are for
+example big company like you know Google
+and you have millions of customers who
+use your email application you have to
+be also concerned with how can we reduce
+cost or how can we make sure that this
+scales to millions of users and simple
+models are actually quite nice for that
+and even if you are not concerned with
+cost savings or efficiency um simpler
+models like naive base or logistic
+regression are still great for
+establishing a performance Baseline
+because they are usually simpler to
+implement and so when I develop a new
+application I usually start with the
+simplest model and then I look oh I get
+so and so percent accuracy and then I
+try to yeah use more complex models or
+more expensive models and see how much
+are these models improving over my
+Baseline so it's actually always a good
+idea to also start simple but in this
+book because um it's a book focused on
+large language models we will be
+actually focusing on adapting the large
+language model from the previous chapter
+the pre-trained model and find unit as a
+class CL ifier on a Spam classification
+problem and spam classification because
+it's easy and it's familiar but you can
+also do this for any type of
+classification task which is quite
+interesting and these models are you
+will see actually quite good for um
+classification
+tasks um so yeah um I would say let's
+get started so here we will be first
+focusing on preparing the data set and
+so um also maybe I should show you one
+more figure so
+where or what we are going to do where
+we are here so this chapter itself there
+will be several stages so the first
+stage will be concerned with the data
+set preparation and we will start with
+that and later we will talk about how we
+set up the model and then essentially
+how to fine-tune and evaluate the model
+so one step at a time we are now
+focusing on the data set preparation
+part here and so for
+that I will just show you the code here
+and I will just briefly talk about it
+let's see if this URL works so I'm using
+a data set from UCI so UCI is I think it
+doesn't work like that um UCI is um
+repository um machine learning
+repository that has been around for many
+many years where you can find public
+data sets they're just you know easy off
+the-shelf data sets and I was trying to
+find a data set that is relatively
+small let me see if this works because I
+have the zip file I have the zip file
+link directly so maybe I should just
+search for this because I don't want to
+here in the browser download the zip
+file I just want to show you the data
+set yeah this one so we are going to
+work with this data set which is very
+simple um just a small email sorry um
+not even email like a SS SMS text
+message labeled messages data set that
+consists of spam and non spam and our
+goal is to classify spam images oh sorry
+spam messages
+and this would also apply of course to
+email and other problems I do in fact
+have bonus material where I'm applying
+this to um movie review data set so in
+this um yeah GitHub repository for this
+book where I keep my bonus material I do
+have I will talk more about this later I
+do have also 50,000 um yeah the data set
+of 50,000 movie reviews as another
+example but I want to keep this
+relatively small this data set it only
+has the 7,000 example so it's faster to
+train and I think it's sufficient to
+illustrate how you can adapt llm for
+classification tasks and so what you're
+seeing here is just boiler plate code to
+download the data set you could
+technically also just do that manually
+so this is just to automate it so it
+will download this um zip file from the
+spam colle ction website here so
+compared to clicking download it's doing
+this in Python and um unzipping the file
+and then
+adding the yeah making sure the file
+path is correct so the file path will be
+SSM spam collection
+TS V so this is a tab separated value
+file it's like a CSV file but instead of
+comma separated values it will be tab
+separated values so I will show you how
+this will look
+like so here we have this folder and
+this is a small data set so I can just
+open it here in general I don't
+recommend um just opening files like
+that because when they are large that
+will or can crash your compute memory if
+you have like millions of rows but yeah
+as we can see we have um ham or spam
+where Ham means non-spam and then on the
+right hand side we do have the yeah the
+text message and that's how the data set
+is
+structured um yeah so next so since we
+have looted this now so next it's yeah
+uh not a bad idea to Lo this in Python
+to also make sure it's um formatted
+correctly and by the way let me also
+show you before I import this pandas
+Library let me show you the packages
+that I'm using in this book or in this
+chapter right now so we will be using
+metod lip later for visualization uh the
+numpy array Library um of course that
+underlies met plot lip and pandas pandas
+is a data frame Library it's on top of
+numpy um adding a data frame format
+nowadays there's also another Library
+called polars which is faster um it's a
+python library that also implements the
+code in Rust um underlying the python um
+implementation which is similar to what
+Tik token is doing but I'm using penas
+here because we just really not only
+need very very basic things and it's a
+very simple data set so it's going to be
+done in half a second so it doesn't
+matter whether it's done in half a
+second or 0.1 second you know it's it's
+instant anyway um and pandas is I think
+still more popular um so yeah that's why
+I'm using pandas we still need tens of
+flow because we're going to load the
+pre-trained weights from openi that we
+talked about in the previous chapter and
+that we used in previous chapters and
+then yeah pytorch for the GPT model and
+the fine tuning um okay so just for
+reference the software versions I'm
+using
+but like I mentioned before you don't
+have to have exactly the same versions
+it's just here as a yeah as a reference
+in case something goes wrong you know
+what I used and you know if you want to
+exactly replicate things if things break
+so we are first importing pandas it's
+like an U array library for you know
+nicely loading the data um data set so I
+will use the read CSV function so the
+CSV function is usually used for
+loading see for loading CSV files like
+the name implies but you can also change
+the behavior to load tab separated files
+so uh tab separated you couldn't really
+see it here because it's it looks nicely
+um formatted um but maybe I can let me
+see if I can do it like
+this
+um the first five lines
+of this
+data
+set um it's called
+SMS spam collection and
+[Music]
+then there so yeah so you can see this
+is just like a bash command and um you
+can see there's like a tab instead of a
+comma separating this column and this
+column so here we see there are two
+columns but when we are looking at at it
+in text format that's only yeah one line
+and and the column is this tab
+essentially and so we're saying this tab
+character is separating our columns and
+we don't have a header so header
+means that we don't have like a column
+label it's really just you know text so
+the first line really starts with um
+data sample and so we can give it our
+own um column labels so we can call it
+label and text where label is ham or
+spam and text is the message we want to
+classify and then I can print it here
+and I can see there are 5,000
+oops
+5,572 rows and two columns looks good to
+me and we can also um count how many of
+those um spam spam and not spam so what
+I can do is I can do um label and then
+and value counts and so this will be
+listing how many non-spam and spam
+messages we have and you can see this is
+like an imbalanced data problem so there
+are many more non-spam IM um messages
+than spam messages and this will make it
+a bit trickier to evaluate the model and
+the performance because we can't just
+use accuracy then we I mean there
+measures like balanced accuracy
+precision recall like r C curve and so
+forth and so this would be a different
+type of Beast so for that um maybe just
+let me see if I can recommend something
+but um there's a library called
+imbalanced learn for example that is
+specialized in um working with
+imbalanced data and if you are
+interested in um let me
+see if you're interested in model
+evaluation and machine learning in
+general I do have a paper or let me see
+um yeah here on
+archive
+um that's not the right link let's just
+search for
+it so this one um it's like a many page
+article it's probably yeah 50 pages
+almost where I discuss more about model
+evaluation and the different metrics and
+so forth so if you're interested in that
+I highly recommend you know reading this
+this in detail for this chapter I will
+keep things simple so I don't want to
+you know spend 5 hours talking about um
+model evaluation and everything because
+then otherwise this will be way too long
+and it won't be about just llms anymore
+it will be a general machine learning
+and deep learning lecture so what I will
+do is I will balance this data set which
+means that we will make sure that we
+have the same number of nons spam and
+spam messages so I will uh reduce the
+number of non spam messages to 747 so
+that we have a balanced data set and it
+will make just talking about it a bit
+easier so it's making the problem a bit
+simpler here um yeah because you know I
+want to focus more on the llm part than
+um yeah all the other evaluation Parts
+evaluation is a very important topic
+it's I would say just a topic for a
+different book or different um cores and
+so forth so I will probably in the
+future one day talk about it separately
+but for now let's make this problem
+simpler so we can focus on the llm
+fine-tuning so what I'm going to do is
+I'm defining this function here create
+balanced data set which will make sure
+that non-spam and spam messages have the
+same number of samples and so what I'm
+doing is I'm first counting how many um
+spam messages we have I can just show
+you here so we have 747 spam messages
+and then what I will do is I will sample
+the same number of non-spam messages so
+here the sample function will take a
+random
+sample of 747 because that's um yeah
+what we have here and we set a random
+seat so that you when you execute the
+code you get exactly the same sample so
+to ensure that we all all work with the
+same subset so when I just execute this
+uh oh I should probably because I'm
+Improv in here should probably assign
+this to a variable so yeah you can see
+we have
+747 non-spam messages ham and then what
+I'm doing is I'm concatenating them into
+a new data set there might be more
+efficient ways to do this but it's such
+a small data set that we you know we
+just keep this one and this one and
+concatenate this into a new data set
+which is then our um balanced data set
+so you can see after creating this
+balanced data set and looking at the new
+label counts we can see we have
+747 non-spam and
+747 spam messages now there's still one
+thing um that I would say kind of
+bothers me about this so when I go here
+balanced so one thing uh is that the
+label is
+um text and so to make it easier to work
+with I usually recommend converting this
+into uh label an integer label starting
+at zero so you can think of this integer
+label then as token IDs
+so so essentially what's interesting is
+here everything we are doing is we just
+want to classify whether something is
+non-spam or hem or spam so we have two
+classes ham and spam and so before we
+wanted our llm to deal with all kinds of
+words in the vocabul and output all
+these words now we can make the problem
+a bit simpler so instead of having these
+token IDs going from 0 to
+50257 in the output layer we can have in
+the output layer only two token IDs zero
+and one uh we have to be a bit careful
+because our llm will still work with the
+same input vocabulary because it still
+has to process the input text but the
+output can be simpler now we will get
+back to that later so I don't want to
+say too much about this yet we will get
+um back to that here in this part
+modifying the model for fine tuning but
+um here what I'm doing is I'm
+essentially assigning these labels zero
+and one to the label column so what I'm
+doing here
+is um using the map method and so so
+first of all we have the label column we
+only focus on the label column and map
+is mapping the values using a dictionary
+so our dictionary our mapping dictionary
+let's call it
+map dictionary so this would be this one
+here where we say everything that is ham
+should become zero and everything that
+is Spam should become one like I'm
+showing you here and this will execute
+this automatically for the whole data
+set so let's execute this and then I can
+double check it so you can see now
+we
+have the so these tail and head by the
+way are the um first five and the last
+five um entries can also maybe just to
+make sure um let's use this
+one everything looks correct so we can
+see we have now labels zero and one
+instead
+of um ham and spam yeah and so that is
+we're almost done with the section that
+is how we first process the data set to
+make it you know make it nice for
+further processing and then the next one
+I will introduce is splitting the data
+set so this will split the data set
+into subsets so we will have a training
+set a validation set and a test set so
+the training set is for training the
+model the validation set is for tuning
+so some people also call that the tuning
+data set where when we are training the
+model we look look at the validation set
+to kind of estimate how how well is our
+model generalizing to data that it
+doesn't see during training because if
+we only look during training and on the
+model overfits we will get something
+like 100% but then in reality when the
+model sees new messages that it hasn't
+seen during training we have no idea how
+well it would perform so that is why we
+have the validation set so we can have
+an estimate during training how metal
+how well the model performs and then we
+can Al metal with the model we can
+fine-tune it we can optimize it and use
+the validation set to see whether our
+tweaking our changing of the hyper
+parameters makes an improvement or not
+and then once we are done with
+everything we use the final test set
+because when we use the validation set
+multiple times it kind of like gets
+biased I talked more about this in my
+article here the model evaluation
+article um so we at the end want to have
+an um an unbiased or like an independent
+test set that we haven't used before
+during the training procedure and so how
+we do this is we take a portion so train
+end so maybe going through this
+sequentially first we Shuffle the data
+frame so this is just yeah one way to
+shuffle a data frame in pandas so we say
+sample and we use fraction one so the
+fraction is um how much of the data set
+and one means the whole data set and for
+example 0 five would mean half the data
+set so what we are doing is we are samp
+it's kind of weird to write it like this
+but what's happening is we're sampling
+from this data set considering all the
+rows and this will essentially um
+Shuffle it because yeah we're just
+drawing the rows in a random order and
+then um we calculate the split indices
+so we
+say that for example train fraction
+could be 70% so it could be for example
+0
+um 7 and we could say 0.3 or something
+like that so that will mean 70 or let me
+do two here so 70% of the data um this
+is the position where we have 70% of the
+data so then we um extract it and then
+from this position considering another
+20% so this is where the validation ends
+so maybe in simpler terms if we have 100
+examples the train
+end would be at
+70 and then the validation end would be
+70 plus the 20 so this would be at Point
+90 index 90 so if we have 100 70% for
+training then 20% for validation so the
+position is here 90
+to
+um sorry
+70 to 90 will be used for validation let
+me write this like this um 1 2 70 for
+training 70 to 90 for validation and
+then the
+remainder we have the test set the
+remainder this will be then 90 to 100 so
+the remaining 10% will be used for
+testing so that's just how we um
+subdivide the data set and so let's uh
+do this
+and apply our random split function with
+70% training data here I'm using 10% for
+validation so it's basically more like
+this and then 80 to 80 to 100 for
+testing um and why these ratios this is
+again a hyper parameter usually 70 80%
+is a good number for training if you
+have a large data set you know you can
+also make the training set smaller but
+um yeah it really depends um on
+application in this case 70% is
+reasonable 10% for validation I would
+say the test set is a bit more important
+than the validation set because that
+gives you the final um estimate so I
+usually make the test set a bit a bit
+bigger than the validation set some
+people do it differently they would make
+multiple validation sets for example and
+rotate them so it really depends on how
+much you work on the on the hyper
+parameter tuning so the more tuning you
+do usually the more validation data you
+want um during the development to make
+sure you don't overuse a certain
+validation set but yeah in our case it's
+a very you know small problem so it
+should be a fine ratio and um yeah just
+um let's double check how they look so
+here by the way I'm also saving them as
+CSV files so that later we don't have to
+go through this whole procedure here
+again if we want to come back to this
+and just loot the data set from these
+files and personally I also um like to
+do that when I for example write papers
+and so forth um when someone wants to
+reproduce my results I can share these
+files with so for example yeah you can
+share the procedure but let's say
+someone makes a typo or forgets the
+random seats somewhere you would get
+different results so in that case I like
+to always you know save this for
+recordkeeping and so that I know exactly
+what is used for training validation and
+testing so we
+have, 45 data points for training
+validation DF we have 194 for validation
+and then the test
+DF we have 300 for testing okay so this
+is it for this part on the data set um
+processing and in the next section we
+will talk about um setting up our data
+Loos and then later of course setting up
+the model
+itself yeah after downloading and
+preparing the data set in the previous
+section we're now ready to create the
+pytorch data loers we will be using for
+fine-tuning the model later so for that
+I want to show you first the figure
+before we yeah implement the code
+because um it's I wouldn't say it's
+super tricky but there is one important
+aspect to consider here and so the text
+messages they have different lengths so
+for example here are three example text
+messages they are not exactly from the
+data set I chose shorter ones here
+because in the data set they would be
+too long to fit into this figure but if
+we have this message this is the first
+text message and then here this is
+another text message and then this is
+the third text message which is very
+long you can see they have all all
+different lengths if we convert them
+into token IDs so each has a different
+number of token IDs and when we create
+mini batches or batches for training in
+the data Luder these are tensors and
+tensors have to have the same number
+number of elements in each row for
+example if we have 10 training examples
+10 rows in that batch each of them has
+has to have the same number of token IDs
+so how do we accomplish that how do we
+make the number of entries or token IDs
+the same for each training example so
+what we can do is we can pad the
+sequences to the longest sequence in the
+batch and what we are doing here is we
+are using a token ID that is usually not
+used for many other things for example
+here the token ID
+50256 which is the end of text token and
+we are pending it here so first we have
+to figure out what is the longest
+sequence so if we only had a data set
+consisting of three training examples we
+would check the lengths here and see oh
+this is the longest training example and
+so we will find out 1 2 3 4 5 6 7 7 8 9
+10 11 11 tokens and so we have to make
+sure that every entry has 11 tokens now
+so here in this case because we only
+have five tokens it means that we have
+to add six padding tokens so here we can
+see one 2 3 4 5 six we are adding the
+50, 256 padding token six times and here
+in this case we are adding it five times
+so we make each sequence 11 tokens long
+to match the long EST sequence here and
+um there are I mean multiple ways we can
+do that we can do this for each batch so
+one batch might have um the maximum
+token length of 11 one other batch might
+have the maximum token length of 13
+another one 15 or what we can do is we
+can check the longest training example
+in the data set and then pad all the
+examples to the longest training example
+in the data set and that is what we are
+doing here in this chapter in the next
+chapter in uh chapter 7 instruction fine
+tuning I will show you how we do this on
+a batch basis for Simplicity now we are
+finding the longest sequence in the
+whole data set um and then pet all the
+other
+ones okay so let's um see how this looks
+like in code so and by the way um yeah
+we will be using the tick token
+tokenizer again and just to show you the
+50,2 256 that's the end of text token so
+how we are going to implement this is we
+are going to use the data set class
+again uh the data set class from pytorch
+and yeah just copy pasted it so it
+doesn't take forever when I um type this
+so I will walk through this more slowly
+this is a bit different from the data
+set that we used for pre-training so in
+pre-training by the way we didn't have
+that issue with different lengths
+because we determined the length right
+we set the context length and then we
+had these sliding windows and we made
+sure that each window has the same size
+so in that case we never had to worry
+about different lengths because we
+created these lengths now it's a bit
+different because we have this data set
+where each has a different yeah
+different length here okay so what we
+are doing is in this um data set class
+by the way it's not complete yet I will
+add a bit more code um once I explain
+this part so we have a CSV file that we
+want to open this could be for example
+the the training validation and test set
+here and then the tokenizer that would
+be our tick token tokenizer then we
+Define the maximum length um in this
+case this will be deter so we can either
+say we want to have a specified length
+let's say 10 token IDs 100 token IDs or
+whatever the model supports or we can
+just say the longest sequence is based
+on what we have in the training set like
+I showed you but um yeah we can um
+restrict this further for example if we
+want to truncate it more you know if we
+in this case if we want to have just
+five or something like that and why is
+that useful if you think about an
+application where you work with long
+documents for example let's say you want
+to classify newspaper articles you want
+to develop a classifier that categorizes
+them as sports article politics um
+finance and so forth maybe you don't
+need the whole article maybe some
+articles are so long maybe 100,000
+tokens or something that it wouldn't be
+working with your llm so you can say oh
+I only want the first thousand tokens
+because that has already enough
+information to build a really good
+classifier and then I don't need to feed
+my LM 100,000 tokens so you can
+artificially you know truncate the
+length here and then we Define what
+token we want to use for the padding um
+so yeah we read the data set here and
+here what we're doing is we are
+tokenizing the texts so this is the
+familiar end code um method we used
+before and we do this for each row in
+the data
+set and if we don't use the maximum
+length that we specify here then we find
+it ourselves based on the longest um
+example that's similar to what I've done
+here where I looked at all these
+examples and found oh this is the
+longest one and So based on that we say
+oh the longest one is 11 so we have to
+pad everything to 11 so I will implement
+this method um shortly otherwise if we
+have a max length then we truncate to
+the max length
+here um yeah and then we Pat this uh
+every element or every training example
+according to the max length so we have
+the encoded text and then
+for the what the difference is between
+the max length so for example if if if
+this
+is um let's see we have a length of 500
+and our max length is 1,000 then the
+different here a difference here is 500
+so 1,000 minus 500 and we say 5 uh 100
+times pet token ID so we add 500 padding
+tokens to the encoded text which has
+length 500 so it will have length 1,000
+after this and we do it for each example
+in the text so we essentially
+determining the maximum um length Al we
+have it here and when then we add the
+number of tokens corresponding to the
+difference between the actual length and
+the Max L max length so that we fill up
+the length up to the max length it's
+yeah what you're seeing here
+essentially okay so this is the init
+method this happens all when we
+construct the data set um so then next
+um we have a get item method let me this
+here so the get IEM method will retrieve
+one example so here it's similar to what
+we have done before there's an index and
+by the way this is just like a pytorch
+um Convention of how the data loers work
+the data sets work and then the data
+loers operate on the data sets so index
+is a number so that for that we need
+actually um one second we need the
+length
+method so the index is a number between
+zero and the length of the data set so
+if we have in our case um let's say for
+the training set 1,45 examples this is
+um the index is a number between 0 and
+1,45 and it will select a random entry
+from the data set and it will also get a
+corresponding label so this is the text
+and this is zero or one depending on
+whether the email is ham or not h H and
+then we convert it into um
+tensors um yeah and then the only thing
+I have not explained yet is how we get
+the longest length so yeah depending on
+how you want to implement this I have a
+veros version and later in chapter 7 I
+use also shorter version so that's
+actually very simple what we are doing
+is we are just root Force iterating
+through all the um encoded texts the
+tokenized texts and we say um if a given
+text is longer than the max length then
+we update the max length and a shorter
+way to write this would be yeah um just
+like that depending on which one you
+prefer if you are yeah more familiar
+with python you might find uh list
+comprehensions or here like just a
+generator um more readable or here in
+this case the more verose way of doing
+it but it's essentially just finding the
+longest sequence Brute Force using add
+python code um yeah so that is our data
+loer or sorry not our data loer our data
+set the data loer will come in a few
+moments so let's first initialize our
+data set here so what I'm doing
+is I'm initializing it with a training
+uh data set first and then we don't set
+a max length which means that the data
+set will determine the max length based
+on the longest encode length like we
+just discussed so this will be my
+training data set and then I can print
+out what is my max length what is the
+longest sequence um so if I execute this
+I will find it's 120 and it's been a
+long time so I grew up in the 90s um and
+I remember SMS text messaging was very
+popular nowadays you know everyone uses
+um IM messages or Whatsapp where you
+don't have any limit um how many
+characters you write I think I'm not
+sure but I think if I remember correctly
+the maximum number of characters was 120
+which might explain why the longest
+sample in this training set is 120 in
+any case so just as a side note so we
+have now the longest um training example
+of 120 so that is how
+we pad our uh training set and then we
+do the same thing for the validation set
+and the test set now there could be
+longer examples not in this case maybe
+because based on what I said text
+messages were maybe limited to 120
+characters but if you're working in a
+more General case there may be examples
+where you find that an a record in the
+validation set or test set is longer
+than something that has been in the
+training set so here what we are doing
+is we are truncating it to the training
+set set length um that is because we'll
+get to that later because we are going
+to fine-tune a certain position a
+certain token ID I will explain other
+ways of doing it also later as let's say
+bonus material but for the way we
+implement the llm it is important that
+the validation and test sets have the
+same lengths as the training set so
+that's why I am restricting that
+here so another way you could do it
+technically is you could also determine
+the length based on the whole data set
+before we split up and then use that
+length um and by the way I I don't think
+though they are longer than 120 so I'm
+just doing it for best practice reasons
+because in model evaluation the best
+practice is also to use the same
+parameters derived from the training set
+on the validation set and test set and
+not use all the data to determine
+settings because that would indicate we
+are considering information that would
+not be available at test time so we are
+kind of like almost cheating if we would
+um look at the lengths of the validation
+and test set but this is again a topic
+for you know model evaluation if you're
+interested I mentioned my other article
+so here I'm just doing it also for best
+practice
+reasons um let's see if I have a figure
+here to illustrate where we are so what
+we have done now is we have these
+original text messages and then we made
+them all 120 tokens long by adding these
+um padding tokens the
+50256 so this is our data set and then
+we have also the class labels zeros and
+ones so that's that's what we have done
+so far um but the one step that is
+missing U I mentioned in the beginning
+of the section we are going to create
+the data loers so far we only created
+data sets so let's also create our data
+loers and this is code you know that is
+very similar to what you have used
+before in Chapter 2 when we set up the
+data orders so here we set the number of
+workers I mentioned there might be some
+issues on certain machines and also in
+Jupiter notebooks usually I don't
+recommend using
+multiprocessing so um just setting it to
+zero but you know you can increase this
+and see if it works on your computer and
+then we set the batch size to eight and
+everything else is the same we are
+shuffling for the training set we don't
+need to shuffle for validation and
+testing and then also the drop last
+equals true which I explained in a
+previous video that it will drop the
+last batch if the number of examples in
+the training set is not divisible by the
+batch size and yeah and this is it so
+let's execute that and let's maybe um
+also do the dry run uh I mentioned
+before I like to just iterate over the
+data set just to make sure there are no
+bugs you can do that also for the
+validation and test set and just to make
+sure the sizes of the input and targets
+are what we expect and so we can see
+each um batch has a size of eight um or
+in this case it will be the last one but
+um yeah it should be fine so we are just
+making sure the batch size is indeed
+eight and the number of tokens is 120 so
+this looks okay and the labels of course
+um corresponding to the eight examples
+also have size eight so this looks all
+um good and then lastly we can also just
+print out the length um in terms of how
+many batches do we have in the training
+validation and test set so we can see we
+have 130 training batches 19 validation
+batches and 38 test batches and so with
+that we have now the data set um
+prepared and loaded the next step would
+be loading the model the pre-trained
+model before we can modify the model and
+before we can find you in the model on
+this data
+set so this is probably going to be the
+easiest section ever because we are just
+going to load the weights that we loaded
+before the um model weights from openi
+and the reason why we are doing this is
+uh that we need this to fine-tune the
+model so we are just in this particular
+coding session we're just using the code
+from chapter 5 and L the model weights
+so for that to work um yeah you have to
+make sure that in the folder here where
+we are executing the notebook that you
+have
+the previous chapter code so from all
+the previous um chapters and this
+includes the yeah GPT model class and
+everything we have here in chapter 5 for
+the weight loading so all the code we
+worked before um I have it here in a
+file previous chapters. py um the python
+file and then here also this um GPD Don
+function we um yeah got in the previous
+chapter so this is old code this is the
+same code we looked in at in chapter 5
+we are just going to reuse that now so
+that we have the model set up and can
+fine tune it so let me show you um just
+the basics here so first um I'm just
+copy and pasting it because it's not
+very interesting at all this is
+something you have seen before so we
+just choose the smallest model here the
+124 million parameter model just like an
+example input prompt I think we don't
+even need that one um can get rid of
+this and then we have the vocabulary
+size the context length the Dropout and
+the qkv bias and then we are from here
+yeah just getting the embedding
+Dimensions the number of Transformer
+blocks here and then the number of heads
+in the multi-ad attention modules and so
+this is all what we used in the previous
+chapters nothing new this is just yeah
+getting our
+configuration and then um yeah I'm going
+to loot or import the download and lo
+GPT function from the GPT download file
+and again like I mentioned these are
+files so this is a file and this is a
+file that are relative to this notebook
+here and so in this case pyo can just
+import from these files um so we don't
+have to copy and paste the code from the
+previous um part but you can also go in
+here and just find the code in chapter 5
+and just copy and paste it into into
+this one here so doesn't matter but just
+if you want to have it a bit more clean
+and just only see the code that is new I
+prefer usually to just um import it from
+python functions where I keep it
+separate and then in the notebook it's
+more like focusing on the new uh code
+here and um yeah some more boiler plate
+code so this is also from the
+previous chapter where we
+um prepare this choose model to get the
+model size so it's essentially just yeah
+um getting this number here 124 million
+um and then download this from the OPI
+server so just going back here this is
+yeah just downloading it from the um
+openi server and yeah um loading the
+model might take a few moments and later
+I mean this will be our base model like
+I mentioned before in the meantime I
+could maybe go back to this
+figure and show you what I mean so this
+is also called Foundation model some
+people like the term or they don't like
+the term it depends um because yeah
+there was like an academic paper that
+invented this term and sometimes people
+say oh this is just you know just
+another term I have to remember and
+everything and so you can also think of
+it as the pre- Tred model or the base
+model and this model that has been
+pre-trained the foundation model
+pre-trained model or base model however
+you want to call it we are going to then
+modify it but in in most cases you don't
+need to train the model from scratch so
+what I'm trying to say is we are
+building the classifier and you can also
+start with random weights and then just
+you know fine tune the model on the data
+set that we care about without bothering
+with a pre train model but the
+pre-training is actually quite useful
+because the pre-training teaches the
+model you know to distinguish between
+different words and learn some meaning
+of what words are so this actually a
+quite nice Foundation to build on so
+it's actually usually better to use a
+pre-trained model and find unit for
+classification compared to training this
+model from scratch on classification
+tasks because we could technically also
+use the random weights instead of the
+pre-train weights but yeah usually it's
+why not taking advantage of these
+pre-trained weights basically where the
+model already learned feature extraction
+inside the Transformer blocks and
+everything so we kind of take advantage
+of all this processing power that went
+into it during the pre-training so we
+have our model downloaded now and then
+um we will also import some of the
+convenience functions generate text
+simple and then these two just to make
+sure that we looted the model correctly
+so what I'm doing here is we're not
+going to use the model for you know
+writing text or anything but I just want
+to make sure that the model works so
+that there is no bug in the code and
+everything so this should produce
+exactly the same texts we have seen in
+chapter 5 so for example every effort
+moves you forward the first step is to
+understand the importance of your work
+just to make sure the model is loed
+correctly if it generates jibberish it
+means maybe we made a typo somewhere so
+it's just like a um a sanity check now
+you might wonder could we actually use
+this model to do the classification so
+for example um we could have a prompt
+that says is the following text
+spam um answer with yes or no and then
+we provided the text if I go to chat GPT
+um I'm pretty sure if I type this in
+there it will do a good job and classify
+this correctly so it will for example
+say this is a spam textt message um and
+that is because it has been instruction
+fine tune on so much data that it will
+actually do a good job on that however
+if you don't have a lot of data if you
+don't have hundreds of thousands of
+instruction fine tuning examples
+classification fine-tuning if you care
+only about classification is going to be
+more data efficient uh we are later in
+chapter 7 we are going to finetune the
+model on instruction data so that it
+theoretically can deal with cases like
+that um but this will be a future
+chapter or future problem um so for
+example here if we have a pre-trained
+model and we give it this text so this
+prompt you will see the pre-trained
+model is not quite capable of dealing
+with that so it will generate um it will
+actually repeat the text even you can
+say uh see is the following text so this
+is the input sorry uh this is the input
+and then the second row this is what it
+generates and you can see it's kind of
+like um copy copying text almost from
+the beginning here and that is because
+it's just a pre-trained model and
+pre-trained models um in theory are only
+good for yeah generating text continuing
+to write text but it's not really
+capable of answering instructions so for
+that we will need this technique um
+instruction fine-tuning for now we just
+want to keep it simpler and we just want
+this model to return Zer or one so if
+the model sees only this text it should
+just return zero or one whether it's um
+ham or spam um the yeah the thing is
+also that modern llms just like a side
+note now so modern llms if you pre-train
+them to some extent now nowadays they
+can actually answer
+um questions without this explicit step
+here the instruction fine-tuning step
+and that is because nowadays um big
+companies based on the papers they
+release they do include some instruction
+Q&A data something like this in the
+pre-training data set so that the model
+already learns a bit of doing that
+during the pre-training but in general
+what's yeah a true statement is if you
+just have raw text without any specific
+format the model will be relatively
+limited it will continue generating text
+but it can't really answer instructions
+you can see this one is a more natural
+one it's just you know continuing this
+text um from here could be from a book
+or something like that if we give it
+something slightly different a question
+yes or no it won't say yes or no it will
+just you know do something unexpected
+here okay so we determined now this
+model is not capable of doing spam
+classification and like I said there are
+now two routes we can take one is
+classification fine tuning or chapter 7
+instruction fine tuning here we will
+start with um the instruction F sorry
+the classification fine tuning and leave
+instruction fine tuning for a future
+problem so this video was really just
+setting up the model the pre-train model
+and we determined it's not capable in
+the next section I will show you how to
+make it ready for classification fine
+tuning
+yeah so in the previous section we just
+loed the weights from OPI into our GPT
+model architecture and now we are going
+to get this GPT model architecture ready
+for the classification fine tuning so
+before I go to the code just to
+conceptually showing you what's going on
+or what's going to happen so here what
+we are doing is we are looking at the
+gbt model architecture that we coded in
+chapter 4 and then pre-train in chapter
+5 and where we just loed the pre-trained
+weights into this architecture now what
+we are going to do is we're going to
+replace this massive output layer that
+goes from 768 to 50,2 57 Dimensions by a
+smaller output layer so why um why do we
+have this massive output layer again in
+the first place so we do have this token
+embedding layer that goes from 50, 257
+potential token IDs um into an embedding
+space so we carry out the um where we
+carry um through these embeddings we
+have embeddings of size
+768 where this number comes from the
+fact that we have 768 dimensions in the
+as embedding size in the smallest model
+if you're using one of the bigger models
+you might even have bigger uh embedding
+Dimensions but yeah we are working with
+a small model so our embedding Dimension
+768 that's where this number comes from
+and so in the output layer we have to go
+back into the vocabulary space so we
+because ultimately we want the token IDs
+so we go from 768 back into the
+50,2 57 Dimensions from our tokenizer
+and uh like I said before we don't
+actually need that many words if we just
+want to classify something as ham or
+spam so for that ham and spam there are
+two words so we need actually only two
+tokens to potential output tokens so we
+can go ahead and replace this massive
+output layer with this smaller output
+layer where we have again still the same
+embedding size because you know we don't
+really change anything inside the
+network but then we only need two
+potential words ham or spam so we
+replace this by these two output nodes
+and in general we can say that the
+number of classes is equal to the output
+nodes a curious reader might note for
+example you might uh know from classic
+machine learning or deep learning that
+for a binary classification task so a
+classification task where we have two
+classes you technically only need one
+output Noe but uh to keep the code in
+this notebook here more General we will
+be um using two output nodes for our two
+classes so that we can say the number of
+output nodes is equal to the number of
+classes in the data set so for example
+if you have another task um so this
+would work also for any type of task if
+you have for example a task where you
+want to classify newspaper articles so
+you might have business news sport news
+politics and finance so we have four
+different types of Articles you would
+then have four output notes so you can
+change this based on your task but yeah
+since we only have two output um classes
+or two classes we have two output nodes
+so let's go ahead and make these model
+changes I just described so first uh
+never a bad idea to just you make sure
+the model is slotted correctly so we are
+looking at this model here like I
+mentioned we have the 50, 257 to 768
+embedded
+and then yeah we are scrolling through
+the different Transformer blocks so we
+have oops we have um 12 Transformer
+blocks so up to here that's a 12th
+Transformer block and then we look at
+the output layer and this is the layer
+we want to replace by our smaller layer
+so before I do the actional replacement
+um I want to make one more note and so
+pre-trained models are actually pretty
+good at you know extracting information
+from the input text so this whole
+network has been trained you know to do
+something useful in uh in the
+pre-training task so we don't really
+need to modify anything here we can
+actually just replace this layer and
+just fine tune this output layer and I
+do have an article on that uh it's
+pretty long time ago but um where I
+analyzed like the tradeoffs of training
+different layers so let me just see if I
+can find it here U fine-tuning large
+language models and so it's a different
+architecture and it's a different data
+set so let me see so it is uh a
+different model and a different data set
+that we are working with but it's I
+would say a trend that generalizes in in
+certain aspects where what I'm trying to
+tell you here is kind of like
+transferable to our model and our data
+set so
+what we looking at here is the
+classification accuracy uh it's on a
+different data set but it's similar I
+mean that sense that we are classifying
+two classes and that's the accuracy here
+and there are three bars there's the
+test accuracy the validation accuracy
+and the training accuracy for you know
+keeping this discussion brief let's just
+focus on the training accuracy the first
+bar and this accuracy is achieved if we
+train only the last layer so the last
+layer means this one here now
+if we train the last two layers and the
+last Transformer block so let's say this
+corresponds to um like these two and
+then the Transformer block if we train
+this part we get better accuracy so we
+train more things we get from I would
+say 76% to
+87.5% now if I train even more like the
+two last Transformer blocks um so if I
+train this uh whole part here oh sorry
+what happened one moment I somehow
+pressed some wrong button on my keyboard
+ah okay so if
+I up to here if I train this whole part
+here we see we get even better
+performance now we have something maybe
+around I don't know like 90% And um yeah
+so the more we train it seems like the
+better
+the accuracy but then we hit a point
+where we have diminishing returns so you
+can see here there's not much
+improvement really I mean we still keep
+it around 90% here and um moreover also
+when we look at the training time how
+long it takes for the fine-tuning here
+we are around I would say what is it
+like 2.5 minutes or something if we only
+train the last layer if we train the
+last layer and the last Transformer
+Block it's about the same uh train two
+Transformer blocks yeah it's a bit
+slower 3 5 minutes but then if we train
+the whole model here all the layers um
+yeah we see it's 7 minutes it's almost
+like two to three times what it takes
+here to train on the last layer um or
+the last two layers but you know it's
+not that much better so we spend um
+especially in this range more time
+training even though we don't really get
+any returns and so this is um generally
+true um the simpler the data set the
+more this applies essentially because
+for a small simple data set it's kind of
+overkilled to train everything in fact
+the more we train typically the more
+data we need to avoid overfitting and so
+if we have a small simple problem like
+the spam classification problem it's not
+really necessary to train this whole
+model so we can get away with only for
+example training um the last layer the
+um layer Norm here maybe and the last
+Transformer block so long story short
+before I go ahead and replace this layer
+with the smaller layer that I mentioned
+here let's actually go ahead and make
+the model
+non-trainable so in order to do that we
+can um freeze the weights so uh what we
+can do is um for example we can
+iterate through the model parameters so
+for each parameter so that would be a
+weight tensor or bias tensor in the
+model we set the requires gradient
+argument to false which then means this
+weight tensor or bias tensor won't be
+trained when we are training the model
+so we are freezing the model so this
+means essentially another word for that
+is freezing the model or the model
+parameters so they won't be updated
+during the training and now we can go
+ahead and replace the output head so
+what we go here is output head and so we
+will replace this so this one will be
+trainable because we initialize it with
+new random weights and by default they
+are trainable so we are going to use 768
+so to make this a bit more General let
+me um go ahead here and copy this name
+so we can add the embedding Dimension as
+a configuration here so it will also
+work in case you choose to find in a
+larger model soed dim and then
+um let's define the number of
+oops classes to two and then we can and
+say
+num classes and then also let's set
+a random seat because we are
+initializing it here with random weights
+okay so now we should have a new output
+layer so you can see now the output
+layer is improved H sorry not improved
+replaced and now um yeah this would be
+what I just showed you um one thing is
+according to this you know training the
+last Transformer block is not not a bad
+idea maybe the two last Transformer
+blocks that's maybe a reader exercise
+for you but um I would say we should
+probably train this last Transformer
+block at least so what we are going to
+do is oops I don't need to scroll that
+much so what we're going to do is this
+is already unfrozen we are also going to
+unfreeze this one and this one so
+unfreezing means making it trainable
+basically so first we made everything
+untrainable only this is trainable now
+we make these things also
+trainable and um why this last layer
+Norm I mean well you don't have to but I
+feel like it's natural or more natural
+if when we make this trainable and we
+make this trainable to also make things
+in between trainable otherwise it would
+be a bit awkward um so what we are doing
+now is we are making this Transformer
+block here trainable by setting this
+again to true so this would be the last
+Transformer Block in our model and then
+the final layer Norm so this layer Norm
+we will also make that trainable and so
+now um yeah only the output head the
+final layer norm and the final
+Transformer block will be trainable um
+before I end this session I wanted to
+show you one more thing and
+so what uh so what happens when we give
+it some input now now after our
+modification so let's just assume we
+have some simple input here and and so
+this input is four input tokens
+corresponding to let's say text message
+someone asking us do you have time uh
+here again I just add the batch
+Dimension like I usually did so because
+our model expects input batches because
+without that this would be a torch size
+of just four but our model expects
+batches during training and everything
+and
+so let's say our model receives this
+input so when we do torch. no
+grat the content
+and then let's say oops um
+outputs model
+inputs so if we get that so let's see
+how outputs looks like so you can see
+it's now again still four rows right
+each row corresponds to each token ID or
+token input here but now we only have
+two output Dimensions before in chapter
+5 we looked at this massive output
+answer because before we had uh 50256
+output Dimensions now um as expected we
+only have these um two output Dimensions
+um in particular we are also by the way
+only interested in
+fine-tuning the last
+position so here uh what we are looking
+at is the last token we will talk more
+about this but so technically um we are
+only considering this last token here
+here so this one uh we are going to not
+find youe anything related to those
+tokens and uh the reason is that the
+last token contains the information
+about all the other tokens
+so um yeah so here's just like a figure
+showing you what we just did if we have
+some input text we get this tensor and
+then we only focus on the last row
+corresponding to the last token and the
+reason is uh it's due to the attention
+mechanism so if you remember it's been a
+long time but from chapter 3 how
+attention works we have this causal mask
+so if you consider these rows as the
+input um so when you look at the first
+input position do uh the self attention
+is only between do and do itself and
+then if we have these um do youu so the
+U the word u the context Vector for that
+one contains information about do and
+you so we have attention weights for do
+and you but it so it can't look into the
+future because of this causal attention
+mask so it can only always look to its
+current position right and so if we
+consider this token here and we make our
+decision so maybe going one step back so
+our task is based on these numbers to
+classify whether something is Spam or
+not spam so we could look at this whole
+whole thing we could look only at the
+first row or second row but uh the most
+efficient way to do that is to look at
+the last row um and use these numbers to
+determine whether the input is Spam or
+ham because this one contains
+information about everything else so
+going here again the last token do you
+have time it has information about all
+the other tokens so the context Vector
+has all the information because we have
+the attention weights for that and so
+the model when we find unit will learn
+how to use these attention weights
+effectively for making the decision
+whether something is Spam or ham and so
+that is why we only need to focus on the
+last position here but yeah this is um
+what we are going to do so we are going
+to next fine tune the model to do this
+classification task and I think yeah
+this will maybe then also make things a
+bit more clear and yeah and so with that
+we have modified the architecture and we
+will just in a few moments um fine tune
+it so at the end of the previous section
+I mentioned that we are now finally
+ready for the classification fine tuning
+however there is one more thing we have
+to take care of and that is the
+calculation of the classification loss
+and accuracy and so we will be using the
+accuracy to track the progress during
+training and the classification loss is
+used similar to what we have done in
+chapter five for optimizing the model
+weights so yeah in the grand scheme of
+things where we are we prepared the data
+set we initialized the model we l the
+pre-trained weights and then we modified
+in the previous section the model for
+classification fine tuning now this one
+more thing entails that we implement the
+evaluation utilities before we can move
+on to the
+fine-tuning so I'm yeah to just
+conceptually explain what is going to
+happen so here's a figure that is maybe
+somewhat familiar to you because here um
+there are similar elements to a figure
+that you have seen in chapter 5 except
+that this is a bit um smaller and
+simpler so in chapter 5 we explained how
+we go from the model input to the logits
+to the softmax probabilities and then to
+the Token IDs and here what we are
+looking at is the similar flow so we
+have for example you won the lottery as
+text input which goes into the llm and
+then what we're looking at here is the
+um logits Vector of the last row of the
+logits so going back to the previous
+section we had for example four tokens
+as input this could be a text similar to
+you1 the lottery and then we are looking
+um at the output logits for each of the
+four token IDs and what we said is we
+are going to focus on the last row so we
+are going to focus on on this row here
+and so this is what you are seeing here
+so these are the logits corresponding to
+the last um yeah Row in the logits
+tensor and then we could apply the
+softmax function to convert this into
+probabilities and then in chapter 5 what
+we did is we looked at the position
+where we have the highest probability
+and that was our predicted token ID now
+this is exactly the same concept um
+except that instead of 50, 257
+Dimensions we only have two Dimensions
+one is not spam and one is Spam or
+better shown here at the bottom so index
+position zero is not spam index position
+one is spam in this case the highest
+probability is at the first position so
+the model would predict zero not spam
+for this particular input as you might
+guess this is not correct right I mean
+I'm guessing here but I would say if you
+receive a text message that says you
+want the lot of it's probably going to
+be spam and so the model thinks with 99%
+probability that this is not spam um
+that's because the model is not trained
+yet we want to train it so that this
+probability becomes higher that this is
+Spam and then the model outputs a one
+and vice versa vice versa for the second
+input do you have time I would say this
+is probably not spam it's maybe a
+message by a friend asking us if we have
+time um and then here in this case the
+highest probability is at SP spam and so
+the model would output spam and also
+again our goal is to you know shift the
+prediction more to what's not spam
+assuming that this is really not
+spam yeah and so we are going to
+implement this now in code where we
+essentially have the same workflow or
+similar workflow that we had in the
+previous chapter and then when we have
+these predictions these labels we can
+compute the accuracy so the accuracy is
+a measure that tells us how often the
+model is correct so for example if we
+have 100 let's say 100 text messages and
+the model makes 50 correct predictions
+that's a 50% accuracy it's basically
+random guessing we want the model to get
+a accuracy that is close to 100 that
+means that it gets almost all the 100
+out of 100 messages classified correctly
+and so let's first before we code the
+accuracy let's first code what we are
+seeing here in this figure this
+conversion from logits to probabilities
+to the labl so
+um let's yeah work with the last row
+here like I mentioned before and that
+was for the reason of the causal
+attention mask as I said before so let's
+go ahead and just call that our logits
+so in reality these are the the last row
+logits right so it's not the whole
+logits it's just the the last row here
+that we get with the minus one here and
+um then let's compute the probabilities
+so we do torch do soft Max and uh logits
+as input and uh minus one because we
+have a 2d
+tensor and then let's just look at this
+and so we can see this is a very small
+number something close to zero where
+this is yeah 99% essentially 0.999 so
+this means basically Shifting The Dot by
+one position so we have 0.99 a very high
+probability so if we then use or torch
+arcmax on probas you should see a one
+because this is a much higher value than
+this one for example um we can call that
+our label for instance like this and so
+this is our predicted label if we want
+this as a regular um python integer we
+can also uh yeah use the item method
+which will just extract this as an
+integer um there's one more interesting
+thing maybe to mention
+so we are executing this here on the
+probers but as I mentioned before in
+chapter 5 so when we look at the logits
+and the softmax probabilities you might
+notice that the softmax is a strictly
+increasing function so that means when
+we apply a softmax um function to any
+Vector The Ordering of the magnitudes
+will be the same so what I'm trying to
+say here is if the largest value is at
+the first position before the soft Max
+it will also be at the first position
+after the soft Max so the it preserves
+the position of the largest element
+essentially that we're looking for it's
+preserving the whole order of the values
+if you would sort them the sort order
+would be the same before and after
+applying the softmax which means that so
+the softmax becomes redundant here so we
+can actually just do logits here and you
+will see it will be the same label so in
+a sense we we Skip One relatively
+expensive I mean not that expensive but
+we we skip a computation here which is
+nice so we don't really have to apply
+apply this function here um for training
+it is necessary um but as you remember
+we also pass the logits directly into
+the cross entropy loss where the cross
+entrop cross entropy loss is internally
+using soft Max essentially so um yeah
+long story short when we just care about
+the label we don't need the soft Max
+because the relative ordering of the
+elements is the same so we can just
+apply the arcmax to the logits and save
+one computation so now let's um get to
+um implementing the accuracy l so that
+we can see how yeah how often our model
+is correct before we start training it
+and then of course we want to see that
+it improves during the training so let's
+call
+that Cal accuracy L and so this will be
+analogous to the Cal loss L we
+implemented in chapter 5 except now
+instead of computing the loss we compute
+the accuracy by the way we will also
+implement the C loss L again later but
+let's for Simplicity just focus on the
+accuracy L for now so we will um be able
+to pass a data L that could be the
+training validation or test um data set
+or all order then the model itself um I
+like to also pass the device here so
+that we can put the uh data onto the
+correct device where the model is there
+are different ways to implement this but
+you know I prefer to do it this way um
+the number of batches so similar to the
+car loss laer sometimes we don't need to
+calculate the loss over the whole data
+set so for example if we just need a
+quick estimate of the validation set and
+our validation set is very large it
+would be pretty expensive to iterate
+over the whole validation set so
+sometimes it's sufficient to only take
+two batches or three batches to estimate
+the accuracy so with that we can control
+how many um batches we want so it's
+never a bad idea to put the model into
+evaluation mode we might have done this
+at some earlier point but just doing it
+here explicitly to make sure things like
+Dropout and so on are disabled all the
+random things in the model and then we
+um
+can keep um track of the prediction
+so the correct
+predictions I'm just seeing I made a
+typo here the correct predictions and
+the number of predictions in total that
+will be used later to calculate the
+accuracy and then um we can have um yeah
+just like a little um sity check so if
+the number of batches is none then let's
+just use the whole data set so here we
+will do um the length of the data loer
+so that means use all the data points in
+the data
+set um yeah and so so far so good then
+let's say otherwise um we take the num
+batches but let's make a small
+modification so we say num bches the
+minimum value between this and also the
+length in the data loer so this will
+prevent issues where for example our
+data set only has two batches but we
+specify 10 and then you know it would
+crash or something like that so here we
+say whatever number is smaller so if we
+Define 10 but our data loader only has
+two then we only use two it's just like
+a little Safeguard here and then um we
+say for
+I um let's say um input batch Target
+batch in the data loer
+enumerate oops data ler so here for each
+of them we will say if the number is
+smaller than num batches we um keep
+working on this right so if I is number
+um sorry smaller than the
+batches then we will first
+transfer the data onto the target
+device so two device and Target PCH also
+to device
+so yeah right now I'm just double
+checking I just want to make sure 1 2 3
+4 everything looks
+correct yeah I usually don't code in a
+jupyter notebook I usually use Visual
+Studio code uh with torch. no
+grad let's maybe make
+a yeah computer logits so here logits
+equals to model and then the input batch
+where we have have it
+here and like I said before we will only
+use the last
+row um and then yeah we con convert this
+to predicted labels and this will be
+using our computation
+here um since we have similar yeah I
+mean I think it doesn't hurt just to add
+the m one here similar to what we have
+done here I think it's not strictly
+necessary but not a bad idea forgot a t
+here what else so now we have the
+predicted labels and so we can increment
+the number of
+um let's say call this examples the
+number of examples we have encountered
+so far num
+examples plus equals and
+then the number of rows here the shape
+zero should contain the number of
+examples so this is just we could also
+get that from the input batch it's the
+same it's the number of rows or number
+of elements in that
+case um what else so now of course the
+important part would be the correct
+predictions so here simplest way how we
+can say um how if we have some correct
+predictions is just to compare it to the
+Target batch so for example
+if I have a torch tensor let's say
+labels one 2 three or we have let's say
+just Z 1 Z
+1 and this is
+our let's say correct um or let's call
+that Target and then we have
+predictions let's take this one and
+change one number here and so if I
+compare those two I can use the equal
+sign and it will give me a Boolean array
+where true means it's similar and false
+means it's not similar so maybe just
+lining them up here then it's a bit more
+clear so we lining them up here and so
+what I can do is I can then use the sum
+to calculate how many of them are
+correct so in this case this should give
+me a four because I have four correct
+predictions and I can return this as an
+item for example and what I can do is I
+can say um Target
+shape Z this should give me 1 2 3 4 5
+divided by oh let's do it like this
+sorry four divided by five and this
+gives me essentially the accuracy if our
+data set only consists of five examples
+so
+here this gives me 0.8 or 80% prediction
+accuracy for of five are yeah calculated
+or predicted correctly and so we can use
+that to compute the accuracy here we can
+say the number of correct
+predictions oops is equal um
+oops so sorry the accuracy is equal to
+the number of correct predictions
+similar to what we have here divided by
+the total number which we kept track of
+here so this is the number of correct
+predictions divided by the number of
+examples
+or total predictions um I'm just double
+checking if everything looks correct I
+would say this needs to be indented
+because we do this yeah for each um case
+where this is true if this is not true
+then we want to of
+course exit so I think this should work
+I'm pretty sure I made a typo but we
+will see in a few moments so let me also
+Define because we're going to need it
+here
+the device so the device I usually like
+to do torch uh device and then
+Cuda if torch. Cuda oops
+is
+available and otherwise we will use the
+CPU and yeah like I mentioned in chapter
+5 you might also want to use just the
+MPS device but again numbers might
+slightly differ if you you use the MPS
+device um and then let's put the model
+to the
+device and let's just use a random
+seat should not be necessary because we
+are completely or if we are completely
+iterating over the data set we don't
+need a um random seat but if we want to
+for example only do it for 10 batches um
+how many by the way do we have let me
+double check
+we had
+somewhere checked the length of the data
+set it's been a while here so if we only
+want to take 10 batches just to you know
+accelerate this a bit the if we have
+shuffling in the training set it will of
+course give us a different 10 batches so
+in that case we are setting a random
+seat so that you should hopefully get
+the same accuracy that I'm getting so
+let's say train accuracy and then we
+initialize our calcy um calculate
+accuracy L on the training set train
+order the model uh device and then let's
+say
+num bches let's say 10 so in this case
+this hopefully gives us the training
+accuracy so let's see if this works or
+whether I made a typo here
+somewhere yes so there is something that
+is not working correct prediction so I
+think this should be correct predictions
+and this is it seems to be working so
+let's see what the calculation gives us
+okay so I forgot one more
+thing I should have of course applied
+the some item
+here looks better or I hope it it works
+okay so so um 46 so this is our accuracy
+so this is essentially
+46.2% and we can do the same thing also
+for
+the validation
+accuracy well water and then the test
+accuracy so
+45% and then the tech test
+accuracy 48% so they should be all very
+close together however note that we are
+estimating the accuracy of the training
+set by only sampling 10 um out of the
+130 batches so if you want to get the
+exact training accuracy you can do yeah
+n batches none but yeah this is just
+like a rough estimate to estimate how
+accurate the model is and you can see
+it's roughly you know 50% it's kind of
+like guessing here because it has not
+been trained so um it's just guessing
+whether income examp sorry input example
+is zero or one and if you are just
+guessing and you have a yeah 50% chance
+being correct or incorrect it should
+roughly be
+50% um yeah and so this is what we have
+here for the accuracy Luder now let's
+take care of the loss laer because that
+is also what we need to yeah um optimize
+the model so for that let me go back to
+chapter five so we had the def um C loss
+sler somewhere here loss batch and loss
+ler let me just let me copy just this
+one for
+now so here we have the loss loer and
+notice we make one modification of
+course we
+do the last row only instead of
+everything and then I can actually get
+rid of the flatten we don't need to
+flatten anything anymore and this should
+be my loss laer um and then we can use
+also the
+same sorry the loss batch we can use the
+same l l notice um we can't really
+import this technically from the
+previous chapter because this one is now
+different right so this we we have
+changed this slight so if you just
+import this from the previous chapters
+file you might get unexpected results
+because your C gloss ler would be using
+the Coss batch from that
+file which
+is slightly different uh maybe it's not
+even in here okay so it's also maybe
+better that it's not in here that I
+haven't copied it in here um but yeah so
+I recommend just defining it separately
+here and here for this particular
+chapter um yeah okay so this hopefully
+works and then we can
+use it similar to what we have done
+before so we can calculate the training
+set
+loss like this and then I can also do
+the same while it's calculating for the
+validation
+and
+um test it
+and these are our initial values so what
+we want is we want to reduce this to
+zero and we want to increase this number
+so it becomes one so 100% accuracy so
+yeah um so this is so far what we have
+set up in terms of how we evaluate our
+model and then in the next video like I
+promised earlier we will be finally
+fine-tuning the
+model so we are finally ready to
+fine-tune the model here the headline
+says fine-tuning the model on supervised
+data supervised data is just you know
+Jaron deep learning machine learning
+jargon where supervised means that we
+have a labeled data set in our case it's
+the spam classification data set so
+essentially what we are doing in this
+section is we are fine-tuning the model
+on the spam classification data set so
+yeah in the grand scheme of things we
+took care of these seven steps already
+so the remaining steps in this chapter
+are fine tuning the model evaluating the
+model and then using the model on new
+data so if I go to the fine tuning
+section there should be a figure here so
+and this figure is almost identical to
+the figure uh we looked at in chapter 5
+when we set up the training Loop so what
+we are doing is we are still iterating
+over EPO where one Epoch now is one pass
+over the spam classification data set
+then in each for for each batch in each
+Epoch we reset the loss gradients from
+the previous iteration we calculate the
+loss on the current batch so that would
+be the cross entropy loss it's still the
+same cross entropy loss then we
+calculate loss. backward so this will
+calculate the loss gradients that we
+need for updating the model and then the
+optimizer do step method so the step
+method of the optimizer will apply these
+loss gradients to update the weights and
+then yeah we then we train um sorry then
+we print the training and validation set
+losses to make sure the model makes
+progress and yeah I'm just
+seeing that's funny so I'm just seeing
+this is exactly the same figure we had
+in chapter 5 so when I submitted my
+draft figures for the Manning layout
+team maybe the figures looked so similar
+that the layout team used the same fig
+figure also in chapter 6 but there
+should be a subtle difference so here in
+Step eight it should say calculate the
+training accuracy and validation
+accuracy because yeah our model now it's
+not a text generating model so our model
+won't write text it will only return
+class labels zero or one so it would
+make sense during the training to yeah
+calculate the accuracies to see how good
+the model is at the current Epoch and to
+also track it over the epox to see if
+the model is making progress or not so
+yeah there's a there should be a subtle
+change here where it says compute
+training and validation set accuracy so
+maybe my figures look too similar and
+they you know just copy and pasted it
+anyways I will let them know and um
+hopefully they can update this um yeah
+so what we are going to do now is to
+implement the training function and the
+training function is actually almost
+identical to the one we used in chapter
+5 so I'm just copy and pasting it here
+and then I will talk through it um yeah
+like I said it's very similar to train
+model simple in chapter 5 now it's a
+classifier that we are going to train
+and I do have something also here like
+two more lists where we are tracking the
+uh training and validation accuracies in
+addition to the losses so we can also
+plot them um what else is new I mean
+everything here is exactly the same so
+um I if anything is new here I would say
+um check out chapter 5 so then yeah if
+otherwise if there's no question you
+know you can ignore this for now because
+it's exactly the same as we discussed
+already in great detail there's only a
+little change that I um annotated here
+here we're tracking the number of
+training examples instead of the tokens
+because here um we need the number of
+examples to calculate the accuracy
+essentially so we
+will um yeah well not to calculate the
+accuracy but when we are plotting things
+in chapter 5 we looked at how many
+tokens we have seen how we can say how
+many examples we have seen because yeah
+the the accuracy calculation happens um
+inside those so for that this will
+already do the tracking internally like
+we have
+defined here so here we will already
+also track how many examples we have in
+the Lauder this is really just later for
+the plotting
+okay and then like I said um this is
+just printing the training and
+validation loss so that we can see
+whether we are making progress during
+training and we do the same thing for
+the training validation accuracy but we
+only do that that for um each epoc so
+here this is every um so in so many
+steps where this is something we can
+specify for example every 10 20 50 steps
+but we only calculate the training
+validation accuracies after each epoc
+because that is relatively
+expensive and we have an eval eer so
+that we can say only for two batches or
+four batches to keep it a bit cheaper to
+make the training Loop a bit faster
+because like I said if we have a large
+training set this might take a long time
+and ultimately it's not that important
+to have a super accurate training
+accuracy calculation during the training
+it's here just for a rough estimate
+later on once the training has finished
+we can compute this on the whole
+training set but right now yeah it's
+sometimes useful just to keep this
+relatively cheap maybe do this only for
+one two three four five batches or
+something like that instead of all the
+what do we have 130 batches because that
+would be yeah slowing down the training
+quite a lot um yeah so this is our
+training function um there's one more
+thing we have not defined this is the uh
+evaluate model method or function and
+this function is the same function in
+terms of the code that we used in
+chapter 5 we just have to redefine it
+now because the c um lost L has changed
+so this one is also the same as in
+chapter 5 but we changed the calculus
+batch here so we only used the last
+token and this one is
+used um somewhere in here right and so
+and then because this has changed based
+on this we also have to redefine this
+one because if we imported from the
+previous chapter it will use the old Cal
+loss Lo which uses the old Cal loss
+batch so I just recommend for this
+chapter to redefine this one this
+one and this one but the code here you
+can see it's exactly the same um okay so
+let's execute that and then we can
+finally um look at the uh code for
+executing the training so what we are
+looking at here is so I'm I'm importing
+the time module in Python so I'm just
+using that as a rough estimate of how
+long the training takes I just wanted to
+know how long does it take you know
+instead of using my stopwatch using
+python to calculate um how long it takes
+to execute this training and so how it
+works is I'm getting the start time when
+I started the training I'm getting the
+end time so here is the training
+function and then I'm Computing what is
+the end time after the training has
+finished and then can I compute the
+difference between the end time and the
+start time and so this is in seconds and
+then I'm dividing by 60 to get the time
+in minutes and I'm just printing this
+just you know for my own curiosity and
+so I got about 5 minutes when I was
+executing this and this is an on an old
+computer uh Mac Mini oh sorry a MacBook
+Air from
+2020 and um yeah so it might be a bit
+slower when I'm executing it now because
+I'm running the recording the screen
+recording and I'm also running the
+camera here for the camera recording all
+on that small little laptop which might
+get pretty hot when I'm running this but
+it I think it should be somewhere
+between 5 and 10 minutes we will see in
+a few moments um I'm setting the random
+seat here so because um yeah for the
+shuffling of the training set and so
+forth um we have evaluation frequency 50
+that means every 50 steps we will see
+the loss and then um we will calculate
+the accuracy um of the validation set
+and um training set for five batches
+like I mentioned before to keep it
+relatively cheap we will only use five
+batches uh and we will train for five
+EPO and the optimizer is exactly the
+same that we used before I think I
+updated the learning rate a bit um so
+how I determined this I was running this
+multiple times and was just observing
+based on the validation set accuracy
+what is the better setting so yeah hyper
+parameter tuning by observing the valid
+set accuracy and this uh weight Decay is
+to reduce overfitting so let's execute
+this and I'm just thinking what I could
+um talk about in the meantime so I do
+have some bonus material I can maybe
+show to you um but let's maybe for a few
+seconds stay with this execution I just
+want to make sure that the model is
+training correctly so how do I make sure
+so I will look at the initial loss and
+then I will wait um for the 50 steps
+essentially to see what the training and
+validation losses are and I want to see
+that this is going down and if it's
+going down then it's looking good then
+we will keep training this in the
+background and I will maybe go over some
+of the bonus material so let's um give
+it a few seconds here I think it should
+not be too long just looking at my
+device um stats so the computer is
+getting a bit warm but it is in
+moderation here so should not be too bad
+I hope uhhuh I mean I'm oh here we go so
+we
+have 2 and then 6 uh two sorry 2.1 and 6
+and
+2.3.6 so we can see the training set
+loss is improving the validation set
+loss is improving so our settings are
+good here everything seems to be on the
+right track so let's keep um training
+and I will uh talk maybe through some of
+the bonus material so if I go to my
+GitHub repository
+here so I have a bunch of bonus material
+by the way the bonus material is stuff
+that didn't quite fit into the chapters
+itself because um yeah a book can't be
+infinitely long there can only be so
+many pages in each chapter there are
+some guidelines by the publisher too so
+there are some interesting topics which
+are interesting but not essential and
+some readers also honestly might find
+them distracting so I just um had some
+additional bonus material that I'm that
+I'm sharing here and there were also
+some questions by readers where I felt
+like okay instead of just writing this
+answer in an email let me put together a
+notebook upload this so that I can
+reference it in the future and so for
+chapter six I have um three sets of U
+bonus material here so first additional
+experiments on fine-tuning um with fine
+tuning different layers and using larger
+models so here uh this is quite a lot so
+I ran
+one 19 additional experiments so using
+the same code you are seeing here um in
+this notebook I put this code in to this
+file and then I made modifications so
+it's I mean I would say it's a lot here
+because I'm having 19 different
+experiments in this file but um I made
+it so that you don't have to really
+unless you want to you don't really have
+to read the code you can execute this
+from the command line so for each of the
+19 experiments here I'm showing you how
+you run the experiment so for example
+this would be exactly the same code that
+we are running in the notebook and then
+for example we might want to change the
+position of the trainable token so here
+uh trainable token the first one wait so
+what that means if I
+go it's already no it's not EP to so um
+uh let me let me go here so here we have
+the logits and then we say we go to the
+last token and the reason why we are
+doing this is because of the causal
+attention mask like I explained here
+that the last token has the information
+about all the other tokens the first
+token only has information about itself
+and
+so what you're looking at here is a
+control experiment where I'm you know
+only training the first token so what
+I'm essentially doing here is I'm
+replacing this by a zero where I take
+this first row and what we would expect
+is pretty bad results because like I
+mentioned before the first token only
+contains information by itself and so
+when you run this uh row two we can go
+to row two and see what we get we get
+still
+78% on the training set and 75% on the
+test set so this means that um so it is
+still actually classifying certain cases
+um correctly why is that it might be
+that in certain cases the um spam is
+like very obvious based on the first
+talk maybe if it's all capital letters
+or if it's a dollar sign or something
+like that so there is apparently enough
+information to make a classification
+that is better than a random prediction
+so we get 75% for balanced data set with
+um 50 50% non spam and spam we would get
+or expect a 50% accuracy so it's
+actually quite um interesting so the
+first token contains quite a lot
+information but compared to the Baseline
+here the Baseline is 95% when we train
+the last token of course it's worse so
+yeah I'm just explaining so this is a
+control experiment I would not recommend
+it but yeah this is one thing to do then
+um trainable layer last layer so this
+would be training only the last layer
+instead of also training the last um uh
+Transformer block so we can see when we
+only train the last layer instead of um
+the last Transformer block here this
+trains the last Transformer block this
+only trains the last layer we get only
+70% accuracy um row four so I can also
+just read it from here here we are
+training the last two blocks so remember
+I showed you this here this figure where
+we looked at um training on the last
+layer um and here the last two
+Transformer blocks in our code we only
+trained the LA so last Transformer block
+sorry and last two Transformer blocks in
+our case we are training only the last
+block what happens in our case if we
+train the last two blocks and what we
+can see the accuracy goes up slightly so
+from 95 to 98% but also the time
+increases and by the way way here I
+think I was using a different machine um
+not the MacBook Air I'm running this on
+right now I think I was training this on
+a GPU a100 so that's why it's faster on
+the laptop it takes about 5 to 10
+minutes um yeah so there are all bunch
+of experiments here is an experiment
+where I'm running it on all um so I'm
+updating all the parameters instead of
+only the last two blocks and you can see
+there are diminishing returns so here we
+have 98% here we have 90 6% I suspect
+this is because of overfitting because
+you can see here the accuracy the
+training accuracy goes up validation
+accuracy goes down compared to here so
+you might someone might expect or I
+would expect this is probably due to
+more overfitting so we are training too
+much because the data set is too simple
+here yeah and you can go through all the
+other ones there are lot of experiments
+so there's also a technique called Laura
+which stands for low rank adaptation let
+me by the way see how far we are in the
+training for so we're almost done so um
+yeah I encourage you maybe to go through
+this on your own time then so there's
+also Laura
+in appendix e which is a technique for
+parameter efficient fine-tuning so here
+also really nice accuracy um yeah lots
+lots of experiments um one I think
+important thing I should say is we will
+get back to that later when we prepared
+the training set we um so that's what
+this longest train stands for we had 120
+characters and we were padding
+everything to the same length so that
+means position 120 is important because
+that's the token that's trained and if
+we have new examples let's say we get
+new text messages even though it has
+nothing to do with the training anymore
+we still have to Pat them to 120
+characters because we only um yeah train
+this particular position uh token
+position essentially and so if you don't
+want that if you want to have a variable
+length you could technically set the
+batch size to one and if we set the
+batch size to one we don't need any
+padding um so because in the training
+set we did the padding to fill up a
+batch with multiple examples and then a
+tensor needs to have the same row length
+for each row um so here yeah so here if
+you set a batch size without um padding
+essentially um you can say patch size
+batch size one and then you won't have
+padding you can also here do this with a
+batch size of eight without padding and
+how I did this is I was Sim so it maybe
+too technical but I was simulating a
+batch size with um a technique uh called
+grent
+accumulation so let me see I hope I so I
+have not prepared had anything here so
+I'm doing this very um spontaneously but
+I do think I have gradient
+accumulation I do have an article an
+article on that so if you're interested
+how gradient accumulation Works um you
+yeah maybe want to read through this so
+it's
+simulating the batch size by iterating
+multiple times um here by iterating
+multiple times
+but then um not um using the step and
+the zero grd so some people might have
+wondered why is this zero grad necessary
+when we train a model in pytorch so why
+does pyto not take care of this
+automatically for us why do we as users
+have to worry about it and the reason is
+that um it allows yeah more flexibility
+so that we can experiment with different
+things as researchers uh and here if we
+want to accumulate the loss over
+multiple batches we can use the zero
+grad in the step only every so many EPO
+so for for example if I want a batch
+size of eight but a batch size of eight
+doesn't fit into my computer the exceeds
+the Ram or the GPU Ram um I maybe I want
+still batch batch size eight because
+it's a more stable loss but I might have
+to do a workaround where I have an um
+actual batch size of one I treat uh the
+model with a batch size of one but then
+I do only the epoc update sorry the
+batch update every eight uh examples and
+in that case I simulate the batch size
+of eight by not updating after each step
+so if that is confusing sorry it's also
+not the topic of this video I maybe
+encourage you to check out this article
+it will probably be more clear if you
+yeah sit down and read through this
+article I can maybe in the future also
+make a separate video on this um
+sometime it's just like a simple trick
+long story short and um this is what I
+was doing here so with that I have still
+the same batch size that I had before um
+up here but now I don't have any padding
+and you can see actually it's U good for
+the accuracy so um the reason why we are
+doing the padding is just to keep things
+simple in the next chapter in chapter 7
+we will take also a slightly different
+approach um yeah and so there are more
+experiments if you are curious and here
+are the commands to run these
+experiments and then um here is also
+like a a write up where I explain in
+words what each of the rows is doing and
+um what the Baseline is so the first one
+is uh the Baseline Row one the default
+and then versus row 17 I'm explaining
+what I did there and what it means and
+so forth so if you are curious about
+certain things why we are doing the
+things we are doing in this chapter this
+bonus material might answer some of your
+questions because yeah these are
+additional ways how you can train it
+also with larger models what is the
+accuracy here and so forth so this is
+one set of bonus material and then I do
+also have this bonus material where I'm
+applying this to a bigger data set um so
+this is the IMDb movie review data set
+where there are 50,000 movie reviews
+positive and negative movie reviews and
+the task is for the model to predict
+whether the reviewer liked the m movie
+or not based on the text um yeah and so
+I'm running the model from this chapter
+only for one Epoch because it's a larger
+data set uh it's more expensive and then
+I'm comparing it to a model called bird
+so bird is um so if I go to the
+attention is all you need
+paper so GPT model I think I mentioned
+this before um GPT models all the llms
+that you're using like in cat GPT
+anthropic claw Google Gemini deep seek
+they're all decoder decoder modules so
+the decoder is what you're seeing here
+on the right hand side so that this is
+the whole Transformer architecture and
+the Transformer architecture consists of
+an encoder and a decoder and the
+encoder so this was originally developed
+for language translation and so so here
+the encoder was encoding the input
+sentence um creating a
+representation and then passing it to
+the decoder and the decoder is
+generating the output text it turns out
+that the encoder is not necessary
+because as you might know the chat GPT
+models are really good at text
+translation so it's not necessary to
+have this encoder um but yeah long story
+short the bird model on the the other
+hand so cat GPT the GPT model we
+implemented deep seek um Google Gemini
+and so forth they are this decoder part
+but bird models um are models that are
+just the encoder part so bird models
+can't really generate text they are more
+meant for generating a representation of
+the text that we can work with in terms
+of classification and so forth and so um
+The Bird model I am training here is an
+encoder and encoders are
+traditionally slightly better at text
+classification so I'm comparing this GPT
+model to this bird model here and you
+can see in this case it's not
+necessarily true so this bird model is
+actually worse than this gbt model um
+yeah dis still bird is a smaller version
+of that this is actually quite good so
+um for some reason the smaller dis still
+Bird model is better than a big bird
+model and so here you can see it's
+almost the same ACR see uh there is
+something called Roberta which is
+another flavor of an encoder and this
+get 92.9 5% there's actually um a few
+weeks ago there was a new model called
+modern bird which I think is also really
+great it's just like a modern version of
+the encoder but yeah um I'm saying that
+because if you care about classification
+you might want to check out encoder
+models here in this chapter the reason
+why we are training the GPT model is
+first it works quite well right so we
+see it is actually working quite well
+and secondly it's a good introduction to
+fine-tuning before we do the instruction
+fine tuning in the next chapter okay so
+this is one more bonus material you
+might find
+interesting and the third one here um is
+a simple user interface if you are
+interested um taking the model that we
+have just trained putting a user
+interface around want it so you can uh
+interact with it similar to chat GPD you
+can so you can write this text here and
+it will say spam or not spam so it's
+just like a nicer um interface than our
+Jupiter notebook so if you are curious
+uh it's just very simple code here based
+on um chainlet so just very simple okay
+uh I think I talked for a long time I
+see our model finished training it just
+took 11 minutes um on this computer uh
+it used to be faster I think it's all
+that recording stuff I'm running here
+but we can see that the training loss
+went down it almost went down to yeah
+zero which is really great uh the
+validation lost too so they're both in
+the same ballpark which is actually
+really great so this indicates that
+there is minimal overfitting and the
+training EV validation accuracies are
+also relatively similar indicating
+there's only very minimal overfitting in
+this case here based on that we might
+say there's even no overfitting because
+validation loss is um smaller than the
+training loss if there was overfitting
+usually we would see the training loss
+being better lower or better than the
+validation loss um this could also be
+though because we um estimate based on
+the number um of batches and that is in
+our case a very small number it's just
+five um so one question now that I'm
+thinking about this could also be that
+you might ask why do we actually not
+optimize the training accuracy correctly
+uh um directly so why do we minimize the
+loss why don't we just maximize the
+training accuracy with a loss function
+and that is the simple answer is because
+um accuracy is not differentiable so
+that would require talking a bit about
+calculus and so forth how we calculate
+gradients but since accuracy is not a
+smooth function we can't really
+calculate the gradients of the accuracy
+and that is why we don't yeah directly
+optim optimize or maximize the accuracy
+um yeah so we have now our yeah results
+so one more thing before ending this
+probably very long video is to calculate
+or sorry to plot the results so that we
+can also visually see them so here I
+have a general uh function to plot the
+values nothing really interesting it's
+just based on met plot lip similar to
+what we have done before and then let me
+first plot um the losses so we can see
+the loss goes down so I'm just looking
+at things we were looking at here but
+it's always a bit simpler to look at it
+in a plot so we can see things much more
+easily because yeah here we would have
+to track the numbers and look at them
+and here we can see oh the loss goes
+down which is great and they stay
+approximately the same which is also
+great so there's minimal overfitting the
+model yeah learns to generalize pretty
+well and then let's also look at the
+accuracies so here we can see um they
+start off a bit shifted this again is
+only an estimate based on five batches
+so when we calculate the accuracy over
+the whole training order and validation
+order it might look a bit different but
+yeah we can see it's relatively similar
+so minimal overfitting some overfitting
+maybe here um but not too bad so if we
+then lastly compute this might take a
+while so let me just start running it
+and then I'll talk through this so here
+we are now Computing the accuracy over
+the whole training set the whole
+validation set and the whole test set so
+what it will do is um it will use the
+default
+parameters
+for um where are we here for the num
+bches and then we can get an idea what
+is the actual training accuracy what is
+the actual validation accuracy and what
+is most importantly the tested accuracy
+so it might take a while um so yeah and
+then once we have finished that there is
+only one more section left in the next
+video where I will tell you how to use
+this on new data but I will do it
+separately let's just um stay patient
+maybe in the
+meantime coming back to this chainlet is
+just like one way of um building a nice
+user interface you can run it locally or
+also remotely and then um yeah have a
+nicer
+interface because everything in the book
+here um we are doing to understand how
+the internal work so um if I were to
+develop an app for example I would take
+a different approach so in a notebook
+it's a great way to have plots and
+everything in the same place but if you
+are developing an application you might
+want to structure the code a bit
+differently so for example having Python
+scripts and um in this
+case where was I
+sorry organizing it like I've done here
+or even differently
+and yeah here everything otherwise is
+the same so I'm defining the path the
+tokenizer and so forth I'm loading the
+checkpoint I'm loading my model that I
+have trained and then I have a function
+to basically execute this I I also
+should say um I'm not affiliated by any
+means with chainlet I just found that
+this is a nice minimal example some
+other people use um streamlet for
+example um also lightning AI has a great
+um lit surf Library where lit surf is
+also really so
+I I used to work uh with lit surf a lot
+I still do it's a very nice fast way of
+serving model so also something worth
+checking out it's a open source Library
+so there are lots of options um our
+approach here is focused on looking at
+the code to understand how things work
+without using any external libraries if
+possible so that we get the maximum
+understanding and so um the calculation
+is finished so I can finally stop
+rambling on about um coding design and
+talk about the results so we can see we
+get a 97% training accuracy we get a 97%
+validation accuracy and 95% test
+accuracy So based on this I would say
+there is no overfitting but maybe um
+because that is usually what happens
+when you use a validation set I tweaked
+the settings so much to get a good
+validation accuracy that I have some
+slight bias towards this validation set
+and if I have a totally unbiased data
+set a new data set I have not worked
+with before like here um I can see this
+is slightly lower it's expected usually
+because I used the validation um set
+quite a bit when I was for example
+determining the learning rate the weight
+Decay and so forth and that's why it's
+usually a good idea to have a test set
+where it's like an independent
+evaluation and um the same can be said
+about these additional experiments so
+here I am looking at the test accuracy
+and if you were to do that and select
+the best model on the based on the test
+set here you would again yeah um
+introduce a slight bias so in that case
+it would be a good idea to have a second
+test set
+to evaluate the performance of the final
+model after you select it based on this
+test set and yeah if you're interested
+in model evaluation and selection um I
+did have this paper here that I
+recommend uh I I'm pretty um we're both
+there and explain all the different
+trade-offs and everything that might be
+a good companion if you are interested
+in building a classifier but for now let
+me take a short break and I will be back
+with the next video on
+using this model in practice on new
+examples so we have arrived in the final
+section of this chapter using the llm as
+a Spam classifier this essentially means
+that we are now implementing a small
+convenience function so that we can use
+the model that we have just trained on
+new texts for example if we have a new
+text message that we can classify
+whether this text message is Spam or not
+spam so in the grand scheme of things
+where we are right now is we
+are here in Step 10 we prepared the data
+set we downloaded the data set we loaded
+the pre-trained weights most importantly
+we fine-tuned the model we evaluated the
+model and now we get to use that model
+so for that um let me
+Define a function called let's call it
+um
+classify oops so I text one of these
+days I have to find a better keyboard
+position I'm usually not such a bad
+typer it's just because of the recording
+I have my keyboard at an awkward height
+here um so of course what we want to
+classify is the text we will need the
+model we will need the tokenizer to
+prepare our um input data we will need
+the device to make sure the data is on
+the same device as the model we can or
+we should Define a max length so that we
+can say how much padding we need to make
+sure the examples are padded to the
+length that we or that our model expects
+based on the training and then of course
+when we talk about paddings or padding
+we also need the pad
+token ID and for that we are going to
+use
+the we going to use the end of text
+token 50, 256 now of course the first
+step to Preparing the text is of course
+like always um encoding it tokenizing it
+getting the token IDs here um then we
+let me make
+a helper variable here let's call that
+supported context
+length so here I will just assign this
+the length of the inputs that the model
+supports based on our configuration file
+we know it's 1024 but to keep that
+function a bit this variable the way we
+extract this information a bit more
+General we can actually just get that
+from the positional embedding Matrix
+right because the Matrix here the number
+of rows is the context length so that's
+what I'm assigning here and then we can
+accordingly prepare the length of our
+input ID for example if it's a very long
+tensor right so if it's very long we
+might want to truncate this right so we
+want to truncate it down to support it
+um context length because otherwise the
+model will crash and if we have a max
+length defined so let's do it like this
+if we have max length it will use that
+one assuming that the max length is
+smaller than the context length so here
+it will now oh I think I made a typo I
+it will now get whatever of those two
+values is smaller so in case in our case
+max length is 120 so it will use 120 and
+truncate them to 120 if the input IDs is
+let's say 200 or something like that now
+we also have to take care of the case
+where the input IDs are smaller right so
+if we have input IDs of or token IDs 20
+of them in an text message we want to
+Pat them to 120 to make sure it's
+similar to what the model has seen in
+the training set so I mentioned in the
+bonus material in the previous um
+section that there are different ways of
+doing it but in our case the way we have
+set things up the model always expects
+the last token ID at a certain position
+um so we have to make sure we apply the
+padding to make sure the position is
+yeah always um at the same point so how
+do we do this let's do I mean there
+multiple ways let's just do it simple
+here we use the P pet token
+ID and then we
+calculate um let's do it like this um
+how many do we need the max length so if
+we have max length 120 and our actual
+length is let's say 60 it will add 60
+tokens so we can calculate the size just
+using length because this is still a
+python list so if our input is 60 max
+length is 120 it will add 20 pad token
+IDs to our um
+input um tensors uh token IDs okay so
+far so good so one more thing our model
+doesn't want python list it wants py
+toch tensor so we have to convert this
+to a
+tensor um inputs IDs and then you can
+also specify the device so it's directly
+initialized on the device instead of
+doing it like this I mean we can also do
+it like this
+but doing it like this is even better
+because it will initialize it directly
+on the device
+and then our model also likes batches so
+we are adding the batch Dimension here
+um next of course the model needs to
+generate the logits so let's do no gret
+because we're not training anymore we
+get the logits based on the inputs IDs
+and then of course we are interested in
+the last token okay so that's what we
+have here uh most interestingly we want
+the
+predicted label and for that similar to
+before we can use the torch arcmax on
+the logits and then of course it's 2D
+denser so we do a minus
+one um what else so next I think this is
+it so we can based on that we can
+actually return the prediction so we
+have the predicted label so we can just
+return it I mean we can return zero or
+one we can directly return this for
+example as um the number we can also
+just say if um if it's one return spam
+it's maybe a bit nicer spam if predicted
+label equals
+one and else not
+spam and I hope this works it looks good
+so far and so we could technically now
+give it some sample let me just uh
+prepare some um sample here so here we
+have you are a winner if you are a
+winner you have been specially selected
+to receive $11,000 cash or a $2,000
+award I mean might be legit but to me
+this sounds pretty much like spam maybe
+I'm just like this person who always
+deletes these messages but my first
+intuition would tell me in this day and
+age this is Spam so let's see how good
+our model is doing if I have oh no no
+typo this time if I have implemented
+correctly and it does see seem like I
+did everything correctly here so we uh
+or the model predicts that this is Spam
+so let's um do another
+one so let's classify I have some other
+text here I we just provide let's
+classify another one hey just wanted to
+check if you are still on for dinner
+tonight let me know and this is usually
+in my opinion something that sounds
+legit of course depends on the sender
+but uh yeah let's see what our model
+thinks so in this case it's uh not spam
+and so with that we have now a Spam
+classifier that we can use I mentioned
+before you can put a nice interface on
+it like this chainlet interface or you
+can develop your own independent um
+interface if you know some basic um you
+know uh web interface programming and so
+forth whatever you like so but this is
+how the code works this is what underly
+our spam classifier and it should yeah
+work now on text messages um of course
+course you can also if you're interested
+extend this to other problems like email
+spam classification document
+classification all kinds of things so
+but one thing if you want to use this
+later one thing that might be useful is
+saving the model so similar to what we
+have done in chapter five we can use the
+model State dict here and save the model
+we can give it some name like review or
+text classifier do pth in case you are
+wondering in the book I think I always
+say review classifier it might be an
+artifact because I first worked with
+this um movie review data set so um and
+I figured out okay this is too large it
+takes too long to train it might be
+nicer for readers to work with a Spam
+classifier so maybe I should have just
+called it text classifier instead of
+review classifier but in case you're
+wondering um and then yeah uh this will
+save the model so we can go in here and
+see a should have
+um I don't see it right now oh I'm in
+chapter 5 actually because I think I had
+it open for something else here we can
+now take a look and see it's saved here
+as text classifier and then we can La
+this in a new session so um if I were to
+initialize a new notebook for because
+I'm lazy right now I'm not doing it but
+you have seen how it works in chapter 5
+so we can loot the state dick with a
+torch lot function and then uh the
+name uh text
+classifier here and then we can also
+say where we want to load this on our
+device that we have specified and then
+this will loot the state
+dict like this and hopefully this works
+all keys matched successfully and yeah
+with that we have now our spam
+classifier that we can use and this I
+hope was a nice introduction to um
+fine-tuning how we update a model that
+has been pre-trained I'm just scrolling
+up because in the next um chapter it's
+actually my favorite chapter we will be
+fine-tuning the model for becoming a
+personal assistant like um instruction
+fine-tuning the model to do other things
+um not just returning class labels but
+answering with full sentences and doing
+different uh types of things and so
+forth so stay tuned for chapter 7 where
+we will be instruction fine-tuning the
+model

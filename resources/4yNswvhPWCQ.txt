@@ -1,0 +1,1641 @@
+Hi and welcome everyone to part 7 of the supplementary coding-along video series for the Build a
+Large Language Model From Scratch book.
+My name is Sebastian Raschka, I'm the author of this book and in this video I want to teach
+you how to teach LLMs to follow instructions.
+It's essentially one of my favorite topics.
+You of course probably are familiar with ChatGPT where we can ask ChatGPT simple questions
+like translate maybe hello world to German and other simple things or even complicated
+things and the LLM will assist us with that. And so we are building in this chapter a small
+personal assistant that can do similar tasks. And in my opinion, that's one of the most
+fun things one can do with LLMs. So in the grand scheme of things where we are, we are here in the
+final section of this book. So previously, we coded the LLM
+architecture, set everything up to pre train the model. And then
+we pre loaded the pre trained weights from OpenAI. And using
+those weights in the previous section, we fine tune the model
+as a classifier, which was fun. And so the model was able to say
+whether a text message was spam or not. But it was also pretty
+limited, it could only say spam or not spam. So in this chapter,
+We will be making the model a bit more general, that the model can respond with a free-form text and it can also process multiple types of queries.
+So it's more able to understand what we want from the LLM and it is more flexible and can do more things.
+Of course, the model we are going to develop here won't be as powerful as something like ChatGPT,
+because you know that would cost us millions of dollars and we want to keep it a bit simpler
+for educational purposes so that you don't have to spend millions of dollars. But the concepts
+are similar so here we are just doing it for a smaller model for us with a smaller dataset
+and so forth. And yeah I think it's a lot of fun and it also helps us understand essentially
+how these technologies or how these techniques work that we use to develop these technologies.
+So for that, like I start every notebook, I will first show you the software libraries,
+the Python libraries I'm using. So here, there are no big surprises. Everything here is the same
+that we used for chapter six. And by the way, just going back here, this chapter is independent of
+chapter six. So you can see here in stage two, we had the pre-trained model, and then we loaded
+the pre-trained weights.
+And then there's this fork here,
+where we either fine-tune the model as a classifier
+or as a personal assistant,
+but you can see there is no arrow going from here to here.
+So it's totally disconnected to chapter six.
+It's just that some of the ideas in chapter six,
+like the fine-tuning,
+that of course also applies to personal assistants,
+where we start with a pre-trained model.
+But similar to chapter six,
+we will start with a pre-trained model.
+But yeah, um, if you have watched chapter six, these
+libraries are the same because we still need, um, briefly
+TensorFlow for loading the, um, OpenAI weights.
+But then all the other libraries here matplotlib for visualizing
+the loss function tick token for tokenizing our inputs torch as
+our main deep learning libraries, um, library, this is still the same.
+So everything else should be similar to what we have used before.
+And then, uh, let me show you also the different steps.
+we will be going through.
+So it is gonna be, I would say relatively long chapter,
+but I think also many of these concepts are quite familiar.
+So in chapter six, for example,
+we spent a lot of time setting up the dataset.
+Again, we have to set up a dataset.
+It will be a different dataset,
+but many of the ideas also still apply.
+So even though it might look a bit like it's a long chapter,
+a lot of this will be quite familiar
+because we already spent so much time
+working on these things.
+Yeah, after preparing the dataset,
+we will be loading the open weights from OpenAI,
+similar to what we have done in chapter six.
+And then the fun part will be
+instruction fine tuning the LLM.
+And then I will also show you how we evaluate the LLM.
+Cause yeah, if we have free form answers like this,
+it will be a bit trickier to evaluate
+how good the answer is.
+Cause in previous chapters, we could just, you know,
+compute in chapter six, the accuracy, we can see,
+Oh, um, 50 out of a hundred predictions are correct.
+So we can say it's a hundred percent or 50% accuracy.
+Now it's hard to say because it's more free form.
+It's hard to say what is correct or not, especially if we have trickier answers
+where there can be multiple correct solutions.
+So if I say, what is the synonym for happy, there might be multiple
+synonyms that has no one correct answer, for example.
+So it will be a bit more challenging to evaluate the LLM, but we
+will get to that in due time.
+First, we have to, of course, fine-tune the LLM, and for fine-tuning the LLM, we do need
+to set up the dataset.
+So I should have added the section title.
+So the section title here is preparing the dataset for supervised instruction fine-tuning.
+So the dataset, I will just put it here because the code is not super interesting.
+So what we are doing here is we are downloading a dataset that I prepared.
+So I just call it instruction data, JSON, and this is in my GitHub repository here.
+And here I'm essentially just downloading the file.
+So the file has 1,100 training examples.
+So it's relatively small, and this is mainly to keep the time that it takes to train the
+model relatively short.
+So I think it takes about, again, five, 10 minutes to train the model.
+Of course, the more, the merrier.
+So typically, LLMs, they are instruction fine-tuned with, I would say nowadays, at least 100,000
+training examples.
+But again, this would be more expensive.
+So for educational purposes, this is a simpler dataset I developed here.
+And we can take a look at some of the entries to get a sense of how it looks like.
+So JSON is essentially, it's a text file, but it looks like a Python dictionary.
+And so you can see each entry.
+So here I'm just taking the entry at position 50 is a Python dictionary now.
+And so it has three input fields.
+It has an instruction field where it's including the instruction, identify the correct spelling
+of the following word, for example.
+And then the input field contains the word that corresponds to this instruction.
+the output field contains the answer
+that we want the LLM to generate.
+Maybe let's take a look at another one here.
+So here we have one where we have an instruction,
+but we don't have an input, so the input is empty.
+So we could also have a format like that.
+So for example, I could also technically,
+if you look at the, oops, sorry, here we go.
+Yeah, here we go.
+So if I look at this format,
+and I can also convert it into a format
+where we don't have an input field,
+for example, I can maybe restructure it like this,
+and then it will be also a similar format.
+So it's not super strict.
+The reason also why I structured it like that is,
+and like here, it's the classic format.
+It's called the alpaca format,
+but you don't have to strictly use that format.
+I think in the appendix section,
+here in the references and further reading materials,
+I also suggested some other datasets
+that are available on the internet
+and not all the datasets follow this instruction.
+Honestly, it doesn't really matter.
+We can make it whatever we want.
+We can define our own format and our own style
+because we will be also defining our conversion style,
+everything, so in a few moments.
+So I would say, yeah, don't get too stuck
+on how this is formatted.
+This is just one way of formatting the input.
+Let me maybe go back here and show you a figure.
+So the input is in this, in JSON format, for example,
+like I mentioned, and then next,
+what we are going to do is,
+because we are not feeding the LLM data in this format.
+We are feeding the LLM plain text.
+So we are going to convert this dictionary structure
+into human-like text,
+how human would provide the instruction.
+So here, this is one way we can apply
+a so-called prompt-style template.
+So prompt-style template takes this dictionary
+and converts it into text.
+And this is the alpaca prompt-style template.
+Alpaca is one of the first, I would say,
+publicly available resources that did something like that.
+So it's kind of like a classic,
+and here I'm using the classic just because, you know,
+it's the foundation or the original
+that most people are familiar with,
+or it's just like, you know, one of them, one popular one.
+Of course, there are also other styles,
+but focusing on the Alpaca prompt style for now,
+it works as follows.
+Then we take an entry here,
+And then we prepend something.
+So we prepend this boilerplate that says,
+below is an instruction that describes a task,
+write a response that appropriately completes the request.
+And then we have an instruction field.
+So it takes this line here,
+add some markdown synthetic,
+syntax sugar to it.
+And then we have the input field and the response field.
+And again, this is just one way of preparing this.
+There are many, many other styles.
+Actually, each LLM nowadays has its own style.
+If you think about other LLMs,
+like MetaAI's Llama models, Google's Gemma models,
+or Microsoft's Phi models.
+For instance here, I actually have an example
+of the Microsoft Phi 3 style.
+So here they use something simpler,
+where instead of having the boilerplate,
+they don't do you any boilerplate,
+they just have the instruction directly here.
+There's also no input field.
+merge the instruction and the input into one. And that is like user users designating the
+user input. And then this is what the LLM should respond on an assistant field. So that
+is another way of formatting the input. Actually, I like this because it's shorter and shorter
+is cheaper. So because if you think back of how the model generates text, the model is
+generating one token at a time. And so if you have twice as many tokens, it will be
+requiring twice as many iterations.
+So it will be more expensive to run the LLM.
+And so the shorter, usually the better, but yeah, we are using the classic here
+because I think it's good for educational purposes to, you know, use
+something that is quite popular and this could be a reader exercise.
+In fact, if you read the book, there are a lot of exercises throughout the chapters.
+And I will leave you to this exercise to, you know, try out different style
+templates and see how it affects the performance. But yeah, so
+this is what we are going to code now. So we are going to
+convert this into what we have just looked at this prompt
+style. So let me show you the function. This is a very simple
+function format input, where we have the instruction text. And
+we have here the boilerplate that I just showed you. And then
+Um, here we insert the instruction, this part, the
+content here, and then, um, if we have an input field, we
+will provide the input.
+So we will create this if, if we have an input and otherwise
+we will just leave it empty.
+And so this will be giving us the, uh, the instruction
+plus the text.
+So let me call this on our example buff,
+the one we have here.
+Of course, I need parentheses.
+I don't know what I was thinking.
+Okay, so here, this is how the LLM will see the input.
+You can see we have these new line characters.
+So this is how the LLM would see it.
+For us humans, of course, it's a bit easier to read
+if we actually render these new line characters.
+So let me add a print here.
+So this is how the LM would see it.
+And then we also need a response.
+So for example, we can write a desired response.
+So let's also maybe check out the other one here.
+So this would be that one.
+So we can see here, there is no input field because the input is empty.
+So that worked.
+And then we can also add the desired response.
+So the desired response is only provided, of course,
+during training, during inference.
+When we use the LLM, there won't be a response
+because the LLM is supposed to generate it.
+So here, but for the preparing of the training data,
+we will include the response.
+And by the way, I wanted to mention one more thing,
+maybe if that's confusing,
+because when we use this here, the chat GPT interface,
+we didn't provide anything like that.
+So we didn't input it like this, right?
+Like this, right?
+So we could have done this,
+but we don't write it like this, right?
+Because it would be really tedious
+if we as a human write the style out every time.
+And so in fact, LLM providers,
+they do this already in a sense internally,
+so behind the curtain.
+So it's similar to what we're doing here
+when we only provide an input
+and then we have a function
+that takes care of the formatting.
+Similarly, other services,
+They also do this behind the scenes.
+So we, as a user, when we will get to that later, when we write the, um,
+instruction, um, there will be something that will be, um, prepared in the
+background, but you know, we don't want to bother users typing this.
+So this is why you don't see it.
+Why, why something like this works and why we don't need this whole thing here.
+But anyways, getting back to the topic.
+Um, so how we would prepare the training data.
+So this would be the data for pre-training the model.
+And then lastly, in this section, let me also prepare the training test and validation splits.
+So we will be using 85% of the data.
+So we have 1,100 entries.
+We'll use 85% for training, 10% for testing, and then the remaining 5% for validation.
+And yeah, and so let's just briefly look at how large these sets are.
+sets are. So we have 935 training data points, 55 validation data
+points, and 110 test data points. And so in the next section,
+this will be a bit, I would say, it will be very important. In
+the next section, I will show you how we prepare this in terms
+of the batches, we will define the dataset class. And then
+also later, we will talk about preparing the data loaders that
+we can then use during the fine tuning.
+Yeah, so now after loading the dataset, the next logical step is to prepare the training
+set batches that we will use in the data loader when we are training the LLM.
+So here is just the brief overview again, where we have all the nine steps in this section.
+are at step two, and then later we will load these batches into the data loaders. It looks
+like it's a small step in the grand scheme of things, but it is, I think, I would say
+the most crucial aspect when instruction fine tuning in LLM, because everything down here,
+like loading the pre-trained LLM, instruction fine tuning the LLM, we get to reuse functions
+from chapter five, because the instruction fine tuning is still training the LLM to predict
+the next token in the dataset.
+So here it's really important that we set up the dataset correctly
+so that the model can actually learn like we want it to learn.
+And so it looks like a small section, but there are quite a few steps involved.
+Like I mentioned, one of the most crucial sections here.
+So we have five steps that we will implement in the dataset set up.
+So we have, um, step one, formatting the data.
+So essentially applying this format function that we
+developed to convert the JSON entries into this text, then we
+will use the tick token tokenizer to turn the text into
+token IDs. Then we will be padding the dataset to the
+longest sequence, we will apply this here on a batch basis in
+chapter six, we padded it based on the longest example in the
+dataset, we will be, we will be a bit more efficient here.
+And we will pad only to the longest element in each batch
+because it's, it's a bit excessive.
+If we would batch it or padded to the longest example in the
+training set, we will have a excessive amount of padding
+tokens and to avoid that we will apply the padding on an individual
+batch basis, for example, this could mean that one batch has the
+longest example consisting of 80 tokens, one could have 1000
+tokens, like another batch could have 500 tokens and so forth.
+But we will get to this, um, when we implement this.
+So the idea here, or the step is, uh, we have the input token IDs and then we
+are padding them, um, to the longest element in the batch and input token
+IDs here means this whole input text.
+So I realize it might be confusing because it contains the response here,
+but it's similar to chapter five, where we are interested in training the
+LLM on the next token. Later, when we get to use the LLM on new
+data, this will only include the boilerplate here and the
+instruction input, it will not include the response, the
+response is only necessary, of course, during training, because
+that's what we want the model to learn. So in this context,
+input IDs means everything up here. And so we have the input
+IDs here. And the next step would be creating the target
+token IDs for training. So the target token IDs are the input
+token IDs shifted by one position, again, similar to
+chapter five. So if our input token IDs are 318 281 12,064, or
+target token IDs are 318 281 12,064, you can see these three
+are here basically, so we are shifting it by one position. That
+means we are removing this first token here. And to make the
+input IDs and the target IDs, the same length, we add an
+additional padding token ID. This is why you only see three
+here, three padding tokens and here are four, because yeah, we
+have to, if we remove one token here at the front, we have to
+add one more token to have the same length again. And yeah, but
+the concept here is the same as in chapter five, that is shifted
+by one position. A new concept here compared to let's say
+chapter six, when we do padding is that we at the end here in
+step five, we are replacing this excessive padding amount by mask
+tokens here, minus 100.
+And this will help us to ignore padding tokens during training.
+So padding tokens are used to make everything the same size so that we can
+create these nice tensors for training, but we don't want the model really to
+learn based on how many padding tokens we have, because imagine we have an
+example, if it ends up in a batch where the longest example
+is 1000, and our example is 100, we have 900 padding tokens, and
+then it might influence the loss function. And compared to a
+different batch where there are only fewer padding tokens. So we
+don't really want to make our loss or anything dependent on
+how much padding we have. So by replacing these by the so called
+mask tokens, we can ignore those in the loss. So the loss will
+not, let's say consider those when, when creating the, or when
+computing the cross entropy loss, but we will get to that later in the section.
+So here, I just wanted to briefly outline the steps that we are going to take.
+So formatting the prompt template, tokenizing, then adding padding
+tokens, creating the target IDs and then masking the excessive
+padding tokens at the end, by the way, we will keep one padding token here
+Because we want our model to generate a response with a definitive ending.
+So pre-trained models, they always keep on generating more text.
+If we let them here, we want the model to generate a end of text token, this
+padding token, 50,000, 256, if the model is finished with a response.
+And so this will also allow us to be more efficient so that the model that we
+don't have to iterate a max number of tokens, and then we know exactly
+when the model is finished.
+So one padding token is always kept,
+but we will get to that when we look at the code here.
+So let's start with the instruction dataset
+that we will set up.
+So one more figure I wanted to show you.
+So here we have these five steps, one to five,
+and we will be first coding steps 2.1 and 2.2.
+So these first steps where the first steps
+include applying the prompt, uh, prompt, uh, formatting template and then
+converting them to token IDs.
+So essentially going from, from this Jason format, um, entry into the
+text and then creating the token IDs.
+So let's code this up.
+So for that, we will, um, create an instruction dataset and this instruction
+dataset uses the dataset class.
+that inherits from the dataset class, similar to what we have done in chapter
+two and chapter six.
+And here, yeah, we just assigned the dataset.
+The dataset here is the Jason dataset.
+We have a list.
+The list will keep collecting our token IDs for each entry.
+So if we have thousand training entries, this will be a list of
+thousand token ID lists.
+And so what we are doing is we are applying our familiar format input
+function. That is the function we used before on the entry that
+we iterate over. So that will create this format here in the
+center. So we are going from entry to this formatted entry.
+Next, we will also add the response text. So this is the
+response that we add to the input. And then we will encode
+this. So the encoding here means that we go from text into token
+IDs. Okay, so this is what we are doing. We are collecting
+them in the encoded texts. And then here, the length function
+will give us the length of the dataset, whether we call length
+on data or encoded text, it doesn't matter, just gives us a
+length, which the data loader requires for the shuffling and
+so forth. And here they get item will return one item from our
+encoded text at a time. And so this is something that is used
+by the data loader to build the batches similar to chapter five
+and six. So yeah, this is our instruction dataset here.
+Oops. Um, and so this one will be based on the tick token
+tokenizer. So let me just so that I don't forget this later.
+Let me just import this. Oops, tick token. And then we will
+I have tokenizer.getEncoding.gpd2.
+Sorry, I made a mistake.
+This should be, oops, tokenizer.equals.tickToken.getEncoding.
+Okay, so this is our tokenizer
+and that is gonna be used here.
+Now we have completed steps 2.1 and 2.2.
+And next we will create a collate function.
+So what is the collate function?
+First, this is just a draft.
+I call it draft one because we are going to refine it.
+But this is a function that will operate on each batch
+that the data loader generates.
+So later we will have the data loader like before
+when we create our, let's say, train loader.
+And the data loader will accept the training dataset,
+which will be based on our instruction dataset.
+And in addition, we will also provide a collate function.
+So here we would, for example, provide this one.
+And this will do certain operations on each batch
+because right now we only implemented steps to one and to two.
+Next, we want to take care of steps two, three to four into five.
+And like I mentioned, we only want to apply the padding on a batch basis so
+that each batch is independent of the other batches so that we don't have
+this excessive amount of padding tokens and so forth.
+And so the collate function will take care of steps 2.3, 2.4 and 2.5.
+Our first draft here, um, draft version one, there's a very simple one.
+This will only do the padding here.
+So this will only do step 2.3.
+I will modify it shortly to also do a step 2.4 and 2.5, but stay tuned for that.
+Let's do one thing at a time.
+So in that case, we want technically use it like this.
+We will use a different collate function later.
+So let me just also comment this out so it's not too confusing.
+So how does the collate function work this particular one?
+So here it receives a batch.
+This batch is created by the data loader, by the way.
+So we'll get to the data lotter later.
+We will work with a collate function here and isolation.
+And we'll also test it in isolation and later we will test it again with the data
+lotter, but conceptually this receives an input batch.
+We define what token ID we want for the padding and then what device the
+data is supposed to be on.
+And here we determine the longest item in the batch.
+This is similar to what we have done in chapter six.
+In chapter six, we did that for the whole dataset here.
+We do it for each item only in the batch.
+We have an input list here and the list will collect our padded inputs.
+So here encoded text collected our tokenized inputs.
+This is similar, but now we will have these, these padded inputs.
+So before we had just the regular token IDs.
+Now we will have the padded token IDs that we will collect here.
+And yeah, maybe you can pause and look through this.
+There might be different ways you can implement this.
+This is my way how I implemented this essentially.
+So maybe before I explain all the details
+why the plus one and the minus one.
+So this is just one way I found that worked
+because I did some experiments
+and I had sometimes an extra petting token
+or was missing a petting token.
+And with this implementation,
+I made sure that I always have the right amount of padding,
+where the padding is also determined here essentially
+by the difference between the longest element in the batch
+and then the actual length of that item,
+similar to what we have done in chapter six.
+So when we add the padding token IDs,
+and then we keep adding the padding token IDs
+to our input list.
+So, and then at the end, we stack those.
+So, because these are just lists,
+but the data loader expects batches, right?
+So the data loader passes a batch to this one
+that is in a tensor format,
+and it also expects as output a tensor.
+So here we are stacking those lists as a tensor.
+We are essentially just converting them into a tensor
+and then also putting them on the target device
+that we can choose, CPU, GPU, for example.
+But yeah, so maybe a lot of code here.
+If it's confusing, let us just test this in isolation.
+I mentioned in the next sections,
+we will be plugging this into the data loader,
+but it's not a bad idea to test this
+before we get to the next stage.
+So I hope also, by the way,
+it's not too loud in terms of background noise,
+there's really a big thunderstorm outside,
+so hope I don't lose power, we'll see.
+So here we are testing now this collate function
+in isolation on some inputs.
+So we have an input consisting of five tokens,
+two tokens and three tokens.
+And ideally what we want this to do is we want this to,
+so by the way, let's also just assemble this as a batch here.
+We want to assemble this in a way that we have
+the correct amount of padding for each of these items.
+And this will be determined by the longest element here.
+So ideally we want to see that this will have
+Three padding tokens, so they're not X there will be token ID fifty thousand two hundred fifty six and by the way
+Where you if you're wondering what these token IDs here mean? I just made up some numbers
+From zero to nine just so that it is a bit visually easier to read
+Of course, these would be in reality when we apply to our data loader
+These would be the actual token IDs of the input, right?
+So I'm just having some sample here to play around with and then what we can do is we can
+can call this on our batch and hopefully it generates the
+correct tensor. And we can see so everything has the same
+length. Now we have padded the other ones so that everything
+has the same length. So that is essentially what our first draft
+of the collate function is doing. The next step will be
+creating the target IDs here. So for that, I could technically
+just copy this, maybe call that draft two. And then I create
+targets list here. Let me see what else here down here, we
+will be also include including the targets and the targets are
+shifted by one position. So if I do targets torch, tensor, oops,
+And then there should be a parenthesis, of course.
+And then we are truncating also, we are essentially removing the first item from the input, which
+will mean that we are shifting everything over by one token.
+And then we keep collecting them in our list targets.
+And then I think here we should probably also return those.
+be a good idea, right? Otherwise we do all the work and it is for nothing. Just double checking.
+I wrote targets as a plural, making sure everything looks okay. Okay, so there we go. So yeah, we
+mentioned returning. So let's not forget this. So now we have our draft too. Let's see if that works.
+So shouldn't be append here. There we go. So now we have our, I mean, it's a bit hard to read.
+So we have inputs and the target. So let's maybe also call or make two variables. And then,
+then it might be easier to read.
+So let's just do this.
+Let's look at the inputs first.
+So the inputs are the same inputs that we had before,
+ideally, because we didn't really change anything.
+We just added the targets, right?
+And so the targets are now shifted by one position.
+So instead of zero, one, two, you can see it's one, two, three.
+So yeah, so that's it.
+So we have now created the target list.
+And to the next step will be finally the masking
+and that should be our last step
+in the collate function that we need.
+So then let's just call that custom collate here.
+And yeah, there are a few new parts I'm going to add.
+So first, what we need is let's say the ignore index.
+So for the ignore index, I'm using minus 100
+because that's the default value
+that the cross entropy loss will ignore.
+Or we could use a different number
+and we can then change it in the cross entropy loss
+if we wanted to.
+So you can choose 99 or minus one,
+but you just have to then make sure
+you update also the cross entropy loss.
+Personally, I just find it easy and more intuitive
+to just use the minus 100,
+which is the default ignored value
+in the cross entropy loss.
+And then let's also add a load max length to truncate.
+in case we have inputs that are exceeding the context length that our
+model supports. So first let me add the code for modifying the targets for with
+a mask token. So here what I'm doing is I'm replacing all the target padding
+tokens by the minus 100 except one of them. We keep one of them because we want
+to teach the model when to stop generating texts. So this one will be used to teach the model. Okay.
+This is the stopping point. So then in the generate function that we have, we can check if end of
+sequence token is 50,256. Also if current, sorry, if the current token we are generating is the end
+of sequence token, which is 50,256, then stop generating. And that is why we want to have it
+in here. The other ones we can ignore, like I mentioned. So here, that's what we are doing.
+So we create this mask, we check if a given token ID is a padding
+token ID, and then for each, but the first one, we insert this
+minus 100 here, and that is one thing we do.
+The other thing I mentioned is we are also truncating to make
+sure that none of the tokens have more, so none of the training
+examples have more tokens than our context length of the LLM
+supports. So here we are just truncating by the longest sequence. This is really similar to what
+we have done before. And I hope this works. So I hope I didn't make a mistake. So if this works,
+let's just use this example again and see what we get. So we call it now custom collate,
+it on the batch. And then let's look at the inputs tensor looks
+exactly still like it looked like before, which is desired,
+right? We didn't change the inputs, but the targets they
+should now contain our, our minus 100. So we can see
+everything, but the first padding token got replaced with
+a minus 100. And that one will get ignored in the cross
+entropy loss. So before I end this video, let me briefly show
+you what I mean by that, because maybe you are a bit confused by
+that. What is happening? Why minus 100? What is this magic
+number? So I have a simple example here. So this is just so
+that we don't have to run the model, which we haven't loaded
+yet. I just have two example training examples. So one
+example, just two token IDs, another example, two token IDs.
+And sorry, these are the one token ID with some it's a
+basic, just a simple training example. Don't even think about
+it in terms of token IDs. Just think of it as the logits that
+the model outputs for the first training example, it could be
+similar to chapter six, where this is the logit vector
+corresponding to the last token ID. I just want to illustrate
+something in the cross entropy loss here. So we have labels,
+think of it similar to chapter six, we have labeled zero and
+one, for example, and then we compute a certain value here,
+what the value is, it doesn't really matter. What I wanted to
+show you now is if I add a new entry here, so just copy paste
+to that. If I add a new entry, let me do it like this. A third
+entry. And that's two minus minus point six and 1.7 or
+something like 1.6. I just typed it. It doesn't really matter.
+And let's give it also, and we need the target, right? Let's
+name this too. So it's not overwriting our first example.
+And so what we'll get is a different number makes sense
+because we have added a new training example. When we
+compute the loss, it will probably be different from this
+loss. We have not three training examples. And I wanted to show
+you now the minus 100 illustration here. So let's increment this again so we're
+not overwriting this. So what will happen if I now replace this by minus 100? So if
+I replace this minus with minus 100 you will see this value is exactly like this
+value. Because now the minus 100 tells the cross entropy loss, ignore this one. So that's just
+like a little trick that we can use to ignore certain token IDs. And here we apply this trick
+to ignore these excessive amounts of padding so that the model is not, the model training is not
+influenced by these excessive amounts of padding tokens. So it's as if we didn't have any padding
+tokens. Padding tokens are still there, because we need to make
+sure everything has the same length, but they won't influence
+the training. And so with that, we now have, yeah, we have
+explained how we batch the data. In the next section, we will
+talk about preparing the data loader.
+So yeah, in the previous section, we did already most of
+the hard work that means implementing this custom collate
+function. In this section, we are now using the instruction
+dataset, the pytorch dataset that we created earlier, and
+this custom collate function, put them together. And then we
+have a way to load the training and validation data for the
+actual fine tuning. So we will begin with defining the device
+that we will be using. So everything in this notebook,
+from now on will also work on a GPU. If you have one, for
+example, a CUDA GPU, you can also replace this with MPS if
+you have Mac, which supports Apple silicon. Now, I think
+still based on my last experiments, you get slightly
+different numbers if you use the MPS device, MPS is the GPU in
+the Apple silicon chips. So it's basically on your own. I
+wouldn't say risk, but you know, if you are open to get slightly
+different results. You might want to experiment with MPS,
+which will be faster than CPU if you're using a Mac. So here, I
+will be running it on the CPU though, so that the values shown
+here should be similar to what you're getting on a GPU or a
+different type of CPU. And then one thing I wanted to also do
+first is defining my defining a custom collate function or a
+customized one. So we defined the custom collate function
+before. And remember, there were a few settings we had. For
+example, padding token ID, we don't need to change that. The
+ignore index, we don't need to change. But we maybe want to
+change the device and the allowed max length. And so this
+is just like a Python basic, you know, we just use func tools to
+make use the partial here to make a customized version of
+that. So that means it's just like a Python basic. That means
+if I use this one now, so if I call this one as a function, it
+will have the default values for the allowed max length of 1024.
+And it will use the device we define here. So that is all we
+are doing. It's really like just like a Python basic. If you
+don't want to do it like that, you can also just go up here and
+modify those values here up to you. So that's usually how I
+prefer pre filling function arguments with partial. So
+that's what we're doing here. And then we are ready to use
+the data loader. So here, that's just the pytorch data loader
+that we used in chapters five and six, we will again use zero
+workers for maximum compatibility, we use a batch
+size of eight, the random seed for the shuffling. And so here,
+I'm creating the training dataset by passing the train data that
+we just generated earlier in this chapter to the instruction
+dataset class that we defined above together with the
+tokenizer. And this then goes into the data loader. And so
+everything you're seeing here, all these settings except one
+are the same that we used in chapters five and six. So I'm
+not explaining again what drop last means and also what the
+batch size means you should be, I guess, already be familiar
+with that. What's new, though, is the custom collate here. So
+here, we plug in our customized version, which uses max length
+of 1024. And then also the device on this case, the CPU. So
+yeah, so that's what I'm doing here. I'm setting it up. For
+some reason, it's complaining. So let me go up here. Maybe I
+made a typo or did not execute it yet. I did not execute this
+cell. So this is the instruction dataset from the previous
+section. Now it should work. Yep, so there we go. So this is
+our training order. And we can do the same thing for the
+validation and the test set. So here, the same thing, the only
+difference is that we don't need to shuffle, and we don't need to
+drop the last entry here. So what otherwise similar to what
+we have done in chapter six, same code as for the training
+set. Okay, and it's not a bad idea to take a look at like the
+results that what the data load outputs, just to make sure
+everything looks okay. So like, usually, I just tend to iterate
+over the dataset on doing the iteration, just to make sure
+everything looks okay. Remember now that each batch has its own
+longest entry. So one batch might have size 61. So 61 tokens
+as the longest entry, some batches have 76, 73, and so
+forth. And yet it doesn't matter because what we are doing is we
+are training the model to predict the next token. So we
+are not like in chapter six, fixated on a certain token
+position, we are really more general, we have a free form
+answer, and it can have different lengths. And it doesn't
+really matter how many padding tokens we have also, because we
+have this minus 100 here to ignore excessive padding in our
+loss function. However, we still have to make sure that each
+entry in the batch itself has the same length. Otherwise, we
+can't create a tensor, right? So that's looking good here. So we
+can see about most of the example have about like 7080
+tokens. So it's a very small dataset, 1100 entries, and each
+example is also very short.
+I did that by design also to speed up the training.
+Um, yeah.
+And in addition to that also, maybe not a bad idea to take a
+look at one of these entries, um, to see that they look okay.
+So we can see, this is the first, um, yeah, training example.
+So here we see that, um, so this, if I iterate through this inputs
+will default to the last inputs targets in the training order.
+So we are looking at the first example of the last batch.
+So I said, yeah, the first example in the last batch.
+So we are looking at the first row in this one.
+And so let me just do the length here.
+I can also do shape, but yeah, you can see that's the 69.
+Yeah, and we have the padding tokens as we would expect.
+Let's also check the targets corresponding to this one.
+So we can see here it's shifted by one position, right?
+So this is here.
+So that's looking good.
+And for the padding tokens,
+we still have that one padding token that we want to keep.
+So the model learns when to stop generating text
+via our generate function, the text generate function.
+And then here, the other ones, we have minus 100
+because we don't want to have them influencing the loss
+during training because they're really just placeholders.
+Yeah, and this is our data loader now.
+It works, looks good.
+And in the next section, we will put it to action
+or maybe not in the next section, but in a few sections
+because we still have to load the model itself
+and then we can fine tune this.
+So the hardest work in this chapter is now done.
+We prepared the dataset.
+Now the next step is loading the pre-trained LLM
+that we want to fine tune in the upcoming sections.
+So for that, this will be actually pretty simple
+because we will be using almost the same procedure
+that we used in chapter six.
+So that means we are loading the pre-trained weights
+from OpenAI and for that I'm using the download
+and load GPT-2 function from the GPT download file.
+So this is just something I copy paste it in here.
+This is the same one we used in chapters five and six.
+You just have to make sure if you're importing it like this
+that the file gpt_download.py exists next to this notebook
+where you're running this notebook.
+And then also from the previous chapters,
+we are importing the GPT model class
+and then the load weights into GPT function.
+And these are exactly the same things
+we used in chapters five and six.
+The only new part, so everything you're seeing here
+is the same as we used in chapters five and six.
+The only new part is that we are using
+a slightly bigger model now.
+So in chapters five and six, we worked with 124 million parameters.
+Now we are working with a slightly larger version.
+And that is because I tried out the small version and it, you know, it didn't do great.
+So when I trained it, the responses were really not good.
+And I thought, okay, this, I can't even tell that I trained this model.
+So I went one model size up, um, and the results looked slightly better.
+So we could also go with these larger models, but the problem
+then is it's going to be slower.
+I'm running this on a Mac book air computer.
+So, you know, there's only so much you can do with a small old computer.
+So I think 355 is a nice sweet spot where we don't necessarily
+need a GPU to run this.
+Of course, ideally I would run this on a GPU and I actually did, but I wanted to
+make this code accessible to everyone to most people.
+So I wanted to have a example that works also on, um, yeah, on older hardware.
+Um, and so, yeah, this is a nice, nice trade off.
+I actually just ran this code cell before I was recording this section so
+that it doesn't take too long.
+It takes about, um, I would say four minutes to download.
+It's 1.4 gigabytes.
+Um, and yeah, so I have the files already ready and this is essentially
+equivalent to what we've done in chapter six, except now we have the larger model.
+Um, and then next, um, I wanted to just double check how the model performs
+before we are training it.
+So here just showing should probably import torch
+So here I
+Think I see what happened. So what happened is I because I mentioned before I downloaded all the code
+I restarted the notebook
+Sorry, I meant I
+Downloaded the model and I must have accidentally restarted the notebook. Um, so let's try this again
+So we are just looking at some example text here.
+And so that's the input and then the instruction.
+And then let's use some of the things we have defined
+in chapter five, the generate method,
+the text to token ID and token ID to text utilities.
+And so the text generated was the one where we applied
+the temperature scaling and the top case sampling.
+So it's just like that function we had to generate new text.
+And so this receives the model.
+We have our utility that converts text to token IDs using the tokenizer.
+Uh, we create 35 new tokens and in reality, um, we could actually set this
+number larger if we have a fine tune model, because, uh, yeah, remember
+how we set up our dataset, it will be generating or learn it will, the model
+will hopefully learn to generate a end of text token, right?
+So in the, where are the targets?
+So, ideally, a well-trained model will generate this token, and then with how we set up this
+generate function, it will stop generating text once it encounters this end-of-sequence
+token.
+However, our model is not trained yet, so it might not emit this end-of-sequence token,
+so we will just limit it to 35 so it doesn't keep on generating a lot of text so that it
+is a bit faster here.
+So here, we are just generating text, and then let's see how it looks like.
+You can see it takes a bit longer.
+a larger model now and I'm just running it on a CPU. So yeah, so it might be, here we are.
+So let's just maybe add this print statement here. So it's nicer and you can see, yeah,
+it puts a response on the response, which is kind of good. But then we can also see,
+yeah, that doesn't do anything. So we have an instruction, write a response that appropriately
+completes the request the request is convert the active sentence to passive the chef cooks the meal
+every day so a passive voice would be the meal is cooked by the chef every day or something like
+that or we can see the model doesn't really do that it's just repeating it's just repeating this
+right so um and then it keeps yeah keeps just repeating so in that case this model is not
+very useful i wanted to show you how it looks like before it's fine tuned and so our goal is to make
+sure that the response looks okay. And by the way, the way we set up our generate function
+is it's also printing the input, which we don't have to show to the user, right? So
+if we use something like chat GPT, it doesn't show us the input again, it just gives us
+the response, right? So in that same way, we can also set up our function that it strips
+off everything after the response. So yeah, what we're doing here is we are, we are replacing
+this. So what we're doing is first we truncate this. So if we have our input text here, right.
+So the input text has length, let's see, length 200. So in the response in the generated text,
+we are first truncating this off.
+Yep, there we go.
+So let me also print this.
+So we are stripping off the input
+because we don't need this, right?
+So JetJPT also doesn't repeat the input.
+It would be very distracting.
+So here we have now the cleaned response.
+And then still, you know,
+we don't need really this tag here.
+This is kind of like boilerplate.
+It's just a formatting style.
+So we can actually replace this by an empty string,
+and then also strip all the unnecessary new line characters.
+So if we prepare our output like this, it's much cleaner.
+So this is how the model would respond.
+And we can see the model doesn't really
+give the correct response.
+So fine tuning the model will be hopefully making sure
+it gives us a better response.
+But yeah, I wanted to highlight
+that something like this is done also behind the curtains
+when we are using something like ChatGBT,
+where it also only gives us the response
+without any formatting boilerplate
+or any input repeated in the output and so forth.
+And so this is usually done by LLM apps in the background.
+Okay, so we are now set up.
+We have our model, which doesn't do perform well.
+So we want to make it perform well.
+And that is the topic of the next section
+where we are going to fine tune this model.
+So now we are ready to take advantage of all the hard work we have done so far in this
+chapter when we prepared the dataset, because now we can use all the functions we have defined
+in chapter five to instruction fine tune the data on the dataset we have just prepared.
+So when I started writing this book, I put a lot of thought into designing these functions
+so that we can reuse them,
+because that will make it more readable,
+and I hope also more easy to follow.
+However, also in reality, it happens to be like that,
+that instruction fine-tuning uses exactly the same loss
+that we use during pre-training,
+namely predicting the next word in the text.
+The only difference now is, of course,
+that the text is slightly different structured
+compared to pre-training.
+In pre-training, it was just raw text.
+Now we have these response and instruction fields
+and so forth.
+But the loss function is exactly the same, which is nice.
+So when we look at our previous chapters code file here,
+when we go to chapter five,
+we can reuse certain aspects.
+I mean, we already reused the generate function
+just in the previous section.
+We can also reuse the train model simple function
+because it's exactly the same loss function.
+And then inside there, of course,
+we also have the calc loss batch
+and calc loss loader utilities.
+When you're running this,
+please make sure you're using the code
+from chapter five for the loss loader
+and not the code from chapter six
+because the calc loss loader in chapter six
+was using a calc loss batch version
+that was based on the last token.
+And here we're interested in all the tokens,
+not just the last token.
+So yeah, please make sure you're using the correct code
+from chapter five.
+And then what we can do is we can, yeah,
+simply import our utility functions here.
+So I'm importing the calc loss loader
+because before we started training,
+I wanted to just briefly double check
+what the loss is before we started training.
+So here I'm just iterating over five example batches
+to calculate the loss to start with.
+And ideally, yeah, we want to improve the loss as always.
+And I should also say for the runtime.
+So this will be a bit slower than in any of the previous chapters
+because it's a bit more expensive.
+We have also a larger model.
+Now we have the 355 million parameter model.
+And I did run some experiments just to show you, but yeah, just
+to complete the thought here, we have a loss of about 3.8 and we
+want to get that down to zero, basically, or close to zero.
+So here, I'm just showing you some numbers I got
+when I was running this.
+So I was running this with a small model.
+It took about five minutes.
+With this 355 million model, it took about 15 minutes.
+And this is on a M3 MacBook Air.
+So I'm running this right now on a M1 MacBook Air.
+So as you can tell, I like MacBook Airs.
+It's actually my favorite computer
+because they are relatively cheap and light and portable.
+I would say at home, you know, if you don't travel,
+you mean, it's very overkill to get a separate MacBook Air, but
+yeah, I like these computers because they are so light and
+versatile and fast and everything. So in any case, so
+I was running this for two epochs and it took about 15
+minutes on this model. And so if I'm running this example here,
+it will probably be taking 2025 minutes, because it's a lower
+computer. And I'm running all that recording setup here and
+everything about just you give you the reference numbers and
+expectations. If you're running this on a 100 GPU, it just takes
+one minute. So it's actually super fast and super cool. You
+can optionally also run it on the MacBook GPU like the MPS,
+then it's going to be faster than on the CPU. But the results
+might look slightly different also a bit depending on which
+pytorch version. When I started working on this book, the
+newest version was PyTorch 2.0 or 2.1, where I got really much
+different results. And then every time there was a new PyTorch
+version, I tested this. And right now in 2.6, the results
+are very close between CPU and GPU on the MacBook, but not
+still not exactly the same. So I'm running this on a CPU here.
+But yeah, if you're interested, you can see these numbers and
+these expectations. If you want to run it on a GPU, for example,
+using Google call app or something like that, it's going
+be much faster than me here of what I'm doing. But so yeah, let
+me execute this, run this and I will probably just edit this
+video. I usually don't like editing videos because it's a
+lot of overhead. And so I will maybe make an exception where I
+will train this walk away, make myself a T and come back. And so
+what before I start on the training here, I wanted to show
+you what I'm doing. So I'm again, timing it optionally,
+similar to what I've done in chapter six, we're using again,
+eight, Adam W, different learning rates, I was tweaking
+the learning rate a bit, this was a good one, two epochs, you
+can do more, but then at some point, the model will also
+overfit, two was better than one, and based on what I
+observed, again, similar to chapter five, we will be
+printing out some sample that the model generates to just make
+sure to track if the model is making progress during training.
+And that's essentially it.
+So it's essentially the same training function we used in chapter five.
+Nothing too interesting.
+So I will run this and before I walk away and make myself a tea, maybe I can also
+go over some of the bonus materials.
+So if you go to my GitHub repository, RASPT, LMS from scratch, I do have
+some bonus material for each chapter.
+It's like material that is optional, but might be interesting.
+And so I have some utilities here for, or how I created the
+dataset for this, um, chapter.
+So I made a few examples and then I found near duplicates, remove them.
+It's not something you have to use it by any means, but it's just, you
+know, something I find useful.
+And so I just shared it here.
+Um, then there are some additional evaluation utilities.
+I would say let's not talk about them now because we will be getting into the evaluation later on but just so you know, there's an API as a way to use the OpenAI API to evaluate the model and we will be using a tool called ollama.
+Also a fun bonus material to generate an instruction dataset using llama.
+So, this is using a Llama model, Llama 3, to generate instruction data.
+So there are some instructions for doing that if you're interested.
+What else?
+Then utilities on improving the dataset for instruction fine-tuning.
+And here, one point where we generate a preference dataset.
+So what is a preference data?
+So right now we are tuning the model on instruction data.
+So instruction data is what we have seen before in this format, but users might have a different
+preference.
+Let me see if I have a nicer figure in this one.
+So I should say instruction fine-tuning is always done for any LLM usually, like chat
+GPT LLMs, all the LLMs are available in chat GPT, for example, or currently also Anthropic
+Clouds and Google Gemini.
+Instruction fine-tuning is a very common step that follows the pre-training.
+But after the instruction fine-tuning, there is another step people often do, and that's
+called alignment, or sometimes it's also called preference tuning.
+as pre-training, the instruction fine-tuning we are doing, and then there's also often
+an optional alignment step, and this uses usually RLHF, which stands for reinforcement
+learning with human feedback, or DPO, which stands for direct preference optimization.
+So the original first chat GPT model, which was, I think, GPT 3.5, it was based on a paper
+called instruct GPT. And that proposed this whole reinforcement learning with human feedback
+procedure. And then Lama2, for example, they used RLHF as well. And then later LMS used
+something else called direct preference optimization, because it's a bit easier to implement. And
+so Lama3 is based on direct preference optimization. And in general, you can think of both of them
+as alignment methods. And which one is better? I mean, the jury is still out. I do think
+I had, I can find it here. I did have a post on that. I would have to search for this right
+now. But yeah, so I did write about this at one point where here, how good are the latest
+open elements and is DPO better than PPO. So PPO stands for a proximal policy optimization,
+which is a technique used in RLHF. Long story short, also, maybe I can also scroll down
+And I haven't, uh, here, um, I just saw it, uh, RLHF and it's
+alternatives if you want to learn more, but long story
+short, um, these are two methods for aligning an LLM.
+So it's essentially nudging the LLM to generate preferred
+responses.
+So here's an example where you might have a prompt, an input
+prompt where it says, what are the key features to look for
+when purchasing a new laptop?
+And there could be two types of responses.
+one could be more technical.
+So it says here, when purchasing a new laptop,
+focus on key specifications such as the processor speed,
+RAM size, storage type.
+So this would be a valid response
+that a chatbot might give to a user
+who asks about what to look for
+when purchasing a new laptop.
+However, a different answer could be more,
+I would say general, like think about
+how it fits into your daily life,
+choose a lightweight model like I do with my MacBook Airs.
+So if you travel frequently and so forth.
+So there could be different preferences and I wouldn't say one is more correct
+than the other, it's just a human preference.
+And so with alignment, this is one way when you have the LLM generating
+different responses to get the LLM to generate a more preferred response.
+And it's a whole process where you have to prepare the dataset and so forth
+for our LHF or DPO.
+And here I have a notebook that goes through the steps.
+Oh, yeah, actually, I wish I had known that before I started talking.
+So here is also the whole RLHF pipeline.
+So here RLHF is more expensive because you have an additional reward model that you have
+to train, but maybe that's a story for another time.
+So you can do this as an optional step here in this notebook, in this bonus notebook,
+I am implementing DPO, which is simpler than RLHF because it doesn't use a separate reward
+model.
+use a separate reward model, that means you have to have two LLMs in your compute memory,
+which is more expensive. And often people prefer DPO because it's simpler to implement.
+Performance might not be quite as good if you have a fixed data side, but you can iterate
+over more data points faster. So in that sense, you can compensate maybe for the slight lag
+in performance compared, modeling performance compared to RLHF and both are and both remain
+and popular options.
+And if you're interested after our instruction fine tuning
+here, if you are interested in aligning your LLM,
+I highly recommend you to check out this additional notebook
+which I have here.
+So chapter seven, preference tuning with DPO
+and then this notebook.
+And here I'm implementing this from scratch.
+I did not include this in the book itself
+because there's also some math involved
+And it's a bit trickier, I would say.
+And it's a long notebook and it's very technical.
+So I thought, okay, this is maybe a nice bonus material because it's
+not, I would say essential.
+So the model we are training in chapter seven, it will already be
+sufficient for answering responses.
+This is more if you have two types of responses to kind of refine the LLM.
+So, um, let me see if I have an example of the data.
+So like, uh, for each data point, so we are essentially, um, including a rejected
+response and, uh, preferred response, uh, chosen response could also be called
+preferred response and the chosen response is usually the same as the output.
+And then the rejected one could be slightly different.
+So this is what we had in chapter seven.
+And then I was using the output as the, here in this case, as the chosen one.
+and then I added a different one.
+And you can see this one is slightly less friendly.
+So if a model responds,
+the correct spelling is obviously occasion.
+It might be a bit, you know, I wouldn't say offensive,
+but it sounds a bit weird if it kind of like,
+almost like scolding the user or something like that.
+And so a preferred response might just be like this one.
+And in fact, this preference tuning is also often used to,
+Yeah, to prevent the LLM from doing sensitive things, you know, giving people instructions
+to build a bomb or something like that.
+So in that case, the LLM would recognize this and say something like, sorry, I can't help
+you with this request.
+So making the LLM a bit safer in that sense, but also people use preference tuning to reduce
+the usage of swear words and cursing and these types of things.
+So as you know, there are different types of LLMs out there. There is ChatGPT, Anthropic,
+Claude models, and then there's Google's Gemini, Axis, Grok, and so forth. And I've not really
+used it myself, but Grok, for example, is known to be a bit more offensive compared
+to ChatGPT. And so this is some behavior you can achieve with preference tuning if you
+give preferred and rejected responses and then train the model. So here if
+you're interested in bonus material, it's relatively similar that we have to set up our
+dataset and so forth. It's just a bit more code because it's a normal
+procedure and then we fine-tune the model. So it's, if you're interested, quite
+interesting and then the model will generate responses with a certain
+preference, essentially. Okay, so this is one of the bonus
+materials. Let's see how far we are. Said I mentioned I wanted
+to make myself a tea, maybe I don't have to, because the
+model is almost finished fine tuning here. What else do we
+have? Let's see. If I go to chapter seven, I of course, the
+exercise solutions, I will not go over those. These are really
+meant for you. If you read the book and want to do the
+exercises. One more thing here I wanted to mention is the
+interface. So this is similar to what I already showed you in
+chapter six. So here, we have an interface based on chain lit,
+where you can interact with a model similar to chat GPT. So
+you can write the query here, and it will give you the
+response. So what I'm saying, similar to chat GPT here, that
+means that it looks like that in terms of the interface, the user
+interface. So this looks quite similar to this one. Yeah, okay.
+So another bonus material, let's just check out the code. So how
+it works is similar to what we're doing as we are loading
+the LLM here. And this will be based on the LLM that we have
+fine tuned. So I will show you later how we save the LLM. And
+Then we can use the loading function.
+It's similar to a chapter six, actually.
+And then here, when we extract the response, uh, that one trick I showed
+you where you just truncate and then replace the response tag so that when
+you look at the response, I closed it now, but that it doesn't show you all
+these, um, alpaca formatting styles.
+And yeah, and this is also another nice optional material.
+If you want to build a nice little chat bot.
+Okay, I see it's trained for one epoch.
+I will probably take a break here, edit the video
+if I don't forget and be back with my tea then.
+Yeah, so I was able to make myself some tea
+and even finish it because the training
+took much longer than expected.
+So in this case, it was about 29 minutes, almost half an hour.
+And that it's just due to the fact that this is, uh, 2020 Mac book air, pretty
+old computer running all the recording software and so forth, but yeah, in
+reality also 30 minutes, I'm a bit impatient because I'm recording here.
+But in the grand scheme of things, this is actually not too bad because
+people train LLMs usually for weeks or months even.
+And so here, you know, getting results in half an hour is actually quite cool.
+Um, it's of course a very simple model, a very simple dataset.
+And so let's take a look at what we got.
+So we see that the training loss goes down, which is nice.
+The validation loss goes down as well.
+It's also nice.
+And we can see based on our intermediate output that we print during the
+training that the model is doing a okay job.
+So we have the instruction convert the active sentence to passive.
+And so the active sentence input sentence is that a chef cooks the meal every day and the model response is the meal is prepared by is prepared every day by the chef.
+So I would say this is a correct answer.
+So this is now the sentence converted from active into passive voice.
+And so, yeah, with that, we do have the model generate good text.
+We also have this end of text token.
+text token. So we can use that to stop generating text when we
+use our generate function was otherwise, yeah, models tend to
+just keep on generating text. I was training it for two epochs,
+you can see the training loss still goes down. The validation
+loss, it goes also still down a little bit. But yeah, I think
+this is kind of like reaching overfitting territory. So to
+see this more easily, I also just reused the plot losses
+function from chapter five. And here we can see the loss goes
+down in both cases. And then the training loss, I'm sorry, the
+training loss here is lower than the validation loss, there's
+quite the gap. So there's a bit of overfitting, it's not too bad.
+But yeah, so we can see model trains well. The next challenge
+is really to find out how well because the loss is only one way
+of judging it. But what's more important is also to make sure
+the model generates appropriate text. So one way is looking
+at these here, but this is just one example and another example.
+We want to see how well does it actually do on new data, for
+example, the test set.
+So the next sections will be concerned with that.
+So the next sections, we will be getting the model ready
+for model evaluation.
+So now we have this fine tune LLM and the next challenge will be
+evaluating numerically how well the model is doing, because if we
+have a numeric, let's say value that we can attach to this model.
+This will allow us to make progress, right?
+So if I change hyperparameters here, um, and try different things, try
+different, different model, try different prompt template, different
+dataset, how do I know that the model is actually getting better
+compared to this model?
+So one way would be, um, just as a human looking at these responses,
+but that would be pretty challenging to do this for a lot of examples
+and keeping in my head, Oh, I feel like this one is better than this
+other one, and so forth. So we want a more systematic way of
+evaluating the model. And for that, we need ideally like a
+score or a number. And so that is what we are going to do in
+the remaining sections here. So we checked off the data
+separation, the fine tuning. Now the last stage is evaluating
+the model. This comes in three steps. This first step, this
+section will be just concerned with extracting the responses
+and saving them so that in the next section, I can show you a
+way to evaluate the responses that we have saved. So the code
+for that is relatively simple. We are going to just use our
+generate function to generate new text. So the text that the
+model receives is the input text for each test sample. So here,
+just for simplicity, I'm iterating over three test
+samples. So let me test data, it's data that the model has not
+seen before. And so we are formating it similar to before.
+We use the model to generate the response. And the response text
+is then also cleaned, similar to before. So we are stripping out
+the input so that the response doesn't include the input that
+was already there. So we're stripping out this one. And then
+we also remove the response text, so that it looks like
+nicely formatted text. And so let's just see how that looks
+like. So here, we are looking at the first response, and the
+instruction is rewriting the sentence using a simile. And
+here, the input is the car is very fast. And one potential
+response, the one that is provided in the test set is the
+car is as fast as lightning. And the model response is the car is
+as fast as a bullet. So I would consider this to be a good
+response. So let's say here, the model it didn't exactly write
+is lightning, but I feel like this is a similarly good
+response. So this would be valid in my in my view. Looking at
+the second example, the instruction is what type of cloud
+is typically associated with thunderstorms. The correct
+response is I don't know how to pronounce it, but maybe
+cumulonimbus. And then the model response is cumulus cloud. So
+here, I am not an expert in clouds. But I think the model
+made a mistake. So here, the model generated essentially
+this answer where I think this is the correct one. So however,
+I would say the model is still it's generating something. So
+it's not just gobbledygook. So if we go back to an earlier
+Stage here where we had the model it generated. It was just generating part of the input
+It didn't make sense at all. That was the pre-trained model. So I feel like our fine-tuning did something useful
+So the model is at least
+responding in a you know human readable way
+but the answer is not necessarily correct in this case and
+the last and third one here is
+this instruction is named the author of Pride and Prejudice.
+And the correct answer is Jane Austen.
+And the model writes the author of Pride and Prejudice
+is Jane Austen.
+So I think this is...
+I would say this is the correct answer.
+It's just a bit more verbose.
+So the model uses more words or more tokens.
+And this is fine.
+This is, to me, a correct answer.
+But you can see the challenge now.
+How do we evaluate that, right?
+So here, how do we check that this is correct?
+Because you can see there's a slight difference, right?
+You have this versus this.
+Maybe you can write an automated way of doing this,
+writing some code, but then how do you deal with cases
+like this where you have a different word
+and in this case, it's not correct, right?
+And so this will be the challenge of the next section.
+I will show you a way of automatically evaluating it.
+The gold standard, of course, is to have a human expert
+going through these and then figuring out whether these are
+correct. But that would be a lot of work if we have hundreds or
+1000s of test samples. So for this section, though, for the
+remainder, I will just save these responses here so that we
+can reuse them later in the next section. So for that, what I'm
+doing is I'm using the TQDM progress bar library. And here in
+the progress bar library, sorry, what I'm doing is I'm iterating
+over it, setting the length to the size of the test set. So
+this will make a bar, um, that is as long as the test set.
+I think it's 110 examples.
+Um, and then here, this is exactly the same code I have above here where I'm
+just using a format to generate and then the preparation and the one new thing
+that I'm adding here is that I'm assigning this to response to the data
+set instruction so that we can save it to the, to the Jason dictionary.
+So let me execute this and I can talk a bit more about this because
+this might take a few minutes.
+So here, what it is doing is essentially generating all the responses for the
+whole dataset and then just saving them.
+So if I go up again, maybe to the top of this notebook, when we looked at the
+dataset, it had only three fields, instruction input and output.
+And now we are adding this field model response for each of these entries.
+And then I'm saving this reason why I'm doing this is because in
+the next section, I will show you a tool that I recommend.
+I mean, you don't have to, but you can run it outside this notebook.
+Um, you can, for example, even run it on a different computer, but for that
+you would need, uh, yeah, the dictionary, right?
+You need to model responses.
+One way could be, of course, generating them on the fly, but it's not a
+bad idea just to, you know, since we have the model here in memory, we
+have trained the model, it's sitting in our Python session
+actively. So we can just use that model since we have it and
+generate all the responses. And then we can shut down the model.
+We don't need it anymore. And yeah, I'm seeing that's also why
+I like TQDM as a progress by library, it's estimating it
+takes about eight more minutes, seven, eight more minutes. So
+maybe I will just make myself another tea or sparkling water.
+And we'll be back in a few minutes then.
+So the model has finished processing our test dataset, so let's take a look at one of those
+and see how it now looks like.
+So similar to before, we have the entries, instruction, input, and output.
+And then we have also now the model response.
+So we have that now for the whole test dataset, which consists of 110 examples here.
+one thing before we move on, since the training and everything
+is quite expensive. Before, let's say we evaluate the model
+in a new session, and you know, things might happen, things
+might crash or something like that. It's never a bad idea to
+also save the model. So here, this is just some boilerplate to
+save the model with a respective name. In this case, if we
+experiment with 124 million and 355 million version, this will
+use the model size as the name,
+dash SFT for supervised instruction fine tuning.
+So I should say, this is also jargon,
+SFT stands for supervised fine tuning.
+And it's just like a different word
+for instruction fine tuning in this context.
+So some papers, books, they just say SFT,
+which means doing what we have just done here
+in this notebook. And so then we are saving it as the model
+dict like we did in chapters five and six. And if we want to
+load the model in a new session, we can do it like as follows. So
+the name here will be GPT to medium 355. So and so, so let's
+just see that it works. So here we can go to our browser and we
+can see this has been saved. Now, it's 1.6 gigabytes. And
+then I had this one bonus material that I showed you this
+user interface, where you could technically now use this model
+to build an interface like that, if you're curious. So the code
+is here. And this is loading that model on somewhere here.
+Let me see. Yeah, here. So we are loading that model here, if
+you're curious. Okay. And so with that, we have the model, we
+have the responses. And then in the next section, I will show
+you how we evaluate that model.
+Yeah, somehow we have done it. We are now in the final section.
+And the final section is concerned with evaluating the
+fine tuned LLM that we have just fine tuned. So here, we are in
+step nine, scoring the responses in the previous section, we save
+the responses. Now we are going to evaluate them systematically
+with another tool. And so in specific, this will be another
+LLM, we will be tasking an LLM to take a look at our responses,
+and to give us a score for each of the answers. And this is
+like one popular way of evaluating LLMs. So there are
+different ways we can evaluate LLMs, maybe a topic for future
+resource on model evaluation. One of them is using another
+LLM to, yeah, to score the responses.
+And so for this LLM, we will be using a tool called, um, or Lama.
+So Lama is one of my most favorite, um, open source libraries.
+It's like one really nice and simple way to run LLMs locally on your computer.
+So it's an open source library.
+And even though it's called Lama, which is likely inspired by the Lama models,
+It also supports other models like DeepSeq R1,
+5.4, Gemma, and many, many others.
+So they are keeping this model of this code up to date
+to also always support the latest models.
+So, yeah, and the first step would be, of course,
+installing Lama.
+I would suggest going here to the download section.
+So the website is ollama.com, going to download.
+And then, yeah, for your operating system,
+selecting the respective one.
+I'm running this on a Mac OS computer.
+So, I'm downloading this, and let's just wait a few seconds until this is downloaded.
+And then I'm moving this here to my applications.
+If you're running this on a different computer, of course, this might work differently.
+So here we can start it like this.
+And it will then give us some instructions, so we want to install it so that it works
+on the command line.
+install type my password for this computer and then yeah we can run the
+model like shown here so by default this will run the llama 3.2 model actually
+there are multiple llama 3.2 models if I go here it's like a list of all the
+models they support I scroll down to llama 3.2 this is the 3 billion model if
+I run this command I mean of course I mean I'm just using this because it's
+suggested, but the first choice, but you can use any of
+those models. Usually the bigger and the new and the model, the
+better. For example, these would be, of course, more accurate
+llama 3.3, the seven B or 405 b model, but chances are that you
+might not be able to run it on your computer. The 3 billion
+model is actually quite nice. It's a relatively small model
+that will hopefully work on this computer for sure. So let me
+make a new terminal here. And then I can enter ollama run llama
+3.2. And this will first download the model, I already
+had it downloaded on my computer. Once it's downloaded,
+it will run it. And so I can then ask questions like, what is
+your favorite ice cream flavor, for example, and then hopefully
+this generates a response. And so we can see this model is
+working. Yeah, let's let's exit this model. So by is exit
+exiting this model. And we will use this model in surf mode. So
+I it's cut off in this recording, I think. But if you
+have in your menu bar, this ollama icon, when you run ollama
+surf, I think this will say something like this. So this
+means your model is already likely running in my case and on
+this Mac computer. Let me quit this in my menu bar. So I'm
+showing you one way we can run the ollama model in the
+background, that it is ready. So right now, it's essentially
+running. And then we can use it as the API. It was not necessary
+to execute it like this if the app was already running on my
+Mac computer, but it might be different on Linux and Windows.
+So that's usually how I start ollama instead of, you know, going
+here to applications and launching the app, I usually
+just type ollama surf.
+And this will make the ollama app available in the background so
+that we can now query the model with an API interface.
+So we can see how much RAM is available.
+I think that's what it means and so forth.
+So I'm running this on a very small computer.
+If you have a bit bigger and better computer, I encourage you also to
+explore using, um, bigger and better models.
+And, um, let me also, um, so I would highly recommend shutting down this
+kernel here, um, of this current notebook, because you already had this
+355 million parameter model in your memory.
+So this will save some memory.
+you can then run everything down here,
+or optionally you can also make a new notebook.
+So it's maybe better to keep it more separate.
+So here I'm first running some code
+to just make sure ollama is running.
+And you know, this is just boilerplate code.
+So it's just printing out whether the ollama app is running
+or this surf is running.
+So just very simple boilerplate code.
+And the next, um, so if I'm running this on a new, uh, notebook, I'm
+just loading the Jason file.
+So this is the file we have just generated in the previous section.
+So we have this instruction data with, uh, all responses.
+So here we have the instruction, the input, the output of the model response.
+That's the modified, uh, Jason file.
+I fortunately can make this, I can make it wider like this.
+So this is this file. And we are just loading it here and on into our Python session. And I'm also redefining the format input function. This is the same function we had here. But since I'm using a new notebook, I'm redefining it here. And then I will it's a lot of code, just copy it here and then explain it. So then I will have some code for querying the llama model. But by default,
+So here, you can also use Llama 3.2, like the one we used
+before. So here, we provide a prompt, and this would be the
+prompt generated by our format instruction function, we define
+which model we want to use. So this has to be a model that is
+available here in an ollama. So when you go here, like I said
+before, you can find a list of all the types of models you
+might be interested in. So here, this would be Llama 3.2, the
+3 billion model. If you want to use the 1 billion model, you
+have to append a colon one B. Um, yeah, and then this is these
+are just some settings. So we have the model and this is like
+an API interface to ollamano. So we have the model, we have the
+messages field where we provide the prompt as input. And then we
+set a random seed, the temperature for the sampling to
+reduce the randomness and then the context size. So here we
+use 2048. We prepare the payload for this API. And then we create
+a request here. Um, yeah, and then we add this header. So
+this is all very boilerplate code. This is something I got
+from the ollama documentation.
+So if you are curious where this is coming from,
+this is basically how you interact with the ollama app
+with an API interface.
+I think it's kind of almost like similar
+to using the ChatGPT API, if you are familiar with that.
+So I have my response data.
+I add my message and content and return the response data.
+So here, this is essentially what the model
+would respond to us. So what you're seeing here, this one, we
+use our point 3.2 model. And what did we ask it before? We
+said, what is your favorite ice cream flavor? So all I'm doing
+here is I'm interacting with a model in this Jupyter Notebook
+instead of the command line. The reason why I'm doing this is so
+if I have it set up like this, I can ask it to evaluate my
+responses, right? So here now I have this interface instead of
+using it on the command line in Python, so I can iterate over
+my JSON contents, my test data, and ask it to evaluate. So how
+do we do that? And so I have prepared a prompt here. And so I
+just did some trial and error. And you might want to improve
+this prompt. But so what it does, it's like, given the input,
+And so this would be the formatted input entry and the
+correct output. So this would be the response field. I'm saying
+I'm asking the llama 3.2 model score the model response. So the
+response that our model generated. So if we go here,
+and we look at one of the results, we have the output,
+right? And then the model response. So on a scale from zero
+to 100, where 100 is the best score. Yeah, score my response
+on my model response. So let's see how it performs on three
+examples and see if this is roughly doing something useful.
+So it might take a few seconds. And by the way, this is just a
+very simple and short prompt, a user actually recommended who
+tried a lot of different prompts recommended a better prompt. So
+will have it here and we'll share it with you in a few
+moments. But let's look at some of the results. So we can see
+for the dataset response, the car is as fast as lightning, the
+car is as fast as a bullet, this score is 100. Because it is
+essentially a correct response to say this. So what is it
+saying the model response the cars is close, but not perfect.
+And so and so but it's still giving it a pretty good score
+of 100. Here, this one is only a 20 because the answer is wrong.
+And in this case, it's giving it a 100 because the model
+response is Jane Austen is correct, basically. So it's
+giving it a 100 out of 100. So yeah, this is one way instead of
+us humans looking at all these inputs and outputs or the model
+responses in the targets, it's one way to get some number out
+of it. So now the problem with that is it's not perfect. It
+really depends on what model you choose here. This three, three
+B model is not very strong. It's a very small model still. So it
+won't be you know, 100% accurate, it is relatively
+simplistic. So don't expect miracles from a small model like
+that. But I think this is a nice model to just show the idea
+behind this method, a little insertion here.
+I wanted to highlight also one great reader contribution.
+I just remembered there was one reader who provided a good
+analysis if you go to the GitHub repository and discussions.
+So a reader provided, um, good analysis of the quality of the
+evaluations and also suggested a better Trump prompt template.
+So I recommend checking out this discussion thread here.
+So here, the reader did really an amazing job, um, checking out
+different prompts and everything. And then finally provided a
+better prompt prompt for evaluating the responses. So
+this includes a rubric that gives the model a bit more
+structure in the response evaluation. And then also
+instead of using a scale from zero to 100, it's just using a
+scale from one to five. And this helps a bit with the
+consistency. But yeah, personally, instead of in
+general, in addition to just improving the prompt template, I
+would say the best bang for the buck is also just to use a better
+model. So in the ollama repository, we can see there are
+multiple different models, we were only working with this very
+small 3 billion parameter model. So as a rule of thumb, the bigger
+the models, usually the better they are more capable, they give
+better evaluations also and better, they have better
+capabilities to analyze the inputs. Also, as a rule of thumb,
+newer models also tend to do better. So for example, something
+like deep seek are one. So especially the larger models, if
+you can run them on your computer, as bonus material, I
+also this is also very popular is to run or use OpenAI to
+evaluate models. So in fact, there are specific models that
+have been developed to develop other models. One is fudge. The
+other ones I forgot the names, I think Prometheus is one. But I
+remember reading the papers and essentially what they did is they
+used open EI, I forgot which models I think GPT 4.0 and created
+these scores. And then they fine tuned another open weight LLM to
+match those scores. And the goal was essentially replicating GPT
+4.0 behavior, but you could also just directly, for example,
+directly train, sorry, not train, but use GPT 4.0. So I do
+have some bonus material in the chapter seven folder where you
+go to model evaluation. And then here, I have some instructions
+on how to use the OpenAI API. And so this, of course, would
+not be free. This would cost some money because there's a
+usage cost that comes with it, like I mentioned, but this would
+be the canonical way how people evaluate models. But yeah, back
+to this one, like I mentioned, check out if you want to the
+different prompt suggestion by the user to get more stable
+responses here. This is honestly just a very simple
+approach, using a simple model with a simple prompt just to
+keep things simple and conceptual. So please don't
+expect miracles from this small model. But yeah, I wanted to
+show you how this in theory can be used. So here, it's a
+a slightly modified version, so we are generating the model
+scores using a prompt similar to this one. The modification is
+that we are now iterating over the whole test set instead of
+only the three responses. And here, you may notice that the
+model generates a whole long response. So I'm adding, what
+I'm adding is essentially a little addition that says
+respond with the integer number only. So if I go up again, let
+me just add this here. So the model will then only give us the
+integer number. And you can see actually, the response has
+changed, I think, to before the scores have changed. So not
+super stable, right? So it's small model. And also, honestly,
+sometimes I find that depending on the Olamo version, even
+though I set a random seed and the temperature to zero, I still
+sometimes get non deterministic results. So if I run this
+Again, sometimes I get different results.
+Now it seems like they fixed it in the recent version.
+So yeah, so this is stable now.
+So you can see, I would get a score here,
+this lower score here because the answer is incorrect.
+And then almost a perfect score here.
+It's not perfect, but it is still useful
+if we have a good model that can evaluate other models
+to get a rough ballpark number.
+And so that when we tune hyperparameters, we can see if it's improving the model or not.
+So here, what I'm doing is I'm applying this to all the 110 entries.
+Um, and then I'm computing the average score.
+So here, this is generating the scores.
+Um, and then, sorry, I'm just looking at this one.
+The models are going to contain the error.
+Um, okay.
+So yeah, sometimes the model, even though I have this request respond with the integer only,
+sometimes it will still respond in a, or I've deleted this, it will still sometimes give us
+the long response. And then of course, it's not a number. So in this case, it will fail when we
+convert here, could not convert score, it will fail when we try to convert it as an integer.
+So that is what we are seeing here. Sometimes it's still providing this long response,
+but I'm hoping that for most cases it will give us a number. And then when we have these numbers,
+what we can do is we can compute the accuracy or the average score. So this is not like the
+accuracy as we have seen in chapter six. In chapter six, it was purely based on whether the
+the model was creating a correct response or not.
+Here, it is just summing the scores
+and dividing by the length of the scores
+as how many numbers we have.
+And so this will be a number,
+the average score will be a number between zero and 100.
+So yeah, so that is what we are looking at here
+when we get the results.
+Like I said before, it is a bit flawed, it's not perfect.
+It's just a bit more automated
+than having us reading the answers and us judging the model
+when we do hyperparameter tune the model.
+But this is also almost like how the real world works.
+We have these benchmarks for LLMs,
+the different benchmarks like MMLU is the benchmark
+that is just the multiple choice question answering,
+which is not super useful because usually
+when we have an LLM, we want the LLM to write actual text.
+And so this is one, I would say one of the most
+frequently used ways to evaluate models by using another model
+or a human team to assign scores.
+So in this case, we get an average score of 51.6.
+96 out of 110 answers could be scored.
+Some of them, as we see here, should be 14 answers.
+14 could not be scored, which is a bummer,
+but that's what it is because it's not a perfect prompt.
+We get a score.
+What does the score tell us is that the model is not great,
+but it is okay.
+Maybe because we see it does sometimes give good responses.
+So as an encouragement to the readers,
+maybe try to use the different prompt here,
+the one I recommended from this discussion board.
+This might be something to try out
+and see if it gives you stable results.
+And then more interestingly also,
+When you fine tune the model, for example, when you go through the exercises to
+compare the model quality before and after the fine tuning, um, see how much
+better it does after the fine tuning.
+And then also, yeah, it's, it would be interesting to try if you can, some
+of these larger evaluation models.
+So there's, there's a lot of stuff that you can still try out.
+So it's maybe the last section here, but it's not the end of, you know,
+LLM fine tuning, there are many more interesting things.
+One other interesting thing I mentioned was in the bonus
+material, the DPO notebook here, the direct preference
+optimization, which will additionally choose preferred
+answers. And yeah, with that, I hope you found these videos
+useful. I hope they were a bit illustrating how LLMs work
+under the hood, how techniques work. Again, I must highlight
+that this is only a very small LLM.
+It's very limited.
+It's in a sense, like I mentioned before,
+when we are curious about how cars work,
+we are not building a Ferrari.
+We are building an older, simpler car
+to understand how the motor works.
+Because for these new Ferraris,
+you need a whole team, millions of dollars.
+In the same sense, real LLM, not real LLMs,
+this is a real LLM, but bigger LLMs,
+like Chet GPT, cost millions of dollars to train
+so that we are not doing it here.
+but I still hope this gave you a glimpse
+into the world of LLMs and I hope, yeah,
+you do interesting, cool work with LLMs in the future.
+Maybe if you have a cool project posted on the forum,
+there's also this discussion board here
+where readers post interesting, cool project ideas
+in the show and tell section.
+So you have also like some cool reader projects
+and people worked a lot on low resource languages,
+for example, there's a lot of stuff you can do
+with small LMS that is interesting.
+And so with that, have fun and happy tinkering.

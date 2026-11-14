@@ -1,0 +1,679 @@
+in the last 10 or so videos we've delved
+into different aspects of a transformer
+neural network building one from Theory
+and also code completely from scratch in
+this video though I want to take this
+Transformer neural network architecture
+and actually explain every single
+component from end to end and to do that
+I wrote out and blew up this entire
+architecture that looks kind of like
+this and I know this might look a little
+confusing now but as I explain it
+hopefully we will understand why every
+single component exists and how it
+actually works in practice and I'll be
+explaining a lot of Concepts on the way
+so let's get to it on reading the
+attention is all you need paper which
+introduced the Transformer architecture
+it doesn't seem like it was written with
+the intent to be the foundation of Bert
+gbt or language models moving forward it
+kind of reads like a paper that less
+focuses on the architecture and more on
+accomplish the specific task of language
+translation and so we're going to also
+blow up and explain the same
+architecture using language translation
+from a language called English which I'm
+assuming we all know I guess some maybe
+no judgment if you don't and then to a
+language called kannada which I'm
+assuming you don't know because it's a
+very small South Indian language spoken
+in a very specific state in a very
+specific country in the world but I'm
+from that region so I thought I would
+just create a translator to do so if you
+want to code this out do check out the
+Transformers from scratch playlist they
+are on the channel
+let's now talk about the high level of
+the Transformer architecture the
+Transformer architecture consists of two
+parts an encoder and a decoder during
+training the encoder will take the
+English words of the sentence
+simultaneously and it will generate word
+vectors simultaneously these word
+vectors are going to be eventually
+context aware as we will continue to
+train the Transformer and this is
+because of the attention mechanism which
+we'll get to shortly
+to the decoder we're going to take care
+of our kannada words simultaneously but
+will also pass in a start token to
+indicate the start of the sentence and
+the end token to indicate the end of a
+sentence
+we will also pass in the English vectors
+that were generated from the encoder
+Ford labeled output of the decoder we
+shift the translation to the left this
+is because given the start token we want
+to predict the first word of the
+sentence given the start token and the
+first word of the sentence we want to
+predict the second word of the sentence
+and in case you don't know where this is
+going if we're given the start token and
+the first two words of the sentence we
+want to predict the third word and so on
+to determine the model's loss we
+compared the prediction made with the
+softmax and the labeled sentence here a
+common loss function used for this kind
+of problem is the cross entropy loss we
+would compute the cross entropy loss for
+every predicted word add this up to get
+a single loss this loss is then back
+propagated through the network to update
+the Network's parameters
+now during inference let's say that we
+want to translate the English sentence
+how are you to kannada we don't have any
+contextual words but we do have the
+English words so we can generate the
+English word vectors from the encoder
+but we only pass the start token of the
+Canada translation to the input of the
+decoder this will produce the first word
+in Canada translation which is nivu
+that's how you read this we then take
+the start token and nivo to generate the
+next word of the sentence which is higgy
+we now pass in all of these words
+generated and continue generating words
+until we hit the end token and this will
+complete the translation
+now that we took a look at how training
+and translation inference happen at a
+very high level let's blow this
+architecture up and look at some details
+before starting this out let's lay out
+some hyper parameters that we're going
+to be using through the conversations so
+We're translating from English to
+kannada we'll assume that the batch size
+is 30 the batch size means we are
+passing in 30 sentences at once through
+the network in order to update the
+weights of the entire network once and
+we then we have the maximum number of
+words that a sentence can possibly have
+is 50 and this applies to both languages
+to keep it simple and consistent when
+we're seeing in the diagram
+I mentioned we have a batch size of 30
+but why are we batching this is for
+faster training when training neural
+networks with gradient descent we pass a
+single input generate an output
+prediction compare the prediction and
+the label and quantify this as a loss
+this loss is back propagated to update
+the parameters of the network and so for
+every training example passed into the
+network the parameters are updated
+this is fine for small networks since
+the updates are quick enough but for
+networks like ours which have like
+millions of parameters the updates can
+be pretty slow so instead of updating
+the weights after every single sentence
+we will update the weights after seeing
+a batch of sentence examples and hence
+many batch gradient descent is of common
+practice and in our specific example we
+are passing in 30 sentences at a time
+through the network before any update to
+our model weights happens now why are we
+choosing 50 though for the maximum
+number of words in a sentence this is so
+we have a consistent shape of tensors
+that pass through the model at any given
+time there are many implementations too
+that dynamically size the input but
+we'll stick with the same sequence
+length for every single sentence
+implementation for this video now let's
+come back to the encoder so this is the
+start of the encoder where we have every
+single word over here how however
+computers do not understand words they
+understand vectors numbers and so we'll
+be converting each of these words into
+an embedding specifically embeddings are
+vectors and they are like 512
+dimensional vectors in our case so this
+Cube structure over here is essentially
+a huge tensor that is going to be 30
+cross 50 cross 512. that's 30 for this
+batch Dimension 50 for the number of
+words in the sentence cross 512 for each
+single word representation we then add a
+positional encoding of the same shape
+these positional encodings are generated
+from sine and cosine functions and so
+they consist of numbers between negative
+1 and positive one they exist because
+the encoder takes in words
+simultaneously but the ordering of these
+words actually matters we have the first
+word followed by the second word
+followed by the third word and so on
+this ordering or positional encoding is
+defined by a positional encoder in the
+main paper they are not learnable
+parameters but they can be configured to
+be learnable parameters if need be there
+is no evidence at the time of making
+this video to suggest that using the
+learnable parameters is better than just
+using the sine and cosine functions to
+generate positional embeddings I have
+more information on this in another
+video on positional encodings with code
+we then get this final tensor over here
+that we pass through a feed forward
+Network in order to get query vectors
+key vectors and value vectors so every
+word is split up up into three vectors a
+query Vector a key vector and a value
+Vector in past videos on this topic I
+have discussed a very specific
+differences between them but this is
+honestly just for our understanding and
+the difference isn't very explicit to
+the model itself I've received a number
+of comments that dig a little too deep
+into the exact definitions of these
+three query key and value vectors and we
+could construct some difference between
+them but in practice they could quite
+literally be the exact same vectors for
+the encoder case and this is best
+represented with the encoder
+architecture as the query key and values
+are merely the result of a feed forward
+transformation and they're really
+nothing special now what makes the query
+key and value vectors different are the
+operations that we will eventually
+perform on them since every word is
+represented by three vectors so we have
+every 512 dimensional Vector converted
+into a a 512 Dimensions times three
+which is
+1536 so every single one of these
+1536 dimensional vectors now constitutes
+a word and the reason we break this up
+is to perform the multi-head attention
+zooming out a little bit over here
+you'll see that there's this huge white
+stacked block so there's going to be
+eight of these stacked blocks on top of
+each other and I do that for eight heads
+in this multi-head attention this is
+mass multi-head self-attention it is
+self-attention because we're trying to
+analyze the context and build context
+within the same sentence so every word
+in the sentence is compared to every
+word in the same sentence hence self
+attention it's multi-head because we
+have eight of these layers
+and then it's masked because we're going
+to be discussing the padding mask over
+here since there are many sentences that
+are not 50 words in length and so we
+would be adding padding tokens but these
+padding tokens should not be considered
+when Computing a loss and also
+performing back propagation and so we
+want to effectively mask these out the
+logic you see in this one grid is just
+for one attention head and like this you
+can imagine that there are eight
+parallel processes going on
+so this
+1536 dimensional word Vector in for
+every single word is going to be broken
+up into eight pieces so we have this
+query part which is going to be broken
+up in eight pieces the key part broken
+up into eight pieces and the value part
+broken up in eight pieces each piece is
+essentially going to be a 64 dimensional
+Vector if you do the math so that's 64
+dimension of the query 64 dimension of
+the key 64 dimension of the value and we
+stack them kind of in this way to get 64
+times 3 which is a 192 dimensional
+Vector representing every word for one
+head what we do is take the query vector
+and the key vectors and we will multiply
+them and using these shapes of course
+that's 30 cross 50 cross 64 and 30 cross
+64 cross 50. and if you do a matrix
+multiplication this will be a 30 cross
+50 cross 50. specifically we're doing
+the multiplication along these last two
+dimensions and not the batch Dimension
+the fact that we're comparing every word
+in English sentence which is the query
+Vector with every word in the same
+English sentence which is the key Vector
+makes this a self-attention this is the
+semblance of a first attention Matrix
+and typically after this even before we
+add the padding mask we might even do
+some sort of scaling so that we prevent
+all of these values here from the
+multiplication from exploding too much
+to high numbers or very low numbers and
+thus also stabilize the training scaling
+simply means dividing every value in our
+self attention tensor by a constant
+value and the value that is used in the
+main paper is the square root of the key
+Dimension size Vector for one head and
+since our key is 64 dimensions for one
+head we would typically divide each
+value by 8 to scale this will ensure the
+activation values are neither too large
+nor too small but once we do that
+scaling too we're going to add a padding
+mask a padding mask will prevent the
+padding tokens from propagating values
+technically they should be zero for
+pass-through and negative Infinity for
+masking this is because we will
+eventually perform a soft Max the
+softmax operation uses exponents so the
+exponent of zero becomes one which is a
+pass-through and the exponent of
+negative Infinity becomes zero which
+will mask or will block information from
+passing through in practice the way that
+we would accomplish this is for every
+single padding value we would introduce
+a very low negative number kind of like
+negative 10 to the power of 9. it can't
+be negative Infinity because a future
+softmax operation might fail because if
+every single row is going to be a
+negative infinity and we apply a soft
+Max you'll get zero by zero which leads
+to numerical instability
+and hence what we would do instead is
+apply a very low negative number so that
+there's going to be at least some form
+of pass-through that occurs even after
+doing all the math but this pass-through
+is so negligible that it shouldn't
+really affect your training too much so
+once we apply the padding mask we will
+now apply a soft Max activation and then
+we will actually have an attention
+Matrix and in this attention Matrix
+you'll see that it's 30 cross number of
+words cross number of words number four
+it's crossed number of words and so
+you'll see like a probability
+distribution for every single row over
+here and so each value in this Matrix is
+going to quantify how much attention
+each word should pay to every other word
+we then apply the value Matrix that we
+computed way back in the beginning over
+here in order to get a 30 cross 50 cross
+64 dimensional value tensors and these
+value tensors will be very contextually
+aware
+and this is the output of just one
+attention head but recall that we have
+eight of these attention heads and so if
+we concatenate them one after the other
+we're going to get 64 times eight of
+these which is 512. and so this
+concatenated tensor is now a very much
+so contextually aware tensor at least
+compared to the input to this entire
+multi-head attention unit you'll see
+here now that we're adding a residual
+tensor when performing back propagation
+the loss value propagates in the
+backward direction to change the weights
+you'll notice the largest changes happen
+towards the end of the network since
+it's closest to the lost signal but as
+propagation goes on in the backward
+Direction the change in parameters will
+continue to get smaller this is okay for
+shallower networks but as networks get
+very deep we might run into situations
+where the loss might not be able to
+propagate to all parts of the network
+and so the parameters don't change as
+the gradients vanish and no learning
+happens
+skip connections or residual connections
+help by enabling better propagation of
+the inputs in the forward Direction and
+the loss in the backward direction we
+see this a lot in research involving
+deep convolutional neural networks and
+they're used here too
+so once we add a residual tensor we'll
+now get this new tensor that hopefully
+will carry out the activations and the
+weights and also make sure that these
+weights update
+we then perform layer normalization the
+goal of normalization is to ensure
+stable training so activations during
+the forward phase and the gradient
+updates during the back propagation
+phase are not too large in magnitude
+mathematically normalization would
+involve subtracting the values with the
+mean and dividing by a standard
+deviation in batch normalization we
+normalize the values across the batch
+that is the 30 Dimension but in layer
+normalization we normalize the values
+across the feature layer that is the 512
+Dimension and so for layer normalization
+we subtract each value of the tensor
+with the layer mean and divided by the
+layer standard deviation now in practice
+we add a very small Epsilon term to the
+standard deviation which is of the order
+10 to the negative 5. in order to
+prevent a zero divided by zero case from
+occurring additionally we also
+optionally use learnable parameters
+called gamma and beta to track changes
+across the different training examples
+I've explained the process with more
+details with examples and code in a
+video on just layer normalization too
+we now take the output tensor pass it
+through a feed forward layer and then
+pass it back through a feed forward
+layer just to capture some more
+information
+and then we'll perform the same addition
+of the residual tensor and layer
+normalization in order to finally get a
+set of for every single word we will
+have 512 dimensional tensors and each of
+these tensors is going to be very well
+contextually aware and this here is the
+output of the entire encoder
+architecture
+now once we have very contextually aware
+items here we're going to pass it
+through a feed forward network but I'll
+explain exactly what and why we have key
+and value vectors here but before I do
+this let's go back to the decoder
+architecture and explore the beginning
+of it so with the decoder we want to
+generate the output translation and for
+this we will pass in the input sentences
+with a start token followed by the
+sentence values followed by the end
+token and then a bunch of padding tokens
+until we hit 50 words now in much the
+same way as before we add a positional
+encoding and once we add a positional
+encoding we are going to pass it through
+a feed forward Network to get query key
+and value vectors and perform Mass self
+attention as we did in the English case
+so it's Mass multi-head self attention
+here
+so it's the same dimensions we'll take
+the query key value split it up into
+eight different heads multiply the query
+and the key tensor we have an attention
+Matrix essentially over here which we
+will typically scale before adding a
+mask however in this case we not no only
+need to add a padding mask but we also
+need to add a look ahead mask
+so a look ahead mask will ensure that
+the decoder is not cheating because
+during the generation phase that is the
+inference phase when you want to
+actually just start translating
+sentences we don't have access to Future
+Canada words the future destination
+target language words and so during
+training we need to apply a mask to
+ensure that it does not look ahead of
+its current self so that means that the
+third word in the sentence cannot look
+at the fourth word in order to see what
+it can attend to and so it cannot derive
+any contextual information from that
+during the training phase and so we will
+add the look ahead mask along with the
+padding mask we then apply softmax to
+actually get attention values and
+probability distribution like values for
+every single word how much it needs to
+pay attention to every other word in
+that sentence and then multiplying it
+with this value Matrix will get some
+value tensors which we can detonate
+across all of the eight batches over
+here in order to get the final
+concatenated tensor
+we'll then add a residual tensor so that
+we can ensure that information is going
+to propagate we apply layer
+normalization and now we are going to
+get this batch over here which I'll just
+call it directly as Q this is going to
+be a set of query vectors that we're
+going to be inputting to our Mass
+multi-head cross attention layer now
+so in order to perform cross attention
+this is going to be instead of like
+every word in the sentence to every word
+in the same sentence it'll be every word
+in this target sentence Canada to every
+Source word in the English sentence
+and so the query query represents
+essentially what am I looking for and
+that's kind of what we would want to
+Output that's why this will be the query
+the Canada words will be the query
+tensors and now if you can see that
+there is an arrow that's coming in but
+it's coming in from the encoder piece
+which is providing well we saw these
+concatenated tensors that are very high
+quality we're just going to put a feed
+forward network of 512 it'll map 512
+Dimensions to 1024 dimensions
+and so every one of these is for every
+word will be
+512 and 512 for the key and value 10
+series
+this will add English information that
+we have encoded into the Canada vectors
+so that when we're generating the kind
+of vectors we generate an appropriate
+Canada translation based on what the
+English translation has to say or the
+English sentence has to say so we have
+the query from the Canada sentence and
+then we have the key and value vectors
+from the English sentence and then we
+perform multi-head cross attention which
+kind of looks like the other
+self-attention case but it's clearly the
+source of the query is different and the
+key in values are different as well
+so multiply the query and key get an
+attention Matrix which we will scale as
+I mentioned before to help numerical
+stability in this case we only need a
+padding mask this is because every
+single Canada word is allowed to see the
+entire English word sentence because we
+are during translation phase we have
+everything in the encoder we have all of
+the English words already since we need
+to translate it and so we just need to
+add a padding mask just to zero out any
+padding information from excess tokens
+we'll then perform a softmax to get a
+probability distribution values of how
+much attention should each kannada word
+pay to an English context
+and then we'll eventually get the
+similar value tensors which we
+concatenate across the eight heads and
+this will lead to a 512 dimensional
+Vector for every single Canada word and
+in this case every Canada word will have
+some English context now embedded in it
+as information We'll add a residual
+tensor to ensure that we have extra
+propagated information throughout the
+network because it's a very deep Network
+and then after performing some layer
+normalization for stabilizing the values
+and gradients and a feed forward layer
+we will end up with a 512 dimensional
+Vector that is very context aware this
+entire decoder layer and also the
+encoder layer can be repeated I put like
+a times n up here and also a times n
+over here so essentially after getting
+these tensors we can actually and create
+this entire architecture
+it'll basically the control will
+basically pass back here and it has the
+same tensor shape so we can basically
+perform this decoding phase again and
+again as many times as we need typically
+it's done like a few times even once is
+fine but it depends on your problem
+depends on how how many patterns are
+required to actually understand this
+translation
+but essentially once you have your final
+vectors that is your final Canada
+vectors that have English context
+embedded with them you can take it into
+a feed forward layer in order to expand
+it to the Canada vocabulary size
+note the kind of vocabulary is the
+number of possible words that our model
+can see and predict in this architecture
+we made it predict words so the
+dictionary might be large and of the
+order of tens of thousands however the
+sentence sizes are small you'll see the
+English sentence how are you is just
+size three and the Canada translation
+for this is just of size 2. and many
+implementations use character
+tokenizations or even byte pairing
+Coatings to get a good balance of
+vocabulary size and maximum sequence
+length so in this case for every single
+batch for every single word we are going
+to have a vector that is the size of the
+Canada dictionary and this is so that we
+can make it interpretable to us humans
+so once we apply a soft Max on it we'll
+get a probability distribution across
+all kind of words and we can just take
+the most probable word that it's
+supposed to be as like the prediction
+and this is going to be compared to the
+labels this here is the label which is
+what it should be which what every
+single line so the first line should be
+encoded as this first word which is nivu
+and the second line over here should be
+encoded as a second word which is called
+and this third line should be encoded as
+the N token to represent the end of
+sentence
+and it's based on these three tokens the
+first three ones that we'll be Computing
+a cross entropy loss
+and then we'll be back propagating
+throughout the network when I say
+throughout the network we're basically
+going to be back propagating through the
+encoder and decoder as well because the
+encoder also has a connection over here
+so all of the weights of the entire
+network will be updated once it sees one
+batch of 30 sentences
+and so that's the entire Transformer
+neural network architecture and I hope
+you kind of got the entire context here
+we can go through the inference part two
+so the English sentence is passed
+through the encoder as we would during
+training to generate the context aware
+vectors to the decoder we pass the start
+token followed by the padding tokens and
+we ensure the padding tokens are all
+masked in the multi-head self-attention
+and the multi-head cross attention
+we'll get a probability distribution for
+the next words but we just need the
+first rows probability distribution in
+order to just get the next word from
+this probability list we can take the
+first word corresponding to the largest
+probability or even perform some form of
+sampling to generate the next word and
+fun fact the chat GPT model makes use of
+this sampling technique so the same
+words aren't always generated in
+verbatim it adds a more human Elementor
+aspect to it once the first word of the
+kannada translation is generated we pass
+this word along with the previous start
+token as input we update the paddings
+and mask for the self-attention and
+cross attention components and generate
+the second word and we repeat this
+process Until the End token is generated
+to get the complete kannada translation
+for more details I have an entire
+playlist called Transformers from
+scratch where I'm building out different
+components of the Transformer neural
+network and explaining Concepts along
+the way in both Theory and in code so
+please do check it out and if you think
+I deserve it please do give this video a
+like thank you all so much for watching
+and I will see you with another video
+very soon bye bye
+foreign

@@ -1,0 +1,724 @@
+Hello everyone and welcome to another
+episode of Code Emporium where in this
+video we're going to blow up the
+architecture of the decoder and continue
+our Transformer architecture discussion.
+In probably the last video or two, I've
+described the architecture of a
+Transformer neural network that you see
+over here where it consists of an
+encoder and a decoder. In my last video
+we also looked at how we can blow up
+this encoder to kind of look something
+like this where it's a wonderfully
+amazingly complex diagram that you all
+definitely understood.
+So we could take for example our inputs
+that we see. Yeah, it's my name is Ajay.
+If you kind of zoom in there, my name is
+Ajay. That would be inputs over here.
+And then the outputs when it passes
+through this entire network is going to
+be something that looks like Let's just
+go all the way scroll scroll with all
+this wonderful attention going on.
+And then it's going to look like this
+where we have my name is Ajay. I thought
+that this was a decent picture of a
+first stab of trying to draw the entire
+network, but I realized that there was a
+lot of confusion about how you would add
+the batch dimension because when you're
+coding things out you typically add
+another dimension to all of this and it
+just became increasingly complex to
+draw. And so what I've done is Well, in
+this video I'm going to do the decoder
+architecture where I actually talk about
+that batch dimension and you'll see like
+all of these are much bigger squares.
+You'll see oh wow, there's like
+three-dimensional shapes over here which
+I thought was very amazing.
+And so we're going to actually talk
+about the batch dimension and exactly
+how you would kind of code this out, but
+explaining it completely in architecture
+first. So there's not going to be too
+much code in this video, but this is a
+good starting point of just
+understanding like what's really going
+on behind the scenes when you look at
+like this decoder part. So let's get to
+that.
+So first off, when we're looking at this
+Transformer encoder here, right? We
+first just have like English words that
+we pass in. And throughout the course of
+the network, the idea is to use this
+attention mechanism so that each word in
+the sentence will get the context of
+other words. And let's say for now we
+are trying to build a system that will
+convert English to some other language
+called Kannada. So Kannada is a regional
+language within India. In case you
+didn't know, I am brown.
+I look kind of brown. I also do speak
+Kannada a little bit. So I thought this
+is an easy way to like validate things
+when I'm also coding it out, which I
+will do in the future. And so this
+encoder is essentially just going to
+take the English sentences and try to
+make every single word, at least the
+vector representation of every single
+word that you see here. It's going to
+try to make sure that it kind of
+understands each other. So my, for
+example, will actually be the vector
+representation of my, which is very
+contextually aware
+after passing through the trained
+encoder architecture.
+The same thing is name is NNJ.
+And the reason why all of these vectors
+are so contextually aware is because of
+the wonderfully drawn attention
+mechanism that I've illustrated over
+here. Now, despite the decoder having
+very similar components, let's actually
+take a huge pass at how these new
+vectors that we saw here
+actually play into the decoder's hands
+when we're actually, you know,
+processing the Kannada sentences.
+So here's the decoder architecture. And
+if we zoom in here, let's just go from
+the very top of like what is actually
+going on.
+So to the decoder architecture, you need
+to pass in the sentence that you are
+going to be translating to. In this
+case, it's Kannada. And let's say that
+since all of these are, this is like a
+word
+translator, it's going to translate like
+one word at a time. And that's why you
+see like one word on different lines. So
+the first token that we will pass in is
+going to be a start token. This is just
+going to initiate the start of the
+sentence. And then you'll see like
+there's there's a thing that says
+which is my name is Ajay. And then
+there's an end token to signify that the
+sentence is ended followed by a bunch of
+padding tokens. So the reason why we add
+padding tokens is because we want to fix
+size input for any kind of sentence that
+we add.
+In in any language, sentences are
+variable length, but if we want to fix
+size input, then we basically finish the
+sentence and then just add padding
+tokens. And so the dimensions of this
+are going to be the batch size
+which is the number of elements and the
+number of samples at a time that we can
+pass to the network.
+Then cross the max sequence length which
+is the maximum number of words in the
+sentence. Cross some some 512 I've put
+here and this is the dimensions of each
+and every single word. So every word is
+encoded into a 512 dimensional vector.
+The reason we need batch size is because
+well to perform something called mini
+batch gradient descent. When we pass a
+sentence or sentences through the
+network, we only every time we pass a
+single sentence, if we were to perform
+you know forward propagation, calculate
+the loss, perform back propagation,
+you'll be updating millions of
+parameters. That is going to take a lot
+of time if we only do one sentence at a
+time. But if we kind of take multiple
+sentences at a time, let's say like 30
+or 50 or 100 and put 100 sentences all
+together
+in in parallel, we can actually learn a
+lot faster and because the weight
+updates are only going to happen once
+every let's say 30 elements or once
+every 50 elements that are seen.
+And so because parameters are updated
+less frequently, it happens a lot
+faster, but the network is also seeing
+all of that data. And hence mini batch
+gradient descent or some variant of like
+batch gradient descent is used. Next we
+look at positional encoding. So because
+all of these words are passed in
+simultaneously into the network, we need
+a way to make sure that some ordering is
+preserved because in English, ordering
+matters, but clearly here it doesn't.
+So, in order to encode ordering, we use
+the sine and cosine functions and we add
+it to every single element over here.
+So, it's basically the same dimensions
+and we get another tensor of, well, the
+same dimensions itself. But what's
+different about this is now it is
+positionally encoded. Now at this point,
+each word is represented just by a
+512-dimensional
+tensor, but we'll actually make that
+word be represented by three more
+vectors. That is a query vector, a key
+vector, and a value vector.
+So, you can think about this like in
+some intuitive sense that the query
+vector is basically what do I have?
+The key vector is what can I offer? And
+the value vector is going to be what is
+actually being offered when computing
+the attention mechanism that you'll
+probably see later here. I've seen in
+many implementations that this same
+exact vector that you see here can just
+be repeated three times to create the
+query, key, and value vector. But in
+other implementations, I've also seen
+there being like a feed-forward layer,
+which is also pretty good because it
+adds other parameters to the to the
+entire network so that there's an
+additional case there to learn if
+required. And this can also potentially
+improve performance down the road.
+So, you would basically have this
+tensor. You would have like a 1 is to 3
+linear layer and you would map it to
+this big tensor. I have also written it
+in this way because in practice, the
+query, key, and value vectors are
+stacked on top of each other.
+And so, we'll end up with batch size,
+cross match, sequence length, cross
+well, 512 * 3, which is 1,536.
+At this point, we are going to now
+perform the multi-headed self-attention
+over here. And you'll see that for the
+number of attention heads is going to be
+eight, which is basically eight parallel
+processes that go on. And that 's why
+I've kind of stacked eight of these
+rectangles on top of each other. All of
+them have the same process going on.
+And each of these eight heads, what we
+will do is divide each of the query,
+key, and value vectors into eight parts.
+So, in this query tensor, for example,
+we're going to divide it along this
+vertical dimension over here that is the
+embedding dimension. That first part
+will be like the first head for the
+query vector. Similarly, the key we're
+going to divide into eight parts
+vertically where this first part will
+just be the key vector.
+And then the same thing goes with the
+value vector. We're just dividing into
+eight parts itself and the first part is
+like the first head of the value vector.
+Now, because we've divided each of these
+into eight parts, that's basically
+dividing this entire embedding of 1,536
+dimension size into 24 parts, right?
+That's 8 * 3. And if you do the math of
+like 1,536,
+divide that by 24, you'll get like 64,
+right? And because, you know, the way
+that we pass in these vectors together
+is a QKV concatenated, so you'll end up
+with a QKV of like 64 64 64, which is
+adding those three together, you get
+192.
+So, for one attention head, you're going
+to get essentially you're passing in
+this one tensor of well of size well
+this. And like this, there's going to be
+eight of these attention heads all
+happening in parallel. Now, what happens
+here is the crux of the attention
+mechanism where we will take the query
+vector, which I said which would be the
+batch size cross max sequencing cross 64
+multiply by key tensors. This is a typo.
+And once we actually do this
+multiplication, you're going to get um
+what we what the essential is initial
+parts of the attention matrix is which
+is going to be a batch size cross max
+sequence length cross max sequence
+length.
+Since this is batch size cross max
+sequence length cross 64 and this is
+batch size cross 64 cross max sequence
+length. And so multiplying these two
+together, you get this tensor of this
+shape. Why I say that this is a
+rudimentary attention matrix at this
+point is because like intuitively what
+this is doing is for a single word we
+have a query vector, a key vector and a
+value vector.
+And so every word's query vector is
+trying to compare itself to the key
+vector of all of the other words in that
+sentence.
+And if the multiplication of those two
+is high, it means that they're very
+similar to each other, but if it is not
+high, then they're very dissimilar to
+each other. And we want the network and
+self attention, we basically wanted to
+pay more attention to the cases that it
+is more similar to each other.
+And so you would end up with the self
+attention matrix typically where the
+diagonal is going to be like very high
+affinity because uh you know it's
+attending on itself. So there's going to
+be a very high attention value, but
+there also would be attention values for
+other cases as well because like in the
+at the end of the day the vectors are
+going to be learned parameters for each
+of these words
+and they're going to represent well two
+words that are close to each other would
+actually have vectors that are very
+similar to each other over time.
+And so close to the numbers higher the
+affinity and that's kind of the affinity
+that we are trying to capture in this
+like multiplication operation over here.
+And hence this is like an unnormalized
+attention tensor you can call it.
+Now what we do here is actually pretty
+interesting too. So for one there is an
+implementation where we would actually
+scale these values. And in fact we do we
+do this mostly because the variance of
+some of these values may be pretty large
+and they can lead to erratic behavior of
+your network. And so kind of scaling
+these values would help all of these
+numbers have like a mean zero standard
+deviation of one for like stable
+training.
+Now because this is the decoder
+architecture and something that we did
+not see in the encoder, we apply some
+masking over here. And you can see like
+the way I've designed the mask is like
+it's like a triangular matrix with the
+bottoms are zeros and the upper triangle
+is a bunch of negative infinities.
+Now regardless of why this negative
+infinity right you could say is this is
+masked. And we have zeros over here
+which means that this is not masked.
+Just take it for a face value for now.
+And the reason that we do this is
+because we don't want the decoder to
+cheat during inference time.
+During inference time we're not going to
+have like
+We're not actually going to pass in
+everything as we do over here. Let me
+just go back here.
+Like we're not going to actually pass in
+all of this stuff. We're going to
+probably just start with a start token
+and then everything is just going to be
+like a padding token cuz like we don't
+have any information at the moment.
+And so if we try to perform like all
+this Q K V attention stuff over here,
+it's going to try to understand
+attention towards that it doesn't even
+have yet. And so that's considered
+cheating. And what we don't what we want
+to make sure is that the training and
+inference happen very similarly to each
+other so that we don't lead to something
+called like data leakage at all. And so
+what we would do is take this matrix, we
+would now add it to our initial
+attention tensor. Now what this will do
+is like for all for every word it will
+only be able to attend on words that
+come before it.
+Right? That's kind of why we see a
+triangular lower triangular matrix here.
+And all the upper triangular matrices
+will just be like negative infinity. We
+can't do anything about it.
+Why we apply negative infinity is
+because we want to perform a soft max.
+When we perform a soft max on this we
+would essentially it's essentially like
+taking E to the power of something,
+right? And E to the power of negative
+infinity has the effect of turning it
+into zeros, which is like masking. So
+basically it's saying that this first
+word up here it can only pay attention
+to like the actual first word, which is
+probably the first start token, but it
+cannot pay attention to any other words
+that come after it, which is exactly
+what we want so that, you know, we don't
+cheat. Like we already mentioned that
+there was like a query and a key vector
+that we used before. Now we have the
+value tensor over here. So what we do is
+we
+this value tensor with the attention
+matrix. And this is going to be a batch
+size cross max sequence length, cross
+max sequence length. This is going to be
+a batch size cross max sequence length
+cross 64.
+And so, you'll end up with a batch size
+cross max sequence length cross 64
+dimensional tensor. Now, what this will
+actually give us is 64 dimensional
+vectors for every single word. And these
+64 dimensional vectors are now context
+aware because of attention. So, they're
+really much more higher quality tensors,
+so to speak.
+And remember that we did this. We create
+this for eight attention heads. There's
+like eight parallel ones that go around
+here. And so, what we will do now is
+concatenate all of these eight together.
+And when we concatenate them, we will
+get batch size cross max sequence length
+cross 64 * 8, which is 512.
+And so, we ended up with a concatenated
+value tensor.
+So, this is now the full tensor. Each
+each word represented by 512 dimensional
+vector that's very context aware. And
+now, what we're doing is Well, let me go
+back to the figure here so that we have
+now a general view. We have outputs that
+have been shifted right, which is like
+using the start token. And so, they've
+been kind of shifted towards the right
+direction. We've created embeddings. We
+have the positional encoding. We created
+query, key, and value vectors. We
+performed this masked multi-head
+attention. And now, we're going to
+perform add and layer normalization by
+using this residual connection. So,
+you'll see like a lot of these residual
+connections and they're required to
+propagate signal throughout the network
+and also ensure that back propagation
+does not fail. Otherwise, you with very
+very deep networks, you will learn you
+will eventually run into situations
+where the gradients will become so small
+that the neural network stops learning.
+This is kind of akin to what we call the
+vanishing gradient problem. And so, to
+ensure that we continue to propagate the
+signal much stronger and the signals
+like over here are better felt as we go
+further back in the network, we use
+residual connections. And so, coming
+back over here, you can see like I've
+drawn an arrow here, and this actually
+come this is a residual connection that
+is actually coming all the way
+from the very beginning. Um essentially
+what is what we see in the figure.
+So
+we have that. This is our entire multi
+self masked multi-head self-attention
+that we just discussed.
+And now we have a residual tensor, which
+is going to be the same exact shape that
+we're adding to this. And then we're
+going to perform some layer
+normalization. And what layer
+normalization does is it's going to try
+to normalize values along the layer
+dimension. So for the 512 dimension
+vector for every word, we're going to
+essentially compute a mean, standard
+deviation, and try to scale these values
+such that they become more stable during
+training.
+And in this process too, we might be
+introducing some parameters called gamma
+and beta, which are essentially going to
+be like learnable parameters that we can
+multiply and add to these tensors so
+that all these tensors will be
+comparable to each other. So we're
+essentially going to take layer
+normalization over here, and we have
+this tensor of all of these words right
+now.
+But
+now what we're going to perform is
+multi-head cross attention. So just to
+go back to the figure, you can see we're
+going to do this other orange. This is a
+multi-head attention. Technically this
+is cross attention because it's going to
+take two arrows here from the encoder,
+and there's one arrow coming here from
+the decoder. So this is going to be the
+query vector, and these are going to be
+the key and value vectors from the
+encoder.
+And if you want to blow that up,
+you'll see that well essentially this
+tensor is itself we can use it as the
+query vector, or you can introduce
+another you know linear layer with like
+the same number of parameters itself,
+and we get the query tensor.
+And then you see from here you can kind
+of see this is like the encoder over
+here, right? So when you have the
+encoder, I didn't label it, but this is
+the encoder. From the encoder, what we
+were going we already see like batch
+size, cross max sequence length, cross
+512. We will now map it to uh from 512,
+we will now represent each with a key
+vector and a value vector.
+And so it becomes match sequence length
+or sorry, batch size, cross max sequence
+length, cross 1,024. And so that's like
+512 and 512 over here.
+And now that we have the query, key, and
+value, we do exactly the same process as
+we did with self-attention, where we now
+pass it through, we'll create eight
+attention heads. Hence we have like
+eight of these in parallel.
+It's the same dimension shape if you
+look at all of these together. So we
+have now a just looking at one attention
+head, it'll be the query, key, and value
+each of size 64, the query coming from
+the decoder, but the key and value
+coming from the encoder. And it'll be
+batch size, cross max sequence length
+cross 192.
+Now we perform uh normal attention where
+we're doing like the query that is for
+every single word in the Kannada
+sentence, we are trying to see its
+affinity for every single word in the
+English sentence.
+And once you do a multiplication, this
+is not an addition, once you do that
+multiplication here, you're going to end
+up with an attention vector or attention
+tensor where every word in the Kannada
+sentence is attended to every word in
+the English translation sentence.
+And then after performing the scaling
+and the softmax, you'll have an actual
+attention matrix. Now note here that
+when we when we perform softmax, these
+values are now all going to be in like
+as akin to like probability values
+between zero and one. But note that
+we're actually not performing any
+masking here. This is because that
+during inference time, we will always
+have each Kannada word will always have
+access to every English word in the
+sentence from beginning to end. So we
+don't need to perform this masked
+attention and that's why we don't do it
+here. And we have we make use of all the
+information that we can.
+Next, we now have a value tensor here,
+which is going to be from our our
+English sentence.
+And this essentially is now going to be
+like a tensor where for every max
+sequence we're going to have like every
+single row is going to be like an
+English word.
+And each is going to be represented by a
+64-dimensional vector with some
+contextual awareness about itself and
+also about the Kannada language.
+We now then like concatenate all of
+these so that 64 dimensions here, we are
+going to concatenate all of them
+together. So it's 64 * 8 because we have
+eight attention heads. We'll end up with
+a concatenated value tensor over here.
+And before then we'll perform the add
+and layer normalization. So we'll have
+like a residual addition that comes all
+the way over here
+where to we add
+and then we perform layer normalization
+like we mentioned before.
+We now have like a feed-forward network
+for which we have now the final tensor.
+But in order to understand the
+complexities of the English and the
+Kannada language, sometimes we're going
+to have to we need some more complex
+units. And that's why we will take this
+tensor and kind of like put it back in
+the flow. So it goes back all the way
+over to the beginning of this blue blob
+over here where it's the same batch
+size, cross max sequence length, cross
+512 and goes through the flow again.
+So this entire decoder layer, if I zoom
+out a little bit, I've written in blue
+and I've just said we repeat it like * n
+because that's kind of how it looks over
+here. We repeat it n times. So we always
+come in, go out, repeat it about n
+times.
+And that way we can understand the
+complexities and intricacies of English
+and Kannada.
+And then once we're ready, we can
+basically once we have our final
+tensor over here,
+we can now expand this such that each
+word is now corresponding to is going to
+be mapped to some Kannada word. And so
+we'll use a feed-forward layer in order
+to map it to the larger Kannada
+vocabulary
+or larger or smaller, depending on how
+big your vocabulary is.
+And then we will represent them with
+probability values of like what is the
+probable next word that we're going to
+generate.
+So in in the case of training, it's
+actually very interesting how
+transformers are trained and inferred.
+In the case of training, though, every
+single one of these rows is going to be
+like a probability distribution. And so
+the first row is supposed to predict the
+word
+This is going to be like let's say was
+supposed to be like this, you know, in
+the vocabulary it comes here and it's
+like 0.6, which is let's say it's pretty
+decent, right? So based on that, we will
+compute the loss. But we can also
+compute the loss in parallel for every
+single word. This should have been
+this should have been a J, this should
+be end, this should be pad. So this is
+like the raw You could say it's like
+Imagine if this was like a one-hot
+encoded tensor of the same dimension,
+and these are the probability values. We
+can basically
+actually draw conclusions about like the
+loss function itself,
+which if we use like a standard
+cross-entropy loss function and we
+ignore all of the padding because
+padding is just useless, we don't really
+care about that, we just take, you know,
+these four losses that we would get here
+and we combine them together and then we
+can backpropagate this loss through the
+entire network. So that way that's one
+network update. But in doing so, we were
+able to feed an entire sentence at a
+time. And in fact, not just an entire
+sentence, we can do this for an entire
+batch of sentences.
+And this is how like despite the
+transformer being an extremely complex
+architecture with like millions of
+parameters, training can happen pretty
+fast because of, you know, because of
+taking advantage of batches and also the
+fact that we can literally pipe in an
+entire sentence and get the labels for
+an entire sentence at the same time
+like we do so here.
+Now that's going to do it for like the
+training procedure, but if you want to
+infer this, like I said before, you
+would only pass in like a a token at the
+at the start of all of this there would
+only be a start token followed by a lot
+of padding tokens here. We then let it
+propagate through the network, do some
+self-attention over here and then from
+the encoder we still get like all the
+sentences
+and we can now begin to encode all of
+these values over here, perform this
+cross attention
+and then when we actually perform the
+vocabulary we would not we would only
+infer just the first part because we
+don't have information for the second
+row just yet. We can only have
+information to predict the next word
+which is in this case the first word and
+it should just predict nana
+and then we'll take nana pass it again
+into the network from the beginning as
+the second word so it would be start and
+then nana
+then we try to predict hasadu and then
+we take whatever prediction we have put
+it back into the network and in that way
+the transformer decoder during the
+generation phase or inference phase is
+going to generate one word at a time.
+And so
+I hope that this decoder architecture
+kind of makes more sense here and I'm
+going to be pairing this with some code
+eventually later on that I've been I've
+actually been writing out. So I'll be
+explaining all this code in the next
+video
+just to see how it relates to exactly
+this entire architecture. But for now
+thank you all so much for watching and I
+hope that you kind of understood like
+what's going on here at least at a very
+high level. If you have any questions
+please do leave them in the comments
+below. Please do give this video a like
+if you think I deserve it. Thank you all
+so much and I'll see you next time.
+Bye-bye.

@@ -1,0 +1,298 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to continue our discussion about
+constructing the Transformer neural
+network architecture with code and also
+describing some cool Theory along the
+way
+so for this video we're going to be
+talking about the positional encoding
+piece and so I'm going to start this
+video by a Transformer neural network
+architecture overview with an example of
+how all these pieces fit together then
+I'm going to actually do a deep dive of
+this initial section over here and give
+you like the impetus of exactly why we
+use traditional encoding and what it
+entails and then we'll actually walk
+through some code with pytorch so let's
+get to it so in the Transformer neural
+network architecture it's a sequence to
+sequence model where sequences can be a
+ordered set of tokens in this case
+sentences can be an ordered set of words
+so let's say that we want to translate
+from the English sentence to a conor.s
+sentence Canada is a regional language
+in South India I've described this
+before in my videos but I'm just going
+to do it again because it's pretty fun
+so let's translate the sentence my name
+is a j the input is passed in
+simultaneously into the encoder and then
+we get the output also simultaneously as
+a set of four vectors these would for
+now be word vectors where every Vector
+represents a word but in the actual
+implementation of Transformers and other
+language models these are typically word
+pieces like byte pair encodings so they
+would split words into sub words in
+order to make sure that the entire
+vocabulary doesn't become too large now
+we're going to be passing all of these
+into the decoder where we now have an
+initial start token just to start the
+generation process and we'll be
+generating the translation one word at a
+time in this case We're translating to
+Canada and the first word translation of
+this would be nana
+which means basically my we then take
+that word as the input for the next
+generated word which is hesaru
+this basically means name in kannada we
+then take that as input for the next
+timestamp and we generate the final word
+which is a j and that's my name and so
+this is just a very brief overview of
+how Transformers work but we're going to
+be paying more attention now to this
+part so let's actually walk through
+exactly how the initial part of the
+Transformer neural network architecture
+works so that it kind of motivates
+positional encodings better so first we
+have the sentence that we want to input
+in English that is my name is a j
+now typically the way that Transformers
+and all these machine learning models
+work is that they understand numbers
+they understand vectors but they don't
+understand exactly you know English
+words and so what we would do is in
+order to make sure that we always pass
+in a fixed length Matrix we would pad
+the rest of all the words that are not
+present present or not with just like a
+dummy character or dummy sequence input
+and this would just be the maximum
+number of words that is allowed into the
+Transformer each of these words is then
+just one hot encoded vocab size is the
+number of words in our dictionary that
+is the number of possible words that can
+be used as an input we now pass this
+into a feed forward layer where each of
+these vectors is going to be mapped to a
+512 dimensional vector and the
+parameters here are learnable via back
+propagation and the number of parameters
+would be the vocabulary size times 512
+parameters to learn now the output of
+this would just be a set of 512
+dimensional vectors one for each input
+in the sequence and it's to this that
+we're going to add some positional
+encoding which is of the same size and
+on doing so we're now going to get
+another set of word vectors of the same
+512 Dimensions now for each word Vector
+we want to generate a query a key and a
+value Vector all of 512 Dimensions each
+and so we would pass each Vector into
+well this query key and value set of
+Weights which will Mount one input
+Vector to the output either query Vector
+this will map it to the key vector and
+this will map it to the value vector and
+we do this for every single word and so
+the number of total vectors here would
+be 3 times the maximum sequence length
+because it's three for every word note
+here that these green Transformations
+are basically like learnable parameters
+in this case it would be 512 times 512
+learnable parameters for each of these
+now it's from this point that we could
+probably split each of these vectors
+into multiple heads and perform
+multi-headed attention but I think I've
+explained some of this concept in
+another video called multi-head
+attention for Transformers so please do
+check that out for more information
+there however for now I kind of want to
+just focus more on this positional
+encoding and I hope that this flow
+overall kind of just illustrates exactly
+where positional encoding fits in and
+how it fits in so this is the
+formulation for computing positional
+encoding in the Transformer now for this
+is actually just to compute it for every
+single element of this Matrix that we
+mentioned before
+in this case we have pass which is the
+position of the word in the sequence I
+is the index of the dimension and D
+model is the dimension length which we
+have taken to be 512.
+so a big question here is why exactly
+did we formulate positional embedding in
+this way
+the first reason is periodicity sine and
+cosine functions are periodic functions
+so they will repeat after some point of
+time what this means is that let's say
+that we want to look at this positional
+encoding and we're looking at it for
+this specific word that is the third
+word let's say that at some point we're
+going to compute the attention Matrix
+and try to determine how much attention
+this word should pay to all other words
+now during this phase because of
+periodicity this word is going to be
+able to pay attention to let's say five
+words after it and then 10 words after
+it and then 15 words after it in a much
+more tractable way now the second reason
+is constrained values sine and cosine
+will constrain the values to be between
+positive one and negative one but
+without that these values at least in
+the positive direction are not bounded
+and so what this would mean is that like
+positional encoding for this Vector
+might be smaller than this next Vector
+which will be smaller than this next
+vector and so on and during the time
+that we compute the actual attention
+matrices you'll notice that the the
+vector here is not going to be able to
+attend to vectors that are very far away
+from it and so it will not be able to
+derive any context from them the last
+reason is that it's easy to extrapolate
+for prolonged sequences so this here is
+just going to be a very deterministic
+formula that's very easy to compute and
+even if we haven't seen certain sequence
+lengths in our training set we'll always
+be able to interpret them in our test
+set and so because of easy extrapolation
+it's used now that we got that theory
+out of the way let's walk through some
+pytorch code to create some positional
+encodings so we'll start by importing
+torch and then we Define a Max sequence
+length this is the maximum number of
+words that can be passed into our
+Transformer simultaneously so in my case
+the sequence length was four because it
+was my name is a j but I'm defining the
+max length as 10. in reality this would
+be in the thousands D model is going to
+be the dimension of the embeddings it's
+typically 512 but for illustrative
+purposes I just use six now this top two
+is exactly the same formulation that I
+used to show positioning Coatings but
+honestly I'm going to rewrite it as just
+these two formulations so that it
+becomes easier to see and also easier to
+program but they remain the same thing
+let's now start by coding out this
+denominator for when I is even
+so for this I would just use a range
+just to get a set of values between 0
+and D model that's 0 to 6 skipping two
+so it's zero two and four
+and so we can now compute the
+denominator over here by taking 10 to
+the power of all of these values that we
+get divided by D model that's exactly
+what I do here that's ten thousand to
+the power of everything that we just
+received here divided by D model and so
+we get a set of values here
+we now do the same thing for the odd
+Dimension so we compute the odd
+Dimensions where it's from 1 to 6
+skipping two and so we get one three and
+five and then performing the same
+operation right here performing the same
+operation we get these numbers now what
+you'll notice here is that the the
+vectors that we got for the even
+denominator that is for this and the
+vector that we got for this denominator
+are exactly the same and this kind of
+makes sense you'll notice that the odd
+indices are one more than the even
+indices and in the formulation we always
+subtract one from the odd indices so
+they effectively just became the same
+thing
+and so instead of using an odd
+denominator and even denominator I just
+am going to use one called denominator
+and that'll be used for both cases now
+let's just determine every single
+position for the sequence so we can
+Define every position by just taking all
+the values from 1 to 10 and then we'll
+reshape it to be a two-dimensional
+Matrix with the second dimension as one
+and you'll get this two-dimensional
+Matrix here one for every word now we
+want to divide every position with the
+denominator value that we computed
+earlier and for even cases we're going
+to take sine and for odd instances we're
+going to take the cosine and so this is
+going to lead to two ten cross three
+dimensional vectors so this is for even
+positions and then we have the same
+exact thing for odd positions now what
+we want though is to interleave these
+two matrices so for example for the even
+position we want this to be the first
+index and then we want this to be the
+second index
+and then the third index and then the
+fourth index but starting at zero so
+it'll be the zeroth index first index
+second index third index and so on in
+order to do that I basically stack them
+together well on the second dimension so
+that the two that we need to stack on
+top of each other are right next to each
+other this will give us a ten cross
+Three cross two tensor and we just
+flatten it and effectively we're going
+to be getting that interleavement here
+too and so for our first word this will
+be the positional encoding for the
+second word it's this one for the third
+word it's here and so on now I've put
+together everything that we just talked
+about into this little cute class here
+so that it's reusable and it has the
+exact same instances of everything that
+we just discussed and we can now just
+make some calls to the positional
+encoding passing the elements into the
+Constructor and then we just generate
+the forward pass which will give us the
+exact same positional and encoding
+Matrix
+so I hope this all made sense the code
+will be available on GitHub down in the
+description below also if you do think I
+deserve it please consider giving me a
+like and also subscribe for more content
+thank you all so much for watching and
+I'll see you very soon bye

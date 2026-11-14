@@ -1,0 +1,510 @@
+hello everyone and welcome to another
+episode of Code Emporium where we
+continue our discussion in building out
+a Transformer neural network for
+translating from English to another
+language called kannada it's a fun South
+Indian language that I'm actually going
+to be delving into in this video
+throughout our discussion we've kind of
+highlighted a lot of the core components
+of the Transformer neural network and
+also its architecture that's all fun
+stuff but I also want to get a better
+understanding of how we're going to
+typically process input tokens such that
+it can be eventually fed into the
+Transformer neural network so let's get
+to looking at that so in this Google
+collab notebook I have a couple of files
+here that consists of the English
+sentence which is the source sentence as
+well as the Target Canada sentence which
+is the sentence we want to translate to
+now if you want to know how that
+information looks it kind of looks like
+this where this is the Canada file where
+there's about like I believe like four
+million records over here year that's
+four million sentences and then we have
+a train file over here which is the
+English translation for every single
+corresponding Canada translation over
+here so this is he is a scientist this
+is the Canada translation of he is a
+scientist and we we need to kind of like
+clean this file process it create a data
+set and then feed it to our Transformer
+neural network so the source of this
+data set is if you want you can actually
+kind of read this paper of what it
+contains but essentially it has the
+English translation so for every English
+file there will be 11 files where you
+have 11 Indian languages and those
+languages are are over here which are
+short forms of some of these Indian
+languages I am using the k n file which
+is the kannada file and you can just see
+like some more details of like what are
+the number of Records the number of
+tokens and whatnot and also all these
+like they have they also had Benchmark
+analyzes so I would just recommend that
+you read this paper for more information
+but if you actually want to download
+this data set you can hop over to this
+link which all of these links will be in
+the description below and you can just
+click like on the downloads and then
+download everything I will say a big
+warning is that there is no good way to
+download just a single part of these
+data sets like I mentioned there's like
+four these files are pretty large
+they're gigabytes of data and in fact I
+think you need about 20 Gigabytes of
+data to download everything and
+unfortunately you only have an option to
+download everything at once and not just
+like Canada English or Canada Hindi so I
+would just recommend that you have some
+space on your computer before you try to
+download these going back to our file we
+want you to find a start token padding
+token and end token so start token is
+going to be to begin a sentence and
+tokens to end a sentence and a padding
+token is typically used because we want
+to make sure that even though sentences
+might be of different number of words or
+characters we want to ensure that they
+are converted into numbers vectors
+matrices these that are of the same
+length and hence we introduced padding
+tokens next I'm going to introduce a
+Canada vocabulary which is a list of a
+set of all possible symbols that we can
+input and output to and from the model
+and the same is true for the English
+case it's the number of characters that
+can be input and output to and from the
+model let's talk a little bit about
+these individual languages so that we
+kind of get an idea and a better
+understanding of what we can expect
+moving forward for translation
+now these English characters here we
+have a character set that consists of
+consonants and vowels and we call this
+entire set an alphabet as each character
+can represent an individual sound
+and so on kannada is kind of much in the
+similar way of we have consonants and
+vowels so this first row is a set of
+vowels and so is this third row so that
+would be
+um
+and then we also have a set of
+consonants so it's cut cut cut cut cut
+yeah
+and then yeah
+so I just read the entire thing
+wonderful even though we called Canada
+and alphabet when just speaking normally
+it is technically more an alpha
+syllabary where each character here
+clearly just represents a syllable at
+least here but we can also combine them
+together we can combine consonants and
+vowels to actually create a sound like a
+unit here so for example this is K plus
+ah and that becomes Ka this is K plus e
+and that becomes key this is cup plus e
+that becomes key so we're combining a
+consonant which is cut and a vowel which
+is one of these in order to create like
+different units of characters here and
+so Canada is an alpha syllabary and like
+we did for KA we can do that for every
+single other consonant and vowel pairing
+to get a set of these units of consonant
+vowels and this is what we call in
+Canada a kagonita and so since English
+is more of a phonetic alphabet language
+image whereas Canada is more of an alpha
+syllabary you can kind of see that there
+would be some form of complications that
+can occur when you're translating from
+English to kannada they're very
+different kinds of styles of writing so
+it's fun to keep in mind though now for
+every single one of these lists of
+Canada and English vocabulary we want to
+create an index so that's a dictionary
+that Maps some integer to a character
+that you see up here or a character that
+Maps also to an integer and I'm just
+creating that index over here now we're
+going to read these files that we
+mentioned over here entirely
+from our Google Drive and we're only
+going to pick out the top 100 000
+sentences for now so that's faster and
+easier to train we probably don't need 4
+million but if we do need more we can
+always pull more by just increasing this
+total sentences value and I'm just going
+to get rid of these new line characters
+that are appended at the end of each
+sentence and then just print it out for
+you and so you'll see like the English
+sentences look like this and their
+Canada translations correspondingly kind
+of look like this now as an input to
+this Transformer neural network entirely
+either the inputs or the outputs we're
+actually going to convert every single
+character into some embedding instead of
+every single word as we have probably
+discussed in many videos before when we
+encode every single character into an
+embedding we want to ideally it should
+be a little bit smaller so that there's
+not too many parameters to learn
+inference becomes faster but over here
+you can see that the maximum Canada
+sentence it has 639 characters while the
+maximum English sentence has 722
+characters now you can go and plot a
+distribution but I'm typically sure that
+you'll see a very long tail curve where
+there might be only a couple of
+sentences that are very long and I don't
+really want to just accommodate all of
+those sentences that are just super long
+even there's only like a few of them
+anyways I would rather just accommodate
+the majority and try to decrease my
+Dimension so that just becomes easier to
+learn less parameters throughout the
+network and so what I'm doing is I'm
+just trying to see the 97th percentile
+of like the longest word so this is
+basically saying that there's 172 Canada
+sentences in my data set that are less
+than 172 characters and there's only
+like three percent that are more and
+with English we have a very similar size
+so what I'm going to be doing now is
+defining a maximum sequence length that
+is the maximum number of characters in a
+sentence should be only 200. anything
+more than that will just get rid of from
+the data set and so I've just written
+Little Helper functions that kind of
+just check these conditions right
+whether they're actually first of all
+whether they have valid tokens that is
+all of the tokens that are present in
+each of these lines is actually a token
+of the vocabulary that we've described
+up here so only only if this is true and
+also it has like a valid sentence length
+that is is less than 200 characters and
+then those are the ones that we actually
+use in training the Transformer and so
+we reduce from one hundred thousand to
+just 81 900.
+which is completely fine and why it's
+like such a huge reduction is mostly
+because both the English and the Canada
+sentence translation have to have
+um these two parts satisfied next we are
+going to create a data set so pytorch
+has a predefined class called a data set
+which is required in order to feed data
+and train a pi torch model this kind of
+takes a care of a lot of the boilerplate
+code under the hood so that there is
+consistency in how we fetch batch and
+everything else with data and in this
+case since we're working with text we
+create a text data set class and I want
+to override we have to actually override
+when you're creating a custom data set a
+get item the length and also
+um a Constructor if you require it so in
+my case this length is going to be used
+internally by data set to get whatever
+the length of the current sentence is
+but whereas get item here is going to
+take in an index X and get the
+corresponding English and Canada
+sentence which we retrieve when we're
+going to be training so we're iterating
+over a batch we'll be getting an English
+sentence and a kind of a sentence and
+this function is going to be called to
+fetch that data I'm creating a custom
+data set because there isn't really this
+data set class doesn't really satisfy my
+own needs but you can check Pi torch's
+repository for data set just to see if
+what you have is already built in
+otherwise you can build a custom data
+set like we are doing here and so when
+you execute data set and you'll just
+like get let's say the the second
+element in that data set you'll see that
+you'll return a tuple of the English
+sentence as well as the corresponding
+Canada translation now for the sake of
+this entire setup let's just say that
+the batch size is three now to explain
+why we're batching in the first place is
+that let's say that we just take one
+input sentence and one
+counter.translation as just the batch
+size so batch size one which is
+essentially no batching whatsoever so if
+we pass in one 100 sentence in English
+sentence during training we'll get some
+output loss function and then we're
+going to be performing back propagation
+update all of these like millions of
+parameters over here in order to now get
+a new state and then we will repeat this
+again with passing another English
+encounter a sentence and again all of
+these parameters have to be updated
+updating each and every single parameter
+for just every single example can take a
+very long time and also your lost steps
+will also be very jaggedy so in order to
+speed up this training we kind of
+parallelize passing in information to
+this network so in this case I said
+three so we can put three input
+sentences in Canada in English pass it
+through the network and only after all
+of these have been read we only generate
+a single loss and then we just back
+propagate that loss so it's only the
+parameters are updated once for every
+three that are input so we can increase
+the batch size to decrease the number of
+times the entire network is going to be
+updated and this will speed up training
+and hence we use typically for many
+machine learning cases we use mini batch
+gradient descent let's just say that we
+set the batch number to three so what
+you'll see is actually two tuples of
+data so for the first one here you're
+gonna see three over here there's three
+English sentences ones that are common
+separated two and three and then that's
+going to be up till here and then you'll
+see the corresponding Canada
+translations in another Tuple over here
+and that's kind of how the data is going
+to be given and processed during
+training next is tokenization so we have
+these sentences but we need to convert
+these into numbers because computers
+don't understand text they understand
+numbers and so I've created this
+tokenized function over here that'll
+take a sentence and it'll take also
+um whichever language depending on what
+you want either English or Canada it'll
+take that character to number embedding
+and it'll take an optional start token
+and end token because depending on
+whether we want to pass in a start token
+or end token and so if we have a start
+token we will append we will prepend it
+to the beginning of the sentence if we
+have an end token we will append it to
+the end of the sentence
+and in other cases you know we need to
+have padding tokens so for the remainder
+of all of the characters we are going to
+just introduce a padding token that we
+discussed previously and then just
+create a torch tensor so that everything
+instead of a python list it passes a
+tensor as everything in pytorch is
+processed typically with tensors
+so to look at an example let's just say
+that we have a batch since the batch
+size is three it has three English and
+counter dot sentences over here now I'm
+going to describe some empty lists that
+is this is going to be the list of all
+English tokens in these sentences and
+counted out tokens in the corresponding
+sentences now for every single sentence
+what we will do is we are going to call
+the tokenize for the English part but in
+the English case I don't want to use
+start tokens in end tokens we are
+passing them all simultaneously anyways
+we will have the entire English sentence
+so there's no need of a start token in
+end token now for the Canada case I need
+to pass in a start token because during
+the generation phase you're not going to
+have any kind of word to start with so
+you're going to have to inject something
+into the model and that will be your
+start token and I'm also going to pass
+in an end token as well just to indicate
+this is where the sentence ends and
+after that it's just padding tokens and
+so you can see that if you look at the
+kannada tokenization so we have like
+these three kind of sentences their
+corresponding trend like numeric
+interpretations would look like this
+this is the first sentence this is the
+second sentence and this is the third
+sentence so they've all been mapped it
+from characters to an index an integer
+from that character integer dictionary
+that we just created previously
+and we can see that these 123s are
+padding tokens this 124 over here is an
+N token end of sentence and this zero is
+a start token we can see something very
+similar for for English too if we wanted
+to to try this out
+we're at 95 in this case is the padding
+token and then we have yeah there's no
+starter end token so it's just the
+padding tokens and everything else is
+just characters in the sentences that
+you see now in the last part of this
+video I just wanted to very quickly just
+touch on masking now coming to this
+Transformer architecture you'll see that
+you don't really need a typical type of
+masking for the encoder part the only
+kind of masking you need is a padding
+mask and that's just to say hey do not
+look at the padding when you are
+Computing this loss function and
+upgrading gradient weights here so don't
+look at the padding tokens they mean
+nothing
+so we might need to have like a padding
+mask interjected within the encoder but
+then that is in this multi-head
+attention part but with the decoder you
+need a mass multi-head attention which
+means that in the decoder since this is
+the generation phase you're during
+training you have all of your Canada
+translation data but during inference
+you don't have any of that so you
+shouldn't be looking forward to what
+tokens you haven't generated that's a
+form of data leakage and we cannot have
+that so what we do is instead we would
+mask all those tokens and say hey any
+character that comes after this current
+character we don't want to look at it we
+sh we have no context to that we only
+have the context of characters that come
+before it and on top of this we also
+have a padding mask that is just masks
+that like kind of like what you
+mentioned in the encoder we just should
+not be using in order to compute back
+propagation up gradient updates
+everything that I've mentioned just now
+can be kind of converted into look ahead
+masks and padding masks for both the
+encoder and the cutter and I've kind of
+printed all of these things out here now
+instead of like a I'm using zero that
+says hey
+this is not masked and negative and like
+a negative large number or just
+technically it's like a negative
+Infinity that says hey this is mass
+because eventually if you look at the
+code we're going to be passing this
+through a soft Max function right over
+here and when you do a soft Max that's
+essentially like an exponential function
+so that's whatever is zero it's e to the
+power of 0 is going to be one which is
+okay that's passed through but if it's a
+negative Infinity e to the 0 is going to
+be zero which is don't pass through so
+that's kind of why we use a negative
+Infinity zero instead of like zero one
+and I specifically do not use negative
+infinity and use like a very low
+negative number instead because there
+will eventually be cases where your
+entire rows are just zeros and if all
+your rows are zeros during a soft Max
+that means the output of softmax is
+going to do Zero by zero this is going
+to lead to nands or numerical
+instability and if you get that as Anan
+then the output loss is also going to be
+on Nan not a number and this is just not
+trainable and so I just instead just
+inject very little information into it
+and this is effectively not going to
+change your model too much and hence I
+do it here the output of this though and
+you can try this out is that well you'll
+get an encoder self-attention mask as
+zeros means that pass through until the
+character that you see
+um and then you'll just get Negative
+Infinities then the decoder
+self-attention mask you'll see that it's
+a look ahead Mass so only the first one
+is zero everything else is going to be
+you know negative Infinity here only the
+first two are in the second row only the
+first two are zero and the third were
+only the first three are zero and so on
+and then we have like a decoder cross
+attention mask which is kind of more
+similar in that it has a padding mask
+like the encoder self-attention mask
+here I've put all of this actually
+together in a very cute class of a
+function which we call sentence
+embedding where I have oh this wonderful
+set of operations that I'm going to be
+performing you'll notice that there's a
+lot of like Drop Out positional encoder
+I'm going to be integrating this in my
+next video into the actual Transformer
+code so be on the lookout for that and I
+also have this batch tokenization so we
+have a tokenization function everything
+that I've written out I've encapsulated
+in a function to handle batches of data
+that's going to do it for this video and
+I'm gonna continue the series as we have
+haven't for the last 10 or 12 videos and
+this will go for a few more videos as I
+continue to build the entire Transformer
+from scratch in order to translate from
+English to a language called kannada all
+the resources I mentioned are going to
+be down in the description below so do
+check out those links and thank you all
+so much for watching and I will see you
+very soon in my next video on
+Transformers because we love them a
+goodbye

@@ -1,0 +1,984 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to talk about the decoder part of
+the Transformer neural network as we
+continue our discussion in Translation
+so I have like the decoder logic over
+here it's about 150 lines that I'm
+probably going to give as much context
+as I can to each line and all of this
+goes back to the Transformer neural
+architecture over here where we have
+like an encoder a decoder and we're
+trying to work to convert and translate
+from a language well in this case for
+this video it doesn't matter but it is
+from like English to Canada or any other
+language that you would like
+so we would pass in like English
+sentences through the encoder we get
+some contextual representation like in
+the form of like vectors which are a set
+of numbers that represent all the
+English words of the sentence we pass it
+to the decoder and then the decoder is
+going to be trained to try to predict
+one word of the output language at a
+time in trying to you know perform some
+translation so for this video we're
+going to walk through the entire decoder
+code and I'm gonna also try to wherever
+I can
+a just see like where we can draw
+parallels to the hand-drawn decoder
+architecture that I blew up in the last
+video so that we get a better sense of
+like oh what are the shapes that we see
+and now we can see like what code is
+used to actually create all of these
+tensors that we see over here so let's
+get to it so first we're defining this D
+model which is essentially the size of
+all the vectors internally within the
+entire Transformer neural network and I
+defined it to be 512 so that means that
+each word is represented by a 512
+dimensional Vector the number of heads
+here is the number of attention heads
+that we want when we're performing
+multi-headed self attention as well as
+cross attention drop probe is a
+parameter that we use for a Dropout
+which is the randomly turning off of
+neurons and this random turning off of
+neurons in the network helps the network
+learn along different paths and helps it
+generalize better batch size this allows
+computers to process multiple you know
+in this case sentences together all at
+once and this enables faster training as
+we're not typically just you know in
+this stochastic gradient descent updates
+we would pass some input to the network
+generate an output generate a loss
+perform back propagation update millions
+of parameters and this is only after
+seeing one example and we have to keep
+doing this for every single example we
+see but with batch gradient descent we
+only need to update it let's say in this
+case I set it to 30 that means only when
+we see 30 sentences which we pass in all
+at once it's only then that we perform a
+batch update and so now you'll see that
+like the batch updates don't happen very
+Jagged they happen much less frequent
+but also more smooth next we have is Max
+sequence length which is the maximum
+number of tokens in this case tokens are
+words that a sentence can have and I've
+set this Max token to be 200 to be like
+okay the maximum number of words in the
+English sentence that we can pass is 200
+and the same also goes for the output
+Canada sentence I've decided to be the
+same value but they could be different
+values FF hidden in the entire network
+we're going to have like linear layers
+that occur and whenever we do have
+linear layers I want the output number
+of neurons in the hidden layer and that
+it's specific feed forward layer going
+is to be 2048. this is just a hyper
+parameter that I found in the paper
+attention is all you need but you can
+essentially set this to whatever value
+you want it's just for the propagation
+of information next is num layers this
+is going to be the number of encoder
+layers and decoder layers that we want
+on repetition so if we go to this
+diagram up here essentially this N I am
+sending to 5. because they're both the
+same so essentially what's happening is
+that we pass some inputs to the encoder
+it's essentially going to go out here
+but we're going to have a Cascade of
+these encoders one after the other so
+you can imagine just like five of these
+encoders stacked on top of each other so
+inputs go in it passes through all five
+encoders then the output goes to the
+decoder over here and then we have in
+the meantime we also have like the
+Canada the kanana language output or in
+this case it'll be input to the network
+it goes through this decoder and it
+passes in five times before it
+eventually generates some output
+probability and hence predict the next
+word now why do we have like a number of
+cascaded layers here is to deal with the
+complexity that language has so the more
+complex the patterns could be in the
+language itself the more intricate you
+would want your architecture to be so
+that it can capture those patterns well
+and that's kind of why we use like a
+multi encoder layer multi-decoder layer
+Transformer neural network architecture
+here now X here is the input that we
+would see to the decoder but it is the
+English sentence so you can imagine X is
+going to be just you know after we pass
+some inputs we get some positional
+embeddings we pass through the encoder
+it will now be context aware every
+single Vector is context to where and
+that those vectors are what x
+constitutes and we'll be passing it in
+here later
+now I have like the almost like some
+similar thing which is why
+that I've generated over here that is
+batch size cross Max sequence length
+cross D model so this is essentially
+also a sense of like the every single
+word has been encoded into a 512
+dimensional Vector but this is merely
+just the input part so Y is simply like
+this stage right over here at this point
+I've just generated some random values
+but they would actually come from some
+you know data set and we would have
+transformed it for this video it's a
+little too much code but I will show
+this in subsequent videos for sure but
+for now just to get the use to the
+entire flow I've introduced it here now
+this mask that I'm creating over here is
+actually going to be a look ahead mask
+this is required because during training
+we pass all the words of like the target
+sentence at the same time but we don't
+have information about every single word
+in that sentence at the time and so we
+would need to mask some inputs so that
+we can prevent ourselves from cheating
+and looking ahead and so we would create
+a look ahead mask if you're curious
+about how that mass looks it kind of
+looks like this where we have for every
+single this will be a 200 cross 200
+tensor where we have you know for the
+first word it's like saying that we
+don't need to mask it zeros are don't
+mask negative infinities are mask so for
+the first word it's allowed to see
+itself the second word is allowed to see
+itself in the word before the third word
+is only allowed to see the stuff that
+happens before it and so on until the
+very end so this kind of prevents
+cheating from happening and hence will
+prevent a situation where the decay
+coder performs well during the training
+time but terrible during the test time
+because of data leakage and then we now
+pass in all of these values calling the
+Constructor of the decoder class which
+we will take a look at and then we call
+the models forward pass and for the
+forward pass I've done a lot of print
+statements over here so you can kind of
+see exactly how what was the dimension
+of every single tensor that occurs and I
+will provide this code all in the
+description down below but in this video
+I'm also going to explain why these
+dimensions are the way that they are so
+I've pasted all of the decoder code
+actually right here in the collaboratory
+notebook so this code over here and this
+code are the same and so I'll just be
+using whatever is in the decoder
+collaboratory notebook let's start with
+the decoder class here so I've defined a
+decoder class to have a Constructor
+which takes in all the parameters that
+we just mentioned before as well as a
+forward pass now I'm overriding this
+torch modules because module itself is a
+pytorch extension that provides a lot of
+the underlying boilerplate code that's
+required for creating neural networks
+this includes like performing back
+propagation it performs like memory
+management and also managing like
+whether like tensors are supposed to be
+on GPU during training time versus on a
+normal CPU machine during testing time
+and it also facilitates model forward
+passes too and so because of all of
+these nice little intricacies that torch
+provides I use torch modules over here
+and because we use torch modules we also
+can now provide a forward pass and we
+can do things like call this entire
+method directly as if it were just a
+method this would instantiate in fact
+the forward call or the forward function
+so when we call the forward pass we have
+the English sentence the kannada
+sentence as well as the mask so let's
+actually write out all of the shapes of
+these values so that we can kind of walk
+through its execution so X is going to
+be the English sentence which is going
+to be 30 cross Max sequence length which
+is 200 cross 512 and we can say the same
+thing is going to be for y as well Y is
+also going to be the batch size which is
+30 sentences across 200 which is the max
+sequence length cross 512 and then the
+mask itself at least for this simplistic
+case is going to be 200 cross 200 which
+is Max sequence length cross Max
+sequence length now we're going to be
+passing in this into layers so layers
+here is a sequence of you know decoder
+layers so essentially if you look at
+this figure over here I've this here is
+one decoder layer but it's repeated n
+times and so if this is under a class
+called decode or layer we repeat this
+end times that will be what self dot
+layers is essentially
+now typically you would use something
+called torch NN sequential that looks
+kind of like this right over here but
+here you can see I'm using sequential
+decoder and this is mostly because like
+when I want to call the forward pass if
+I had used just like sequential on its
+own you cannot pass in more than one
+parameter and because I have more than
+one parameter to pass like I need to
+pass in a mask for example that's kind
+of why I've implemented my own
+sequential decoder because I just can't
+use this directly so it extends
+sequential and what it'll do is I'm just
+going to take this input but when I'm
+calling every single decoder layer I'm
+going to be passing in all of these
+parameters but I get the new value of
+the Canada outputs that is the output
+sentence every single time and I just
+keep feeding it back into this module
+but the same value of x that is you know
+from our encoder that is the English
+sentence is just passed in regard
+regardless of which decoder layer that
+we are looking at and thus sequential
+decoder thus becomes an array of these
+decoder layers let's just actually take
+a look at what each decoder layer looks
+like so if you scroll up here you can
+see also a decoder layer it extends you
+know torch modules and hence it also has
+a Constructor and a forward method that
+we can call directly now let's again
+walk through the forward pass and I'll
+describe each of these as and when they
+appear
+so first of all we're assigning this
+here to like this underscore Y and this
+is going to be um used for residual
+addition so you can kind of see in the
+normal paper here you see that there are
+these arrows over here these arrows are
+essentially skip connections or residual
+connections and you would typically see
+these in very deep neural networks this
+is because as like the deeper the
+network is you know as you do a back
+propagation of your gradients they
+become smaller and smaller and smaller
+and eventually they might vanish towards
+like the beginning of your network and
+if gradients vanish that means that your
+neural network will no longer learn and
+so in order to propagate a signal much
+stronger we use skip connections they
+propagate like the input signal much
+better in the forward Direction and also
+like any kind of loss
+um or I should say like the the
+derivative of that loss with respect to
+the inputs they will propagate it very
+well in the backward direction as well
+and so there there's always going to be
+like some gradient update that occurs
+even for like the earlier layers of the
+network and that's kind of why like this
+architecture uses those skip connections
+what we're going to do is now perform
+the mass self attention where we take
+the Canada sentence and we're also going
+to have you know the decoder mask which
+is the same 200 cross 200 masks that I
+showed before so this self-attention
+actually you can see over here is
+multi-head attention so let's go over to
+that module multi-head attention which
+is right over here in the multi-headed
+tension you can see that because this is
+the Canada sentence in this case it's
+going to be 30 cross
+530 cross 200 cross 512 that's the
+dimensions right that's batch size Max
+sequence length and D model now we're
+going to have query key and value so
+this qkv layer if you can see here it's
+a linear layer that will basically map
+this 512 Dimensions to the 3 times 512
+Dimensions which is 1
+536 I believe that's the multiplication
+here so looking at the decoder
+architecture it's kind of like this
+where we have batch size Max sequence
+link cross 512 and we create query key
+and value vectors for each and every
+single word and that's why since one
+word becomes now three vectors that's
+why we see one thousand five hundred and
+thirty six so the query Vector for a
+word is what am I looking for the key
+vector and the value vectors essentially
+are like you can consider them as some
+form of memory or you can also consider
+them as what do I have to offer so it's
+kind of like its own information that it
+already knows so coming back to the code
+this is now going to be a qkv which
+would be 30 cross 200 cross
+1536 as we created query key and value
+tensors which are going to be used for
+attention
+but we are also reshaping this because
+we want to perform a multi-headed
+self-attention so we're we're kind of
+Distributing this across eight heads and
+because of this reshape I'm quite
+literally going to write this out as 30
+cross 200 cross the number of heads
+which is eight that's how much we've
+defined over here it'll be eight that we
+pass through
+cross if you kind of just do the
+multiplication I think it's like 192
+that's 192 times 8 will be
+1536. and so we've created eight
+attention heads and if we look at our
+decoder what this why we're doing this
+is that these are essentially going to
+be eight parallel processes that are
+going to go on that is each one of these
+rectangles there's like eight rectangles
+over here and each one of them is going
+to perform its own attention and then in
+the end we're going to be concatenating
+them together so
+coming back again to the code this is
+going to be 30 across 200 cross 8 cross
+192. we're just going to be reshaping
+this so let's just write this out again
+so it's 30 cross we have the second
+dimension which is eight
+cross First Dimension is 200 cross 192.
+that's just as a Advent of the reshape
+now we'll be chunking this up into by
+the last Dimension into three parts over
+here so that's 30 cross H cross
+um 200 cross 64. that's 192 divided by
+three and this is q but you can also say
+that the key and the value vectors will
+also be the same so I can kind of say
+this is going to be the key as well
+and this is going to be the value
+vectors here as well now we perform
+scale dot product attention so this is
+like the Crux of the attention mechanism
+over here and we're passing each of
+these query key and value vectors along
+with a decoder mask so let's go to our
+scaled let's copy this because we
+probably want to know what the sizes are
+for these in fact we'll do that for
+everything over here
+we go over to scale.product tension
+which is like this right here and we'll
+just copy some of these sizes and I know
+the mask was like a 200 cross 200.
+just to keep this in mind so DK here is
+actually just a constant that we are
+going to be using in a division over
+here and this is required to to scale uh
+the multiplication the matrix
+multiplication of Q times K and we
+require this because we want all of
+these values to kind of be with like a
+mean zero and standard deviation of one
+and this scaling parameter actually just
+helps us accomplish that now in fact we
+can actually see this in action by like
+you know I'm in my GitHub repository
+right now where you can kind of check
+out all the code for this video and also
+like the past videos that I've created
+on Transformers over here and you can
+see that let's we want to perform this
+operation of self-attention where we
+definitely we have like a q query vector
+and a key Vector which we do like a
+matrix multiply over here but now the
+querying key the variance is like close
+to one but the variance of like the
+multiplication of these you could see
+that it kind of goes off the charts a
+little bit like it's 5 to 6 times
+greater however if we were to like you
+know scale these values you can see that
+the variance now becomes much more
+tractable when we perform the
+multiplication here we transpose the
+last layer and the last in the
+penultimate layer so that means that we
+we actually make let's say if this is
+the key Vector we actually transpose
+just both of these and we can't just do
+like a k dot T because otherwise that
+would transpose like the entire thing it
+would be a 64 across 200 cross 8 cross
+30 tensor which is not what we need we
+just want to transpose these last two
+layers and so if you do a matrix
+multiplication of query and key that
+would be 30 cross eight let's do that 30
+cross eight cross and this would be a
+200 cross 64 times you know 64 across
+200 which would be a 200 cross 200 scale
+tensor in this case it's scaled but this
+is just a division it doesn't change any
+shape so this is kind of like the
+initial parts of how the tension Matrix
+is actually going to look what we do is
+if mask is not none in this case it it
+is not none we're going to add this mask
+and we're adding a mask of 200 across
+200 to this tensor so even though it is
+a different shape
+Pi torch supports something called
+broadcasting where the last Dimensions
+here match the last Dimensions over here
+it's still a valid addition and it's
+just going to add the same exact tensor
+or apply the same exact tensor to every
+single one of these elements so there's
+like 30 times 8 which is like 240 so
+it's like for every batch for every head
+we're going to apply the same exact mask
+and so this mask is now going to end up
+with it's going to be 30 cross 8 cross
+200 cross 200 after the operation of
+this masking is done just note that in
+this case this is a look ahead mask but
+we could have also added some padding to
+this same mask and we would have still
+ended up with the same dimensional
+tensor once the entire you know
+operation was said and done next is that
+we perform soft Max now softmax is just
+like taking exponentials and dividing it
+by the sum of exponentials which
+essentially does not change the
+dimension of anything here the attention
+Matrix is still going to be the same
+dimensional shape uh it's just going to
+do the soft Max on the last layer this
+last layer over here so that every
+single row is now going to add up to one
+now the values here is going to be a
+matrix multiplication of the attention
+and the values Vector which is this is
+the attention and the value tensor looks
+like this so this is going to end up
+with the shape of 30 cross H cross 200
+cross 64.
+right and this is just for one attention
+head and we're going to be returning
+both of these so in the self-attention
+case this attention is going to be how
+much attention are we paying for every
+single word on itself whereas the values
+is going to be well what are the actual
+context aware final tensors that we are
+looking at right now for every single
+word so that's for every batch for every
+head for every word we have a 64
+dimensional Vector that represents
+context of that word and eventually when
+this logic returns we copy this over
+the will come back all the way back to
+multi-head attention over here this
+logic will return and both the value
+this is the values tensor and now we're
+going to well reshape this such that we
+flatten the heads Dimension as well as
+you know the 64 over here and so this
+would be 30 cross 200 that's Max
+sequence length cross 8 times 64 which
+is 512. and so effectively we are
+concatenating whatever we found from
+each and every single one of the eight
+heads together
+and then we have this output that is
+just going to be passing through a
+linear layer and this linear layer
+actually doesn't even change the
+dimensions it's like a feed forward
+layer that Maps like 512 dimensional
+um Vector to another 512 dimensional
+Vector itself
+and so we have the same shape over here
+so I can just copy and paste that over
+here and it's this now that is passed
+out so interestingly here because this
+multi-headed tension you can see like
+it's the same input shape that was input
+same that was output and so it can also
+be a repeated layer
+without like disturbing anything like
+very jarringly like oh the shapes don't
+match you won't be getting like such
+errors here so now once that multi-head
+attention is complete the control is
+going to now transfer back so
+self-attention is now complete and the
+output is this shape now we perform
+dropout dropout as I mentioned before is
+the random turning off of neurons so
+that the neural network can learn along
+the more generic generalized path better
+for generalization and hence it doesn't
+memorize so it's the same shape it's
+just an operation though next is ADD and
+layer normalization so we can add
+whatever we saw here which is the same
+shape essentially this was the same
+shape up here this underscore y we add
+these two together and then we just
+normalize them with layer normalization
+so let's go to Norm one Norm one is
+layer normalization and we pass a
+parameter shape over here called little
+parameter shape and we pass 512. so
+let's actually look at layer
+normalization for a little bit here
+going up to layer normalization all
+right
+so we have like this dims over here and
+this dims is gonna be what along which
+layers do we actually want to perform
+layer normalization the entire goal of
+layer normalization here is for
+constraining the values of every single
+layer to be with like a mean zero
+standard deviation one and this helps
+stable training so that we can jump you
+know the the jumps that happen during
+like every single training phase and
+gradient update phase are pretty stable
+they're not too erratic
+and so this here is going to be I
+believe dims is going to take on the
+value of just the last layer so it's
+just going to be like a list of negative
+one in this case that's what dims is
+next we're going to compute the mean
+along this last layer now the inputs
+just for clarity
+are going to be of this shape which is
+30 across 200 cross 512 that's exactly
+what we're passing in so we're taking
+the mean of all of these elements here
+that is all the 512 dimensional Vector
+that represents a single word
+we're going to take the mean of that and
+we say keep dims is true because we if
+you just take the mean of these and you
+you know you run this operation it's
+going to just return to 30 cross 200
+dimensional tensor but we want a 30
+cross 200 cross one dimensional tensor
+so that we can perform some other
+operations down here so that there's
+like a the tensor shape Dimensions match
+so one step at a time we take the inputs
+which is the shape we'll subtract it for
+every single mean that means that every
+single word is going to be having like
+there's like a single mean that we have
+computed and we're going to subtract
+basically that same mean value over here
+so you're going to end up with the same
+Dimension over here and so this is going
+to be the same Dimension that's the
+variance and standard deviation is
+simply the square root of that variance
+which also doesn't change the shape over
+here and the output hence also doesn't
+really change at all the only difference
+is now this Y is is going to have much
+more normalized values where the mean is
+zero standard deviation is one and hence
+allows more stable training but what you
+see here too is like there are some
+Gammas and betas so Gammas and betas are
+a set of learnable parameters in this
+case there's going to be like 512
+essentially of these that's the
+parameter shape so all of these Gammas
+are initialized to one and all the betas
+are initialized to zero so there's
+essentially like 512 Gammas and 512
+betas that we'll be learning over time
+and the goal of these learnable
+parameters is kind of like if you've
+seen like batch normalization too where
+we have essentially Gammas and betas
+they help learn along Dimensions that
+are not included in this entire
+um operation of like Computing the mean
+and standard deviation and so even like
+even though we do like some strange
+normalization along like this this 500
+112 Dimension we are trying to make sure
+that all these parameters become kind of
+like comparable to each other and that's
+kind of why we introduce all these we
+introduce like so many Gammas and betas
+we have like one for every single batch
+and word that we have like a specific
+gamma value and so what we do is we
+multiply gamma times y that is the value
+of gamma times every single element in y
+and just add like beta so gamma is
+essentially going to be like a standard
+deviation it'll learn to be like a
+standard deviation across multiple
+examples and then beta will also learn
+to be like amine across multiple
+examples so that it can better so that
+like this out over here is better
+comparable across these multiple
+examples and after performing this
+operation we still end up you know it's
+still the same shape right
+now we have the same input same output
+shape as well so when we return the
+control now from layer normalization we
+go back to
+where do we go we go back to decoder
+layer and the output layer normalization
+is the same shape right
+and we just perform the same operation
+here
+um but instead of mass detention we now
+perform cross attention which is
+slightly different now in this
+cross-attention case I'm not passing in
+any mask since like the encode this is
+going to be
+um the difference between self-attention
+and cross attention which I will mention
+actually let's just go over here so that
+it just becomes more apparent as to why
+we're not passing a mask for now so
+multi-headed yeah this is multi-headed
+cross attention
+you'll kind of see like the code is very
+similar to what we saw for
+self-attention however the main
+difference you'll see is that instead of
+taking a qkv layer we have a Q layer
+that's separate from a KV layer so every
+single element that is in your encoder
+that is like the the Canada words that
+we pass in the decoder they are going to
+form query vectors but then we are going
+to confirm convert every English word
+that we get as the output of the encoder
+to key vectors and value vectors so you
+can see for self-attention we created
+you know from the same Canada words we
+have query key and value vectors but for
+cross attention if we go all the way
+here
+now we are performing cross attention
+let's say that this is coming from the
+English encoder this is like in the set
+of English words for the sentences in
+the encoder each word is now encoded
+into a key vector and a value Vector
+from the encoder but for the
+counter.side we encode everything just
+into a query vector and so while
+self-attention everything is in every
+words encode into a key query and value
+in Cross attention we have the query
+coming from the decoder but the key and
+the value coming from the encoder and
+then we perform very similar operations
+along with no mask in this case so
+that's why coming back here we'll see
+that like the inputs here like X is
+going to be you know the same Dimension
+30 cross 200 cross 512 and so will y
+will also be that dimension
+but now after passing through the key
+and the value again key I say every word
+is converted to like key and value but
+essentially they're going to be stacked
+on top of each other as a linear layer
+so we just convert 512 to a 1024
+Dimensions over here
+and so because like every word is going
+to now have two of like a key and a
+value from the from the encoder side
+this is going to be 30 cross 200 cross
+1024 every now for the query side it's
+going to be 30 cross 200 cross 512
+and we're going to now reshape this so
+that we can perform multi-headed cross
+attention and so the key in the value
+let's take this but instead of like 1024
+it's going to be 8 times
+this headings Dimension is 64 so I
+believe it's going to be
+128. and we're also going to reshape our
+query Vector too where the query Vector
+is essentially also going to be
+multi-headed so we'll take this we'll
+paste it here and this is going to be
+times 8 but instead of just two times
+ahead Dimension it'll be just the head
+Dimension itself which is 64.
+now we're going to permute the key and
+the value over here so let's just take
+this but we'll switch over the second
+and the third places so that's
+30 cross 8 cross 200.
+cross 128 and the same kind of goes for
+for the query itself too which is 30
+cross 8 cross 200 cross 64.
+and then we will chunk the key and the
+value vectors here into just two parts
+based on the last Dimension so we'll
+take this
+and we're breaking into two parts so
+this will be 64. for the key and then we
+also have the same thing for the value
+essentially
+and so we have query Keen value of
+tensors of like the same shape and this
+is where we pass this in
+now all through the scale dot product
+attention again so if we go back up here
+we actually end up with the same shapes
+right 30 cross a cross 200 cross 64.
+they all have the same shapes
+essentially in The Mask in this case we
+don't have a mask but all the operation
+shapes remain exactly the same and even
+if we don't execute this code it's not
+like the scale this scaled value it
+still maintained its original shape
+anyways so it wouldn't matter I hope
+that what's clear here is that in the
+decoder case we actually don't even need
+for the cross attention part of the
+decoder case we actually don't even need
+to execute this unless you put in like a
+padding tensor as well or like a padding
+mask so that you can ignore some of the
+padding tokens which is required because
+you know some sentences might not be as
+long as like the total length the
+maximum sequence length of like 200 but
+unless if you don't do that you don't
+really need this this section over here
+that's not going to be executed and
+hence it's going to skip over and these
+shapes are going to be preserved so
+that's kind of exactly what we want
+and so what you're going to get is this
+output tensor over here put in
+our value tensor and now we are going to
+now concatenate all the heads together
+as we did previously and so this is
+going to be 8 times 64 which is 512 so
+we'll just reshape that
+and this is now going to pass through a
+linear layer which is not going to
+resize anything it's just for additional
+information
+and so we actually now have an out
+Vector that is going to be you know 300
+cross 200 cross 500 12 which is exactly
+what we input in here so we copy this
+this is multi-head cross attention so
+let's go back to the decoder layer and
+the output here of Y is still going to
+be the same shape
+next we perform you know kind of the
+same procedures as before we perform
+Dropout which doesn't change the shape
+it just randomly turns off neurons
+and we'll also do layer addition with
+layer normalization which does not
+change the shape again
+and next we still have this so we pass
+it through a feed forward connection now
+this feed forward Network FFN I've
+defined it as position feed forward
+let's actually go to that just real
+quick it's actually quite a simple
+function so it shouldn't take too long
+so we pass it through the input that we
+have which is X is going to be like you
+know it's going to be the shape right
+that's X
+we pass it through a linear layer which
+is going to map it to a hidden Dimension
+right so that's 2048.
+and then we pass it through relu which
+doesn't change the shape it just it's an
+activation function that will allow the
+network to unders better understand and
+model complexity in your data and
+complexity and patterns typically like
+rello does have like some issues with
+like the dying relu problem because you
+know for any activation value that is
+lower than zero it will just completely
+shut it off at that's just the nature of
+the function and so some other functions
+like elu Galu leaky relu are also used
+which you can experiment with too
+but for now we have relu and that
+doesn't change the shape drop out
+doesn't change the shape and then linear
+two which is just going to be the
+inverse of the first linear layer where
+we still now get this D model so let's
+just write this out and this will be 512
+dimensions and this is return and so at
+the end of the day when we do our
+position feed forward Network we are
+going to end up with a 512 Dimension
+output here which is the same as
+everything that we've seen before
+next we perform Dropout like we said
+that changes no shape layer
+normalization changes no shape And we
+return the value that we get it's the
+output of one decoder layer
+and this output is exactly the same
+dimensions that we input to the layer
+itself so we take this value and this is
+the decoder layer that we will go over
+here this decoder layer
+um let's just put this in a much more
+readable way
+so this is the output of one decoder
+layer so this module executes once and
+now we have this Y which would have been
+the shape over here
+and then we just input that same y you
+know this has to go num layers we
+defined it as like we defined it as five
+so this will execute like five times so
+now this new tensor which is slightly
+more context aware of the counter output
+language is passed back into this module
+and we keep updating Y which is like the
+Canada Target tensors for the kind of
+doll words now once all of these are
+complete the control will pass back over
+here which the output is going to be
+well the same shape right and this is
+good so the input now matches the output
+and from this output I haven't coded it
+out here but it's essentially going to
+be mapped into a softmax a linear layer
+softmax and from that we can actually
+compute what the next words could be so
+everything that I've kind of like
+discussed over here I actually like put
+so many print statements so you can kind
+of see like I've printed it all out in
+the end you will see that's exactly what
+the output shape is 300 across to 30
+across 200 cross 512.
+and to see exactly like what happens you
+know in the conceptual architecture
+we're essentially way at this stage over
+here
+we have the batch size cross Max
+sequence length cross 512 that's exactly
+what was E30 cross 200 cross 512 where
+we now can map it to a you know we'll we
+can map each of these now to a Canada
+word that is human interpretable and
+perform some soft Max to determine what
+is the word that is supposed to come
+next now these pieces over here on the
+end like this last piece over here and
+also like the pieces that we see way in
+the beginning over here I have not coded
+out in this video but I'm just trying to
+gradually piece all of these parts
+together and so like in the next video
+you're gonna see like okay more of this
+Transformer that's built out I'm gonna
+make another video on the entire you
+know architecture encoder and decoder
+all together in just one session I'm
+also going to code out the entire neural
+Transformer neural network architecture
+code and also some training and
+inference code too so that's all I have
+for this video and that's also some of
+my future plans but but if you like what
+I do please do consider supporting me by
+a like any subscribe that would be super
+helpful especially if you think I
+deserve it and also you can check out
+the description for the code related to
+this video and all the other past videos
+of this Transformer neural network
+playlist the playlist is called transfer
+building Transformers from scratch
+there's about like 10 videos at the time
+of uploading this video but there will
+be so much more to come every single
+week and also look up look forward for
+like daily shorts so thank you all so
+much for watching and I hope you have a
+wonderful day and I hope you're like
+learning something new if you learned
+something please do comment down below
+and until then I will see you next time
+bye-bye

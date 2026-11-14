@@ -1,0 +1,337 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to talk about layer normalization
+now this here is the Transformer neural
+network architecture that transforms one
+sequence into another sequence it
+consists of two parts we have an encoder
+and a decoder the encoder will take the
+input words simultaneously and transform
+them into independent parallel vectors
+now if we were doing like a translation
+task like making this translate from
+English to French we would pass all of
+these vectors into the decoder part and
+it would generate the French translation
+one word at a time
+now for this video though I kind of want
+to focus on these add and Norm Parts
+over here what are we adding and
+normalizing so in order to understand
+that let's actually blow this encoder up
+what we get is this not so complicated
+architecture that I've drawn by hand but
+we'll actually just pick apart what's
+important here we have the input in my
+name is a j and let's say we want to
+translate this from English to French we
+first pad this up with word tokens each
+word is then represented by some one hot
+encoded Vector now technically it would
+not be the words that are represented
+like this but typically word pieces
+called byte pair encodings but for the
+sake of Simplicity right now I'm just
+considering them as one hot word vectors
+because each of these are one-hod
+vectors they're going to be the same
+size as the vocabulary itself that is
+all possible words that can possibly
+occur we then transform these one hot
+word vectors into 512 dimensional word
+vectors because all the words are passed
+in parallel there is no sense of
+ordering but English sentences have
+words that are ordered specifically and
+so we pass in some positional encoding
+to encode orders I have created an
+entire video explaining this concept so
+do check it out if you want more
+information we then add the input to the
+positional encoding in order to get
+these positionally encoded vectors now
+from here that the multi-head attention
+unit is kicked off where each Vector is
+now split up into three vectors of query
+key and value each of these are 512
+dimensional vectors and so we're going
+to end up with three times the maximum
+sequence length because it's basically
+three times the number of words that we
+saw Here We Now split each of these
+query key and value vectors into eight
+parts and each part is going to be a
+vector for one head and there are eight
+heads according to the main paper and
+each of these heads are then now passed
+into eight attention blocks and each of
+these attention blocks are basically
+going to just multiply the query and key
+vectors and then apply some scaling as
+well as masking again if you want more
+details on exactly how this attention is
+working do check out my video on
+multi-headed attention and also
+self-attention too now once we pass it
+through the attention unit we will get
+attention matrices which is going to be
+sequence length cross sequence length
+that's the number of words across the
+number of words in order to see exactly
+how much attention each word should pay
+to the other we then multiply it by
+every head's value Matrix which is
+essentially the concatenation which is
+essentially going to be the sequence
+length cross 64. and so when we multiply
+these matrices together we're going to
+get eight individual vectors which are
+going to be the maximum sequence length
+cross 64 each and then we just
+concatenate them when since there's
+eight it'll be maximum sequence length
+cross 64 times 8 which is 512 now if we
+compare this to the original transformer
+image this Matrix is essentially going
+to be the output right at this stage
+just before the normalization however
+you'll notice that you know while this
+added Norm actually takes the input of
+this Matrix which is like right here you
+can see there's a connection but it also
+has this residual connection over here
+where it not only takes this Matrix but
+also the Matrix after the positional
+encoding now these residual connections
+are actually done to ensure that there
+is a stronger information signal that
+flows through deep networks and this is
+required because during back propagation
+you'll notice that there will be
+Vanishing gradients which means that
+there is eventually a case where as you
+keep back propagating the gradient
+updates become zero and this model stops
+learning so to prevent that we kind of
+induce more stronger signals from the
+input in different parts of the network
+and so coming back to our figure you'll
+see that we will add this out Matrix
+along with x dash and if you recall this
+x dash is exactly what we saw before
+where it is the output of adding the
+input with your positional encoding that
+is this Matrix and hence you can see
+that we were adding two matrices and
+then normalizing add and Norm
+so now that you know why we add a norm
+let's actually get into the details of
+layer normalization itself what and why
+layer normalization now to understand
+layer normalization we break apart into
+two parts which is normalization and
+then by layers
+normalization what and why typically
+these activations of these neurons will
+be a wide range of positive and negative
+values normalization encapsulates these
+values within a much smaller range and
+typically centered around zero what this
+allows for is much more stable training
+as during the back propagation phase and
+when we actually perform a gradient step
+we are taking much more even steps so it
+is now easier to learn and hence it is
+faster and also more stable training to
+get to the optimal position or these
+optimal parameter values more
+consistently and in a quick way now
+layer normalization is the strategy in
+which we apply normalization to a neural
+network in this case we are going to
+ensure that the activation values of
+every neuron in every layer is
+normalized such that all the activation
+values in a layer will have like a
+center like zero and maybe like a
+standard deviation of one to understand
+a little more detail let's say that x y
+z and O are the activation vectors for
+every single one of these layers that we
+have here now in typical and neural
+network fashion we would have some
+activation and apply it to the weights
+times that vector and add some bias this
+is without any kind of normalization but
+now to add this normalization we'll take
+exactly whatever the result is here we
+will subtract the mean of the activation
+values of this layer divided by the
+standard deviation of the activation
+values of this layer
+and we are going to ensure that we have
+like learnable parameters gamma and beta
+this is the same Gamma 1 and beta 1 is
+the same for this entire layer and Gamma
+2 and beta 2 are for this layer now
+Gamma 1 and beta 1 and also gamma 2 and
+beta 2 are learnable parameters so as we
+keep getting more and more inputs to
+this network Acro over time and we
+perform like a back propagation step
+these values are going to be learned and
+changed in order to optimize the
+objective of the loss function now let's
+actually go into more details by working
+out an example let's say that we have
+two input vectors in this case I've
+represented it as a matrix so in this
+case you can say it's like two words and
+each word is like represented by three
+dimensions and let's say that we want to
+perform some normalization specifically
+the layer normalization for this Matrix
+and to do this we compute mean and
+standard deviation across the layer
+and so the first mu 1 1 which will be
+the first part of the the mean Matrix is
+it's going to be just the mean of all
+the embedding values here and you'll get
+0.2 similarly the mean of all of these
+values over here you get
+0.233 and now we can use these mu values
+in order to compute the standard
+deviation so we'll take the square root
+of the mean of the difference of squares
+between every individual value of the
+embedding minus the mean for that
+embedding so in the first case it was
+like 0.2 was the mean hence I'm writing
+it here and each of these individual
+values 0.2 0.1 0.3 which were the actual
+embedding values doing the math we're
+gonna get
+0.08164 as the result similarly for the
+next input word we have the input 0.5
+0.1 0.1 and we'll subtract the mean for
+that specific embedding we'll square it
+sum it take an average and then square
+root and we'll get 0.1855 and so we have
+the matrices for the mean and also the
+standard deviation now what we can do is
+subtract the mean and divide by standard
+deviation doing that math we'll get this
+Matrix over here and the output
+completely is going to be the learnable
+parameter gamma multiplied by every
+single element in this y Matrix plus
+beta now what you'll notice at least
+initially if gamma is set to 1 and beta
+is set to zero the out will be the same
+as Y and you'll notice that for every
+single one of these layers you'll see
+that the mean is zero and standard
+deviation is close to one same with this
+mean is zero standard creation close to
+one and so these values are just more
+tractable and it becomes much more
+stable during training now that we
+worked through an example let's actually
+code layer normalization out now you'll
+notice here that I've added a batch
+Dimension to the same exact input that
+we have this is because during training
+we typically would have a batch
+Dimension so that it helps parallelize
+training and training just becomes
+faster and so we would reshape the input
+to be the number of words which is two
+in this case I've taken the batch size
+as one and we're going to see the
+embedding for each batch as just three
+because now we have like this batch
+Dimension we're also going to use layer
+normalization not only just for the last
+layer but that last layer across some
+batches in this case it's going to be
+one so it's not going to make too much
+of a difference but layer normalization
+is essentially going to be computed
+across the layer and also the batch just
+for your reference so in this case
+that's kind of why we see one by three
+dimensional matrices otherwise we would
+have just seen just three dimensional
+vectors for gamma and beta and we're
+going to initialize gamma to be the
+standard deviation which is just ones
+whereas betas are just going to be a
+bunch of zeros now I'm basically
+Computing the dimensions for which we
+want to compute layer normalization that
+is the batch Dimension as well as the
+embedding Dimension and it's the last
+two layers and now we'll just take the
+mean across the batch dimension in the
+layer Dimension and we're going to end
+up with a two cross one cross one tensor
+and specifically we get the same values
+as before we have 0.2 0.233 we do the
+same kind of computation like we did
+before for computing the standard
+deviation now notice that we're adding
+some small Epsilon value to this
+variance and this is done to ensure
+because you know standard deviation is
+going to be a denominator over here it
+doesn't become zero and so when we
+actually do the inputs minus the mean
+divided by standard deviation we will
+get the same exact Matrix that we kind
+of worked out by hand which is great and
+now we're gonna multiply gamma that is a
+matrix of ones to all the values of Y
+and add zeros you're kind of still going
+to get the same exact Matrix but this
+time you'll notice this additional
+parameter over here which means that it
+has learnable parameters in this case
+gamma and beta which are going to be
+updating during the actual back
+propagation phase now everything that
+I've just discussed is going to be in
+this little class called layer
+normalization where we have a
+Constructor that takes parameter shape
+this is the dimensions along which we
+actually want to perform layer
+normalization it could be just the last
+one like we worked out by hand or the
+last two that we just saw in the
+execution above or even more if we
+wanted to it's just a generalized
+function now you can kind of execute
+this code by just like initializing some
+inputs where we see like some five cross
+Three cross eight tensors
+and then we'll perform some layer
+normalization here we can like I said
+before we can either perform layer
+normalization for the last two or just
+the last Dimension itself and you'll
+notice that we just get different values
+for each case
+and that's all I have for now all of
+this code that I'm showing you here is
+going to be on GitHub so do check that
+out and I'll put any links to references
+down in the description below thank you
+all so much for watching as I'm building
+out this Transformer neural network
+totally from scratch and also writing
+down architectures it's super fun if you
+do think I deserve it please do give the
+video a like And subscribe for more
+amazing content and I will see you next
+time bye bye
+foreign

@@ -1,0 +1,3493 @@
+Transformers have revolutionized the
+field of machine learning, powering
+breakthroughs in natural language
+processing, computer vision, and beyond.
+This beginner-friendly course guides you
+step by step through the advancements
+that make transformers more accurate,
+efficient, and scalable than ever
+before. As these models continue to
+shape the future of AI, understanding
+their inner workings and recent
+innovations is essential for anyone
+looking to stay relevant in the rapidly
+evolving tech landscape. Immad Sadi
+developed this course. Hi everyone, I
+hope you are all doing good. This is a
+follow-up course to the previous one
+that I have created and shared here on
+free podcast where I talked about how to
+train your first large language model.
+In that course, we have used the
+transformer architecture that was
+introduced in the 2017 paper. Attention
+is all you need. Now, eight years have
+passed and the transformer architecture
+has evolved quite a bit. This is why I
+created this course in order to
+basically learn about these methods that
+were created in the past few years.
+We are going to learn about different
+positional encodings, different
+attention mechanisms and how to tweak
+few things in order to improve the
+efficiency and performance of the
+transformer architecture. If you are
+curious about what we are going to
+achieve at the end of this course
+without watching it till the end, here
+is a quick summary. The curve you see on
+top refers to the baseline model which
+is basically the transformer model that
+we created in the previous course that
+was using the 2017 architecture. And now
+after applying the different methods
+that you are going to learn in this
+course such as multi head latent
+attention
+layer norm postnormalization
+and no dropout. You can see that the
+loss starts decreasing. So from the
+previous model that we created
+previously, we were able to reduce the
+loss by 11% which is which is a lot and
+this proves that yes these ideas that
+researchers have proposed they work and
+they help reduce the memory usage. You
+will see that in some cases we reduce
+memory usage by 50%. In my case, I have
+a NTX 470. Previously, the model, the
+2017 model was using roughly 7 GB of
+VRAM while training. But now, thanks to
+multi head latest attention, the model
+uses only 3.5 GB of VRAM, which which
+helps a lot in maybe increasing the
+batch size. Also, the inference speed
+has increased by a lot. Previously, I
+was getting just 100 tokens per second.
+Now, I can get 400 plus tokens per
+second, which is really great. And we
+will see other other things in in this
+course. So, I hope you are excited about
+this one. Now, let's get started. Hi
+everyone. After I uploaded my course on
+how to train LLMs, I got some really
+great feedback. Thank you so much. As
+you can see from this slide, this course
+is titled the transformer journey from
+2017 to 2025.
+This is the introductory video and let
+me explain why I wanted to create this
+course. In the previous course, train
+your own language model, I have used
+techniques from the 2017 paper,
+attention is all you need. Since then,
+researchers have made a lot of
+improvements to the transformer
+architecture. So, in this new course,
+which is a continuation of the first
+one, I will show you some of these newer
+techniques and we will compare them to
+the original ones to see if they
+actually make a difference. At the end
+of the course, I will create two models.
+one using the 2017 architecture and
+another one using the latest
+improvements. Then we will compare their
+results, especially the loss curves and
+see if the newer model really performs
+better. In the upcoming video, I will
+try to compare the methods that are used
+to encode the position. In the first
+course, I have used absolute positional
+encoding. But there are other methods
+such as relative positional encoding or
+rotary positional encodings. So we are
+going to see all of these methods and
+compare them to see which one performs
+the best. See you in the next video. Hi
+everyone. In this video, we will compare
+different ways to tell a transformer
+model where each word appears in a
+sentence. This is called positional
+encoding. Why do we need positional
+encoding at all? Let's look at an
+example. Imagine we take this sentence
+and break it into individual tokens like
+this and turn each token into an
+embedding. Here is the embedding vector
+for the word hi. Without positional
+encoding, the same vector is used no
+matter where hi appears in the sentence.
+That's a problem because the self
+attention layer needs to understand word
+order. That's why we need to add
+positional information. But how we do
+that? There are few ways to add
+positional information. The main types
+are absolute positional encoding and
+relative positional encoding. Let's go
+back to our example. We have the
+embedding tensor and the positional
+encoding tensor. We simply add them
+before sending them to the self
+attention layer. So how do we actually
+build this positional encoding tensor?
+This is what we are going to see in this
+video. Let's start with absolute
+positional encoding. There are two main
+types. The first one is learnable
+positional encoding. In this method, we
+add a special sensor of weights which is
+going to be learned during training, one
+for each position. So here are here is
+the matrix or here are the weights that
+are going to be added to the transformer
+model. And as you can see here we have
+positions and this can handle up to
+block size. So during training we are
+going to learn each position
+individually. And here you can see that
+that we have the embedding size. So this
+is the shape of the matrix. It's the
+shape is the max length which is block
+size by embedding size. During training,
+the model learns what values work best
+for each position. At the end, we get a
+tensor, let's call it WF, which means
+the final weights that contains all the
+positional vectors. But this method has
+a key limitation. It does not generalize
+to longer sequences than what it was
+trained on. And in this case, it's block
+size. So if you decide to use
+sentences that are longer than block
+size, this method will not work. Another
+issue is that each position is learned
+independently. So the model does not
+know that position five comes before
+position 20 because there is no
+relationship between them. If you
+shuffle the tokens in the input
+sequence, the model won't notice
+anything is wrong. That's a weakness of
+this approach. Next, we have sinosoidal
+positional encoding. Instead of learning
+position vectors, we use mathematical
+formulas s and cosine waves with
+different frequencies. As you can see,
+here are the formulas we use to generate
+them. This method was used in the
+original transformer paper because it is
+formula based. We don't need to learn
+anything and we can handle inputs longer
+than what the model saw during training
+because we have just two formulas and we
+can just pass the values and we will get
+the positional encoding for that
+specific position. Here is how this
+method works. We build a tensor shaped
+max length by embedding size like what
+we have seen before. And here let's just
+focus on the 20th position. We apply the
+formulas that I have showed you in the
+previous slide for each dimension of the
+embedding. Here is what's the wave plot
+looks like. The xaxis is the position
+and the yaxis is the embedding
+dimension. At position 20, we sample
+values from all the waves. And just like
+that, we create our positional vector.
+If you want to get the vector at
+position, let's say 60, you come here,
+you intersect these waves and you get
+the values. And just like that, you con
+you construct the positional vector at
+that specific position. That's it for
+absolute methods. Let's move on to
+relative positional encoding. Instead of
+focusing on where each token is in the
+sentence, this method cares about how
+far apart tokens are from each other.
+This method does not modify the
+embedding itself. Instead, it changes
+how self attention works by including
+information about the distance between
+tokens. For example, if we are attending
+from the token high, for example, if we
+are attending from the word high, the
+token might be one step away and the
+token three steps away. And this number
+basically means the distance between the
+token high and the other token. You can
+see that distance between high and high
+is zero because it's the same token. But
+the other ones that come after have
+positive distance. But in the other
+case, let's take the second high. You
+can see that this one will have a
+distance of zero. But the ones that come
+before it will have a negative distance.
+and the ones that are that come after it
+will have a positive distance. What's
+cool is that nearby words or tokens have
+more influence and distance ones have
+less influence just like how natural
+language works. So this is how relative
+positional encoding works and it's as as
+you saw it's different from absolute
+positional encoding. Now let's talk
+about rotary positional embedding. This
+method combines the best of both worlds.
+It captures both absolute and relative
+positions. It does this by rotating
+token embeddings in space. Imagine our
+embedding space is two-dimensional.
+Let's say that the token emad is located
+here. Now we add a token before it.
+Let's say that we added high. Now rope
+this method will rotate the token aad by
+a fixed angle theta for each new token
+added before it. So if the token emad is
+the second token in the sequence rope
+will rotate it by one angle. If it is in
+this case located at the fifth position.
+So 1 2 3 4 5 we are going rope will
+rotate it by four theta and theta is
+just the rotation angle. So yeah this is
+how this method works and also what's
+amazing about rope is that it preserves
+the relative angle between tokens. Let's
+look at this sentence. My friend is a
+man. The angle between the token's
+friend and a mad is represented here
+represents their relationship. So let's
+say that we changed that sentence to
+this one. Who is your friend? My friend
+is a mad. You can see that because here
+we added tokens before this sentence. We
+need to rotate that this effect these
+tokens. And as you can see the angle
+between them is preserved. And just like
+that, rope preserves relative positions
+even if the sentence structure changes.
+Here are some great resources I used to
+learn these different positional
+encoding methods. You have Jake's blog
+on relative positional encoding. This
+YouTube channel that explains rotary
+positional encoding. I highly recommend
+this video. It is really great.
+Christopher's hugging face blog on
+positional encoding and my own GitHub
+repository. Here I try to keep updating
+the resources file with the new links
+that I find useful. Here it is if you
+are wondering about it. So just click on
+the resources and you'll find the useful
+resources there. Now that we have seen
+all the methods, let's test them. I will
+train a small model using the atlas set
+data set and to save time I will only
+train for one epoch for each method. So
+here are the methods that we are going
+to test. So we are going to test no
+positional encoding absolute relative
+sinosoidal and rotary positional
+encoding. After each run I will save the
+training and validation losses so we can
+compare them. Let's start with no
+positional encoding. This one is easy.
+Let me show you the diagram. We just
+remove the positional encoding layer
+from our transformer. So you can see
+that here is the sentence that we
+convert into individual tokens. We get
+the embedding. So the word embedding and
+then before we use to compute the
+positional encoding and add the two
+tensors. In this method, we are going to
+remove this part from the transformer
+architecture and do the training. So you
+can see that here I say that don't add
+positional encoding to the embedding
+tensor. So this should be removed. Let's
+look at the code in VS code. In the
+previous course, we used this script
+model.py to create our GPT class or this
+one. So GPT language model. I have just
+copied this scripts and created a new
+one that I called model no positional
+encoding and let me show you the
+difference. It is very this one is it's
+not that hard to understand. So here you
+can see that before we had two embedding
+tables one for the token embedding and
+the other one for position embedding. In
+the forward pass you can see that we
+take the input. So here are the input
+tokens that we got from the input
+sequence. We pass that to the token
+embedding and positional embedding.
+After that to get the input that will go
+into the blocks, we take the token
+embedding and add to it the positional
+embedding. Now look here in model no
+positional encoding. You can see that I
+have removed the positional embedding
+table and in the world order pass I take
+the inputs tokens I pass that to the
+embedding table and I create my input.
+So you can see that this is the only
+change just remove the positional
+embedding and take the token embedding
+and consider that as the input. Okay. So
+after doing this I have created a
+notebook to test this. So it's this one
+no positional encoding and again this
+notebook I just took one of the previous
+notebooks in the previous course that I
+used to do pre-training and in and this
+is the only change. So instead of
+importing the GBT language model class
+from model I am I am importing it from
+this new script and also I have made
+sure to tweak these parameters so that I
+get a small model because I will be
+doing a lot of experiments and I don't
+want this to take me a lot of time. So I
+want to test this on a small model just
+to confirm that these methods work and
+then once we you will see in the end of
+this video once we get the method that
+works well then we are going to increase
+the size of the model and use it but
+this time because we are just doing a
+lot of experiments we want to do it on a
+small model. I have also changed one
+thing which is the evaluation method. So
+here we have this estimate loss method
+that we call periodically during the
+training loop but before in the previous
+course I used to take random batches for
+evaluation. This time I have changed
+this method to use the same batch each
+time so we can track improvement clearly
+and this is how I have done that. So you
+can see that here I have this. So we
+have evaluation batches which is set to
+a th00and patch. You can change this
+value if you like. The more the better.
+Here I have get evaluation indices and
+this one works both for training and
+validation. And here you can see that I
+compute this only once and then I reuse
+it. So evaluation indices. This
+dictionary will contain the batches for
+training and validation. And here you
+can see that we are getting them
+randomly but only once. But later when I
+call estimate loss and use the get batch
+for loss estimation you can see that
+here I am using evaluation indices and I
+am providing those indices to the get
+batch for loss estimation. This allows
+me to get the same batches during
+evaluation and it will show us if the
+model is learning is improving during
+training or not. Also let's go down.
+Okay. So here is the training loop. Here
+I have also added a learning rate
+scheduleuler. I have used cosine alne
+learning rates with warm up. So why we
+use cosine not just cosine but why do we
+use learning rate scheduulers in
+general? Basically before we during
+training we set the learning rate to a
+fixed value. Let's say 1 e minus 4. And
+that value will be will be used during
+training. It will not change. Learning
+rate schedulers allow you to change that
+value dynamically based on the number of
+epochs or the number of iterations. So
+here we are using cosign and learning
+rate scheduleuler with warm-up. What
+does it mean? So here you can see that
+we have we are computing the warm-up
+iterations. Now warm up will take the
+learning rate and keep increasing it
+until we reach this number of iterations
+and later it will start decreasing. Here
+is an image that I found that explains
+it. So you can see that this is the
+warm-up phase. The learning rate starts
+from a minimum value and goes to a
+maximum value. Then it starts decreasing
+following a cosine wave. And this is
+exactly what we have in the code. So we
+have the warm-up iterations which is the
+first phase of this scheduleuler. And
+after the warm-up phase, we are going to
+use this scheduleuler to decay the
+learning rate and until it reaches this
+minimum learning rate value. So yeah,
+this is something that I have added to
+the training loop and yeah, these are
+the only changes that I have made and
+everything stayed the same. So after
+training, so I already I have already
+done the training and I have saved the
+training and validation losses and now
+let's go back to the slides to show you
+what we got. I am back and here is the
+plot. So you can see that here we have
+two curves. So we have the training loss
+and validation loss. And here I have
+used no positional encoding. And as you
+can see the mo the the loss was going
+down but then it's stagnated which means
+that the model is underfitting and this
+is probably because the model is small
+but we don't care about this. We want to
+compare the methods. So this is the
+first one. We have the graphs. Now we
+are going to go to the and before that I
+just want to mention the training time.
+So for one epoch the model took roughly
+2 hours to to train. The next method is
+absolute positional encoding and we are
+going to focus on the learnable version.
+This is the one we used in the previous
+course. So no code changes are needed.
+You saw in VS code that we have a script
+called model.py and we are going to use
+that one. So I will not go to VS code. I
+will directly show you the results and
+compare this method to the no positional
+encoding. So here we have two graphs.
+One for the training loss and the other
+one for the validation loss. The orange
+line is absolute positional encoding and
+the blue line is the no positional
+encoding method. And as you can see in
+both graphs, the absolute positional
+encoding method performs better than no
+positional encoding. And this was
+expected because as I said adding more
+information to the transformer helps it
+to learn better and again the training
+time. So this method also took roughly 2
+hours and 10 minutes. So there is no
+difference in training time. I am
+keeping I am keeping track of the
+training time because this is something
+that we need to take into consideration
+because if we get two methods that work
+that give us the same performance but
+one takes more time to train then this
+will help us choose which method to
+keep. Now we are looking at syosoidal
+positional encoding. This is another way
+to add positional information to tokens.
+This method is pretty interesting. On
+paper, it should perform just as well as
+the learnable version, but it does not
+have any learnable parameters. So, if it
+performs like the previous method, which
+is absolute positional encoding with
+learnable parameters, this will be good
+because it will save us parameters.
+Let's see how this one is implemented in
+code. Okay. So I will remove this. I'll
+remove this script and I have another
+one which is called model sinosoidal
+positional encoding. I will put it here
+and let's let me scroll until I find the
+GPT language model class. So as you can
+see we don't have the embedding table
+for positions. So this means that we
+remove those parameters from the model.
+But here I have added positional
+encoding. So this method will compute
+the positional encoding up to block size
+and let me go back to that method also.
+I need some space. Okay, great. So you
+can see that here create sinosoidal
+encoding will use the two formulas that
+I have showed you in the slides. It will
+use the sign function and cos function
+to compute the positional encodings. And
+this what the implementation that I have
+here basically will just use those
+functions. So yeah as you can see here
+we have that 10,000 value that I have
+showed you in the slides and yeah um the
+we are going to the sine wave is used
+for the even even positions and the
+cosine value is used for the odd
+positions and at the end we will get a
+positional encoding tensor of shape one
+by max length by embedding size and we
+compute these values only once. class.
+So when we instantiate a new instance of
+the GPT language model class inside the
+constructor, we are going to call that
+method and store them and store those
+positional encodings in the in this
+buffer that we called positional
+encoding and later we are just going to
+use them. So this is the the difference
+between sinosoidal positional encoding
+and absolute positional encoding with
+learned parameters. Here we have zero
+parameters that we add but we compute
+the values beforehand so that we use
+them later. Okay. So here is the the the
+sign of solder encoding and now where do
+we use them? So you can see that here in
+the forward pass again we did the same
+thing. So we take the input tokens we
+pass them through the embedding table.
+This gives us the token embedding. And
+here I try to add the shapes because
+when creating a model this is the most
+important thing to look at. So the
+shapes are very important. And after
+that we get the positional encoding. And
+remember where do we get this? We
+because we have that in uh stored in
+this buffer we have access to this
+variable or to this tensor. And here we
+need to to take just a slice. If we if
+we have a sequence that h that has just
+10 tokens, we are going to take just the
+first 10 values from this tensor or the
+first 10 vectors from the tensor. We
+don't want to go up to block size. So we
+get the positional encoding and we add
+that to the token embedding stensor to
+get the the inputs that will go to the
+next layers in the transformer. After
+that I have done the same thing. I have
+this notebook improving the transformer
+cinosidal positional encoding. Inside I
+have done the same thing. I have made
+the model small. So the size is just 11
+million parameters. I have made sure to
+change the way we evaluate the model and
+I have added the learning rate
+scheduleuler and I have I have run this
+I have saved the training and validation
+losses and I have created the graph to
+compare the three methods. So let's go
+to the slice and let's see if this one
+performed well or not. Here are the
+graphs and again we are comparing the
+the sinosodal positional encoding to the
+other ones in both training and
+validation. Surprisingly this method
+performed worse than both other methods
+on both training and validation. So you
+can see that in some cases so here the
+gap is a little bit small between
+sinosodal and no positional encoding but
+during training the gap is a little bit
+bigger. So this means that using
+learnable parameters is better than just
+premputing those uh with the with the s
+and cosine formulas that we have seen.
+Okay, let's move on. Uh before that I I
+always forget to to mention the training
+time. Most of this one took 2 hours and
+10 minutes. Next up we have relative
+positional encoding. There are a few
+versions of this method, but I will show
+you the one with learnable parameters.
+Here is the idea. We define a range of
+relative distances with this parameter
+maxed relative distance. Let's say if
+this parameter is set to eight, the we
+will have two distances. We will have
+negative distances and positive
+distances. This is what we have seen
+before because the tokens that come
+before the token will have negative
+distances and the ones that have
+positive distances or the ones that that
+come after the token will have positive
+distances. And that range is called a
+number of buckets. Let me let's show you
+an example to so that you can
+understand. So let's take this sentence.
+So here we have maybe we have other
+tokens that come before and here we
+maybe we have tokens that come after.
+Let's say that max relative distance is
+set to four and let's take the word or
+the token not in this sentence. So here
+I said that we will have positive
+distances and we will go up to max
+relative distance which in this case is
+set to four and we have negative
+distances. So this range is called the
+number of buckets and it contains unique
+learned bias values. So this is the
+range that is that we are interested in
+because as I said before tokens that are
+very close to the one that we are
+looking looking at will influence it
+more than far away tokens. So tokens
+that are very far away that have very
+big distances should not affect the
+token very much. Now what do we do with
+the tokens that are outside this this
+range? These ones would have shared
+biases. What bias do we take? So let's
+take the tokens that are on the left.
+These ones will use the first value from
+the unique learned bias values and the
+ones that are here on the far right will
+use the last value from this range. This
+way the model does not learn absolute
+positions but learns how far apart to
+two tokens are. Since this method is a
+little bit tricky to implement, I
+decided to make this diagram to help
+explain how the model uses this method.
+The diagram looks a little bit scary
+because it's big, but I'll try to make
+sure to explain each part individually
+so that you can understand the full
+picture. We start with a sentence. In
+this case, the sentence is, "Hiad, how
+are you doing?" We split it into
+individual tokens. Here we have six
+tokens and one sentence. This is the
+input shape. One is the batch size and
+six is the number of tokens in the
+sequence. So after doing this operation,
+we are going to pass this tensor into
+the token embedding table. After that we
+get a tensor of size 1x 6x 768.
+768
+is the embedding size. And here the
+block size is set to 1,024.
+So this is the input. Now we need to
+feed this sensor to the attention layer.
+Here we have two individual parts. We
+the first one is the multi- head tension
+layer and the second one is the layer
+where we are going to compute the
+relative bias that will be used after
+but let's focus on the multi head
+attention layer because I don't want to
+to show a lot of heads because the the
+diagram will be too complex I have
+decided to show just two heads and
+everything is explained in the first
+head but the second one is I don't show
+lots of information because it's the
+same thing. When we take this input
+tensor and feed it to the head, we are
+going to create two tensors of the same
+size. So we have the key tensors and the
+query tensors. And here I said that we
+will create a tensor of the same size.
+But here you can see that the shape is
+not the same. So here we have 1x 6x 384.
+So 384 is just this value divided by the
+number of heads. Since we have two
+heads, we will divide 768 by 2. This
+will give us 384.
+So we create these two tensors K and Q.
+We transpose K to get this tensor. So
+the shape is 1x 384 by 6. After that we
+multiply these two tensors and at the
+end we get a tensor of size 1x 6 by six.
+We do the same thing for the second head
+and we stop here. We don't continue. We
+go back to the layer where we calculate
+the relative bias and do this. First we
+create two position vectors. One for
+queries and the other one for keys. And
+here the size is six. So we have one as
+the batch size and six is the number of
+tokens. So we take these two tensors and
+we use broadcasting to compute a 6x6
+matrix. I think this is too small. So
+let me go back to Inkscape where I
+created this diagram and zoom in so that
+you you can see this clearly. Okay. So
+this is Inkscape and now I think you can
+see clearly. So I said we start with
+Tutto with two tensors one for query and
+one for keys. We use broadcasting to
+compute a 6x6 matrix from these two
+tensors. And this one is called relative
+positions because this matrix will will
+have the relative distances between
+every pair of tokens. The diagonal
+contains zeros. The upper triangle of
+the mat of the tensor contains positive
+distances and the lower triangle
+contains negative distances. Now we take
+this relative positions tensor and we
+shift it and clamp it. Here I am not
+showing a lot of detail but don't worry
+when we are going to switch to VS code I
+will show you everything that goes under
+the hood. After clamping we are going to
+have values between zero and a maximum
+value. That maximum value will be the
+number of buckets minus one. But as I
+said I'll not go into details. Why are
+we clamping the tensor? Because we
+cannot use negative values you to get
+vectors from the embedded table. This
+will give us an error. So we need to you
+to have positive values to do that. So
+we take the the values from here. We get
+the vectors from the embedded table and
+we create this tensor. You can see that
+the the shape here is number of heads by
+6x6. This is very important because if I
+go back to the multi head attention
+layer, you can see that the input is 6x
+6 and because we have two outputs, the
+shape should be number of heads which is
+2x 6x 6. So this matches what we have up
+here. Now we take each slice and we add
+it to the output of each head. So let's
+let's take this slice as an example. And
+here we take this tensor, we add them
+together and the output should should
+say the same. It should be 6x6. After
+that we continue from X we get the value
+tensor. We multiply these two together.
+We get the final attention weights. We
+do the same thing for the second head.
+We concatenate the results and as you
+can see we are back and here outputs and
+X have the same shape. So this is how
+relative positional encoding is
+implemented. I hope that this diagram
+was helpful and now let's go to VS code
+to see how to turn this into code. Here
+is the same diagram. I'll keep it here
+because I need to explain to you how
+this works. And instead of model, I have
+another script called model relative
+positional encoding. Let me put this one
+here. So I'll make this a little bit
+smaller. I hope it's not too small. And
+now let's go down. Here is our class. I
+added a new parameter to the model. Max
+relative distance. we pass it from the
+GPT language model class to the block.
+After that inside the block we pass it
+to the multi head attention layer. And
+here we start implementing the relative
+positional encoding. First we start with
+number of buckets. Number of buckets is
+two times the relative distance.
+Remember why why are we multiplying this
+with two? because we have positive and
+negative distances and we add one to
+take into consideration the distance
+zero because if you are looking at the
+same token the distance should be zero.
+So this is the range. I call this in the
+slides unique bias values and after that
+we create the relative attention bias
+embedding table with shape number of
+heads by number of buckets and it's this
+one. Let me zoom in a little bit. So you
+can see that here this is exactly what
+what what I have here in the code. You
+can see that here we have number of
+heads and number of buckets. Currently
+we haven't done any calculations. So
+let's let's back up here. I need to go
+inside the forward pass. So here I am
+going to start with relative bias
+calculation. Here I am going to get the
+relative bias which is basically this
+yellow tensor or this green tensor. So I
+have this computative position bias
+method that I am going to use. And here
+you can see that I let me zoom in again.
+We have two tensors query positions and
+key positions. Here they are. And we are
+going to have a tensor of shape one by
+sequence length or batch size by
+sequence length. Okay. So we have query
+and positions. This is how we create the
+relative positions. So the shape will be
+t by t. Here it was 6x6 but in general
+it should be sequence length by sequence
+length. And here is how we do that just
+by using broadcasting. So we take key
+positions and we subtract key query
+positions. If you don't understand this
+notation, don't worry, I will show you
+how this works. So I will open my
+terminal here. I will type Python. Let's
+start from the beginning. Let's import
+PyTorch. Here the sequence length is set
+to four. This is just an example just to
+show you how this works. I will also
+create the key tensor and query tensor.
+So let's look at them. Key positions.
+This is the content of key positions and
+key query positions. Now let's run this
+code relative position. So let's look at
+rel relative position. As I have
+mentioned here, the diagonal should have
+zeros. That's what we have here. The
+upper triangle contains positive
+distances. Here they are. And the lower
+triangle contains negative distances.
+Now I said that after computing this
+relative position tensor, we need to
+shift it and clamp it. So we have so
+this is the first operation which is
+shift the range to positive values
+between zero and two times max relative
+distance. And this is how we do it. We
+take relative position and we add to it
+the max relative distance. And in that
+in this case max relative position it's
+not defined. We should pass it when we
+create the model. But let's just add it
+here. Uh let's say that max relative
+distance is maybe we want to look at
+just two two tokens
+before and after the token that we are
+looking at and we are going to take
+that. So let's take relative distances
+and we are going to add to it this value
+max relative distance. Ah so it tells me
+that relative indicity is not defined.
+That's correct. Let's create it again.
+Relative indies is equal to relative
+position plus max relative distance. Now
+let's look at both tensors relative
+position and relative indices. And as
+you can see things are shifted. So
+maxative distance is equal to two. So
+the diagonal before was zero. Now it is
+two. So basically we added two to every
+value in this tensor. But we need to
+clamp it. So this is the the second
+operation and here is how we do that. So
+let me take this and as you can see here
+we no longer have negative values. Let
+me show you how relative indices was
+before. Relative indices. You can see
+that in this position we have minus one.
+After clamping that sensor we have zero
+and here we had five and because this is
+the max value which is here 5 - 1 which
+is four. This value was clamped to four.
+Why are we doing this? Again just to
+remind you because after that we are
+going to take these values and try to
+get the embedding vectors from this
+embedding table. And we should not
+because here this is the these are the
+positions. So buckets goes from zero up
+to number of buckets minus one. And here
+if for example if you try to get a
+vector at position minus one you will
+get an error. Or if you try to get a
+vector at a position higher than the
+maximum position you will get another
+error. This is why we need to do this
+operation shift and clamp. Okay. So now
+we have the relative indices. Now we are
+going to use that table that embedding
+table to get the biases and we are going
+to permute the dimensions because this
+gives us t by t by number of heads and
+as you can see from the output we need
+to change that to be number of heads by
+t by t. So we do that with the permute
+method and you can see that here two is
+basically number of heads. we put that
+at the first position and we we put t by
+t at the last positions. After that we
+return that bias. This means that we
+return this. Okay. So here they are. So
+relative bias is this tensor. Now we
+loop over the heads and for each head we
+take one slice from this tensor. It's
+this arrow that's that goes here. We
+take one slice and give that to the
+head. Now let's go to the head class to
+show you how that works. So here is the
+head class. Inside the forward pass, we
+get the input which is this one X and we
+get the head bias which is one slice
+that we get from this tensor. Okay. So
+now let's go let's look at head one. You
+can see that we get key and query from
+the input text. We transpose the key
+tensor and we multiply it. We so this
+here we are using matrix multiplication.
+We multiply it by Q in order to get the
+weights. Here they are. Now before
+continuing we are going to take that
+slice. It's here. We got it from the
+previous step. So we are going to take
+that weight tensor and add to it the
+head bias. And here we are using
+unsqueeze because head bias is going to
+be t byt and we need to add the batch
+dimension. So that's broadcast
+broadcasting works. So after doing this
+we are going to continue like before we
+are going to have to use maxed fill so
+that we only keep the lower triangle in
+the tensor. After that we apply soft max
+dropout etc. And then we come to this
+part. So we get the value tensor and we
+multiply it by the weights in order to
+get the output from one head and after
+that we just concatenate the results and
+this is done in the multi head attention
+class. So at the end let's go here in
+the forward pass. This is where we were.
+So for each head we take one slice from
+this tensor. we get the head output
+which is this one. We append everything
+but at the end we concatenate those
+tensors in order to get the output. In
+this case it will be of shape batch size
+by sequence length by embedding size
+which is similar to the input tensor. So
+yeah, this is how you implement relative
+positional encoding and again I have
+created another notebook to let's look
+at it relative positional encoding this
+one to to use this method and to get the
+training and validation losses. Now
+let's look at the results in the slides.
+Okay. So I have explained everything
+here. Okay. So relative positional
+encoding again we have training and
+validation and you can see that relative
+positional encoding performed really
+well on both training and validation. So
+you can see relative positional encoding
+is this one. It has this plus icon or
+plus marker. But the downside is that it
+is slow cuz you saw we we have a lot of
+calculation performed under the hood. It
+took 5 hours and if you remember the
+previous method took two hours to train
+but it was it is worth it because we got
+so far the best performance. Now we have
+one more method before we end this video
+which is rotary positional encoding. So
+let's look at that. This method does not
+add any new parameters. That's a good
+start. Instead, it modifies the key and
+query vectors by rotating them before
+calculating the attention. I took the
+previous diagram and made it a little
+bit simpler or I have adjusted it to
+work for rope and I think this is a
+great idea to explain how the the method
+works under the hood instead of just
+showing you the code. So, let's let's
+start. How does this work? You can see
+that here. The only thing that you need
+to change is this. When you create the
+key and query tensors from the input,
+you will rotate them before applying
+before calculating the attention
+weights. So when we are going to go to
+VS code, we are going to focus on this
+part. So don't care about the other the
+other parts. Just look at this one. You
+can see that here this icon means that
+we are going to rotate that tensor.
+Let's go to VS code and let's search for
+model row. Okay, let's go down to
+the GPT language class. Can see that I
+have added a a new parameter called rope
+base frequency. It is equal to 10,000. I
+took this from the p the rope former
+paper. So they are using this to compute
+the frequencies. We are going to look at
+this later. And here you can see that I
+have also added this rotary positional
+embedding class which will compute those
+embeddings or those frequencies and we
+pass that to the block. We will do the
+same thing as relative position
+encoding. Later we are going to pass it
+to the multi head attention layer. But
+before looking at the block let's
+understand what is happening inside this
+class. Okay. So in the init function you
+should you should understand that the
+rotary positional encoding method treats
+pairs of numbers as complex as complex
+numbers. This is why we are going to
+loop from zero up to embedding size
+divided by two because we are going to
+take two values from the embedding
+dimension and consider them as one
+complex number. Now each frequency value
+is calculated like this. So you have
+data at index i. So it's equal to 1
+divided by base frequency which is equal
+to 10,000. But you can change that when
+you create the instance. So yeah this
+method as I or this formula was taken
+directly from the row former paper. And
+here this is just a code to basically
+calculate this. And so yeah as you can
+see one this one divided by the
+denominator
+which is yeah it is calculated here.
+Okay so after getting the theta is we
+are going to multiply those values with
+the position indices. So position
+indices again will go up to block size
+and here we are going to use torch.outer
+to get the frequencies. Now if you don't
+understand what torch.outer outer does.
+Let me again open the terminal and here
+I will create two tensors just to
+demonstrate how that method works. Okay,
+so we have tensor A and tensor B. Now I
+am going to write torch dot outer and
+I'm going to pass A and B. And here is
+the output. Let's see how this first row
+was calculated. So you take one and
+multiply it by these values. So 1 * 4
+will give you four. 1 * 5 gives you five
+etc. Now to compute the second row we
+take two and multiply it by these
+values. So 2 * 4 gives you 8 10 etc. So
+this is how torch out works. Now let's
+go back to the code. Okay. So here we
+have two tensors. So A and B in this
+example are position indices and theta
+E. And here the the vectors don't need
+to have the same shape. So if I go back
+to a and instead of 1 2 3 I'll just
+replace I'll just remove three. Let's go
+back to torch.outer and as you can see
+that works. Here we have the same
+things. So position indices will be of
+shape batch size by block size and theta
+is of shape batch size by embedding size
+divided by two. So when we use torch to
+outer we are going to take to get a
+tensor of size block size by embedding
+size divided by two and this will give
+us the frequencies and this is what we
+need. Now from this we are going to
+calculate the complex numbers in polar
+form. This is the polar form. So cos m
+theta plus i sin theta and tors polar
+will do that for us. We will get theta e
+and this is what we want. So data ease
+are computed only once when we create an
+instance of the GPT language model class
+and this is similar to the sinosoidal
+positional encoding. There we used the
+sign and cosine formulas to calculate
+those position those positional encoding
+only once. But here we are computing
+these frequencies or these values that
+are called theta is each position only
+once and we have a method which is
+called get theta ease to retrieve them
+later. So this was too much math I know
+uh but as I said this was taken directly
+from the row former paper but I wanted
+to show you that this exists in this
+script so we can look at it and to
+understand try to make examples like
+this with smaller numbers with smaller
+shapes to understand how does the math
+work and yeah because when creating any
+deep learning model shapes are the the
+things that are that are going to to
+cause you a lot of trouble. You need to
+either do this by pen or paper or open
+the terminal and try to create the
+tensors manually. See how the shapes
+work and this will help you understand
+any any deep learning model that was
+implemented by someone or it will also
+help you create any deep learning model.
+This is the role of rotary positional
+embedding. Let's go back to GPT language
+model. I have it here and then I pass it
+to the block class. So inside block we
+pass it again to the multi head
+attention layer here inside the head we
+have we get the key and query sensors
+from the input X and again just to show
+you where we are in this diagram let's
+make this a little bit smaller let's
+zoom in a little bit you can see that we
+are here we got the key and query
+tensors now we need to rotate them I
+have added this helper function apply
+rotary positional embedding so it takes
+the tensors, it takes the theta is and
+it will rotate those sensors and after
+that the rest is the same. So you get Q
+and K, you transpose K, you multiply it
+by Q, you get the attention layers, you
+apply the mask, you apply the soft mask
+dropout, and finally you multiply this
+by V and you get the attention weights
+at the end. So the rest is the same.
+This is the interesting part. So apply
+rotary positional embedding. This is a
+function that I have outside that will
+do this rotation for us. The tensor X
+has this shape patch size by sequence
+length by embedding size. We take it and
+we reshape it to be a to be of shape B /
+by C by D /2 by two. Why are we doing
+this? Because remember when we computed
+theta is I told you that robe will
+divide the embedding size into two and
+consider each pair as a complex number.
+This is exactly what we have done. We
+have divided the the embedding size by
+two and we created a new dimension. Now
+after that so this will give us x
+combined we will convert this into a
+complex number and now we will have b by
+t by d /2 and this dimension will go
+because we are going to create the
+complex numbers again if you don't
+understand how this works you can come
+here and create a tensor so let's do
+that okay let's look at the shape so
+it's 2x two and I will unsqueze squeeze
+it to add sorry to add the batch size or
+the batch dimension. So now sorry so I
+need to
+to type x= x dot unsqueeze. Now x dot
+shape should be 1x 2x2. So this is
+exactly what we have here. Now we need
+to reshape this. So let's take this. Now
+let's look at x combined. Let's look at
+the shape. And it's it's 1x 2x 1 by 2.
+So let's look at the let's use this
+function. Let's put it here. And as you
+can see, let's look at the shape. So
+it's 1 by 2 by d /2, which in this case
+is one. And as you can see, we have
+complex numbers. So this is the real
+part and this is the imaginary part of
+that complex number. Okay. So now we got
+theta e. So they are here. Theta is are
+complex numbers. So premputed complic
+comp complex frequencies of shape t by d
+/2. You can see that here we are missing
+the batch dimension. This is why I used
+unsqueeze. And now the shape should be
+1x t by d /2. Now we need to apply the
+rotation by multiplying complex numbers.
+So we do this by just a simple
+multiplication. So here x complex has
+this shape. Theta e has this shape.
+broadcasting will work and this will
+give us a tensor of this shape. So it's
+the sh is it's the same shape but this
+will result in rotating that tensor in
+the complex plane. Now we need to go
+back to real numbers. So torch dot view
+as real will give us that dimension back
+and now we need to flatten the shape to
+to combine these into one dimension. So
+you can see that here flatten the last
+two dimensions to get back to get the
+embedding size back. So at the end X out
+will have this shape B by T by D and
+this is exactly what we have here. So
+the input was 1x 6 by 384. After
+rotating the tensor it it should stay
+the same. Okay. So here the input was B
+by T by D. So the output should be b by
+t by d and that's it. This is how you
+implement rope in python. Again I have
+created another notebook to to do the
+experiment. So it's this one
+transformer. Uh where is it? Yeah it's
+this one. So improving transformer
+rotary positional encoding. I'll make
+sure to clean everything because here I
+have a lot of I have created a lot of
+files. So I'll make sure to clean them
+and then push everything into my GitHub
+repository. In that notebook again I
+created the model. I have used this
+script to instantiate the GPT language
+model class and I have the results. So
+let's go back to the slides to show you
+what we got. Okay, this is the slide. So
+now I am comparing all the methods. So
+we have absolutely
+rope. And as you can see rope is this
+one. It's in yellow. And as you can see
+here, it it was it was it was close to
+the relative positional encoding method
+in terms of loss in terms of the loss
+value at the last iteration. But here
+you can see during the validation it
+performed better. So both of these
+methods are really great. So relative in
+relative encoding and rope are the best.
+But since rope took 2 hours to train and
+if you remember relative positional
+encoding took 5 hours to train this
+means that this method rope is 2.5 times
+faster than relative positional encoding
+and also it generalized really well and
+this is shown by the lower validation
+loss. So this means that we are going to
+consider rope as the winner uh in this
+experiment that I have conducted in this
+video just to show you that positional
+encoding is very important. So if we
+decide to not use position positional
+encoding we will get this blue line. So
+the loss will be here and the same for
+validation. But just by adding
+positional encoding we improved the
+performance of the model by a big
+margin. So you can see the the gap
+between no positional encoding and
+rotary is very big and the same for
+validation. So this means that yes
+positional encoding is very important.
+Yes, we have a lot of methods and we
+compared between them and we ended up
+choosing rotary position coding because
+it is faster and it generalizes well in
+validation. So yeah, this is the method
+that I am going to keep and it is going
+to be used in the final version of the
+model in the final video. I hope you
+found this first video in this course
+helpful. It took a lot of time to make.
+So if you learned something, let me know
+and see you in the next video. Hi
+everyone. In this video, we are going to
+focus on the attention layer. We are
+going to compare different methods that
+researchers proposed to improve the
+transformer architecture. In this video,
+I will make sure to show you the theory
+behind each method and how to implement
+it in code. And by the end, we will
+choose the method that achieves the
+lowest validation loss. If you forgot
+about why we use the attention layer in
+a transformer, let me explain that one
+more time. Attention is used to help the
+language model focus on the most
+relevant pieces of information in the
+input. In this video, we are going to
+compare the following methods. We have
+sparse attention, multi head attention,
+grouped query attention,
+linear, local and latent attentions. And
+here you can see that I have tried my
+best to link to the original papers
+where these methods have been published.
+So here for example you have sparse
+engine and sometimes I link multiple
+research papers that have talked about
+that specific method. So if you want to
+go deeper please make sure to click to
+click on these icons. They are all
+clickable and they will take you
+directly to the research paper. Let's
+start with multi head attention. This
+method was introduced in 2017 in the
+famous attention is all you need paper
+again. So here is a screenshot of the
+first page of that paper. You can click
+on this image if you want to go directly
+to this paper in order to read more
+about it. Image A which stands for multi
+head attention is the foundational
+attention mechanism used in that paper.
+Here is the transformer architecture
+diagram and here is the attention layer.
+You can see that it comes after encoding
+the input sequence. Here in that
+specific attention is all you need paper
+we were using positional encoding and
+word embedding or token embedding to
+encode the input sequence and you can
+see the attention layer comes after the
+encoding and comes before the feed
+forward network. The role of MHA is to
+compute the attention scores and it does
+this independently across multiple heads
+in parallel. And this is the beauty of
+this technique is that we can divide the
+computation into multiple heads and
+perform those comp that computation in
+parallel which speeds up training a lot.
+But you might ask why should we use
+multiple heads? Can't we just perform a
+a big matrix multiplication instead of
+dividing that into smaller matrix multip
+multiplications? The answer to that
+question is that when we use multiple
+heads, the model learns diverse
+representations because each head
+focuses on various input aspects. So
+maybe this head will focus on something,
+the other head will focus on something
+else. And this will help the transformer
+model generalize better. Now let's zoom
+into the attention layer. Within each
+head, the input is projected into three
+matrices. We have the query matrix, the
+key matrix, and the value matrix. This
+diagram contains six head. The first
+head contains the three matrices as I
+have talked about. And here before we go
+to the second point, this arrow
+indicates that each query vector is
+compared to all key vectors to measure
+similarity. Here when I say query
+vector, it means that I am taking a
+slice from that matrix because the query
+matrix it has multiple vectors. So we
+take one vector from query and we
+compare it to the other vectors to find
+yeah to measure similarity and here we
+measure similarity with uh by using dot
+products or other methods. This
+similarity measurements that we are
+performing gives us the attention score
+matrix and here is how it looks like.
+You can see that this matrix is a square
+matrix. So basically here you can see
+that this is a full matrix. So here this
+means that we attend from both
+directions. So if I am so if I am at
+this token I can look at the tokens that
+come in the future. For example, if I am
+here I can look at the tokens that are
+before me and the tokens that will come
+in the future. But the problem is that
+here we are using a decoder only
+transformer. We are using that for text
+generation. This is the task that we are
+trying to perform. So we shouldn't look
+at the tokens that come in the future
+because this will be the model will
+cheat. So during training we should
+apply a mask to remove the tokens that
+come in the future. These cells that are
+colored in white contain zeros. This
+means that the model will not be able to
+cheat because it doesn't have that
+information. And here the colored cells
+in this pink color contains the actual
+attention scores. By using this trick,
+we will ensure that the model learns how
+to predict the next token instead of
+cheating. Okay. So now uh here is our
+diagram. I am going to zoom into one
+head but the calculation is is the same
+is similar to the other ones. Here is
+the formula that we use in order to
+compute the attention scores. And here
+is the diagram. This is exactly the
+steps that we are going to follow when
+we are going to implement multi head
+attention in code. Here we have the
+input. We project that into three
+matrices. Query, key, and value. Let's
+look at this term inside the softmax
+function. Here we have Q. We multiply
+that by the transpose of K. So here is K
+we transpose it and we multiply that by
+Q. So after after multiplying these two
+matrices we divide by this term just to
+scale the numbers inside the matrix. I
+am not showing here but I'm not showing
+that m division here just to keep the
+diagram simpler but we are going to add
+this in the code later. After that we
+get this matrix which is basically this
+term. After that we apply the masking as
+I said because we don't want to look at
+the tokens that come in the future. So
+we multiply this with V and we get the
+output which is which contains the
+attention scores. And here you can see
+that this multiplication is performed on
+the first head and we perform the same
+calculation on the other heads that
+remain. And at the end we take the
+outputs from each head and we
+concatenate them to get the full
+attention scores matrix. In this video
+we are going to consider multi- head
+attention as our baseline. Here are the
+loss curves for both training and
+validation. Later in the video, we are
+going to compare the other methods to
+this baseline because multi head
+attention is the method that we used in
+the first course and now we want to try
+the other methods to see if if they
+improve the performance of the
+transformer model. The first method that
+we are going to compare against multi
+head attention is multi-query attention.
+This method was introduced in the fast
+transformer decoding paper. Click on the
+image if you want to read more about
+that paper. Multi-query attention is a
+computationally efficient method. Why?
+Because it reduces the memory usage by
+shrinking the KV cache. If you are not
+familiar with this term KV cache, it
+means how much memory the key and value
+matrices take during training or
+inference. MQA uses one key and one
+value for all query heads. We have seen
+this diagram when I was explaining multi
+head attention. You can see that in each
+head we have three matrices key query
+and value. In MQA all queries share the
+same key and value matrices. This means
+that K and V are calculated only once
+and then shared between the query
+matrices or between the heads. This
+means that the number of parameters will
+decrease which might in turn impact the
+model's performance in some cases. But
+the major benefit of MQA is the
+inference speed. This method is way
+faster than MHA when generating tokens.
+Let's look at the internals. Same as
+before, we have our diagram, the
+attention function. And here is the
+diagram that shows what goes inside one
+head. Do you see a difference? The key
+and value matrices are outside the head.
+This means that they are calculated once
+and used inside each head. This is the
+only difference between MQA and MHA. You
+can see that the rest is the same. we
+perform the multiplication. So we we
+compute this term inside the softmax
+function. We get this matrix. We apply
+masking and after that we multiply it by
+v to get the attention weights. And this
+calculation is performed similarly on
+the other heads. It's comparison time.
+We have the two graphs for training and
+validation. In both cases, MQA performed
+better than multi head attention, which
+is surprising. The difference is not
+that big, but it is in favor of MQA. I
+say that it is surprising because
+multi-query attention uses the same
+query and value matrices for all query
+heads, which means that we will have
+less diversity when training this model.
+But in this data set that I am using, it
+seems that MQA works better than MHA.
+But again, the difference is not that
+big. I have also mentioned that MQA is
+faster in inference than MHA. And here
+is the diagram that I have tried to
+create in order to illustrate this. You
+can see that here we have in the X-axis
+the number of tokens to generate. So I
+have tried to generate 100 tokens up to
+2,000 tokens for M mha and MQA. And here
+on the y-axis we have the inference
+speed or the inference time in seconds.
+You can see that MQA is seven times
+faster than MHA when generating
+100 to 200 tokens. But after increasing
+the number of tokens to generate that
+benefits starts to shrink. You can see
+that here at this point MQA becomes six
+times better faster than MHA. Here it
+starts to decrease again. So it's 1.7.
+And when we reach 20,000 it became
+worse. So it's8
+times worse or slower than image A. In
+the fast transformer decoding paper
+where Noam, this researcher who worked
+on MQA showed that this method was 12
+times faster than MHA with a sequence
+length equal to 128 tokens. So this
+matches what we see. I mean there he was
+using a very powerful hardware and here
+I have just a an RTX 470 which is which
+is not that impressive but still you can
+see that here so he used 128 here I have
+100 tokens and here I I got seven times
+faster inference speed and this again
+the model here is small so if I increase
+this the model size this value will have
+changed also so but but this matches
+what no one observed when he was writing
+that research paper and here it's
+surprising that MQA becomes bad when we
+increase the number of tokens to
+generate maybe my implementation is not
+optimized but since no didn't try to
+compare the inference speed at higher
+number of tokens to generate I can't say
+100% if this method works only when we
+generate um fewer tokens and it works
+bad when we try to generate large
+sequences of text. Now we have compared
+the performance of MQA to MHA. Now let's
+see how to implement this in code. I am
+in VS code and here I have opened the
+diagram. This is exactly what I have
+showed you in the slides. Let's put it
+here because it will help us see what we
+are doing inside this script. I will
+make it smaller. Open model multi-query
+attention and like the previous video
+everything will stay the same but we are
+going to change just what what we are
+concerned with and here we are going to
+change the attention layer. So here I
+have created this multiquery attention
+class and inside it in the constructor
+we have the number of heads the head
+size and here here are the matrices. So
+we have the key matrix value and query.
+Okay. And we have the rest of things. We
+will we'll come back to the rest. Okay.
+So in the forward pass now I will zoom
+in. We get the batch size, the sequence
+length and the embedding size from the
+input. Here we compute the key and value
+matrices and after that we get the
+query. So here everything is the same
+but I have said that K and V are shared
+between all query heads. So after
+getting the query you can see that here
+is the the shape. So it's going to be
+batch size by sequence length by number
+of heads times head size. So we are
+going to reshape this to add the number
+of heads dimension. So here we have
+batch by number of heads by sequence
+length by head size. You can see that
+here this represents all query heads.
+But remember that we have only one key
+and value head. We are going to also
+reshape K and V in order to add this
+dimension. But we are going to put one
+because this is what I said in
+multiquery attention. We have just one
+uh one key and one value and those are
+going to be shared by the query heads.
+we are going to use broadcasting to
+multiply K and V so that we can multiply
+them by Q. So let's see how to do this.
+So this is the only thing that we that
+we need to do. So here when we are going
+to to compute the multiplication between
+query and the key Python will use
+broadcasting to make sure that the
+shapes match. So here when we perform
+this operation you can see that we
+cannot do it because here we have B *
+number of heads and here we have B * 1.
+Python will try to match these two
+dimensions by multiplying the key number
+of heads times. So here we will have B *
+number of heads and this is why I said
+that repeat for each head. Okay. And the
+rest will stay the same. So here we
+multiply Q and K. we divide by the head
+size. So this is the scaling factor.
+After that we are going to so here let
+me zoom in again. We are going to
+perform the masking. We are going to use
+the soft max function apply dropout and
+at the end multiply the masked weights
+matrix with V. So V we are getting it
+from here. And again you can see that
+here here are the shapes. So attention
+weights is B * number of heads * T * T.
+But V is B * 1. So these two dimensions
+do not match. But luckily, Python will
+use broadcasting to solve this issue for
+us. So it will just keep duplicating V
+number of heads times so that this
+matrix multiplication can be computed.
+And at the end, this is the shape that
+we are going to get. Here you can see
+that we have tried to merge all heads
+into one simple class instead of using
+um instead of dividing this into
+multiple heads and then concatenating
+the results of each head by the end of
+this forward pass we have everything
+concatenated. So we you can see that
+here we transpose the first and second
+dimensions so that we can basically
+merge the the number of heads by head
+size into one dimension which is the
+number of channels and after that we are
+going to return uh the output which
+contains the attention weights. This is
+exactly what we need to change just the
+the attention layer the rest will stay
+the same. Okay. And like before, like in
+the previous video, I have created a
+notebook to try this. So it's this one
+improving transformer multi-query
+attention. And here all I did is that I
+imported the GPT language model class
+from this new script that I have
+created. And yeah, the rest is the same.
+So here we divide the data into training
+and validation.
+And then I run this and at the end I
+make sure to save the training and
+validation losses so that I can print
+the curves and show them in the slides.
+Now let's go back to the slides in order
+to explain the next method. Local
+attention is the next method that we are
+going to focus on. It was mentioned in
+these two papers. Here they are. Again
+you can click on them if you want to go
+deeper. Local attention works by
+limiting the attention span of each
+token to a fixed size window. Here is
+the full attention scores matrix. And
+this is how it looks after applying a
+window size of three. You can see that
+in this case a token can attend up to
+two positions in the pass. If I am for
+example here, I can only look at the two
+previous tokens. But you can play with
+this value. This makes local attention
+efficient, but it's a bit tricky to get
+the most out of it. You need to do a lot
+of optimizations to benefit from this
+approach. The problem with limiting the
+attention span to a fixed window is that
+long range dependencies are not captured
+because the model is focusing on the
+local context only. Also, this method
+like MQA multi-query attention might
+lead to a degradation in the performance
+of the model. Let's see what happens
+inside one head. We have our formula and
+here is the diagram. It is similar to
+the previous ones. The only difference
+is here. You can see that when we apply
+the masking, we make sure that we also
+apply the window so that we also turn
+the other values here in this lower
+triangle to zero. So we will have zero
+here, zero here. And the values in the
+middle will have the attention scores.
+And finally we we multiply this masked
+attention weights with the V matrix in
+order to get the output. Now let's
+compare local attention to the previous
+methods multi head attention and
+multi-query attention. Here are the two
+figures and as you can see local
+attention is beating the other two
+methods in both training and validation.
+So you can see that the difference
+between local attention and multi-query
+attention is minimal. But if we compare
+local attention to the baseline which is
+in this case the standard multi head
+attention, you can see that the gap is
+starting to increase. Here is the
+inference speed. You can see that local
+attention is not as fast as multi-query
+attention. So you can see it's even
+worse than multi head attention in this
+configuration that I have tested. We
+also have other variants of this method.
+So here we have dilated sliding window.
+This is how it looks like. We also have
+chunked sliding window. This is how it
+looks like. We can also combine between
+the two. So we have global plus sliding
+window. Here is how it looks like. So we
+still have the slendering window which
+is what I showed you earlier but we add
+these global you add these for the
+tokens that should be uh that should
+attend to all the tokens for example the
+special tokens like the start of tags
+end of tags etc. Okay, now we have seen
+the results. Now let's see how to
+implement this in code. Here is the new
+script that I have created and here is
+the diagram that explains how local
+attention works. Here we have the three
+matrices key, query and value. Here they
+are just linear layers but we are going
+to use them in the forward pass. Okay,
+so let's start. First we have the input
+X. we are going to project it into the
+key and query matrices. So here we are
+using the key and query linear layers
+and the shape will be batch size by
+sequence length by head size. This time
+I have the head class but like the
+previous method which was multiquery
+attention we can combine them inside the
+attention class. It's up to you to
+decide but it's similar when when you
+add the head class you at the end you
+will need to concatenate the results but
+if you want to remove the head class you
+will do everything. So instead of having
+three dimensions you will have four
+dimensions. The first one will be batch
+size and the second one will be the
+number of heads. Okay. So now we get uh
+these two matrices. We are going to
+apply our formula. By now you should you
+should know it by heart. Now we are
+here. We have the full attention weights
+that we got here. Now we need to apply
+this sliding window masking. So how do
+we do this? Like what I did in the
+previous video, if you don't understand
+how this is implemented, the easy the
+easiest way is to open the terminal. Let
+me activate the environment and here
+open a new Python session and start
+experimenting with this. So for example
+here if you don't understand okay let me
+remove this because I don't have enough
+space. So if you don't understand for
+example what is happening here how are
+we generating this matrix you can come
+here for example here I need to import
+pytorch and here try to create small
+examples for example let's set t24 and
+here I need so I will just take this I
+will not take the device let's take
+unsqueeze
+okay let's look at row indices okay so
+here we have four rows and one column
+and column indices should be similar but
+instead we will have four columns and
+one row column indices. Let's look at
+column indices. Okay, so as you can see
+we have one row and four columns. Okay,
+so why did we create these two tensors?
+Well, here is the first step. We are
+going to prevent the attention to future
+tokens. Okay, so how do we do this? If I
+take this and again look at coausal mask
+as you can see here false means zero and
+true means one. So you can see that by
+doing this we were able to remove the
+upper triangle from the uh so this is
+the mask. We are going to multiply this
+with our attention weights matrix in
+order to remove the upper triangle. And
+how did we do this? You can see that
+here we have four rows and one column.
+Here we have one column and four rows.
+And this is the beauty of Python. So we
+Python under the hood will use
+broadcasting in order to duplicate one
+of these tensors so that we can perform
+this operation. And this because here we
+have uh here we have 4x 1 and here 1x4.
+This will be this will be multiplied
+four times so that we get a 4x4 matrix.
+If you don't do this, you will never
+it's it's going to be hard for you to
+understand this just by imagining it.
+You need to open the terminal, open a
+Python session and thinker with these
+values that or with these expressions
+that are in the forward path. This is
+how you understand any model. Okay. So
+that was the first step. This is what we
+have done before. But now we need to
+apply that slide window. So here we have
+this parameter. uh in this case because
+we have a small matrix I will make sure
+to have a small window size let's set it
+to two and here let's see the second
+step so here we are going to create the
+local window mask so this restricts the
+attention to a local window around the
+current token okay this is what we have
+set and this is the formula that we need
+to apply so let's just take it here make
+sure do not take self and here I need to
+add one. Now let's look at local mask.
+And as you can see we have everything is
+set to true. So the upper triangle is
+set to two but the lower triangle is set
+to false. So this is the inverse of what
+we had before. Now we just need to
+combine the two and we are going to use
+the and operator so that we multiply the
+two values. So true * false will give us
+false. True * true or true and true will
+give us true. So let's look at the final
+mask. Final mask. And as you can see
+here is the upper triangle. It is set to
+false. This is exactly what we used to
+do before. But now we applied the local
+attention mask. And as you can see we
+have two values max in each row. So this
+means that it worked. And after that we
+just need to apply this mask to the
+attention weights. And finally after
+that we use the soft max function and at
+the end we multiply the weights with the
+V matrix. After that we get the output.
+And remember this is just one head. So
+now we need to go. So this this was
+already done but I just wanted to show
+you this. So here are the full list of
+heads. Here in the forward pass in the
+attention class we are getting the
+output for each head independently but
+we need to concatenate them. So as you
+can see the the the shape at the end
+will be batch size times time sequence
+or the sequence length times the number
+of heads times head size. This is how it
+works and the rest is the same. Now I
+have all I have also created another
+notebook where I have used this class
+and this is how I was able to show you
+the comparison between local attention
+and the other methods. I hope that you
+understood this method. Now let's move
+to the next one. Grouped query attention
+is our next method. This one was
+mentioned in this paper training
+generalized multi-query transformer
+models from multi-head checkpoints.
+Click on the image if you want to read
+more about this paper. Grouped query
+attention is the generalization of multi
+head attention and multi-query
+attention. This is the diagram for multi
+head attention. And here is how it looks
+like for GQA. In groups query attention,
+we try to form groups. In this example,
+we have six query heads and we have
+created two groups. And in each group,
+the query heads share the same key and
+value. In multi head attention, the
+number of groups is equal to the number
+of heads, which means that each head
+contains three matrices. key, query and
+value. In multi-query attention, the
+number of groups is equal to one because
+all queries share the same key and
+value. But in GQA, we have the
+flexibility to change that value instead
+of being one or the number of heads.
+This means that grouped query attention
+offers an ideal trade-off between speed
+and performance. It falls between multi
+head attention and multi-query
+attention. It is fast and also gives
+good results. When setting the number of
+groups to a value lower than the number
+of heads, GQA reduces the number of
+trainable parameters compared to multi
+head attention. Let's zoom at the
+attention layer to see what happens
+exactly. This is how the diagram looks
+like for GQA. I want you to focus on
+this part here. We are inside the
+attention layer. Remember that each
+group shares one key and value matrices.
+This means that we need to duplicate the
+K and V matrices multiple times to match
+the number of queries in one group.
+Let's take this this as an example. You
+can see that in one group we have three
+queries but we only have one key and one
+value. So if you try to multiply these
+two matrices together, you will get an
+error because the shapes do not match
+and I tried to depict that with this
+change. So here you can see that query
+is bigger than V in size. So here we
+need to duplicate V and Q multiple times
+so that we have the same size. And after
+that we can apply this formula. So here
+after duplicating K you are going to
+transpose it multiply it by Q and then
+apply the mask and after this multiply
+everything by V in order to get the
+output. But this is the important thing
+to consider when trying to implement
+this in code. Are you ready to see the
+comparison? Here you go. the model under
+grouped query attention has destroyed
+the previous methods. Look at the gap
+between the loss curves. It's huge. This
+method performed really well on both
+training and the validation. And here I
+want to put a big asterisk on this
+result that I got. I have used a
+specific data set for the Moroccan dera.
+And maybe because here I I took 1,000
+batches in both training and validation
+to basically draw these curves. Maybe I
+I would have got different results if I
+have increased that value from let's say
+1,000 batches to 2,000 or 10,000
+batches. Maybe we these curves will have
+changed. But here I am just showing you
+how to implement these methods. How do
+they work under the hood? And after that
+if we change the data set we might get
+different results. Maybe I will try to
+rerun the grouped query attention
+another time just to verify that this
+results is consistent and update the
+graphs if I see something has changed.
+But here as I said the curves each one
+will get different curves each one will
+get different loss values depending on
+the model size and the data that you
+have used. Let's also check the
+inference speed. Here is the diagram.
+GQA is fast like multi-query attention
+but it's a little bit slower than it.
+You can see that MQA is in orange. So
+yeah, the difference is not that big,
+but it's slower because here in
+multiquery attention we have one group
+but here we can we have more than one
+group. So we have more parameters than
+MQA. That's why it's a little bit
+slower. Now let's go to VS code to see
+how to implement this. I have created
+this script model grouped query
+attention to implement this technique.
+Here we have the grouped query attention
+class and let's see how it works. Here
+we have the classic parameters number of
+embedding number of heads etc. But I
+also added the number number of key
+value heads. Basically this is the
+number of groups. So here I have this
+comments because as I said GQA is a
+generalization of both MHA and MQA and
+here if number of KV heads is not
+specified we are going to set it to the
+number of heads to fall to MHA but yeah
+we shouldn't we shouldn't do that we
+should specify a value greater than one
+and here if number of KV heads is equal
+to one that means that we are going to
+use MQA otherwise it's GQA so number of
+KV heads should be greater than one and
+less than number of heads. So after that
+so we are sorting it here we get the
+head size and the number of queries per
+KV head. We saw that in the slides we we
+had two groups and in each group we have
+three queries and this value stores that
+information. I will go directly to the
+forward pass so that we follow the
+diagram that we have here on the right.
+So from the input X we project it to get
+the query and here is the shape. So we
+have batch size, sequence length and
+number of embedding. After that we are
+reshaping the query to have this shape
+batch by number of query heads by
+sequence length by head size. And here
+is how we do that. It's simple. We get
+those values that we got from the
+constructor and apply the
+transformation. After that we get the
+key and values and here remember so V
+and key are small because in each group
+all the queries share the same key and
+value matrices. So we get the key matrix
+like this. We have this key matrix that
+that we have defined here. It's a linear
+layer and the shape will be like this.
+Batch size sequence length and here the
+last dimension is number of KV heads
+times the head size and remember number
+of KV heads is the number of groups. So
+here we will have two keys. So here I am
+referring to the example that we that we
+have seen in the slides. So query we
+will have six query heads and here we
+will have two key heads. And because the
+number of groups is set to two. So we
+are going to reshape this again to
+separate the head size from the number
+of KV heads. And we are going to do the
+same thing for V because they are
+similar. So again V is we are going to
+use the value matrix to project X to get
+the V matrix and after that we are going
+to reshape that tensor. And now this is
+the part that I have highlighted in the
+slides. So from here we need to
+duplicate V multiple times so that we
+match the number of queries that we have
+in that example we have six queries and
+two values because we have two groups.
+So we need to multiply V and Q three
+times. So we are going to multiply 2 by
+three to get six value heads value heads
+and six query heads. And this is the
+role of repeat KV. So this meth this
+function that I have defined I will show
+you what it does. We'll take one of
+these matrices so K or V and it will
+multiply it number of queries per KV
+times and number of queries per KV is
+equal to three. So 2 * 3 will give us
+six and this will match the number of
+queries. Okay. So let's go inside repeat
+KV to see what is happening. We have the
+tensor and the repetition times. How
+many times do we want to repeat that
+tensor? So if repetition times is equal
+to one, we are we are going to return
+that tensor. There is nothing we we need
+to do. But if this is greater than one,
+we have this lovely function that
+PyTorch provides us. It's called the
+repeat interle. And this will take so
+you take the tensor, you call that
+method and you tell it how many times
+you want to repeat it. And here we are
+specifying the dimensions that we want
+to repeat. Okay. So here we have number
+of KV heads and this is what we want to
+repeat because number of KV heads is
+equal to two because we have two groups
+but we want to multiply that to get six
+at the end. After that this should be
+the number of query heads. This is why
+we targeted this dimension specifically
+because we want it to go from two to six
+to the total number of queries that we
+have. So this is a really great function
+that simplifies things. If we didn't
+have it, we had to do a lot of
+gymnastics to get this output. So yeah,
+this is what we have inside repeat KV
+and we use it for both key and value
+matrices. So yeah, now everything is
+prepared. The rest is the same. So we
+apply the attention formula. We get the
+weights. We apply the mask soft max. We
+add a little bit of dropout. We multiply
+the masked matrix with V to get the
+final output which in this case is Y.
+But remember since we have four
+dimensions, we need to merge the number
+of query heads and head size. And this
+is exactly what we are doing here in
+these lines. And finally we apply
+another dropout and get the final output
+from this grouped query attention class.
+Yeah. Uh and again here you see that we
+didn't use the head class. So we have
+merged everything into the attention
+class. And as you can see sometimes I
+show you how to use the head. So if you
+want to multi to perform the
+calculations separately you can do that.
+And sometimes I show you how to merge
+the head inside the grouped attention
+into the attention layer. And whenever
+you fuse the head, you always add
+another dimension. When we don't have
+the head class, we will have four
+dimensions. But if we decide to add the
+head class, we will have three
+dimensions. And at the end, you
+concatenate the output from each head
+separately. And again uh after I have
+created this I have made sure to create
+a notebook that I have run in order to
+get those results and you can find it
+here. So let me search for it. It's this
+one 923 improving transformer grouped
+query attention. Now let's go back to
+the slides to learn about the next
+method. Linear attention is the method
+that we are going to focus on now. Read
+the following papers if you want to
+understand this method deeply. Again,
+you can click on the images if you want
+to get a direct link to the papers. We
+know that multi head attention scales
+badly with long sequences of text
+because of the squared complexity.
+Linear attention tries to solve this
+issue by using less memory in order to
+be efficient. How does it do that? Well,
+researchers found a way to approximate
+the attention formula with this one. You
+can find this approximate equation in
+the paper that I have highlighted in the
+previous slide. And as you can see here
+is the the equation number five is
+exactly what I have written here. Also
+researchers found that even though we
+are doing this approximation which goes
+from big O N squar to O basically
+turning the complexity to be linear.
+They found that this method can give you
+good performance even with this
+approximation. Now let's see how the
+attention layer looks like. First we
+have our linear attention formula and
+here is our diagram. This time the
+diagram is different than the previous
+ones. First we have this pi function
+that we apply to the query and key
+matrices. This gives us fq and f k. Also
+if you look at the formula we can turn
+it into this. So si is basically this
+summation and z i is this summation. So
+we can also compute these terms. So we
+have already computed VQ. It's this one.
+Now we can compute SI. So SI is
+basically VK * the transpose of V. So we
+are going to take FK. Here it is. And we
+are going to take V. Here I didn't show
+V transpose but we should transpose it
+before multiplying it by FK. This gives
+us SI. And Z I is basically FQ. FK. So Z
+I is FK. Now we need to multiply SI with
+the transpose of F V FQ. Here it is. So
+SI * VQ transpose. And here basically we
+need to multiply Z I with the transpose
+of VQ. And here it is. So Z I multiplied
+by FQ transpose. And after that we
+divide the numerator with the
+denominator with this operator. And at
+the end we get the output which gives us
+the attention weights. You will see that
+this diagram will help us understand how
+to implement this in code. It will be a
+direct translation from these steps that
+you see here into code. Now let's
+compare linear attention with the
+previous methods. Here is the graph for
+the training loss and the graph for the
+validation loss. Because these curves
+are close to each other. Let me zoom in
+a little bit so that we can see clearly.
+Linear attention is this pink curve and
+overall it's comparable to multi head
+attention as you so you can see here in
+validation both imi and linear layer
+linear attention are very close to each
+other. So even though it is comparable,
+it's not the best method in our
+benchmarking. But you can see that we we
+have a method that works very fast and
+gives us the same performance as multi
+head attention. Let's see the inference
+speed to verify if this is correct. So
+linear attention is this green bar or
+this light green bar. You can see here,
+let's go to 2,00 because here where we
+see the big difference. You can see that
+linear attention is super fast and
+that's because it doesn't use a lot of
+memory. I have an RTX 4070 and I have 8
+GB of VRAM and MHI was using almost 7 GB
+while linear attention was using only
+three. This is why this method is super
+fast. Now, let me open VS Code in order
+to show you how to implement this in
+code. Here is the script that I have
+created. It's called model linear
+attention. We have the linear attention
+class. And as always, let's go directly
+to the forward method because here we
+have the implementation. So first what
+do we do? We project the input text into
+the three matrices. This is what we have
+we are doing in the first step. And here
+you can see that we have the pi
+function. Let me zoom in. Okay, that
+that's better. Pi is defined like this.
+It's u + 1. If you are wondering what is
+this function, basically it's an
+activation function. We have sigmoid
+tanho
+etc. And u is one of them. So this was
+the the activation function that the
+researchers have used in the research
+paper. So we are using that also. But if
+you want you can change this and use
+other activation function. Now let's
+continue. We have the projections. Now
+we need to reshape because again here we
+are fusing the head into the linear or
+into the attention layer. So we need to
+have four dimensions instead of just
+three. So we are introducing the number
+of heads at uh dimension. As you can see
+this is this should be the final output.
+Batch size by number of heads by
+sequence length by head size. We have
+the projection. We have reshaped them.
+Now we need to apply the fi function to
+the query and the keys and this is what
+we are doing here. So we take the query
+we take the key and we apply the feature
+map. This gives us 5q and 5k. Okay. So
+now we need to compute si and z i. So
+here here is s cumulative. S
+commumulative is basically SI and if you
+SI is what is the multiplication of P K
+with V. So here is VK and here is V and
+here we are introducing new dimensions
+so that we can multiply these two
+matrices. So here at the end it should
+give us so here head size by one one by
+head size. So at the end it should be B
+by number of head number of heads by T
+by head size by head size and Z I is
+just FQ FK. So there is no
+multiplication needed here. Okay. Now we
+need to compute the numerator. So the
+numerator is basically SI * FQ
+transpose. So here is FQ and here is SI.
+That gives us the numerator. And here I
+try to also show you the formulas so
+that you don't get lost. Now the
+denominator is Z I * PQ transposed. So
+here is Z and here is FQ. And we also
+add an epsilon. Epsilon is a small
+value. I think here it is set to let's
+see it's set to 10 to the minus 6. We
+are adding the epsilon because this is
+the denominator. Let's say that this
+term was equal to zero. We shouldn't
+divide by zero because that will give us
+infinity. So we add that small value to
+prevent that from happening. And at the
+end we get the attention weights which
+is the numerator which we get from here.
+We divide it by the denominator. And
+finally because we have four dimensions
+we need to fuse those into just three so
+that we get batch size by sequence
+length by the number of heads times the
+head size and finally we apply the
+projection and dropout to the output so
+that we get the dimension that we are
+looking for. Okay. So this is how you
+implement linear attention and if you
+are wondering I also have created a
+notebook to run it. It's 924 improving
+transformer linear attention. Now let's
+go to the slides to learn about the next
+method. Now let's talk about a paper
+called big bird which introduced sparse
+attention. Click on the image if you
+want to read more about the paper. Big
+Bird is designed to process large
+sequences of text without sacrificing
+the performance. Big Bird uses sparse
+attention which is designed to reduce
+the computational and memory complexity
+to be linear. We call this big O of N.
+Sparse attention is the sum of global
+attention which looks like this. Random
+attention and the sliding window
+attention which we also call local
+attention. This gives us big bird which
+is sparse attention. We have seen that
+when we used local attention we were
+capturing only local dependencies but
+big birds because it uses this mix of
+attentions let's call it like that it
+captures both global and local
+dependencies. Let's zoom into one head
+to understand how to implement sparse
+attention. You can see that the diagram
+is big but it's simple. Let's start by
+computing the weight matrix as we did
+before. First we take the input, we
+project it into the three matrices and
+then we compute what we have inside the
+softmax function that will give us the
+row weights. Uh and now this is the
+change. So we need to create a mask in
+order to multiply it with the waist
+matrix. And this is what we do. Here we
+have the local attention mask. You can
+see that here we have zeros in the upper
+triangle and the lower triangle. We have
+global attention which looks like this.
+And finally the random attention mask.
+Here this symbol means or. So we are
+going to take these masks. You can see
+that the values that are colored in blue
+or the cells that are colored in blue
+contain the number one or true and
+outside that we have false. When we use
+the or operation, we are going to fuse
+these three masks into one mask. And as
+you can see, this gives us what we have
+seen in the previous slide, which is the
+sparse attention. And you can see that
+here we have a mix of global, local, and
+random masks. And here we also create
+the causal mask because we want to
+remove the future tokens from the the
+mask. And here we use the and operation.
+So and it's simple if you have true and
+two that gives you true. If you have
+true and false that gives you false by
+using this operator we get this final
+mask. And now we take the final mask we
+multiply it with the weights matrix that
+gives us the masked sensor that we can
+then multiply with V in order to get the
+attention weights. Now let's compare
+sparse attention to the previous
+methods. Here are the two graphs again
+because the curves are close to each
+other. I'm going to zoom a little bit.
+Big bird is this light blue color. And
+as you can see, it performed good. It
+the performance of sparse attention is
+good. So it's close to local attention
+in both training and validation. Now
+let's see the inference speed. But the
+problem is that big bird is slow because
+here we are combining multiple attention
+mechanisms and that slows down this
+approach. I mean we can play with the
+hyperparameters in order to for example
+we you can play with how many random
+cells you want to add um the size of the
+window but overall when you add all
+those attention mechanisms you will get
+a slower solution. And because here if I
+go back here we we do a lot of
+multiplications. So we have a lot of
+matrices that we need to compute before
+getting the final attention weights that
+also makes the approach slower. It
+doesn't use a lot of memory which is
+good but I maybe the implementation
+needs to be optimized. Now let me go
+back to VS code in order to show you how
+to implement this method. I have created
+this script which is called model big
+bird and we have the head class. So
+let's go directly to the forward pass
+and let's see what we have. So first of
+all we compute the query and key
+matrices. Then we multiply them together
+in order to get the weights matrix. And
+now we stop. So we go down. Let me zoom
+in. And things might seem familiar to
+you because we have seen this before. In
+order to create this mask, we create two
+two vectors or two tensors, row indices
+and column indices. We use this
+operation in order to get the cosal mask
+which is this one. After that we are
+going to compute the local window mask.
+We get it after performing these
+operations. And this is exactly what we
+have done in the part where I have
+talked about local attention. After that
+we have global mask and here we need to
+specify the number of global tokens
+because as you can see here for example
+we chose just one token but we could we
+could choose multiple tokens and after
+that we have random attention that will
+give us this mask and then so we get
+here random columns. Now we combine the
+local global and random. So here I
+forgot to add and random components.
+Okay. So you can see I am using the or
+operator in order to combine those. And
+finally when when those are combined I
+am using the and operator to multiply
+the causal mask with the final mask that
+that gives me this which is this value
+this variable final mask. Now I apply
+that to the weights matrix and then I
+multiply that with V in order to get the
+output. I went very quickly as I as I
+showed you before. You should not get
+scared if you see a lot of code. If you
+do not understand always always open the
+terminal. Let me create let me activate
+the environment. Open a new Python
+session and start playing with this. You
+should not get scared if you see a lot
+of code for example. Okay. So I am here
+uh let's create or let's import torch at
+the beginning. Now let's create create
+small examples. There is no need to have
+big matrices. So small examples always
+help you understand the the concept. So
+for example here I am creating a random
+input tensor. Here the batch size is set
+to one. The sequence length is six and
+the embedding dimension is 16. And now
+you can come here for example take this
+paste it here. I'll look at B. Okay,
+that's one etc. And you can verify. So
+after that I can come here take this. So
+I need number of embedding. Let's set it
+to 16. Let's set the head size to be
+eight so that I get two two heads. And
+now I need to import n. Let's get the
+key. Okay, now I can go back and use
+this. So now I can create the key matrix
+or the key tensor. Give it x and that
+gives me and I can that gives me the k
+matrix and I can look at the shape.
+Okay, so that makes sense. So K and QR
+of shape B * T * head size and this is
+what what I get. So this is the batch
+size. This is the sequence length and
+this is the head size and this is
+exactly what I have just set here. So
+head size is equal to eight. You can
+verify these just like that. It's hard
+to visualize these things in your head
+because there is there is a lot of code
+and especially if you work with large
+matrices that becomes very very
+unintuitive. But choosing small examples
+will help you understand everything.
+Okay. So now you can you can do the same
+thing. Let's let me continue uh just a
+little bit. So again I can go back since
+key and query are the same I can remove
+this replace that with key with query I
+can get the query like this and again I
+can look at the shape and that gives me
+the same the same result. Now I can go
+down and compute the weights. So let's
+take this paste it here. Let's look at
+weights. Let's get the shape and this
+gives me 1x 6x6 which is exactly what I
+have mentioned in the comments. So batch
+size by t byt. Um now I can for example
+take this. I just want to show you the
+masks really quickly. Okay. So I uh I
+don't need to have a device but let me
+just set it to be CPU. Now let's go
+back. Let's do the same for columns.
+Okay. And now let's get the causal the
+causal mask. I know we have seen these
+things but I just wanted to show you how
+to visualize everything. So you can see
+that the upper triangle is set to zeros
+which is what we want. This is exactly
+the definition of a coal mask. And again
+if I come here let me set the window
+size to be two. And let's take these
+conditions. Okay, here is the first one.
+Here is the second one. And let's get
+the local attention mask. Now let's look
+at it. Attention mask. And voila. You,
+as you can see, the upper triangle and
+the lower triangles of this tensor are
+set to zero. But here we have two values
+in each row that are set to true. So
+this is the local mask. And here we also
+if you want to create the global mask as
+I as I told you we need to set a number
+of global tokens let's set it to two
+because I don't the matrix is small so I
+can take this put it here I can do this
+for both query and key and let's look at
+global attention mask you might find
+this strange because we don't have a
+square um a square matrix but because
+here Python will Always always remember
+that Python uses broadcasting. So here
+you have 6x1 after that it will become
+6x6 and everything will work and also we
+can do the same thing here for random
+attention mask. So I have the value now.
+Okay. So here we have just created a
+matrix of zeros. But after that we are
+going to again specify the number of
+random tokens that we want to have.
+Let's set it to four. Okay. So this
+gives me random columns. So this just
+will tell me where should I put those.
+Here I have the row selector. Sorry,
+I'll just go through this very quickly
+just to show you the final output. And
+as you can see here, for example, we
+have true. We have true in some other
+places. But as you can see, it's it's
+random. And now I can combine the two or
+combine the three. So I can take this
+and put it here. Combined mask. Just a
+small trick. If you find it very
+difficult to see the trus and falses,
+you can use the int method to convert
+that into integer. So as you can see, so
+this is the combined mask. So we have
+the global mask and we have some random
+values also. Let's do the same thing for
+random just to be able to see that. And
+as you can see, so everything is random.
+What you should take from this is that
+never get discouraged. You have the code
+in front of you. It's easy to use small
+examples in order to understand how
+things work and how are yeah how the the
+matrices looks like. And this is exactly
+why I I add these
+graphics just to show you how things are
+implemented because you can easily find
+these steps in the code. So you can you
+can see that here we the or operation
+for example it's it's here. So you can
+easily find the assoc the step in the
+code and everything should be familiar
+to you and this will help you visualize
+the attention layer very easily. Okay.
+So after getting the output as I said
+because this is we are using the head we
+need to go to the attention class and
+here we need to concatenate the output
+of each individual head and again I have
+created let's see so where is this 925
+improving transformer big bird attention
+this notebook I have used this in order
+to import the GPT language model class
+from this script and in order to run the
+experiments we are near the end of this
+video. We have one last attention method
+to look at which is multi head latent
+attention. So let's go back to the
+slides in order to understand how that
+one works. This is the final attention
+that we are going to look at. It is
+called multi head latent attention and
+it was introduced in the deepseek v2
+paper. I highly recommend reading this
+paper because they have explained how
+they created this method or this
+attention mechanism in detail. They have
+showed all the mathematical equations
+and even they have a graph that explains
+how it was how it works in under the
+hood. Click on the image if you want to
+read more about it. MLA is an efficient
+method that compresses the KV cache. We
+have talked about KV caching before. It
+means that you are going to store the
+key and value matrices and this becomes
+a bottleneck especially during inference
+because if you are generating large
+sequences of text you will need a lot of
+memory in order to store those matrices.
+So Deepseek with this method they have
+showed that they can reduce this KV
+cache by compressing it and the great
+thing about this is that it does not
+sacrifice the performance and it
+guarantees faster inference. We have
+seen that methods like multi-query
+attention or grouped query attention
+also tries to lower the KV cache but the
+problem is that the performance might
+degrade. But here with MLA it guarantees
+both things. MLA incorporates latent
+representations into the attention
+mechanism. We are going to see this in
+the implementation. Instead of directly
+projecting the input X into the tree
+matrices, we are going to project that
+into a latent representation. And from
+that latent representation or we can
+also call it latent embeddings we are
+going to generate our key query and
+value matrices. MLA is very fast
+compared to MHA. We are going to look at
+this in the inference speed test. Now
+let's see how this method is
+implemented. I want you to focus on
+these two matrices. So here as I told
+you instead of projecting X into the
+three matrices key, query and value we
+are going to have an intermediary step.
+This is called compressed query and this
+one is compressed key and values. From
+these latent representations, we are
+going to get the query key and value.
+And after that the rest will say the
+same. But this is the thing that was
+added and this this is shared by the by
+every head and this helps reduce the KV
+caching because you only need to cache
+these two matrices and later you can
+generate these the the rest because from
+Q we from CQ we get Q and from CKV we
+get K and V. Now let's compare the
+results. Again we have the graphs for
+train and validation and here multi-
+query sorry multi- head latent attention
+is this curve. You can see that here in
+validation it is very close to local
+attention. Again, take these results
+with a grain of salt because we might
+get different results if we decide to
+change the hyperparameters or how many
+batches we include in the in the
+testing. And as you can see, we get per
+we get results better than MHA even
+though we reduced the KV caching. And
+now let's see the inference speed
+because this is very interesting. So MLA
+is colored in black and as you can see
+so let's go to 2,00 tokens because this
+is where the other methods struggled and
+as you can see MLA as I told you is
+really really fast. So we can generate a
+lot of tokens without sacrificing the
+performance. And here the one that was
+very close to it. It's linear attention
+because yeah it linear attention is also
+good because as we have seen it reduced
+the complexity to O instead of O squar
+but MLA is the best. Now let's go to VS
+code in order to see how to implement
+this. I have created this script model
+multi- head latent attention and
+everything is implemented in this
+deepseek MLA attention as I told you I
+have been inspired by the research paper
+that they have published there they have
+shared everything so that was a great
+resource and let me zoom in here because
+we will need this diagram okay let's get
+started and here also I want to mention
+that these terms that we see here are
+basically the terms that they used in
+the research paper. Let me open that
+research paper so that you can see these
+things with your eyes. Here is the
+research paper and here you can read uh
+the abstract and the introduction and
+also the architecture chapters because
+here they explained multi head latest
+attention and they have a good diagram
+that helps you understand how it's
+implemented but I want to go to the
+appendex because they have gathered all
+the formulas here okay so now let me
+zoom in a little bit and as you can see
+here are the terms that I was talking
+out. So these matrices that you see here
+for example W DQ, WUQ
+etc. are here. So you can see here is
+the WDQ, WQ etc. And the terms such as
+C, CQ and where is the other one? So you
+can see CQ and CQV here is CQV. These
+are the terms that I have me that I have
+showed in the diagram. Okay. So let's
+continue. I just wanted to show you this
+because this is a little bit different
+from the other scripts that I have
+created. I have I try to make sure to
+use descriptive names but since I here I
+was inspired by the research paper I try
+to stick to it as much as possible. Now
+let's go to the forward method. Again we
+extract the batch size, sequence length
+and embedding from the inputs. Now let's
+start. So here we need to get CQ. So I
+here I called it compressed Q lacant and
+we get that from the WDQ and WDQ means
+we are down projecting and after that we
+apply layer norm. This is what they have
+applied in the research paper and after
+that after getting CQ we are going to
+project that back to UQ or sorry we are
+going to project that to to get the Q
+matrix. And here if I go back to WQ, you
+will see something interesting. We go
+from number of embedding to this
+compressed dimension and WQ which is
+here I called a projection will get back
+from Q compression dimension back to the
+number of embedding. So basically here
+we are making the matrix small and after
+that we go back to the big matrix and
+this is why this method is fast because
+here we have a small matrix that
+compresses the knowledge into a small
+space. Okay. So these are the two
+matrices that we have used in the first
+place or yeah in the first step and yeah
+after using WQ we get the Q matrix here
+I called it Qf final and we do the same
+for CV. So we use this matrix d means
+down and U means up. So we are going
+again if I inspect WD KV you will see
+that we go from number of embedding to
+another small space. Okay, so that gives
+us CKV which is this and from CKV we
+need to get the key and value matrices.
+This is exactly what we are doing here.
+After applying layer normalization, we
+use W key and WUV in order to get those
+two matrices. And if you have noticed,
+we don't have the head class. So we need
+to introduce the number of heads by
+mention. We got Qfinal. We try to
+extract the the number of heads from the
+C channel or from the C dimension. I
+think we you should be familiar with
+this. We have done this multiple times.
+I want to show you something new that I
+haven't used in the previous scripts. Is
+this function scaled.prouct attention.
+PyTorch provides this method that
+calculates the attention scores. So I
+just wanted to show you this because
+previously we were doing this manually.
+You can see that it handles soft max
+scaling and causal masking. So there is
+no need to do that manually. You all you
+need to give it the query key and value
+matrices. If you want to give it a
+custom mask, you can do that. But
+because here we are setting is coal to
+true that will be handled by PyTorch.
+But if you want to provide another mask
+just set it here. And here we are
+providing the dropout probability. After
+that we need to concatenate these two
+dimensions in order to get just one. So
+we are going to get the C channel again
+or the C dimension. Here we have this WO
+which basically will give us the output.
+So we are going to project the attention
+weights into another matrix that we call
+output which is basically this one. And
+we are going to return it. So let me
+close this file because I don't need it.
+And I have also made sure to create a
+notebook. So it's called 926 improving
+transformer multi head latent attention.
+So here I have imported the GPT language
+model class from this script and
+everything stayed the same. We have
+reached the end of this video. I really
+hope that you have enjoyed it. Before I
+finish this video, I want to show you
+basically what we have. The baseline was
+standard multi head attention. We have
+used many attention mechanisms. We have
+compared them to the standard multi head
+attention and we have seen that all of
+them performed really well compared to
+standard multi head attention. Here you
+can see that I have picked multi head
+latent attention and grouped query
+attention for two reasons. We have seen
+that multi head latent attention was
+super fast compared to the other methods
+and it used less memory overall and
+grouped query attention. You can see
+that here the gap is very huge and this
+is on the validation set but it was
+slower compared to multi head attention.
+And here I think that for some reason
+groups query attention worked really
+well because I have maybe used a small
+number of batches in the evaluation. As
+I said, I took a,000 batches from the
+training set and the validation set and
+as an evaluation set. Maybe if I
+increase that to let's say 5,000 or
+more, maybe this graph would have
+changed. But for some reason, maybe
+group query attention got lucky and we
+got this huge difference. But I think I
+will stick with multi head latent
+attention because it's fast and it
+performed well. That's it for this
+video. See you in the next one. Hi
+everyone. In this video, we are close to
+finishing the course. So far we have
+done a great job learning about the
+different attention mechanisms and ways
+to encode positions. Those were the big
+things in the transformer architecture.
+This is why I am calling this section
+small refinements because we are going
+to do small experiments that test
+different normalization methods,
+different activation functions. Is
+dropout necessary? for example, etc.
+Let's start. First, we are going to try
+different activation functions in the
+feed forward network. Here is a graph
+that shows different activation
+functions like relu, gelu, sigmoid, etc.
+In this video, I will pick GLU and
+swigloo. If you are wondering why I
+chose these two activation functions,
+basically because training large
+language models is expensive and I don't
+want to try everything every activation
+function that exists because the list is
+very long. After that we are going to
+play a little bit with normalization
+methods. Currently we have been using
+layer norm but we also have LMS norm and
+batch norm although this one is not used
+in LLMs. Then we are going to compare
+placing the normalization layer before
+and after the attention and feed forward
+layers. We commonly refer to these as
+prelayer norm. You can see that here for
+example I have the attention layer and
+normalization comes before it. And we
+also have post layer norm. You can see
+here is the attention layer and
+normalization comes after it. And we can
+also do this for the feed forward
+network. We are going to see this in the
+coding section. Finally we are going to
+ask this question. Should we use
+dropout? In the previous code I'm
+referring to the baseline. We have used
+dropout heavily in the code but this
+time we are going to remove it and see
+if that improves the performance or not.
+This is the plan that we are going to
+follow. Now let's go through it. In the
+previous years the most common practice
+was to use ReLU in deep learning for
+every problem. This is how ReLU looks
+like if you are wondering but now every
+LLM uses a different activation
+function. Y radio is not much used
+anymore. The problem is that negative
+values are clamped to zero. This limits
+the representational capacity of this
+activation function. Researchers created
+many activation functions that addresses
+this issue. For example, leakyu is one
+of them. And here is how it looks like.
+You can see that leaky value allows
+negative values to pass through to the
+next layer. The problem is that negative
+values can grow to large values and we
+don't want that. Are we done? Is this a
+problem that is unsolvable? No, don't
+worry. We have another activation
+function which is called selu and other
+activation functions. It's not only this
+one that solves this issue. You can see
+that here instead of allowing every
+negative value to propagate we are going
+to control the interval for example the
+values that are inside this interval are
+going to pass but after that we are
+going to clamp the values to zero.
+Swiggloo is an activation function that
+is used by the llama model and it is
+composed of two parts. We have swish and
+gillu gated linear unit. Both of these
+are activational functions and by
+combining them we get swigloo. And if
+you are interested here are the formulas
+to for these activation functions. Swiss
+has been shown to outperform ReLU in
+many applications and GLU allows the
+network to focus on important features
+by either passing or blocking
+information. We have talked a little bit
+about the activation functions that we
+have that we are going to use in this
+video. Now let's see the benchmarking.
+We are going to consider ReLU as the
+baseline because I have used it in the
+multi head attention video. Then we will
+evaluate the performance of GLU and
+Swigloo in comparison to ReLU. Here are
+the results. As you can see, Swiglow is
+the winner. It converged quickly and it
+achieved the lowest loss value. Now
+let's go to VS code to see what I have
+changed. The model script is our
+baseline. And if I search for relu, you
+will see that I have used it in the feed
+forward class. And this is the only
+place where we where we used an
+activation function and we are using it
+between two linear layers. Here is the
+second script that I have created. Here
+I have used MLA for the attention
+method. And here I have replaced ReLU
+with Gio and for Swigloo. Let me search
+for it. Yes, it's this one. Let's go
+down. This one is a little bit difficult
+to implement. But here I I have been
+inspired by the code that is provided by
+Meta. Here it is. I have tried to select
+the parts that is that we are concerned
+with. And here you can see that they
+also used this inside the feed forward
+class. So let me go back to VS code. And
+here it is. Remember that I have
+mentioned that swigo is the combination
+of swish and gill. Gillu means gate
+linear unit. And here you can see that
+we have this this gate linear layer. And
+we have two linear layers that will
+compress and decompress the inputs. But
+I won't go into detail because as I said
+I have I just took this implementation
+from the existing llama code. But what
+interests us is how we can compare
+different activation functions and where
+you should change them. Most of the
+activation functions are implemented in
+PyTorch but the new ones or the custom
+activation functions that researchers
+come up with maybe are not yet
+implemented. But check if they already
+inside the NLN module. For example, here
+I can search for you can see that here
+we have different flavors of prelu we
+have 6. I have talked about selu
+sigmoid. You can see that we have lots
+of activation functions. So if you are
+wondering how to change the activation
+functions, here is where to do it. Now
+let's go back to the slides to talk
+about normalization methods.
+Normalization is a method that helps the
+network train quickly and stabilizes the
+training process. Normalization helps
+mitigate the issues of vanishing
+gradients and exploding gradients. Let's
+focus on vanishing gradient. Here is a
+simple diagram for a neural network. we
+have the input and output layers and in
+the middle we have the hidden layers.
+The arrows indicate that here we have a
+forward pass. We take the input we feed
+it to the hidden layer and after that we
+get the output. Vanishing gradients
+means that during back propagation the
+gradients starts big and decrease from
+layer to layer. This effect starts to be
+noticeable when training networks with a
+big number of layers. Let's say that you
+have a network that contains 100 layer.
+By the time you reach the first layers,
+maybe the gradient will be equal to a
+small value and that will make training
+very slow. Here is a meme that maybe
+will help you understand vanishing
+gradients. You can see that the meme
+says me uses sigmoid and 10h activation
+functions gradients. So the gradients
+start small and then they start fading
+and by the end they are gone. Exploding
+gradients on the other hand is the
+opposite. The gradients start small but
+they keep increasing between layers. In
+any case, we don't want to deal with
+vanishing or exploding gradients. So,
+it's great that normalization
+helps prevent this issue. Also I want to
+emphasize that normalization adjusts the
+scale of the data without changing its
+shape. Here is a figure that explains
+this point. Here on the left you can see
+that the values on the yaxis ranges
+between let's say three and 8. But on
+the right after using normalization the
+range has been changed to be 0 to 1.
+Same story for the x-axis. You can see
+that here we have maybe 25 to 70 but
+after that the range is between 0 and
+one but the shape did not change even
+though the scale of the data changed.
+There are many normalization methods. We
+have layer norm, batch norm, arms norm
+etc. Layer norm is the method used in
+the original transformer that was
+introduced in the attention is only need
+paper. Here is the equation used by
+layer norm. This method normalizes the
+activations of each layer across the
+feature dimension. Here is a diagram
+that illustrates that. Here we have a
+tensor where n is the batch dimension, c
+is the feature dimension and we might
+have other dimensions. For example, if
+you are dealing with images, you might
+have the height and width. It depends on
+the data that you are working with. But
+you can see that here the normalization
+is done across the feature dimension. In
+this case, it's C. Use this method if
+you can't use big mini batch sizes. In
+our example, we are training a large
+language model. Maybe we have few
+resources. So we cannot train on very
+big batch sizes because we don't have a
+lot of memory. In that case, maybe layer
+norm will not work. Batch norm on the
+other hand normalizes the activations
+across the batch dimension. You can see
+that here instead of applying it in the
+C dimension we are applying the
+normalization across the batch dimension
+which in this case is denoted by this
+letter N. And here is the equation used
+by batch norm. Batch normalization uses
+learnable parameters in order to allow
+the model to shift and scale the
+normalized activations. So the
+normalized activations is basically this
+term in the middle x minus mu / the
+square root of this term and the
+learnable parameters are gamma and beta.
+Finally we have norm. This method
+normalizes the activations based on the
+root mean square of the activations
+themselves. Here is the formula that is
+used by arms. Unlike layer norm
+does not center the activations before
+normalization. So you can see that here
+let me go back here we have x. So the
+minus mu. So this is a term that centers
+the activations. But here there is no
+there is no term that that will center
+the activations before applying the
+normalization. RMS norm reduces
+computational complexity without
+sacrificing performance. This means that
+training will be a bit faster but this
+not the performance will not degrade. So
+I have explained to you the three
+normalization methods. Now let's start
+the benchmarking because I have used
+layer norm in the previous script or in
+the previous course. I will consider
+this as the baseline and I will compare
+RMS norm to layer norm. Here are the
+results. I had to zoom a lot in order to
+see which method did well. As you can
+see, layer normal performed better by
+0.07%.
+You can see that the value is so small
+because there is I I mean even though
+yes layer performed better than LMS
+norm, but because the difference is very
+small, it's not that interesting. And
+this confirms the points that I said in
+the previous slide where I said that
+MSORM reduces computational complexity
+but does not degrade performance. Now
+let's go to VS code in order to show you
+how to apply or where should you change
+the script so that you apply you use
+other normalization methods. Here is the
+previous script that we used in the
+previous course. And if I search for
+layer norm, you can see that we have
+used it in many places. We have three
+layer norms that we defined. As we have
+seen in the section where we talked
+about activation functions, PyTorch
+comes packed with many normalization
+methods and you can access them like
+this. So we use the NN module. Let me go
+down and here we al we already saw layer
+norm but if you want to use for example
+norm you can find it here let's search
+for batch norm as well here here they
+are and batch norm is used a lot when
+you develop CNN models so we are this is
+why I didn't use it in this lm course
+but yeah just to give you an idea if you
+want to search for something start by
+searching inside the NN module maybe you
+will find the what you are looking for
+there but if you don't find it you can
+implement it yourself so this is the
+previous scripts that we have used we
+have used layer norm so there is nothing
+we need to change here but I have also
+created another scripts where I have
+implemented LMS norm so here I have used
+again the same script that I have talked
+about this is the llama script so this
+python script is used for inference and
+in these lines they have implemented LMS
+norm. Here is the LMS norm class and
+yeah I I've just copied this and I have
+pasted it inside my my custom script. So
+yeah this is how it looks like and
+basically this implements the function
+the formula that I showed you in the
+slides and you might ask why did you
+implement it yourself? Doesn't it exist
+in PyTorch? Yes, it does exist. But I
+did not think that PyTorch has LMS norm.
+That's why I went searching for it. But
+I could just delete this and use NNMS
+norm and that will have worked. But
+sometimes you might find new
+normalization methods that researchers
+have come up with, but you will not find
+them inside PyTorch. In that case, you
+need to create a custom class and use
+it. And if I search, you can see that
+here I have basically replaced every
+instance of n.layer norm with my custom
+class. Or in this case, we can we could
+just use n. RMS norm and that will have
+worked also. Now let's go back to the
+slides. Let's talk about where to put
+the normalization layer. We can place
+normalization
+before or after any layer. We use
+special names pre-layer norm and post
+layer norm. Here ln stands for layer
+norm. But if you use another
+normalization method, you should replace
+it with that method. We have seen these
+diagrams before. Pre-normalization
+means that the normalization method of
+your choice comes before the attention
+layer in this case and
+post-normalization
+means that normalization comes after.
+Postnormalization
+can encounter stability issues as the
+number of layers grow. Also, it achieves
+better final performance, but it is very
+hard to find the right hyperparameters.
+Pre-normalization on the other hand
+offers better training stability because
+it is less sensitive to hyperparameter
+choices. So even if you don't search for
+the optimal hyperparameters,
+you can get good results with this
+approach. Pre-normalization
+shines where the number of layer is big.
+Let's do the benchmarking. We are going
+to consider pre-normalization as the
+baseline and we are going to compare it
+to postnormalization. Here are the
+results. As you can see,
+post-normalization
+performed better than pre-normalization.
+In this case, I have a small model. I
+don't have a lot of layers. This is why
+postnormalization
+performed the best. But I'm just giving
+you the methods that exist and ways to
+implement them. And then it depends on
+your case. You might get different
+results if you have a bigger model or if
+you are turning on a different data set.
+Now let's go to VS Code to see how to
+implement postnormalization
+in the model script. Here are the layer
+norms. And as you can see here, we are
+using pre-normalization.
+Why? Because we are applying
+normalization before the attention
+layer. So the output from the
+normalization layer is considered as the
+input for the attention layer. So
+postnormalization will basically change
+the order at which these operations are
+performed. So let me show you how this
+looks like. I have created this script
+that will basically change the order of
+operations. Okay. So inside the block
+class or before I explain let me put the
+the script here on the right and let me
+decrease the font size so that we can
+see both methods. Here on the right you
+can see that here I added a comment. So
+just to mention that here we are using
+postnormalization.
+Here we feed the input to the attention
+layer and after that we apply
+normalization. We do the same here for
+the feed forward network. So we give
+this input to the feed forward layer and
+after that after getting this output we
+are going to add it to the to this
+input. This gives us X and after that we
+apply normalization. You see the
+difference is small but it it worked in
+our case. Now let's go back to the
+slides because we have one last thing to
+talk about which is dropout. Dropout is
+useful when you want to avoid
+overfitting. Here is a diagram that
+explains dropout. On the left we have
+the standard neuron network. You can see
+that every neuron is connected to the
+other neurons that it can connect to. On
+the right we have the network. After
+applying dropout, you can see that some
+neurons are deactivated, which means
+that some connections are being dropped.
+This is what dropout does to to your
+neuron network. And if you want to read
+more about this, I have made sure to
+link to the original paper that
+introduced this idea. You should use
+dropout if training on a small data set
+for a few epochs because when you start
+to iterate over the data multiple times
+this might lead to overfitting. But if
+you train on your data set just once
+then you will not have overfitting. LMS
+train for one epoch because the data set
+size is enormous. In this case, dropout
+is not needed because the model will not
+iterate over the data more than once. In
+this final benchmark, I am going to
+compare using dropout to not using
+dropouts. Here are the results. And as
+you can see, because I have trained the
+model on just one epoch, not using
+dropouts performed better than using
+dropouts. Now let's go to VS code in
+order to show you how to implement this
+or what are the things that we need to
+change. So now let me search for
+dropout. You can see that we have
+defined dropout in many places here
+inside the head class inside the multi
+head attention class and in the feed
+forward class. So if you don't want to
+use dropout basically remove these lines
+whenever you find nm.dropout dropout
+remove it or in this case we have stored
+it in this variable. So you can remove
+this and remove it whenever whenever it
+is used. After you do that use that this
+new script inside the notebook train
+your model and maybe this will help you
+get better results. We arrived at the
+end of this video. I hope that it was
+useful and informative for you. In the
+next video, we are going to compare the
+original transformer model with a model
+that uses the best methods. So, we are
+going to use for example for positional
+encoding, the rotary positional
+encoding. For attention, we are going to
+use maybe multi- latent attention or
+grouped query attention. We are going to
+remove dropout. We are going to use post
+normalization etc. So we are going to
+assemble these best methods that we
+found during these previous videos. The
+goal is to compare again the original
+model with the best model that uses the
+best methods and the goal is to see that
+the loss curve keeps decreasing. For
+example, we are going to use rope the
+the rotary positional embedding. We we
+should see that the loss decreases.
+After that we are going to add to it
+multi head latent attention. This should
+decrease the loss again and we will keep
+going like this until we implement
+everything. At the end we will see if by
+implementing these methods we will get a
+huge boost in performance. See you in
+the next video. Hi everyone. In this
+video we are going to use everything we
+have learned from the past videos. We
+will put it all together to update the
+2017 transformer architecture in order
+to use the best ideas. We will go step
+by step. This way you can see how each
+small change makes things better. At the
+end we will look at the old 2017
+transformer architecture and compare it
+to the new one we built in this video.
+Like I said, we are going to build the
+best model using what we know. Now, we
+will make the model better bit by bit
+with small improvements.
+This picture shows the parts of the 2017
+transformer architecture. First, I will
+change the multi head attention part to
+multi head latent attention. Then I will
+use rotary positional encoding to encode
+the positions. After that instead of
+doing pre-normalization
+I will use post-normalization
+in the feed forward network which I
+called dense layer. I will replace the
+radio activation function with swigloo
+and last I will remove dropout. So you
+can see we have five steps. By the end
+we should see a big improvement in
+performance. After each step we will
+show a graph of the loss curves so we
+can see our progress. Let's begin with
+step zero. This is just the basic 2017
+transformer architecture. It uses
+learnable positional encoding multi head
+attention relu as the activation
+function pre-ormalization
+layer norm and dropout. In step one we
+change multi head attention with multi
+head latent attention. Here are the loss
+graphs for both steps. As you can see
+the loss went down from 4.84
+to 4.66.
+That's a drop of 3.72%.
+This is a good start. Now, in step two,
+we use rotary positional encoding
+instead of the learnable positional
+encoding. This makes the loss go down
+even more to about 4.42.
+Now, the total drop is 8.57%.
+This really shows how good rotary
+positional encoding is. Step three is
+about changing from pre-normalization to
+postnormalization.
+This brings the loss down by 9.27%
+in total. In step four, we swap relu
+swigloo. This change makes the total
+loss reduction even bigger. Now it is
+10.72%.
+Finally, in step five, we remove
+dropout. This brings our total loss
+reduction to 11.44%.
+Now, let's clear the graph and just show
+step zero and the very last step. Here
+is the graph. As you can see, there is a
+big difference between the two loss
+curves. I am really happy to see this.
+It shows that all our hard work trying
+to find the best methods for each part
+paid off. The loss in step zero or phase
+zero was around 4.84
+and in the last step it went down to
+4.28.
+Now let's go to VS code in order to show
+you the script that I have created. I
+have opened the project in VS code and
+if you open the transformer folder you
+should see that I have added four
+scripts even though in the slides I have
+mentioned that we have five phases here
+I have only four because multilent
+attention we have already done that
+before and yeah we have it here so there
+is no need to recreate it what what you
+see here is basically just me merging
+the old scripts that we have into the
+this final phases and I have also
+created notebooks that that use these
+scripts. If you open the notebooks
+folder, you will see that we have them
+here. It's these four 951 952 to 954.
+And as you can see, they use the four
+phases that we have here. If you have
+made it to the end of this video, I want
+to say thank you for watching this
+course. This is the end of this video. I
+really hope you have learned a lot and
+enjoyed this journey with me. We have
+one more video left. In that video, I
+will wrap things up and give a quick
+summary of what we covered in this
+course. See you next time. We have
+reached the end of the course.
+Congratulations. You have done an
+awesome job. Let's quickly go over what
+we have learned. We started our journey
+by looking at the original transformer
+from 2017. Thanks to that architecture,
+we were able to create our first
+language model. This course was all
+about exploring the improvements and new
+ideas that were proposed from 2017 to
+2025 that helped make the transformer
+even better. As you can see from this
+diagram, we have tried a lot of ideas
+and we had to learn a lot in order to
+get here where we have improved the
+transformer architecture drastically. We
+observed that these new ideas
+significantly enhanced the transformer
+architecture across various aspects such
+as memory usage, inference speed, better
+results, and more. We also noticed that
+each improvement helped lower the
+model's loss, which means it got better
+at understanding and predicting. We have
+seen this in the previous video when we
+applied just MLA that helped reduce the
+loss a bit. When we added to it re
+swigloo no dropout etc. we kept reducing
+the loss further. And here is the
+takeaway. Transformers are still
+changing and getting better. If you want
+to stay on top of things, keep an eye on
+the latest research. Thanks a lot for
+watching the

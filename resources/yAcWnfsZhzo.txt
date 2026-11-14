@@ -1,0 +1,495 @@
+yeah hi and welcome everyone to this
+coding Along video for the build a large
+language model from scratchbook my name
+is Sebastian rashka and I'm the author
+of this book and I'm planning to record
+a couple of videos for this book as a
+supplementary resource so as you might
+know there are seven chapters in this
+book and the videos will be from each of
+these chapters where I will hopefully
+provide a more I would say casual but
+also interesting take on some of the
+code examp
+however of course the videos won't be as
+comprehensive as the book itself so they
+work best in combination with a book
+that being said um so I'm planning to
+record videos for each chapter however
+chapter one if we go to chapter one here
+does not have any code examples so I
+thought for the for this first video I
+would show you how you can set up your
+python environment so that you can then
+run the code for chapters 2 to7
+and of course there are many different
+ways you can set up a python environment
+and um here in this video I'm planning
+to show you my personal preference so
+how I would set up python on a new
+computer and yeah even I sometimes think
+about how I would ideally set up python
+so um recommendations change and I try
+you know to try to keep it simple but
+also use the latest um I would say
+recommendations and tools to provide an
+ideal experience so I do have a
+supplementary resource here on GitHub so
+GitHub um is a place where I share some
+of the code for this book and if you go
+to my account RBT and then llm Das from
+scratch um yeah you can get to this
+GitHub repository and then there is this
+convenient setup folder that I yeah set
+up here where you can find some
+recommendations like I mentioned before
+I will be showing you you can set up
+your own computer environment for this
+book on your own computer um personally
+I will be using a MacBook mini uh sorry
+MacBook Air which is almost 5 years old
+now and the code hopefully will run
+perfectly there because I made sure when
+I WR the book that it runs on different
+different Hardware so the book will
+automatically run on gpus if you have a
+GPU but it will also run just fine on
+older Hardware cuz yeah the goal for
+this book was to make it accessible to
+different operating systems different
+computer environments all the hardware
+and so forth however if for some reason
+the setup instruction here doesn't work
+for you you may also want to consider
+instead of running things locally to for
+example um consider Cloud resources so I
+can highly recommend for example
+lightning Studio which is one of the
+most convenient ways to run code in the
+browser or executing code via your
+browser where it runs on a different
+machine in the cloud and there's of
+course also Google collab which is also
+very widely used um platform to run uh
+Jupiter notebooks and for this book all
+the chapters are available as Jupiter
+notebooks which you can upload in Google
+cab and execute there in case you have
+any problems setting up your own
+computer environment on your own
+computer but yeah to make this video
+interesting let me actually show you how
+I would set up python on my own computer
+so for this actually this is a fresh um
+Al environment and setup on this
+computer just to mimic how you know I
+would set up python on a new computer in
+this case it's Mech OS and I do have a
+subfolder here that is called optional
+python setup preferences so the emphasis
+is an optional that this is something I
+recommend but you don't have to follow
+it I mean you can install python Your
+Own Way um however this is how I would
+personally do it and um even there there
+are multiple ways you can do it so I
+used to be a cond user for a long time
+so cond is a package manager for python
+and a bit more than that and I used it
+for a long time to manage yeah my python
+libraries and in combination with cond I
+also used pip which is like the um
+Native official way in Python to install
+packages however recently there's a new
+package called UV and this one is
+essentially providing the same or
+similar syntax as pip but but also has
+some advantages and is very fast so I
+actually recently also moved to just
+using UV because it's just much faster
+and it's a really nicely designed um
+package manager and yeah the python
+Community is very excited about this a
+lot of people in the python Community
+are using this so I also thought I will
+show you how you can set up your
+environment using UV and it's actually
+relatively simple it's not more
+complicated necessarily than using any
+of the other
+two um that being said there are also
+multiple ways you can use UV so there is
+the UV pip syntax which is very similar
+to the original python pip package
+manager but there's also the native UV
+Syntax for this tutorial I will be using
+the UV pip interface because it's a bit
+more familiar to pip users but if you
+are you know more advanced or you're
+ready to explore the native syntax also
+feel free to check out this tutorial
+here um so the first step here in our
+journey would be of course installing
+python itself so we can actually check
+if we have python installed by for
+example typing um python D- version in
+our terminal so this is in Mac OS but I
+think it's similar on Linux and windows
+um so here it says python not found
+which means I don't have python the
+command set up like this that it would
+work this way another thing I usually
+also try is typing on Python
+3 and here you can see in this case I
+already have python installed or my
+operating system has python installed
+and actually right now while I'm
+recording this there is python 3.13
+available now this is 3.9 which means
+it's four version numbers behind the
+most recent python release and that
+tells me this must be some old version
+of python that came with my operating
+system so usually when you set up um a
+new computer it already has python on it
+but it's used by the operating system
+and I highly recommend not modifying
+this python version and also not just
+working with it because you might break
+something and then it could cause
+trouble for your operating system so I
+highly recommend not touching this
+python here at all and so what I
+recommend is just installing a separate
+version of python and you can do that in
+multiple ways uh the official way would
+be for example going to python.org and
+yeah installing it from there so they
+have a menu here and you can download it
+for different operating systems so I can
+for example go to Mac OS and then yeah
+look for the latest release and here it
+says Python
+3.13 and another thing I wanted to
+highlight is I would recommend
+installing a slightly older version of
+python that's because packages like
+pytorch which we will be using in this
+book they actually they are not always
+supporting the latest version of python
+it usually takes a few months to um yeah
+py torch um supports let's say the
+latest release of python so I would
+recommend to be on the safe side to
+adopt a version that is one or two
+version numbers behind for example
+python 3.12 or 3.11 and you actually
+won't miss out on anything because you
+know you don't use these most recent
+features in Python anyway when you do
+scientific Computing so in this case
+it's safe to install a slightly older
+version and so for this book I tested it
+on all all all versions like 3.10 11 12
+and also 13 it works just fine but to be
+on the safe side as a general rule of
+thumb I recommend installing a slightly
+um yeah lower or smaller version for
+example 3.11 or something like that um
+that being said there are many ways to
+install python um I on this computer use
+Homebrew which is another package
+manager so um if I go here and type
+Homebrew you don't have to use it by the
+way it's just something I happen to use
+on this computer and it's called The
+Missing package manager for Mach OS and
+so it allows you to install certain
+tools that don't already come with Mach
+OS but you can also for example use it
+to install python that's just personal
+preference but you know you can also
+just download it from the website there
+are multiple ways um you can install
+python but that is just how I would do
+it personally so you can type bre
+install python let's say
+3.11 um yeah and that would then install
+python so that would be the first step
+and then the second step would be
+setting up UV so UV is this package
+manager and you can install it via pip
+install UV so if you have python already
+installed this would be pip would be the
+python package manager and we use that
+to install another package manager and
+the reason we do that is because UV is
+actually faster than pip and it's just
+more convenient to use it in my
+opinion now looking at the output here
+it says python is installed now it's
+installed in this folder and there are
+some Advanced ways you can actually link
+it so that when you type um python it
+will automatically use this python but
+for Simplicity let's just um use the
+commands from here and it says for
+example you can install python packages
+with this command so it's slightly
+different from what's shown here um but
+yeah I will just use this command you
+can link it on your computer that it is
+just pip but
+you know to for brity I don't want to
+over complicate things here we are now
+installing the UV package manager and so
+this was very quick it's installed now
+and the next step after that is creating
+a virtual
+environment this is not strictly
+necessary but I highly recommend this um
+this means virtual environment means
+that it is a separate folder on your
+computer where all the packages are
+installed and in this case it will also
+bring its own version of python this
+means if you're messing anything up by
+accident you can just delete this
+virtual environment and start over
+without you know messing up your whole
+computer so this is actually something
+um yeah I highly recommend so before I
+execute this though let me do one more
+thing so let me
+actually download this GitHub code here
+so I go go to my GitHub repository and
+then you can click on download
+zip and it will download this here in
+this case to the downloads folder um let
+me just open the downloads
+folder and then let me drag this to the
+desktop because then it's a bit easier
+to see so I have now this folder and I
+can go in here and you can see the
+contents of the folder here are the same
+contents that are
+shown here on GitHub so I just yeah
+copied or downloaded this this uh GitHub
+report repository now let me actually
+navigate to this
+folder it might be a bit different on
+Windows um but this is how you do it on
+Mac OS and Linux and then I can also
+show the contents of this folder here
+now let me create this virtual
+environment so there was this command um
+I just showed you um where was it here
+this command so this UV V this will
+create a virtual environment and let's
+just use Python let's say 3.11 and this
+will create a folder called V we can
+double check now it's here and it has
+its own version of python so in case we
+miss anything up um it will actually um
+not be a problem we can just delete this
+folder and then we should be able to set
+it up again so what I mean is I if we
+mess anything up later on can just
+delete it and then recreate it like this
+now um there's one more so one more
+thing I want to say is also you may not
+be able to see this folder because it
+starts with a DOT and um files or
+folders starting with a DOT are by
+default invisible in in the finder so
+there's a finder option that you have to
+enable to make invisible files and
+folders visible but here let's say it is
+visible um assume yeah you have created
+this V folder The Next Step would be
+activating this so creating the virtual
+environment is only something you have
+to do once unless you delete it but then
+every time you work with it you activate
+it so now this is active and when I type
+python so I can type Python and there's
+this command which which shows you which
+python version you using I think on
+Windows you have to type where but it's
+stick with this because this is mechos
+and you can see it's now using when I'm
+executing python it's using this python
+from my virtual environment so let me do
+this so this should be python
+3.11 from um from this path here again I
+can delete this so let me just get rid
+of
+this if I type python version it won't
+be available because I just deleted it
+so in this case we have a virtual
+environment that is just very specific
+to this um folder and if we mess
+anything up we can just yeah start over
+again and yeah installing packages works
+like this you can do UV pip install and
+then uh there's a package called
+packages let's just install that so it
+will then yeah install this package or
+if we want to install pytorch we can
+type UV pip
+install torch so for some reason the
+pytorch team named the python package
+torch instead of pytorch so something to
+remember pytorch is the main deep
+learning library we are using in this
+book so now I installed um torch or pie
+torch and yeah so we could do that for
+all the packages that are used in this
+book and in the chapter itself I'm
+usually telling you which package needs
+to be installed but if you want to make
+this super convenient and not just you
+know executing this one by one you can
+actually go here and there's a file
+called requirements. text it's also the
+same here on
+GitHub if I go to the main view there's
+a requirements. text text and it lists
+the latest or the the packages that are
+required for running this book so if you
+do pip or UV pip install minus r
+requirements oops you can install all
+the packages all at once like this and
+yeah so in this way you are done you
+don't have to do anything um in addition
+this should install all the packages
+that you need for this book now if
+you're running this on
+Windows you might encounter an issue
+with tensorflow IO GCS file
+system um and this is a bit annoying so
+the the reason why we need this is that
+open AI released the GPT weights for the
+gpt2 model um an llm that we are using
+in chapter
+5 as tensor flow code back then and the
+weights are in tensor flow we are not
+working with tensor flow in this book we
+are using pytorch which is the most
+widely used deep learning library at the
+moment um however just to open these
+open weight files we have to briefly use
+tensorflow and this is why it's a
+requirement however it might create some
+problems on windows so if you don't want
+to worry about this you could either go
+into this requirements
+file here delete tens of flow save it
+and then just run this command again and
+then worry about yeah worry about
+installing tensor flow at a later time
+you you can also without having to
+delete this I think what works because
+it will build it from Source you can
+leave it in here and just run pip
+install without UV and this this should
+also work so like
+this however in case this also doesn't
+work there's another backup option and
+this would be using Google cab so if you
+go to Google
+cab this is a you can run notebooks in
+the cloud it's uh free and what you
+could do here let me do new
+notebook um yeah so you can install for
+example again UV so you can type pip
+install UV usually it's not always
+required but it's usually a good idea to
+add this exclamation mark if you are
+running this in a notebook and then so
+what you can do is you can go here
+to this main folder click on
+requirements. text click on
+raw and copy this link
+here go here and type UV pip install
+minus r and it will install all the
+required packages here um oh one more
+thing to say is we are not or we have
+not created this virtual environment so
+this is why we are seeing this error
+here and in Google collab it would be
+Overkill to create this virtual
+environment I mean we could do it with
+this UV V for example but this would be
+Overkill because a Google collab is
+already a virtual environment so every
+time you open the notebook um in a new
+session it will be a fresh environment
+so in this case since it is already a
+virtual environment we can just uh type
+system and it will treat it like such so
+that it is not creating a separate
+virtual environment but it's really up
+to you this is like just a bit simpler
+it's one less step to worry about oops
+um one
+mistake oh I made a typo I forgot an S
+so yeah so this is installing all the
+packages in Google collab now and then
+we could for example execute the code
+for this book in Google collab and by
+the way this command also works locally
+so if you don't want to download the
+GitHub repository you could also just
+copy this in here with this uh URL and
+install all the packages right here here
+it already I mean already has the
+packages so it didn't do much but if you
+run this for the first time this will
+install all the packages and then once
+we have this installed we can do UV run
+and open a new Jupiter lab environment
+so jupyter lab is a way to open jupyter
+notebooks by default this will open up
+in your um Prim primary browser and then
+yeah we can open the code for the
+different chapters for example or we
+could make a new notebook so that's what
+I recommend when you're following along
+with this book either um to make a new
+notebook and run the code here or
+another thing is you can open an
+existing notebook but you know it would
+be a little bit of a spoiler if you see
+already the output so I highly recommend
+um going here and selecting
+um clear outputs of all SS which will
+delete the output so you're not seeing
+the output but I think to get the most
+out of the book I highly recommend just
+doing a fresh notebook and actually it's
+a lot of work but actually typing the
+code because that's actually a really
+good learning experience because then
+you also see or you pay more attention
+to the code than just you know copy
+pasting it or just starting with an
+existing notebook but yeah I don't want
+to go uh too much ahead here and start
+already talking about the code in
+chapter too we will do this in the next
+video I hope this video was useful to
+you and showed you one way you can set
+up your Computing environment and yeah
+if you have questions please feel free
+to comment um I'm happy to answer
+questions you might have and also know
+if nothing works you know there's always
+Google cab or there are other
+environments I can also share where
+there will always be a possibility that
+you can run the code so don't worry
+about it but if you have any questions
+um please let me know and I hope this
+video was useful and yeah uh I hope I
+will see you in the next video

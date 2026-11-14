@@ -1,0 +1,295 @@
+Look at this sentence. The animal didn't
+cross the street because it was too
+tired. Simple, right? But here's the
+question. What does the word it refer
+to? The street or the animal?
+We know the answer immediately. But how
+do we know? We looked at other words.
+We connected it to animal almost without
+thinking.
+That single act, one word reaching out
+to understand another, is the core idea
+behind self-attention. In the past,
+recurrent neural networks, or RNNs, read
+words strictly one by one, left to
+right, sequential.
+No going back.
+By the time the RNN's hidden state
+reaches the word it, the word animal is
+already buried in the past. The context
+and the meaning is gone. This was a
+major problem we faced in early natural
+language processing, known as the
+long-term dependency problem. The system
+sees the current word, but it loses the
+broader context. This fundamental flaw
+in sequential processing held back AI
+language understanding for a long time.
+But what if we threw away the sequential
+method entirely? What if every word
+could process every other word
+simultaneously? Instead of a rigid
+left-to-right timeline, imagine a
+connected web. What if the word it could
+reach back to animal directly
+and instantly? When researchers finally
+built this web, they called it
+self-attention.
+Introduced in the 2017 landmark paper
+Attention Is All You Need, the core
+philosophy is elegant. Instead of
+waiting in line, every single word
+queries every other word simultaneously
+and in parallel. Nothing is ignored.
+Every word contributes to the meaning.
+But seeing the idea is one thing.
+How does the math actually work? Let's
+build the algorithm step by step from
+the ground up.
+Before any attention can happen, words
+must become numbers. Each word is mapped
+to a dense vector of real values.
+This is called an embedding. Think of it
+as the word's personality fingerprint.
+Cat might live near dog in this space
+and far from words like satellite. In
+our example, we have three words. The
+cat sat. Each becomes a vector of D
+numbers. We call these X1, X2, and X3.
+Stack all these vectors row by row
+and you get the input matrix called X.
+The shape of the matrix is 3 by 4, where
+3 is the number of tokens and 4 is the
+dimension of each token. This matrix X
+is where self-attention begins. To
+compute attention, we project the input
+matrix X into three separate matrices,
+query, key, and value matrices. Each is
+derived by multiplying X against a
+distinct learned weight matrix during
+training. Let's isolate the query
+matrix. We multiply the input matrix X
+by the weight matrix WQ to produce the
+query matrix. Each row in the query
+matrix is a query vector representing a
+word. We take row one of X, representing
+our first token, and compute the dot
+product against each column of query
+weight matrix. This populates the first
+row of query matrix. The operation
+repeats for the remaining tokens. We now
+have our query matrix. Applying this
+exact logic across all three weight
+matrices yields Q, K, and V. These three
+matrices are the core representations
+that make self-attention possible. Now
+that we have our queries and keys, we
+can see how they interact. Recall that
+each query represents what a word is
+looking for, while each key represents
+what that word has to offer. To find the
+best matches between them, we calculate
+their similarity. By multiplying the
+query matrix by the transposed key
+matrix,
+we generate a grid of attention scores.
+Each row represents a word asking a
+question, and each column represents a
+word being evaluated. High values
+indicate a strong relationship, while
+low or negative values mean the words
+are unrelated. The model computes these
+scores for every possible word pair.
+Each result fills a specific cell in our
+attention grid. These numbers tell the
+model exactly how much focus to place on
+each word. Notice the high scores along
+the diagonal. This shows self-attention,
+where each word naturally attends to
+itself. This ensures the model keeps the
+original meaning of each word intact.
+However, we also see meaningful
+connections between different words. For
+example, the positive score between cat
+and sat shows the model has linked the
+word to its action. This grid serves as
+the raw attention map, the blueprint of
+word relationships. For now, these are
+just raw numbers. Next, we'll normalize
+them to create proper attention weights.
+These raw numbers look straightforward,
+but there's a catch. When the hidden
+dimension DK is large, those scores can
+explode in magnitude. Imagine vectors
+with 64 dimensions. Their raw alignment
+scores can easily reach 20, 30, or
+higher.
+If we feed these extreme values into a
+softmax function, it completely
+saturates. One token gets exactly one,
+and the rest get zero. The gradients
+die, and the network stops learning. To
+fix this, the Transformer architecture
+introduces a brilliant stabilization
+step.
+We divide the raw scores by the square
+root of DK. If our dimension is 64, we
+divide the scores by eight.
+Let's see the effect. The scores are
+compressed back into a healthy
+zero-centered range.
+>> [clears throat]
+>> Now, when we apply softmax, the
+resulting probability distribution is
+smooth. This allows gradients to flow
+smoothly during backpropagation.
+This single division step is why it's
+called scaled dot product attention.
+Let's look at the complete formula.
+Query key transpose gives the raw
+alignment. Dividing by under root of
+dimension of key vector stabilizes the
+variance.
+And softmax converts them to valid
+attention weights. This elegant
+mathematical trick is the engine of
+large language models. After scaling the
+scores, we apply the softmax function.
+Softmax performs two vital operations.
+First, it exponentiates the values,
+amplifying their differences. Second, it
+normalizes them so they sum exactly to
+one. We now have a valid probability
+distribution. For our first token, the
+the resulting weights look like this.
+Notice how the highest score dominates.
+When we stack these distributions for
+all tokens, we form the full attention
+weight matrix. Every row of this matrix
+is a valid probability distribution.
+Every row sums to one. This matrix
+reveals exactly how much focus each
+token places on the others. Look at the
+diagonal.
+Each word attends most strongly to
+itself. That makes intuitive sense. You
+always know your own meaning. But look
+further.
+Cat attends strongly to sat, the subject
+reaching for its verb. These are not
+programmed rules. The model learned
+these grammatical relationships purely
+from the math we just described. Now
+that our attention weights are ready, we
+can finally calculate the finished
+output of the
+now familiar to you.
+Q is the question.
+K is the key. And V is the value. Now,
+watch what happens at the very end.
+We take our attention weights and
+compute a weighted sum of the value
+vectors. Each value gets multiplied by
+how much attention it received. 61% of
+these values, 25% of cat's values, and
+14% of sat's values. Then we add them
+all together to get our output vector.
+The result is a brand new vector for
+each token. But let's look at what these
+vectors conceptually represent. The
+output for the is mostly itself, mixed
+with a bit of cat. The output for cat is
+a blend of itself and the word sat.
+And sat blends heavily with itself,
+incorporating its surrounding context.
+Every word has been updated with the
+context of the entire sentence. This is
+the true power of self-attention. We've
+seen how attention works for a single
+word. Now, let's zoom out and look at an
+entire sentence at once. This grid
+represents the full attention matrix.
+Rows are our queries, and columns are
+our keys. Brighter colors means stronger
+attention. And remember, because of
+softmax, every row must sum perfectly to
+one. Watch how the weights distribute as
+the model processes the sequence.
+Each row reveals exactly what that
+specific word is focusing on.
+Notice the bright diagonal line. Every
+word pays strong attention to itself to
+retain its own core meaning. But the
+real magic happens off the diagonal.
+Cat strongly attends to sat, on connects
+directly to mat, and the article the
+correctly links itself to mat as well.
+The model wasn't programmed with grammar
+rules. It discovered these structural
+relationships purely from the math we
+just built. Let's put everything
+together and see the full pipeline of
+self-attention.
+We begin with our input tokens, the cat
+sat.
+Each is mapped to an embedding vector to
+form our input matrix X. The input
+matrix is then projected into three
+distinct matrices, query, key, and
+value. To compute how much focus each
+word should place on the others, we
+multiply the queries by the transposed
+keys and divide by the square root of
+the dimension. This produces our scaled
+attention scores. Next, we pass these
+raw scores through the softmax function.
+This normalizes them into proper
+attention weights, ensuring each row
+sums to exactly one.
+Finally, we multiply these attention
+weights by the value matrix. Each output
+vector is now a weighted blend of the
+values, deeply enriched with contextual
+meaning.
+And there you have it, the complete
+self-attention mechanism.
+By letting every word interact with
+every other word, transformers capture
+the full structure and meaning of
+language.
+We started with one question.
+What does it mean? To answer it,
+a system must look at other words.
+Self-attention is not a trick. It is not
+just a matrix operation.
+Words do not exist in isolation. They
+exist in relationship to each other.
+Self-attention gives every word the
+ability to see the whole sentence and
+ask, "What do I need from you?" That one
+question, scaled across billions of
+parameters, is why language models
+finally began to understand us.
+Self-attention doesn't just process
+language.
+It teaches language to understand
+itself. But here is something to think
+about.
+What if a single word carries more than
+one meaning? Take the word bank.
+In this sentence,
+bank reaches toward deposit. It means a
+financial institution. But in this
+sentence,
+bank reaches toward river.
+A completely different concept. Same
+word, different world. A single
+attention head can only capture one of
+these relationships at a time. One head,
+one meaning. But what if we could attend
+to all meanings simultaneously?
+What if each word could be understood
+through multiple lenses at once? That
+idea is known as multi-head attention,
+and that is exactly where we are going
+in our next video.

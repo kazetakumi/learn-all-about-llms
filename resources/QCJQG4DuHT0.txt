@@ -1,0 +1,376 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to talk about Transformer neural
+networks and in this video specifically
+we're going to go through some intuition
+some code and some math of how to deal
+with attention and Transformers step by
+step so we're going to divide this video
+into three parts so first we'll start
+with the motivation for why we need
+attention the second is the Transformer
+architecture and walking through an
+example and the third is self-attention
+with some math intuition and code so
+stay tuned this here is a recurrent
+neural network that's rolled out and X's
+are the inputs the O's are the outputs
+the H's are the hidden States and the Y
+is the training label recurrent neural
+networks used to be the state of the art
+for sequence to sequence modeling
+sequences can be an ordered set of
+tokens which could be like a set of
+words to form a sentence for example and
+so these recurrent neural networks in
+many applications of natural language
+processing word the state of the art for
+sequence to sequence tasks however they
+suffer from two main disadvantages so
+the first is that they are slow we need
+to feed these inputs one at a time in
+order to generate the outputs
+sequentially one at a time also their
+training algorithm is pretty slow too we
+use a truncated version of bat
+propagation to train them and the
+algorithm is called truncated back
+propagation through time but probably a
+more pressing issue is that these
+vectors that are generated
+intermediately for every word in case of
+a word language model
+we're not sure if they actually truly
+represent the context of a word itself
+after all the context of a word depends
+on the words that come before it as well
+as the words that come after it but it's
+very clear that from a recurrent neural
+network perspective and architecture
+we're only getting the signals from the
+words that come just before it even the
+bi-directional recurrent neural networks
+kind of suffer from an issue here
+because they just look at left to right
+and right to left context separately and
+then concatenate them so there might be
+some true meaning that's kind of lost
+when generating these vectors for every
+word one way to improve the quality of
+the vectors generated is via an
+attention mechanism so for example let's
+say that we have an input sentence that
+is my name is a j it's four words where
+each of them can be represented by their
+own vectors using attention we can
+decide which parts each word needs to
+focus on in this case there's like a
+table four by four where the bright
+spots are the spots where this word is
+focusing on so for example my is
+actually focusing a lot on the word name
+and it's going to use the context of
+name in order to incorporate it in its
+own feature vector and the same thing is
+with a J where a j and name are actually
+quite closely related and so the vector
+that corresponds to a j is going to
+incorporate some more context with
+respect to name which comes before it
+and so using attention we can have every
+word Vector better incorporate the
+context either before it or after it all
+of it can be incorporated much better in
+their Vector than the corresponding
+recurrent neural network counterpart
+this form of tension here is self
+attention because we are attending on
+the same sentence as we're using as
+input however attention has many other
+forms and can also be used in other
+applications including like computer
+vision the Transformer neural network
+architecture has the attention piece at
+its Crux let's actually walk through an
+example where we're going to translate
+this English sentence to a Canada
+sentence Canada is a regional language
+in India I am from the state of
+Karnataka within India where this is
+spoken so we're going to just work with
+that language and you're going to learn
+some some Canada so that's going to be
+fun we now have the input sentence my
+name is a j we pass this simultaneously
+all these words into the encode order of
+the Transformer neural network
+architecture this will generate four
+vectors one for each word
+now technically the way that's
+implemented is that these Transformer
+architectures are going to generate word
+pieces or sub words or byte pair
+encodings which are like broken down
+versions of these words and not full
+words themselves but I'm just going to
+call this a word level language model
+just for Simplicity here now that we
+have these vectors generated we then
+pass this simultaneously all into the
+decoder architecture
+and we start with A Simple Start token
+passing this in and using these vectors
+we now generate the first word in this
+case it's it needs to generate the
+Canada translation of this sentence and
+so it'll start by generating the first
+word which is Nana
+this means my in kannada
+this is now taken as an input into the
+decoder for the next phase and it's
+going to generate the next word which is
+this means name in Canada and then once
+again it takes this word as the input in
+order to generate the next word which is
+a j
+and so Transformers can be used to
+translate from English to any other
+language like kannada and also other
+sequence to sequence tasks now the part
+of the video that we want to really
+focus on is this encoder piece in fact
+I'm going to break down this encoder
+piece further by saying here are the
+four inputs my name is a j after
+positional encoding we're going to get
+these yellow vectors and typically the
+size of the vector is given in the paper
+is about 512 dimensions for each
+then these are then passed into our
+encoder and the encoder is going to
+generate another set of vectors
+the idea here is that through this
+attention mechanism these vectors are
+going to be much more context aware and
+hence higher quality than these vectors
+over here and specifically the main Crux
+of the reason is this multi-headed
+attention part and so we're going to
+dive into some code intuition and math
+behind exactly how this works now one
+thing to note from this Transformer
+architecture is how exactly does this
+architecture overcome the disadvantages
+of the recurrent neural networks that I
+mentioned before so the first
+disadvantage I mentioned was slow
+training because of sequential inputs
+and sequential outputs in this case we
+can actually process data in parallel
+and so we can make use of modern gpus
+and as I mentioned before in order to
+make sure that these vectors are of
+higher quality and more context aware we
+have the attention mechanism that's
+built in so let's dive further into this
+attention mechanism now the multi-headed
+attention in part into the transform
+architecture kind of looks like this
+from the main paper but it's pretty
+confusing so I'm going to be breaking
+this down essentially every single word
+that is input to our Transformer is
+going to have three vectors we have a
+query Vector which indicates what am I
+looking for we have a key Vector which
+is going to say what can I offer and
+then we have the value Vector which is
+what I actually offer now jumping into a
+collab notebook we're going to be
+implementing this all with numpy so we
+have a query Vector a key vector and a
+value Vector that is randomly
+initialized L is going to be the length
+of the input sequence in this case it's
+my name is a j so I put it as four and
+then the size of each of these vectors
+for illustrative purposes I've put it as
+being eight and I have randomly
+initialized via the normal distribution
+using the Rand end function doing so you
+kind of get these vectors that look like
+this so it's for every single
+the word this could be my for example
+it's going to have an eight cross one
+vector for value and for key it's also
+going to have another eight cross one
+vector and then for Q it's also going to
+have an eight cross one vector all of
+them for the word my the same is for the
+name is and a j next let's talk about
+some self-attention in order to create
+an initial attention Matrix we need
+every word to look at every single other
+word just to see if it has a higher
+Affinity towards it or not and this is
+represented by the query which is for
+every word it is what I am looking for
+and then a key which is what I currently
+have this product leads to a four Cross
+Four Matrix because we had a sequence of
+four words my name is Ajay
+and in each case it's going to be
+proportional to exactly how much
+attention we want to focus on each word
+now for example here this first line is
+going to be for the my vector and how
+much it's going to focus on other
+vectors in this case it's going to focus
+the most on the word name
+and similarly we can see that for other
+cases this here is the huge Crux of the
+attention figure that I showed earlier
+now second is why do we need this little
+denominator the square root of some
+dimension of Q and K well this is
+because we want to we want to minimize
+the variance and stabilize the values of
+this Q dot k transpose Vector we can
+actually see that by looking at the
+variance of the query Vector the key
+vector and the multiplication of both of
+them and while the querying key Vector
+are close to one the variance of the
+multiplication is much higher and so in
+order to make sure that we stabilize
+these values and reduce its variance we
+divide it by the square root of the
+dimension of the query vector and so you
+can see that these values are now much
+more in the same range and so if we
+actually apply the scaling you'll see
+that the vector generated will now have
+values that are also of much lower
+variance and in the same range
+the next step we can talk about is
+masking so masking is required
+specifically in the decoder part of the
+Transformer neural network so that we
+don't look at a future word when trying
+to generate the current context of the
+current word this is because it would be
+considered cheating in reality in the
+real world you don't know the words that
+are going to be generated next so you
+can't really create your vectors based
+off of those words however for the
+encoder masking isn't really required
+because all of our inputs are passed
+into the Transformer simultaneously yet
+let's actually walk through this process
+of what's going on so first I'm creating
+this this triangular Matrix with all of
+the values below the diagonal as one and
+above the diagonal is zero and this will
+simulate
+um the fact that I just mentioned where
+for example my in the sentence my name
+is AJ can only look at itself and
+nothing else name can only look at Mayan
+name it is can only look at my name is
+and a j can only look at my name is a j
+now I'm actually going to transform this
+such that I just made every single one a
+zero and also every zero and negative
+Infinity I did this because if you apply
+this mask you'll notice that it's the
+exact same values for the lower diagonal
+as it was without the mask over here
+but the values that are above that mask
+are just going to be considered as
+negative Infinity which means that we're
+not really going to be getting any
+context from it specifically y negative
+infinity and Y zero is also because well
+first I'm adding it here and second it's
+also because of the soft Max operation
+that we're going to be performing next
+the softmax operation is used to convert
+a vector into a probability distribution
+so that their values add up to one and
+they're also very interpretable and
+stable
+so I've done a little interpretation of
+exactly the math in this sentence over
+here and on applying this math we kind
+of get the final attention function over
+here as this value now I've applied the
+mask but let's say hypothetically if I
+didn't apply the mass let's just see how
+it looks
+the numbers will look like this where
+you'll see every row is going to add up
+to one because it's a probability
+distribution
+but if you apply the mask and right now
+you'll notice that
+the attention Vector actually doesn't
+incorporate anything any word that comes
+after it because we don't want any
+context after it this basically means
+that the word my is only going to focus
+on the first word and it in mind the
+name can only focus on my name and it's
+getting the weights as such my name is
+is going to be can focus on the first
+three and a j can focus on the first
+four this is required for the decoder
+but we don't need the mask for the
+encoder now if we multiply the attention
+Matrix in the value Matrix we actually
+get these new set of matrices which
+should better encapsulate the context of
+a word you can compare the before
+attention with the after attention here
+and because this is mass you'll notice
+that the first vectors like Maya are
+going to be almost exactly the same
+whereas as you go to the later words
+you'll notice how different these
+vectors actually become I've now put all
+of this log magic into a function right
+here which takes in the query Vector the
+key Vector the value vector and an
+optional mask and this hence can be used
+for both the encoder and the decoder
+where in the encoder we don't really
+need to pass in this mask where we're
+going to have like the new vectors that
+look like this and the attention vectors
+that can actually pay attention to any
+word but we can also for the decoder go
+back and pass in the value of mask such
+that we make sure that no word is able
+to get context from the words that come
+after it
+so we have other another type of value
+Matrix that's generated what we did
+right now was just for a single
+attention head and like that we can have
+multiple attention heads and then stack
+their results on top of each other in
+order to get multi-headed tension and
+according to the paper this is actually
+what is being done in the actual
+production Transformer neural network
+architecture
+I'll probably be coding that part out in
+a separate video but for this video I
+hope the idea of attention particularly
+self-attention in Transformers makes a
+lot more sense in intuition and math and
+in code so thank you all so much for
+watching do be on the lookout for more
+Transformer neural network videos and I
+will see you very soon goodbye
+foreign

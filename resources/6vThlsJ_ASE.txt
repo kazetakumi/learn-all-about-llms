@@ -1,0 +1,531 @@
+Welcome back to another video. Today in
+this video I will explain the
+transformer architecture. It was
+introduced in the paper attention is all
+you need and was published in the year
+2017.
+Since then the transformer has become
+the foundation for many modern AI models
+and even today's most advanced AI
+systems. It has completely changed how
+we approach natural language processing.
+In this video, we'll start by
+understanding the basic components of
+the transformer like token embeddings,
+attention mechanisms, feed forward
+networks, residual connections, and
+more. Then we'll move on to how the
+model is trained and how it works during
+inference. To get a better idea of how
+it works, we'll walk through a simple
+example, translating a sentence from one
+language to another. The transformer
+architecture has two main parts, the
+encoder and the decoder, and it follows
+a sequencetosequence design. Just like
+earlier sequencetose sequence models
+that used LSDM,
+but the transformer improves on them by
+enabling parallel processing, better
+handling of long range dependencies, and
+overall faster and more accurate
+results. Let's start with the first
+step, data set preparation for our
+translation task. We will use this data
+set to train our model. We start by
+formatting our data set with special
+tokens, start and end of sequence
+tokens. These are the special tokens
+which we use to identify the start and
+end of a sentence. The source language
+becomes input to the encoder and the
+target language becomes input to the
+decoder. We also create training labels
+by shifting the target sentence one step
+ahead of the decoder's input and we also
+have that extra end of sequence token. I
+will discuss about this format later.
+But now let's say we have our data set
+ready. The overall flow looks like this.
+The source sentence is fed into the
+encoder which generates a context
+vector. The decoder takes in the target
+sentence input and outputs a probability
+distribution. The model is then trained
+by comparing this output to the target
+label. Now that we have the big picture,
+let's dive deeper and explore each
+component of the transformer step by
+step.
+Let's start with the encoder part of the
+transformer. We begin with a data set
+that contains source and target language
+pairs already formatted with special
+tokens like start of sequence and end of
+sequence tokens. The source language
+becomes the input to the encoder. The
+first step is tokenization.
+Here we convert the input text into
+numbers by breaking each sentence into
+smaller units like words or subwords.
+There are different types of
+tokenization methods such as word level
+or subword level. But for simplicity,
+let's assume each word is treated as a
+unique token and each token is assigned
+a unique number. After tokenizing the
+input sentence, we get a list of token
+numbers. In practice, we don't train
+with just one sequence at a time.
+Instead, we use batches of sequences.
+Since sequences can have different
+lengths, we need to make them all the
+same length by filling shorter ones with
+a special token called the padding
+token. This allows us to train in
+batches efficiently. But for now, we'll
+keep things simple and use a single
+example without padding. Next, these
+tokens go into the embedding layer. This
+is a trainable neural network layer that
+converts each token number into a
+highdimension vector called the
+embedding of the token. The token number
+by itself has no real meaning. But the
+embedding vector helps capture the
+semantic meaning of the word. Each token
+in our sequence gets its own embedding
+vector. In the original paper, the size
+of this vector is 512.
+These vectors exist in a highdimensional
+space where words with similar meanings
+tend to be closer together in the
+embedding space. Imagine a 2D version of
+this space. Words like bank, river, and
+flood appear closer together because
+they are often used in similar contexts.
+This helps the model understand how
+words relate to each other in meaning.
+Now that we have word representations,
+we also need to know the order of the
+words in the sentence like which word
+comes first, second and so on. The
+embedding vector alone doesn't contain
+position information. So we need to add
+that separately using positional
+encoding. In the paper, the authors
+added another vector called the
+positional encoding vector to each
+embedding vector. This new vector has
+the same size of 512 dimension and is
+not trainable. It is generated using s
+and cosine functions. Here what it does
+for each token position. It computes a
+vector using a formula. In this vector,
+the even positions use the sign function
+and the odd positions use the cosine
+function and are computed using the
+formula where it takes the position of
+each token in the sequence and also the
+position of the dimension in the vector.
+Like this, we compute the new vector for
+all other tokens as well. This helps the
+model understand the position of each
+word in the sequence. These values are
+fixed. They're computed once and stored
+in memory, then reused during training.
+Even though more recent models use
+trainable position encodings, this
+static method still performs quite well
+and was used by the authors in the
+original transformer paper. So now we
+have our input sentence represented with
+the token embeddings that give the
+meaning of words and positional
+encodings that provide the word order.
+This combined input is then passed into
+the first layer of the encoder block.
+The first step in the encoder is the
+multi head attention layer. But before
+we dive into how multi head attention
+works, let's first understand why we
+need attention, what it does, and how
+it's calculated.
+What we have now is a token represented
+in this highdimensional embedding space
+which contains the semantic meaning of
+the words. But here the problem same
+words can have different meanings based
+on the context. But what the embedding
+does is only capture the semantic
+meaning and does not consider the
+context information. If we look at our
+example then the word bank should be
+close to other words related to
+financial institutions rather than the
+river bank. We know this by looking at
+its context words deposited and money.
+So what we want is to transform this
+representation so that it correctly
+represents the token by looking at its
+context. And for this we have the
+attention mechanism. It transforms the
+static embedding which only captures the
+semantic meaning into the representation
+that is aligned with the context. The
+size remains the same just the vectors
+are now represented according to the
+context. In the paper they call this
+self attention and it is represented by
+this equation. Let's break it down to
+understand what it means. First let's
+see how we get this query key and value
+that you see in the attention
+calculation. We take our static
+embeddings and linearly transform this
+embedding with weight matrices for query
+key and value. What this means is take
+our embedding as input and use this in
+three different neural networks with
+linear activations. What this gives is a
+query key and value which we use in our
+attention calculation. These weights are
+trainable layers and so the query key
+and value vectors are adjusted after
+training. Now that we have our query key
+and value matrices, what we do is take
+the query and transpose of the key
+matrix and then perform matrix
+multiplication.
+What this does is allow all the tokens
+to communicate with all other tokens in
+parallel by taking the dotproduct
+between the first query vector and the
+key vector. It gives a score on how much
+it scores to itself. The query acts like
+asking all other tokens and giving a
+score to each of them on how much they
+match. Similarly, it does this with all
+other tokens using the key matrix. By
+doing this, the first token in our
+sequence attends to all other tokens
+including itself and has a score that
+tells how much it matches with other
+tokens. Now, similarly, the second token
+in our sequence does the same by taking
+its query vector and asking all other
+tokens using the key vector. Like this,
+all tokens attend to each other using
+the query and key in order to know the
+importance of other tokens in the
+context to make a new representation.
+This is done in terms of matrix
+multiplication all at once and the
+result we get is what we call the
+attention score. Since the attention
+scores are just scalar values, they can
+be a varying range and are not
+interpretable. So we first scale these
+scores by dividing by the square root of
+the dimension of the key vector. We
+apply a softmax function to this scaled
+attention score across each row which
+gives us more interpretable values. So
+now each row sums to one and we can
+interpret the attention scores in terms
+of probability values. We call this
+attention weights. If we look at our
+token money and look at its attention
+weight, then we can interpret it as it
+is giving 25% importance to the word
+deposited, 30% to money and 30% to the
+token bank. Like this in the attention
+weight, we now know which token is
+important in creating a new
+representation.
+Using this attention weight and
+multiplying with the value matrix, we
+get the new representation that has the
+context information. So for the word
+money, it uses that weight value to act
+as a weighted sum to construct a new
+embedding which has context
+representation.
+Like this, a new representation based on
+this attention weight is calculated. And
+this is what the attention mechanism is
+about. Transforming the static embedding
+into an embedding that has the context
+representation.
+So the summary is take the static
+embedding with position encoding and
+then transform it in three different
+matrices called query key and value
+matrices using their respective weight
+matrices. Then multiply the query and
+key scale it and apply softmax to get
+the attention weights and multiply this
+with the value matrix to get the final
+contextual embeddings.
+Now let's see what multi head attention
+is in our attention calculation. What we
+did was take the embedding input and
+transform it into query key and value
+which had the dimensions equal to the
+original embedding and then calculate
+the new embedding all at once. But here
+in multi head attention instead of doing
+it all at once we take multiple
+attention layers. Each attention now has
+its own weight matrices for query key
+and value but in a lower dimension. All
+the computations are the same but we get
+the final output in a lower dimension.
+This is what a single attention head
+does. We use multiple identical
+attention heads with different weight
+matrices in a multi head attention. Each
+attention contributes to producing the
+final contextual representation.
+Since each attention head has output in
+a lower dimension, we concatenate the
+output of each attention head. So if we
+want our final embedding to be of size
+512 and want to take eight attention
+heads then we should make the inner
+dimension of each head to be 64 then we
+again transform this using another
+weight matrix W out to get the final
+representation.
+This is what happens in multi head
+attention. It takes in the static
+embedding and gives us new contextaware
+embeddings using multiple self attention
+heads. This completes the multi head
+attention layer. Now after that we have
+the add and normalization layer. There
+is a residual stream that adds the
+static embedding to the result of the
+multi head attention. This is common in
+deep learning to prevent vanishing
+gradients. After the residual addition
+we have the layer normalization.
+Normally in batch normalization when we
+have input sequence in batches we
+normalize across each feature dimension
+across the batch. But in layer
+normalization which is used in this
+architecture, we normalize across each
+individual token by calculating the mean
+and variance across the token's
+features. After the normalization layer,
+we have our normalized output with the
+size remaining the same due to just the
+addition and normalization steps. So up
+until now, the overall flow looks like
+this.
+Now next we have the feed forward neural
+network. After the first layer norm,
+this becomes the input to the feed
+forward neural network. This is a dense
+neural network with nonlinearity in it.
+The output size is the same as the input
+size due to the equal number of neurons
+in the input and output layers. There is
+another add and layer norm like before
+but for the feed forward neural network.
+After this what we have is the output of
+the encoder block. Now this output
+becomes the input to another identical
+encoder block repeating multiple times
+with different parameters further
+refining the input sequence. This is
+what the encoder block looks like where
+the final output is now the context for
+the decoder. So up until now we give
+input to the encoder repeat it multiple
+times and now the output will be the
+representation of the input sequence
+that the decoder will use.
+Let's move on to the decoder part and
+see what it does. We already have our
+data set formatted for training. The
+source language is the encoder input
+which we used in the encoder and now we
+use the target language which becomes
+the input to the decoder. Also the
+target language shifted ahead will be
+our training label. The process is
+similar to that in the encoder. First
+the tokenization step uses the target
+language specific tokenizer to tokenize
+the input. Again for simplicity we are
+just using word level tokenization.
+Then we have the embedding layer with
+positional encoding as before. Now this
+goes into the decoder block where the
+first layer is the masked multi head
+attention layer. This is almost similar
+to the multi head attention layer, but
+with just a slight modification.
+As in the encoder's multi head attention
+layer, we compute the attention score by
+multiplying the query and key matrices
+that we get by transforming our input
+using three different weight matrices.
+This gives us the attention score for
+our target language where each token
+attends to other tokens. If you look at
+our data set, the decoder input is the
+same as the training label, just one
+token shifted ahead. So during training
+each token in the decoder tries to
+predict the next token in the sequence.
+You can see the first token attends to
+its target token during the attention
+calculation.
+Similarly all the tokens are attending
+to their target token and future tokens
+during the attention calculation which
+we don't want. We want to prevent the
+token from attending to its target and
+future tokens. To do this, we take a new
+matrix which we call the masking matrix
+and it contains negative infinity values
+in the positions that we want to mask.
+We add this matrix to our original
+attention matrix to get the masked
+attention score. What this does is
+during attention calculation, the
+softmax function converts the raw scores
+into a probability distribution and very
+large negative values like negative
+infinity get converted to zero
+probability effectively masking out
+those positions. So for the first token
+only the first token gets the full
+attention weight. Similarly for the
+second token only the token itself and
+the tokens before it receive attention.
+In this way we can prevent tokens from
+attending to future tokens. So in masked
+multi head attention we multiply query
+and key to get the attention score then
+add the mask matrix then scale apply
+softmax and multiply with the value
+matrix as in the encoder to get the
+final embedding. We take multiple
+identical self attention and then
+concatenate the output. Then we take
+another output projection matrix to get
+the final representation.
+This is what masked multi head attention
+is. There is also an add and layer
+normalization after the attention layer
+which is similar to the encoder layer.
+Now after the masked multi head
+attention we have another attention
+layer which is called cross attention.
+In the cross attention, we take both the
+encoder input and decoder input to
+compute the attention. From the encoder,
+we have the source language
+representation. And this input context
+now becomes the input to the cross
+attention. In this attention layer, the
+encoder output acts as input to get the
+key and value matrices while the
+decoders acts as the query. In the
+attention calculation, we multiply the
+key matrix which we get from the
+encoder's output and the query matrix
+which we get from the decoder's first
+normalization layer to get the attention
+score. This is called cross attention
+because here we are attending the
+decoder sequence with the encoder
+sequence. We don't need to apply masking
+because the key matrix is from the
+encoder's output and does not contain
+any training label tokens. Multiple
+attention heads are used and the final
+outputs are concatenated and projected
+through the output layer. This is what
+cross attention is and this is where we
+use our source language context in the
+decoder. Now all other layers we already
+discussed which include another add and
+layer norm and another feed forward
+network with layer normalization are
+also present in the decoder. This is
+repeated multiple times and finally we
+have the output from the decoder layer.
+In the output layer, we have another
+linear layer with softmax activation
+which gives the probability
+distribution. We have our training label
+ready and using this training label, we
+compute the loss and apply back
+propagation to train the model. So at
+the high level, this is how training is
+done in transformer architecture. This
+was all about training our model for
+language translation. But now let's see
+how we can inference using this model.
+During training we have the source
+language acting as input to the encoder
+and target language as decoder input and
+label. But during inference we just have
+the source language and now have to
+generate the target language. First like
+during training source language becomes
+input to the encoder where every step is
+similar as like during training. Now in
+the decoder at first we just start with
+start of sentence token since we have to
+generate the target language. So this
+single start of sentence token becomes
+input to the decoder in the attention
+calculation we use this token since we
+only have this token. Then we move ahead
+and in the cross attention layer only
+one token attends to other tokens from
+the encoder because we get that key and
+value from the encoder and query from
+the decoder. Then all other processes
+remain similar as in training and at the
+final layer we get the probability
+distribution that predicts the next
+token. We sample from this distribution
+and append that token into the input
+list in our decoder. Now decoder again
+performs but now using two input tokens
+and gives output probability
+distribution. We take the last token
+probability value to sample because we
+already have our second token and want
+to predict the third token. Similarly,
+we append that token in our input and
+then repeat the process until we get the
+special end of sequence token. Once we
+get that end of sequence token, we stop
+this loop and now have complete
+translation. This is the reason why we
+format our data set with start of
+sequence and end of sequence tokens. In
+training, we take the source language as
+input to the encoder and target language
+as input to the decoder which gives us
+probability and train in a single shot.
+But during inference, we generate one
+token at a time until we predict end of
+sequence token. So this nature during
+inference is different than during the
+training and is called the auto
+reggressive nature and text generation
+models like GPT use these decoderonly
+architecture models for text generation
+task. This completes the transformer
+architecture about what each component
+does, how we train it and how we can
+inference.

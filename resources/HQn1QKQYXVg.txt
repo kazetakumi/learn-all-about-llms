@@ -1,0 +1,411 @@
+hello everyone and welcome to another
+episode of Code Emporium where we're
+going to still talk further about the
+Transformer neural network architecture
+and specifically we're going to code out
+the multi-head attention mechanism now
+before I get started with that I just
+wanted to do a brief overview of the
+Transformer architecture as I have been
+doing in some past videos and then after
+that I want to get into some slight
+theory behind this multi-head attention
+mechanism followed by the Crux of the
+video which is the code so let's get to
+it
+this here is the Transformer neural
+network architecture consists of an
+encoder and a decoder and its main
+function here is for sequence 2 sequence
+modeling and a sequence is an ordered
+set of tokens and in the context of like
+natural language processing sequences
+could be an ordered set of words to form
+sentences
+and so the Transformer neural network
+architecture can actually do some NLP
+tasks like English to other language
+translations so let's just walk through
+an example here so let's say we wanted
+to translate English to an Indian
+language called Hindi in this case we
+have my name is j which is actually my
+name we'll pass it into the encoder of
+the Transformer simultaneously and this
+is going to generate four word vectors
+now technically these vectors are not
+word vectors but they are word piece
+vectors which are sub word vectors but
+for Simplicity we're just going to call
+them one in fact one word one vector
+now we'll take these four vectors pass
+it into the decoder and then we'll have
+a start token to start our decoding
+process to generate in the words
+and once we go to the end of the decoder
+we'll start generating the first word
+and in this case the translation of my
+name is a j which will start with Mera
+this is quite the literal translation of
+my we then use that word as the input
+for the next phase of the decoder when
+we pass it into the decoder we will
+generate the next word which is
+Nam
+and this is name
+we then take this again pass it into the
+decoder to generate the next word which
+is a j
+and we'll take this into the decoder to
+generate the final word hey
+and so Transformers can be used
+effectively for sequence sequence
+modeling to handle tasks like
+translation now the Crux of this video
+is actually going to be on the
+multi-head attention mechanism so I'm
+just going to take an example word
+Vector over here this could be like one
+of the words of my name is a j let's
+just say that it's the net Vector for
+name this is going to be a 512
+dimensional Vector which we break down
+into three component vectors and every
+word like this is going to have a query
+Vector which represents what am I
+looking for the key Vector which is what
+I can offer and the value Vector which
+is what I actually offer and each of
+them are their own 512 cross one vectors
+now in actuality these vectors are
+actually each broken up into separate
+pieces in this case it's broken down
+into eight pieces and each piece is
+going to be a part of creating an
+attention head so we have eight
+attention heads so we break each Vector
+down into eight pieces and now each of
+these is then fed into some attention
+unit which we will code out very soon
+along with all the other words too this
+is just a breakdown of the word name but
+we also have the my the name then is and
+a j and all of them be broken down in a
+very similar way pass to an attention
+unit and we're going to generate for
+each head this attention Matrix which is
+going to be a sequence by sequence in
+length if the sentence in this case it's
+a four Cross Four because there are four
+words in the sequence
+and each of these rows will add up to a
+one because it's a probability
+distribution and there will be eight
+such attention matrices as we have eight
+attention heads in this multi-head
+attention system this is then going to
+generate other output vectors that are
+concatenated in order to generate a
+vector that actually has very good
+contextual awareness making this input
+word Vector more contextually aware is
+actually the goal of this attention unit
+and this multi-head attention mechanism
+let's now code all of that out so I'm
+going to be importing a bunch of
+libraries and I'm going to be using pi
+torch for this demonstration
+I now set a few variables the sequence
+length is the length of my input
+sentence and typically you would set a
+maximum sequence length so that all of
+your vectors are going to be fixed size
+in this case it's going to be four
+that's my name is a j
+the batch size is going to help in
+parallel processing in this case I'm
+sending it to one for demonstration
+purposes we then have input Dimension
+which is the vector dimension of every
+word that goes into the attention unit
+then D model is the output of the
+attention unit for every single word and
+now this X over here is going to be some
+randomly sampled input since I'm not
+going to be creating the position
+encoding in the input phase right now
+I'm just generating some random data the
+input is going to be of batch size cross
+sequence length cross input Dimensions
+which is one Cross Four costs 512. note
+that this x value is not the value over
+here but it's the value that's input at
+this point just before we get into the
+multi-head attention phase now we're
+going to be mapping the input from this
+dimension of 512 to 3 times the model
+Dimension which is again 3 times 512 and
+this is done to create the query Vector
+the key vector and the value Vector all
+concatenated and all of them have all
+the eight attention heads which we will
+split up later we then pass the input to
+this layer to generate the qkv vector
+and this is its Dimension it's one batch
+four words and each word Vector is 1536
+in size now I wanted to get an idea of
+like what are the kind of values that we
+see here and since I'm sampling from a
+random normal distribution you'll see
+the values that look like this but this
+distribution of all the values in this
+entire tensor is going to be very
+different depending on how we generate
+the data depending on the positional
+encodings and the inputs now we have
+eight attention heads that we're
+considering and each is going to be 512
+divided by 8 which is going to be 64.
+and so we will now reshape our qkv
+Matrix to break down the last Dimension
+into a product of the number of heads
+and of course three times the head
+Dimension and this three just as a
+reminder exists because it's a
+combination of the query Vector the key
+vector and the value vector and so we
+get a tensor that looks like this in
+shape now I'm going to be switching
+around just the second and the third
+Dimensions so that the head is over here
+and then the number of sequences is over
+here so it's easier to perform parallel
+operations on these last two Dimensions
+now we obtain the query key and value
+vectors individually by basically
+breaking down this entire tensor by its
+last Dimension and hence the input is -1
+and so this 192 breaks down to three
+components of 64 Dimensions each and
+this is where you see the query key and
+value Vector is broken down as I
+mentioned before
+now we're actually going to perform the
+attention mechanism a lot of this
+process is kind of what I mentioned in
+the last video so you can look at more
+details there if you want to get a much
+deeper explanation but I'll still go
+through some parts of it since I'm doing
+it in pi torch here and there I did it
+in numpy so first of all we're going to
+get the size of one of these vectors
+which is DK this should be 64 in our
+case now every word has a query vector
+and it's going to compare its query
+Vector to every other words key vector
+and that's represented by this matrix
+multiplication over here and we can
+represent that by this code now notice
+that you have to use the transpose
+function and you can't just do like a
+DOT T to typically transpose because
+these are tensors that are four
+dimensional and not simply just
+two-dimensional matrices and so we
+specify the transpose along with the
+dimensions along which we want to
+transpose in this case we wanted to
+transpose the last two Dimensions which
+are the sequence length as well as the
+demand size or the head Dimension size
+for every one of these words in every
+head and so the last two dimensions of
+the query Vector are like four across
+64. this will be a 64 cross 4 and so
+we'll end with a up with a four Cross
+Four Matrix which is basically the
+sequence length by the sequence length
+we're scaling here in order to make sure
+that the variance of these values is
+much smaller so that these values just
+don't go out of control especially since
+this is a trainable machine learning
+model this here is just a dummy example
+just to show how important transpose is
+and also that it takes in these two
+values of which Dimensions along which
+you want to transpose your tensor and it
+doesn't matter about the ordering as
+long as the same dimensions are present
+it'll yield the same result now let's
+talk about masking so we notice here
+that in the encoder we don't really
+require any kind of masking whereas in
+the decoder we require massing for
+self-attention and this is done to
+ensure that the decoder does not cheat
+the goal of the attention mechanism is
+to gain context from words that are
+around it during the encoding phase we
+actually have all words which are passed
+in in parallel simultaneously so we can
+generate vectors by taking the context
+of words that come before it as well as
+words that come after in the decoder
+however we generate words one at a time
+so when generating context we only want
+to look at words that come before it
+because we don't even have the words
+that come after it coming back to the
+code we're basically going to have our
+scale tensor which is our one cross
+eight Cross Four Cross Four tensor that
+we generated just previously and we're
+going to fill this up with negative
+Infinity values and then we're going to
+basically take this mask and this is
+like an upper triangular mask where we
+leave the upper values above the
+diagonal the same as the r and I'll fill
+the lower diagonal with just zeros this
+diagonal argument is just to say how
+many positions above or below the
+diagonal we want to actually fill with
+those zeros and so if we just print out
+the mask for a single head it'll look
+like this and note that it's the same
+exact dimensions as our scaled tensor so
+we can add them both together and we'll
+get well this is the tensor for one head
+which will be a four across four matrix
+it's going to look like this where we
+have lower diagonal elements the exact
+same as what scaled would have been
+because we're just adding zero and the
+upper diagonal elements would be
+whatever the negative Infinity is now
+we're doing negative Infinity over here
+specifically because we're going to be
+doing a soft Max operation which takes
+like exponents and so the exponents of
+zero will become one the exponents of
+negative Infinity will become zero so
+that you cannot cheat and look forward
+and so we can apply that softmax here
+because these tensor values are all over
+the place and when you actually apply
+the tensor values you'll see that the
+sum of each of these records will become
+one and in this case I just tried to do
+it for for this example where we're
+taking e to the power of this first term
+divided by the sum of e to the power of
+all of these terms which I've taken here
+and you'll see it's like 0.6269
+and on applying the actual attention
+you'll see that that's exactly what you
+get here now we apply attention though
+using the softmax built-in function
+we'll apply it to our new scaled tensor
+and the dimension we apply to is the
+last Dimension we want to just apply to
+this last Dimension which incorporates
+this row itself row by row we now take
+this value Vector which is remember this
+is what is actually being offered by
+every single word in order to generate
+the new value vectors and the idea here
+is that these new value vectors are
+going to be much more context aware than
+the original value vectors in the
+original input vectors and so we'll end
+up with for every batch for every head
+for every word in the sequence we'll
+have a 64 dimensional Vector now I've
+created a function that does exactly
+everything that I just described and I
+also added in an optional mask function
+depending on whether we're dealing with
+the encoder or the decoder so for
+example if I just execute this you'll
+see that we have an attention Vector
+that kind of looks like this but let's
+say that we actually pass in the mask
+that we just created
+in this case you'll see that the the
+size is the exact same but the attention
+Vector is now going to be massed for the
+decoder so whatever I have this the
+encoder this is good for the decoder
+and then we can now have all of the
+value vectors for every single attention
+head for every single word which are 64
+dimensional vectors
+and then what we do now is we are going
+to now combine or concatenate all of
+those heads together and for eight heads
+we're going to now make them 512
+dimensional vectors which is exactly the
+input dimension
+and then so that these heads can also
+communicate with each other the
+information that they've learned we are
+just going to pass it through a linear
+layer which is just a feed forward layer
+of 512 cross 512 and this doesn't change
+the dimension and so this output Vector
+is now going to be much more context
+aware than the input Vector was now all
+of this code entirely I've combined
+together as well by creating well this
+is the same function I wrote before but
+I've also written a class called
+multi-headed attention which is going to
+now take in a Constructor which will
+initialize some of these parameters that
+I talked about along the video as well
+as a forward path so when you execute a
+forward pass of our multi-head attention
+it's going to execute the same exact
+lines of code that we just talked about
+now I kind of executed this for some
+random inputs where the input Dimension
+was much larger uh and the batch size is
+also something that's more reasonable I
+just put it as 30 instead of just one
+and I execute the forward pass of this
+multi-head attention and you'll see the
+same kind of results where the input
+batch 30 we have a like five words in
+the sentence and it's going to generate
+vectors of let's say each of them is
+1024 then the query key and value
+vectors of all heads are combined to
+generate a 1536 dimensional Vector this
+is then broken down to eight attention
+heads we swap these two then attention
+heads as well as the number of send
+words in the sequence
+and then we have break this down into
+query key and value tensors in our case
+and each of them will be like 64
+dimensional vectors for every word we
+then have the attention value matrices
+for every single attention head which we
+eventually concatenate and then we also
+help them communicate with each other
+and that's going to do it for the code
+of this video so I hope everything here
+just made a lot more sense now for more
+intuition on like the transformer logic
+and also other code explanations you can
+check out some of the playlists and also
+other videos on the channel but that'll
+do it for this video thank you all so
+much for watching if you do like this
+video and you think I deserve it please
+do consider liking and do subscribe for
+more awesome technical content and I
+will see you in the next one bye bye
+foreign

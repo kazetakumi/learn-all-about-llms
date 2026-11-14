@@ -1,0 +1,811 @@
+Yeah, hi and welcome back everyone to the supplementary coding along video series for
+the "Build a Large Language Model (From Scratch)" book.
+Here we are now going to talk about chapter two, working with text data, which means essentially
+that we are going to prepare the data that we are going to use to train the LLM.
+Yeah, just to go to the chapter itself, chapter two, you can see there are lots of sections
+starting at the top.
+The goal really here is to prepare the dataset for the LLM.
+So there is actually a nice figure here that shows you this step in the grand scheme of
+the whole LLM building process.
+So here building an LLM means setting up the dataset, coding the attention mechanism,
+coding the LLM architecture and so forth.
+This is really the first stage of, you know, training the LLM and then the pre-training
+comes in stage two and then later on in stage three, we will be fine-tuning the LLM.
+But you know, just to keep things focused here, we are going to talk about preparing
+the dataset and yeah, to give you another view here.
+Essentially what we are going to do is we are going to take text and tokenize it and
+then convert these tokenized sub parts of the text into token IDs, which we will be
+then encoding into vectors.
+I know, this is maybe a bit faster in this video.
+So I mentioned before the videos are not as detailed as the book itself and they are more
+focused as supplementary resource for the coding examples.
+But yeah, just to give you the big picture here.
+So the goal is really to prepare raw text data so that the LLM can then process it.
+It's really that the LLM works with text, but you know, we have to first convert it
+into a format that it can be, yeah, that can be read, let's say, in a form that the LLM
+understands, which in that sense here is actually vectors like mathematical vectors.
+And if I scroll up a bit, it's really like the idea also that vectors are numeric representations
+here of this text.
+So that is our goal, going from letters and words into a more numeric representation,
+which can then be used later on during the pre-training to optimize the weight parameters
+of that LLM.
+But yeah, I don't want to go too far ahead and talk about pre-training.
+The focus here really is on preparing here the input data for the LLM.
+And specifically in section 2, tokenizing text, the focus is really also only on this
+sub-part here at the bottom where we take some input text and we, yeah, we break it
+down into individual smaller chunks.
+And yeah, and this is a process known as tokenization.
+Just to show you an example.
+So we will be using a library called tiktoken later.
+And there is, I think, a nice virtual visualization, tiktokenizer, when we go here.
+And they do have different LLMs.
+For example, there is this GPT-2 LLM.
+If we type some text, let's say, hello world, something like this, this is a test.
+So here you can really see how it's broken down into individual tokens.
+You can see hello is a token, the comma is a token, world is a token, dot is a token,
+and these are the token IDs.
+We will get to the token IDs later on, how they are created.
+For now, the focus is really like to just break it down into individual parts.
+And we are not going to implement actually the exact same algorithm that is used here.
+I do have some bonus material on doing that, I will share later.
+First, we want to do the big picture level of how we can actually break down text into
+individual chunks.
+So one way would be essentially to use just regular expressions.
+But starting sequentially, like how I did in the book, let's actually download the data
+set first, and we will be using the dataset later in this chapter to actually implement
+the data loaders in PyTorch.
+So let's start with a dataset here before I go too much ahead and talk about all the
+other things.
+So we are going to use a library "os", which is just a standard Python library, and
+"urllib.request", which is also a standard Python library.
+This is usually for working with files, and this is for downloading things from the internet.
+So the dataset we are going to work with here, it's called "the-verdict".
+So let me just go here and make a new tab.
+And "the-verdict" is a short story by Edith Wharton.
+So it's available as public domain data.
+I think there's a Wikipedia version that is actually quite nice here.
+So this is a very short story here, and I picked this one as the dataset because, yeah,
+we want to keep things simple, that it doesn't take too long when we are actually pre-training
+the LLM because it's more for educational purposes, and it's also pretty simple, readable,
+and most importantly, it's a public domain dataset or book.
+So that means we can use it without having to worry about copyright restrictions, for
+example, in the United States, at least.
+So in that case, this is an open public domain dataset.
+There is no concern using this, for example, for LLM training.
+Okay, so we would download this dataset.
+So what we could do is we could go here, just copy and paste this, and create a new file,
+a text file, insert this, and save it, and so forth.
+I have a little bit of a quicker way here, so I actually, let me just copy and paste
+this.
+You can have it also in the GitHub repository for the book, and so this link is a URL link
+to the place on GitHub where I provided this dataset, just in case, you know, in the future,
+the dataset might become unavailable from Wikipedia or something.
+Here you can find a version in the book's GitHub repository, "rasbt/LLMs-from-scratch",
+and in chapter one, sorry, chapter two, in the first folder, main chapter code, I included
+"the-verdict" here, and if you want to copy something from GitHub as raw text, you have
+to click on this raw here, and then you get the raw text, which in this case, yes, you
+can see is similar to what you can see on this page.
+So if I copy this URL now, insert it here, it's really the same URL that you have seen
+earlier without all the line breaks.
+When I execute this code, it will download this dataset and save it to a file, the-verdict.txt.
+Let me do that, and then maybe refresh here, and yeah, you can see it's now in this folder,
+so it's locally now on our computer.
+The next step would be opening this file in Python, so right now it's just sitting on
+our computer, and the next step would be opening this, so let me just copy this, and we are
+just reading it, so the "r" here, and then on Windows, it's, I think, required to specifically
+say which encoding we are using, so "utf-8", the standard encoding.
+Yeah, and then we can just read the raw text here, and then let's double check, so we can
+double check that the text looks okay, so we can see the Python interpreter has successfully
+loaded the text here, and we can also just double check how long it is, so I maybe recommend
+running this if you are running the code to check that you get approximately the same
+number here, which means you're not missing any characters, so it should be about 20,479
+characters if you loaded the dataset correctly, so let's now briefly introduce the concept
+of tokenization with regular expressions, which is just like a warm up before we use
+the real, let's say, tiktoken library for tokenization. So we are going to use a Python
+regular expression, and let's actually use some simpler text for the warm up here. Let's
+use the text I just typed in here, and provide it here, then we can type result, and then
+the regular expression. And I must say that regular expressions are my weak spot, so I'm
+really not that good at them, but honestly, nowadays with LLMs like ChatGPT, it's actually
+pretty easy to figure it out. So this is essentially just a regular expression that splits on
+whitespace characters, and by the way, you don't have to really know what regular expressions
+are for the bigger context of training LLMs, because we are later using a tokenizer based
+on byte pair encoding. And I also have a from-scratch implementation, it's not in the book,
+but it's in the supplementary materials that I can also maybe show you later. But yeah,
+for simplicity, our goal here, if you remember what I mentioned earlier, our goal here is
+first to split up this text into individual tokens, so let's do that with this regular
+expression, and then maybe print the result, and see how it looks like. And so yeah, we
+can see we have now the individual words, and we have whitespace characters, and so
+forth. One thing we might want to do is also to have the punctuation as separate characters.
+So for that, we would have to make a little bit of a more sophisticated regular expression,
+and like I told you, I'm not very good at regular expression, so let me just copy and paste
+it here, so this is now a regular expression that is slightly more sophisticated. And so this
+one will also include the punctuation as separate tokens where before they were part of the
+word itself. Okay, so this is our simplest way of tokenizing. Now, as you have seen here,
+if I go here, there are actually no whitespace characters in the output here, so one thing to
+mimic this could be, for example, that we are also going to strip the whitespace characters,
+this is just like an optional thing we could do, we can just get rid of the whitespace
+characters. So, here I just have a simple list comprehension that will strip out the
+whitespace characters, so you can see now that is the result without whitespace characters,
+it's a bit different from what you see here, because this is a sophisticated byte pair
+encoding algorithm, and I will talk more about this later, I will share some dedicated section
+on this actually. But so here, for now, we're just building a very simple version of that to
+understand roughly what we are doing here, like how we are tokenizing text. Doing it a bit more
+advanced now, I mean, this is a nice way to handle simple cases, but now imagine we have a more
+complicated case like that, so this will actually fail, really, that doesn't really take care of
+special characters like, you know, the double dash and everything, so we can actually make it more
+sophisticated, so I have now like a more sophisticated regular expression, and also again,
+the whitespace stripping. And that does a good job of, you know, separating words and special
+tokens. So we did a lot of work here now to prepare our text by splitting it into individual
+tokens and punctuation characters So, we tested it on this simple example, but let's actually use
+this on our real text. So, for that, what we have to do now is we have to actually use our raw text,
+well, raw text is what we have here at the top. So that's our raw text, let's actually see what
+happens when we do that, so yeah, so we tokenized our raw text, and now let's see how many tokens we
+have, so we have length of, let me actually save this as a variable, because this is a lot of code,
+let's just call it pre-processed,
+and then,
+so yeah, we have here 4,690 tokens, so what we have done so far in section 2.2 is we took raw text
+and we tokenized it, and now in the next section, we will be talking about
+converting this raw text into these so-called token IDs.
+Yeah, let's now talk about converting the tokens into token IDs. So previously we talked about
+breaking down the text into individual tokens here, and now in this video, we are going to
+talk about converting the tokens here into token IDs, which are so-called token IDs.
+And they are essentially unique integers, so how do we do that? The first step, let's maybe go to
+section 2.3 here, the first step would be building a so-called vocabulary. So the vocabulary is the
+unique mapping between each word that can occur and a unique integer. So, for example, for simplicity,
+if we have a very small dataset here, "the quick brown fox jumps over the lazy dog", the first step
+would be breaking down the text into tokens, which we have done before. And now we are going to sort
+them alphabetically, making sure we don't have duplicates in there. And then we are going to
+assign a unique mapping here to integers. So how do we do that in Python? So we already have the
+preprocessed from the previous section, so "preprocess" is all the unique tokens in the data
+set, and so what we can do now is we can get rid of the duplicates first. So we can do
+"set(preprocessed)", which will get rid of the duplicates. And then let's also sort them with a "sorted"
+function in Python, and we can assign all words a variable to hold them. So let's just make sure
+it worked. So we can see these are all the unique words, it's a lot of words, we can actually also
+look at how many we have, how long this list is. So, that's about 1130 words. So it's four times
+smaller than preprocessed. So we had a bunch of duplicates in there, let's actually save that for
+later, we call that the vocabulary size. So, how many unique words we have? And yeah, so the
+vocabulary size is shown below 1130. Next, let's actually build the vocabulary, this is
+actually quite simple in this illustration for educational purposes, what we can do is we can
+for each token assign an integer, a unique integer, for each integer token enumerate
+all words. What it will do is it will iterate over all the unique words, and then assign in
+ascending order these integer labels, so we can actually take a look at this, you can see it's
+essentially mapping each word to an integer here, and this is essentially what we are doing here.
+Now, we have the vocabulary, so maybe going to the next figure, so the next step would be now
+that we have this vocabulary, we use this vocabulary to actually tokenize training data
+into token IDs. You can see the vocabulary is in a sorted order, so we have them alphabetically
+sorted with this mapping. And now, for any new text, for example, the training text, but also later on
+when we want to use the LLM, we are going to use this vocabulary to convert any text into token IDs
+here. So, basically using the vocabulary mapping if we have the word "the", we would find the word "the"
+in the vocabulary and find the corresponding integer for example, so the here it's not shown
+because it's too long would correspond to integer 7, and then the second word "brown" would
+correspond to integer 0, and then "dog" would correspond to integer 1 and so forth.
+And so, this way we are going to encode the given text into these token IDs. Let's
+do this in Python. I will actually copy and paste here, because otherwise it will take too
+long if I just type it, and I will make errors, because typing in front of a camera is quite
+different than coding in silence. But so here what I'm going to show you is a simple tokenizer
+class, and that's a Python class, and that does the following things, so "__init__" is usually executed
+when you are instantiating a new object, which we will be doing later, let me just maybe first
+explain, and then we will create a new object here, but so "__init__" is the constructor, it takes a
+vocabulary and it defines or it will just save the vocabulary as the string to integer mapping.
+String to integer means that we are mapping from strings to integer representations, and then
+we also have the same thing inverted. We are here instead of having is we have "s:i" which inverts
+string and integer, so what it will do is it will create this mapping from integer to string now.
+So, we have integer and string inverting this essentially. Yeah so here we have now two
+vocabularies, the regular vocabulary and the inverted vocabulary, and then we have an "encode"
+method that takes any text and uses the regular expression from section 2.1, sorry 2.2, and breaks
+down the text into tokens. This is what we have seen earlier. This is quite a long vocabulary if
+I scroll up, so let me actually maybe comment this out. Earlier, in the previous video, we have
+broken down text into tokens. So we used this regular expression. Here we are just going
+to reuse that regular expression from earlier, and then strip out the white spaces, and then here,
+this is the interesting part, this is where we are creating the token IDs. We are going to use the
+vocabulary from here, and for each token or string in preprocessed we are going to convert it. Just
+to show you what that means, if I just take let's say "Jack" here, and I pass it to my vocab,
+f I have something like this, so this should give me an ID, right? So, this is essentially
+the token ID, and I can also maybe just show you to create a reverse mapping here,
+so if we want to go back to string and type 57, this should give us the original word back.
+So this is basically what's happening here, we have a vocabulary, an inverse vocabulary,
+here we are just going from string to integer, so string to integer means this one here,
+we are going from a string to this token ID. And we do that for each token ID in the in the data
+set here. And the dataset is the tokenized version of the text, yeah, and this is really it.
+And then we have a "decode" method. And the "decode" method goes backwards. So here we are going to
+recreate the text by mapping back from integers to string, which is what I've just shown you.
+So integers to string means that we go here from the integer back to the string, and I think yeah,
+this might be relatively, yeah, I mean complicated, maybe not, but it's a lot of information,
+so in this case let's actually use it, and I think it becomes more clear when we actually use it.
+So let's do simple, and fortunately I don't have autocomplete here, so let me just copy it from
+here, let's actually just instantiate a new object using the vocabulary, like this, oops,
+not defined, I need to execute this cell first, this always happens when I talk and code at the
+same time, I forget things. Then let's just use some text here, instead of me typing it,
+I'm just copying and pasting it, and so the first step is converting text into these IDs,
+so let's do "tokenizer.encode" and then "text". This is essentially calling this "encode" method,
+and then we will hopefully see that those are converted into token IDs. So we can see
+now this would be the token ID representation for this particular text, yeah, and we could also go
+backwards, so if we have these token IDs we can do "tokenizer.decode" and IDs, and this would
+correspond to this code. This will be converting this back into text essentially. And yeah what's
+nice is that you can do also the round trip, which means what we can do is, let's do it like this,
+"decode" and then put this encoding inside here. And this should give us the original text or
+something that is close to the original text. You can see there are a few slight differences,
+for example here you have this additional white space for example, but overall this works quite
+well. Qe have a way of converting text back into token, from token IDs back into text.
+So this would be a very simple tokenizer, that's not the real tokenizer that is used by GPT models,
+that's why I'm calling it "SimpleTokenizer", but I think this illustrates the concept of
+tokenization quite nicely: how we go from text into integer presentations. And now in the next
+video we will talk a bit about special coding, special tokens and how we handle those.
+All right, let's now talk about adding special context tokens. So, previously we talked about
+creating the so-called vocabulary from all the different tokens in the training set,
+and then we used that vocabulary to create the token IDs. Now we are going to talk about
+extending this vocabulary with special tokens. So, for example we might want to add, depending on
+the tokenizer, a token for unknown words that are not in the training set. Or for example we could
+indicate when there's an end of the text by using a so-called "<|endoftext|>". And we will talk
+more about this <|endoftext|> later on when we are actually pre-training and fine-tuning the LLM.
+So, here though the goal is essentially to extend our simple tokenizer a little bit to handle these
+special tokens. And I also wanted to just show you one shortcoming of our tokenizer. So, if I go up
+here we defined our simple tokenizer here based on the vocabulary, if I have some text now that
+is slightly more, I would say sophisticated. So, before we used this text here, if I have text,
+let's say, let's do something not super sophisticated, but something different like
+"Hello, do you like tea. is this-- a test" for example. And let's try to see what our tokenizer
+does when we actually try to encode this. So, as you can see there is an error now, it says
+"KeyError: Hello". And "Hello" is a very normal word. So, why would there be an error. And the reason is
+because the text that we processed apparently. So, the "the-verdict" here, apparently it does not
+contain the word "Hello". Now if you are creating an LLM and train it on trillions of tokens,
+the chances are that this word would be in the training set, for example here we have only this
+very small dataset, it might not even contain simple words as hello for example. And by the way
+later on I will also tell you more about an algorithm that can naturally handle unknown words,
+So, for example if the word is unknown, it will just break it down into individual characters.
+So, maybe to show you what I mean. So, if I type just something like this, you can see if it
+doesn't know the word, it will break it down into individual characters. But this is a more
+advanced algorithm, for now how can we actually make our simple tokenizer slightly more
+sophisticated by handling unknown words. So, what we could do is we can extend our tokens,
+if we have all tokens which were the list of the pre-processed text tokens or words. So, this would
+essentially recreate our unique tokens from the dataset. And now what we could do is we could
+actually extend it. So, if we use the extend method on on Python lists, we can actually add
+additional tokens, for example we could add this end of text token that I mentioned earlier,
+or we could also add a token for unknown words. So, we can really add anything we like here,
+So, just extending it. And so the difference is to what we did before, is we are creating it
+similar to before, but now we are adding tokens that are not already in the dataset. And then
+yeah we would generate the vocabulary similar to before. So, this is the same that we used before,
+like this token to integer mapping for the vocabulary. And then yeah let's actually take
+a look at the length of the vocabulary, I think before we had, let me scroll up a bit,
+1130. Now we should have 1132 tokens, let's double check, yep So, we have these two new tokens added,
+and let's actually print the first or the last, in this case the last five entries, we can do the
+first five, they should look similar to what we've seen before. So, just yeah special characters,
+but more interestingly let's actually print the last five tokens in the vocabulary. And we can see
+we now have these two new special tokens in the vocabulary, in a similar way we can now modify our
+simple tokenizer to actually use these special tokens. So, what we have to do now is we have to
+essentially add a special rule to process those. So, I will just copy and paste it here, so
+we return the string if the string is not empty. And if it's in this vocabulary,
+and otherwise if it's not in the vocabulary. So, else we will return unknown for this unknown token,
+and this way we will prevent that this modified version of our simple tokenizer
+crashes on words such as hello here for example, yeah and this is all we do essentially,
+it's a simple modification. And this should actually help us to run our simple text example,
+let's just copy this one for simplicity. So, we are reinitializing the tokenizer. Now we have
+tokenizer version two. And we'll make a new code cell. And then "tokenizer.encode(text)".
+And this hopefully works now. And yeah you can see we now have this unknown token,
+So, actually when we go back let's see what happens. So, "tokenizer.decode",
+and you can see now it handled the unknown tokens, this is of course not desirable if we want to
+regenerate the original text. And later actually in the next sections I will talk also about an
+algorithm that will make this a bit more sophisticated, it's called byte pair encoding,
+and I will explain how byte pair encoding handles unknown tokens.
+Let's now talk about byte pair encoding, which is an algorithm that will help us to take our
+tokenizer to the next level. So, byte pair encoding is an algorithm that has been around for about
+30 years or so. But it's yeah it's really popular for implementing tokenizers these days,
+and for example GPT-1, GPT-2, 3 and 4, they are all using this byte pair encoding algorithm for
+their tokenizer. And even other companies for example Meta AI for their recent Llama 3 models,
+they're using byte pair encoding. And So, byte pair encoding really helps us addressing one major
+shortcoming of our tokenizer. So, if I go up again a few cells here, one of the shortcomings of our
+"SimpleTokenizer" was that it wasn't able to handle unknown words. So, for example in this case we had
+this word hello. And since hello was not represented in the training data it would raise a key error,
+and So, the way we handled that was that we replaced unknown tokens by the unknown placeholder
+token here. So, we had this special rule here to replace anything that is not contained in the
+vocabulary. So, anything that it hasn't seen during the training by these so-called unknown
+special tokens. So, what happens is for example if we have some text like this
+here. So, these unknown words get replaced by "<|unk|>" placeholder tokens and this one as well,
+but the main shortcoming of this is now to the LLM, this all looks the same. So, the LLM doesn't
+really know what's here and what's here because it receives the same token ID for both of these
+cases. And in many many real world tasks where you have specific names or anything that were not
+included in the training data the LLM wouldn't have any idea what you are talking about or what
+you're referring to if you have multiple of these unknown tokens in your text and so forth.
+And yeah this is not ideal. So, the byte pair encoding algorithm is a way that it can always
+break down any type of word into subtokens. So, to show you an example let's go briefly to this
+Tiktokenizer app again. And we will be in this video also using the tiktoken app, or sorry
+Python library, in a few moments. But if I type some let's say some unknown word and then something
+like this here you can see it's actually breaking it down into sub words. So, what happens here maybe
+let's fix this it's even nicer. So, what happens here is that I bet you that this is something
+that was not contained in the training data for GPT-2, but nonetheless it's able to break it down
+into individual tokens without failing. So, without raising an error or without inserting
+a placeholder token or anything like that. So, what happens is it's breaking down longer unknown
+words into known sub words. So, it has for example seen something like some in its training set or
+unknown. So, these are unknown words. So, you can see here it's breaking them down successfully into
+individual subtokens. And then if we have a string like this, this is something that doesn't really
+correspond to anything in the training data, it would then always fall back to individual characters.
+So, in this case it will just use a single character as a token. So, in this way it will never fail
+because it will always fall back to these individual characters if there's an unknown word,
+now this is maybe a bit inefficient because now one word becomes a lot of tokens. So, it's not the
+most efficient way to encode input text if you have a lot of unknown words, however it will never
+fail in this case. So, this is one improvement over our previous method which would just
+replace unknown tokens with this "<|unk|>" placeholder token. So, if you're interested in the byte pair
+encoding algorithm, how it works, OpenAI they actually open-sourced the inference method for
+this byte pair encoding algorithm. So, they have this GPT-2 GitHub repository... it should be just
+OpenAI GPT-2. And then in this folder "src" and then "encoder.py" they have the byte pair encoding
+implemented here to break down words or input text into these subtokens. Now they don't share
+the training method for this. So, they only share the code that you use when you have already trained
+this tokenizer. However, if you are curious I implemented this from scratch. So, if you scroll
+down here in the bonus material of the book. So, this is my repository rasbt/LLMs-from-scratch.
+And then you go to this byte pair encoding tokenizer from scratch link, this will bring
+you to a notebook, a Jupyter notebook, where this implements the byte pair encoding step by step
+from scratch including training. And then also at the end I have a method for loading the OpenAI
+weights into this. So, this should work similarly to what OpenAI used for the GPT-2 model. So, if
+you are interested in more details, I recommend checking this out. But know that this is only
+optional, this is pretty advanced and this is also a very long notebook, which is why I didn't include
+it in the book itself, because yeah in practice the book is about LLMs and this is a whole different
+topic. This could be actually the topic of a whole other book, because it's actually quite complex.
+So, the main message here really is that we are going to take text on unknown tokens and everything
+and we have now a way to break it down into individual subtokens with this BPE method.
+And in practice we are going to use the library called tiktoken, which is an open source library
+from OpenAI. So, the book, the later chapters, will implement everything from scratch, because yeah
+that's the title of the book, "Build a Large Language Model (From Scratch", but I would consider
+the tokenizer not really part of the LLM itself. So, in this case the tokenizer here we are going
+to use this library from tiktoken, because it's actually also very nice and efficient and it's what
+most people use in practice. So, the reason why it's efficient, for example more efficient than
+this implementation here, this other implementation here from OpenAI, is that the most expensive
+function calls or code is implemented in Rust, where Rust is a different programming language
+that is often used to implement high performance code. And then to make it easy to use people
+usually add a Python API around this. So, we're going to use this library in Python, but most of
+the core parts are implemented in Rust to make it really fast in inference. So, what we're going
+to do is we're going to implement, sorry to import the tiktoken library, here we go,
+So, the tiktoken library is yeah helping us then to use this GPT-2 tokenizer. And by the way why
+GPT-2 and not GPT-3 or 4, that's because later in chapter 5 we will be training a small GPT-2-style
+model. And then we will also later see how we can load the pre-trained weights from OpenAI,
+who shared the GPT-2 model weights. Unfortunately they didn't share the GPT-3 or GPT-4 model weights
+yet, but the architecture of GPT-3 is the same as 2 and so forth. In any case, so we are going to
+use the GPT-2 tokenizer to make it compatible to the model we are going to implement later in
+chapter 5. And So, yeah we can import the tiktoken library like this, if you have set up your Python
+environment as described in the first video with this requirements.txt file, this should
+automatically work. If you get an import error that means you probably haven't installed the
+tiktoken Python library. So, you could either use "uv pip install" or just "pip install tiktoken" to
+install this library. So, if you would execute this code cell here this would install the tiktoken
+library, but I'm commenting it out because I have it already installed. And next let me also just
+briefly double check which version I'm using. So, it's always a habit of mine to double check,
+because yeah you never know if you run the notebook in a few years in the future,
+maybe if you get a different result it could be due to a different version of the library.
+So, I'm using 0.9, but it should also be fine if you have an older version like 0.7 or 0.6 or something
+like that. But yeah if you get some weird results that don't really match what you expect, making
+sure you have the correct version is never a bad idea. So, you could then also fix this version
+number like this for example. Okay so, how are we going to use the tiktokenizer now. So, we are going
+to instantiate a new tokenizer object. And we are going to use the GPT-2 tokenizer like I mentioned
+before. So, we do get encoding and then GPT-2 like this. And this would instantiate the GPT-2 tokenizer
+with the full vocabulary, the way it was trained and everything. So, this is already ready to use,
+we don't have to train anything. And then the usage is exactly the same as our own simple
+tokenizer, this is why we went through all the work here implementing this, because it helps I
+think illustrate how encode and decode work like these methods. And this tiktokenizer is using
+exactly the same API. So, you can see we are encoding this now. And then there is also
+"tokenizer.decode"
+like this. And this gives us back the original text, which is exactly what we had before.
+Now let me actually show you a more advanced case where I have some copy-pasted some text here.
+And let's actually try to encode this text. So, before I mentioned to you that it can handle
+arbitrary words. So, it is actually able to you know break down any words into subtokens,
+So, let's see actually what happens.
+So, you may notice now that actually it raises an error. And why is that? So there is one interesting
+thing about the GPD tokenizer. And so, one is that they use the so-called special end-of-text token,
+and I think I glanced over this in the previous videos, but the end-of-text token is usually used,
+if I can find the figure here, it is usually used to concatenate texts, let me double check,
+yeah here. So, when you are preparing the dataset for training an LLM, you
+usually have multiple documents. And to signal to the LLM where one document ends and where the
+next document starts, you usually add this "<|end-of-text|>" token, you can either add it at the
+beginning of the next document or at the end of the previous document, that doesn't matter.
+But you usually have this "<|end-of-text|>" delimiter to show where a new document starts. So, that the
+LLM knows okay this is a new document. Now it's not part of the previous document. And this is
+also used in GPT-2 for example. And it's a special token that they used, but it's not by
+default enabled in this tokenizer, which is why it's complaining. So, what you have to do is you
+have to unfortunately add this as a special token. So, you have to be very explicit here. And then
+add this special token like this. And yeah you can see this one works now. And so, this end-of-text
+corresponds to 50,256, which is essentially the vocabulary size of this tokenizer. So, the vocabulary
+has 50,256 entries in this case. And so, one more thing I wanted to mention is it might look like
+it's not working well with things that is not denoted as "allowed_special", but it would work
+with any other token. So, I can just add arbitrary text here. And it would work like this. So, like
+we said before it can break down arbitrary text, it was just an exception with this end-of-text token,
+and yeah. And So, this is in a nutshell how the byte pair encoding algorithm works. So, it's
+essentially a method for breaking down arbitrary text into subword tokens. And if you are curious
+about more details how it's implemented, I highly recommend. Or not highly, but I suggest checking
+out this source code, I would say I would not highly recommend it at this point, because it's
+pretty advanced. And it can be a bit confusing. And yeah, if you like, you can also check out my
+implementation here, where I added a few more comments. And hopefully making this a bit more
+readable, but yeah, again, this is advanced material, I would say this would be almost topic
+for another book, it's not really anything you have to necessarily understand for implementing
+an LLM. The core message is we have now an algorithm that breaks down text into tokens,
+and in the next video we will talk about implementing the data sample.
+Let's now talk about data sampling with a sliding window. So, what that means is previously we talked
+about creating these subword tokens from a given text. And then we converted the subtext tokens
+into token IDs. And later we will learn how to convert them into vectors, embedding vectors,
+and then pass them to the LLM, but for now the focus is really still on this park here, how can
+we do this efficiently? For instance, the LLM, it can't receive all the tokens all at once as input,
+So, the topic of this section is how do we provide smaller chunks of these token IDs to the LLM
+efficiently. So, that we can later train the LLM efficiently. So, let's go to section 2.6 here,
+there's one more thing I wanted to mention before we go to the code examples. LLMs,
+essentially one of the hallmarks of LLMs is that they are predicting one token at a time.
+So, if we have an input text, for example LLMs learn to predict one word at a time, if that is
+our input text, let's consider the first token, if we pass only this token, ideally the LLM should
+predict the next token. And here in the next row LLMs learn the next token is 2 and so forth.
+So, the goal is to teach the LLM to predict one word at a time. And this is one of the interesting
+things about LLMs, this makes them so efficient at scale in terms of being able to train them on
+very large datasets. In traditional machine learning we usually as humans had to find ways
+to create labeled data. So, here it's actually very easy because we can use raw text and the label
+creates itself by just being the next token. So, we are just taking text, we hide part of the text,
+for example here we hide this text, we provide one token as input. And then the next token is
+the target label that the LLM learns to predict. We will learn more about how this works, for example
+optimizing a loss function, predicting next tokens and so forth in later chapters. Here the goal is
+to just prepare the data in a similar format so that when we pass an input to the LLM.
+The LLM has then the next target that it can predict. So, if I go to my code here,
+so, what we are going to do is we are going to do this efficiently for our "the-verdict" dataset.
+So, just to provide it here again, "the-verdict" was the short story by Edith Wharton that we downloaded
+earlier. And what we are going to do now is we are going to use the tiktoken tokenizer
+to encode this into token IDs. And if we do that we can see we have 5145 token IDs,
+just maybe to visualize them, can see them. So, these are all the token IDs in our text,
+and now the goal is how can we provide them efficiently to the LLM in the form of sub-chunks.
+So, you can see it's a lot of tokens and the LLM wouldn't be able to pass them all.
+So, we want to for example provide chunks of four, four because yeah it's nice and small and fits
+into this JupyterLab when we visualize it and I can make nice figures. But in practice the chunks
+are usually much larger, they're usually thousand, four thousand, eight thousand tokens at a time
+depending on the LLM, here in the case of GPT-2 I think it was 1024 tokens that were used at a time
+during pre-training, we are in this particular notebook only using four for visualization
+purposes just so that I can show you some things more efficiently in a figure. So, yeah that is what
+I wanted to say here. And we are also going to use a particular subset and we are truncating the
+first 50 tokens just to have some nicer examples and some nicer text, but this is just like an
+implementation detail to make this visually a bit nicer. Now what I wanted to show you now is
+the way we prepare the x (the input) and the y (the targets). I kind of showed it to you here already
+that we are concerned always with the next target token here. So, we are creating a dataset here
+where the targets are the inputs shifted by one position which then helps us to have the targets
+as the next token to the LLM. So, for instance here what I'm doing is I have this sample text.
+So, the sample text is, it should be about five thousand something,
+oops, tokens. So, 5095 tokens because I just truncated some tokens. So, we have 5095 tokens
+and we have a context size of four. So, we are only considering four tokens.
+So, here we are going to take the first four tokens and then we shift it by one position
+So, that the targets are shifted by one position. So, you can see it here in the output
+we have the inputs and then the targets are shifted by one position. So, if I show it like
+this, this is how it would look like, but it's a bit hard to read. So, I inserted this white space.
+So, you can see where the overlaps are here. So, you can see those three tokens overlap and this
+would be the next token and this would be the previous token that is not presented in the
+targets. So, if the LLM receives this token it's supposed to predict this token, if the LLM receives
+those tokens it's supposed to predict this token, if the LLM receives those tokens it should predict
+this one and if it receives those it should predict this one and so forth. So, that's the
+whole idea here and maybe to make this a bit more clear what I've just shown you visually.
+So, here's some other code example which is exactly doing what I just showed you where it's showing
+the next token and since this might be a bit abstract with these numbers we could also just
+use our tokenizer, for example let me copy this so it's easier than just retyping it.
+So, we can use our tokenizer to decode the token IDs back into text and do this for both the targets
+and the input context and so this is the same, oops made a mistake, I probably forgot to close
+parenthesis. So, you can see what it would look like. So, we are always predicting the next
+word in the sentence and so to make this really efficient we are going to use PyTorch,
+where PyTorch is a very popular deep learning framework, it's probably the most widely
+used deep learning framework today and so we're going to import this and use the data loader
+and dataset classes from there because they implemented this very efficiently and we're
+going to reuse these parts because they're not really part of the LLM, we are still talking about
+setting up the dataset and it would be a bit you know tedious to reinvent the wheel and
+write our own data loaders and so forth. And so yeah for that we are going to use PyTorch
+and so PyTorch is imported as "torch" even though the library is called "pytorch",
+it's just a convention we have to remember. And if you followed the video in the first chapter
+I showed you some setup tutorial, if you follow this and install the requirements.txt
+this should already work. In case it doesn't work it means you don't have PyTorch installed
+and so one way to install it would be "uv pip install" or "pip install" depending on how your
+system is set up. And just typing this command and it should automatically get a good version
+for your computer. However if you want to be more specific for example you can go to pytorch.org
+and on this website they have like this installer menu that has different commands for different
+computers. So, for example I'm running this on a Mac with pip and then it would give me that
+this command if you are on Linux by default here this would be the CPU code it would be a bit
+different if you have a GPU by default if you type a "pip install torch" it would come with CUDA 12.4
+libraries. So, it would support the GPU with CUDA 12.4 but if you want a specific version you can
+also change it and there are different URLs and by the time you are watching it there might be a
+whole new set of CUDA versions. So, this is really specific in terms of what GPU drivers you support
+but you know by default you can also just do "pip install torch" and it should technically work.
+Now back to this one here I'm also just double checking which version I'm using here.
+So, here I'm using version 2.6 and I should say when I started writing this book it was 2.0
+because that was the most recent version two years ago when I started writing the book
+but I tested the book on all subsequent versions of PyTorch and I couldn't see any difference in
+any of the code. In the GitHub repository I also have automated tests so each time a new PyTorch
+version comes out I'm just double checking it still works. And so far I haven't seen any
+difference in PyTorch that would make any of the code different. So, in this case you can feel free
+to also use older versions of PyTorch for example 2.0, 2.1, 2.2, 2.3, 2.4 and 2.5 they should work equally
+fine. However if you notice anything that doesn't work for example the results look different
+you could just try also to install this specific version of PyTorch by doing "pip install torch"
+and then 2.6.0 and So, this would then install this specific version of PyTorch I'm using
+right now at the moment okay. So, this was a little detour maybe one more thing I wanted to mention is
+if you're new to PyTorch it's essentially a deep learning framework it's very relatively comprehensive
+it has a lot of things but we are only going to use a subset here in this book it's essentially
+more of a linear algebra library with a few deep learning convenience functions there are whole
+courses and books about PyTorch if you want to learn about it but if you want to learn about
+it efficiently I also have appendix a here. So, I've been using PyTorch I would say since 2018 for
+seven years now and I've taught many PyTorch workshops and I wrote another book about PyTorch
+and so forth. So what I want to say here is over the years I used PyTorch quite a lot and I was
+thinking really hard what are actually the parts you need to know for this book. So, and based on
+that I compiled this appendix a which is essentially a book chapter of 40 pages approximately that just
+go over the essentials that you need for yeah basic LLM training and development where this
+should get you up to speed relatively quickly. Of course if you're curious I recommend yeah
+considering a whole course or a book on PyTorch at some point but if you just want to get up to
+speed with PyTorch for this particular book try to read appendix A and maybe it's already sufficient.
+It might be a steeper learning curve because I'm trying to keep things efficient and compact
+but maybe this is all you need at that time to really get up to speed. So, you don't let's say go
+on a detour for a few months to try to learn PyTorch and then yeah then you get maybe
+frustrated or get bored. So, I would suggest maybe trying Appendix a and maybe it's already
+sufficient to get you up to speed here. Now back to the data loading. So, we talked about PyTorch
+and importing PyTorch let's actually go back to section 2.6 data sampling with a sliding window.
+So, we talked about the target word predicting the next word and so now we are going to prepare the
+dataset accordingly. So, we are going to take the input data and we are creating these chunks and
+I mentioned before we're using a chunk size of 4 or context size of 4 for visualization
+purposes so it nicely fits into this figure and so forth. But in reality these are usually larger
+like 1024 in the case of the GPT-2 model or newer models use 8,000 16,000 tokens in each row but it
+would be hard of course to visualize here. And so, as you can see the one box here the left box
+that's the input x what we are creating and then the targets are shifted by one position as you
+can see here it's the same idea what I showed you earlier we are just creating inputs and targets
+simultaneously from this text so that we can feed both to the LLM later when we are training the
+LLM. So, let me actually do this in code and for this we are going to use a PyTorch Dataset class.
+And so the reason why we're using a PyTorch Dataset class is it will allow us to use the PyTorch
+DataLoaders later and they are essentially a very nice and efficient way to create batches
+and to shuffle the data and to use multiple background processes to process the data faster.
+It has a lot of convenience added to it. So, how a dataset looks like is we have an constructor here
+we are setting them to empty lists then we are going to tokenize the text. So, "txt" is the input
+text we're going to pass and so we get the token IDs and here this is the part where we are creating
+these so-called chunks so these chunks are these two chunks basically. And instead of, I should go
+back maybe one more time, instead of just creating one chunk for the inputs and targets we're doing
+this for the whole dataset. So, we are storing these chunks here we are adding them here for
+the inputs and for the targets. So, we are appending them to these lists we created earlier
+and it's the same concept as before we are yeah sliding over the input dataset and then the
+targets are shifted here by one position. So, what we are going to do is we are taking this
+left box and we are going to slide it over the input. So, you can see the first row is "in the
+heart of" and then when we slide it over the next one is "the city stood the" and then "old library"
+and so forth so it's yeah sliding it over by one position and it's if you have a very large data
+set it's maybe not the way to do it because you can't store 15 trillion tokens in memory.
+So, this would run out of memory but if you have just a few books a few gigabytes or megabytes of
+data I mean if you have I don't know a thousand books or something like this this would conveniently
+fit. So, you don't have to worry about it and over optimize at this point there are a few more
+advanced ways and tools if you are really training LLMs on trillions of tokens but for here, for
+educational purposes we are keeping things relatively simple and readable because this will
+this is the basic approach. And yeah so to understand also how things work under the hood
+now we have this dataset now and I mentioned the data loader that we want to use. So, let me
+sort of typing all the code just insert it below. So, the data loader is created here and I have a
+function I'm defining that returns this data loader. And so here we are defining the the text
+we can set a batch size the max_length of each context_length So, before we set 4 is our
+length here we can also this is just a default parameter we can override it later.
+We set the stride it's by how many positions we are moving the box (we will get back to that
+in a few moments), whether we want to shuffle the dataset whether we want to drop the last batch
+or not. And this is actually an interesting one this is really to avoid loss spikes. So, for example
+if we have a dataset let's say example one example two and so forth if we have a dataset like that
+let me just do it like this
+and suppose we have a batch size of two what the data loader will do is it will divide the data
+set into batch sizes of two but if the dataset size is not divisible by the batch size
+you often end up with very small batches at the end the last batch because it's the remainder
+and this often results in loss spikes like unstable training. So, it's actually a good idea
+to always remove the last batch if you do multiple epoch training. You also don't have to
+worry about missing certain data points by removing them but also in general usually data
+sets are so large that you know if you don't use the last batch doesn't really matter so it's
+usually a good idea to have batches of the same size so you don't have these instabilities during
+training. This is why we are why I'm recommending dropping the last batch always. And then
+num_workers is for using multiple background processes. I have it here set to zero because I'm executing
+this in a notebook, and in some cases this can be yeah might not work because notebooks are a bit
+more restricted than Python scripts in terms of spawning multiple subprocesses. Or if you're
+using windows I think windows generally has some problems with multiple background processes in
+Python. So, this is just like a safe choice. But yeah you can try also to set it to a larger number for
+example. But yeah for for these purposes in a notebook this should be fine to set it to 0.
+And yeah this was very conceptual a few more things here we are initializing the tokenizer
+this is the tiktoken tokenizer we talked about earlier. Then we are creating the dataset,
+that is the Dataset we have up here, and we are creating it with um yeah `txt` and `txt` will be
+our training dataset. And here is where we are creating the data loader using the settings I
+defined earlier. And we are returning. It's all very very, I would say "conceptual". So let's
+actually see it in action. And for that we are going to use "the-verdict" again, which is our
+short story that we downloaded earlier. The short story by Edith Wharton, raw_text. So, this is how it
+looks like we have seen it earlier and now we are going to pass it to our dataset and data loader
+So, let me just because otherwise it will end up a very long video let me just copy and paste the
+code here. We are going to start with a batch size of 1 and a context length 1
+and a stride of 1. And so the batch size is how many samples are in each batch essentially.
+The max length is our context length. It's how long the context here is, like the size of the box, how
+many tokens are in there. And then the stride is by how many places we are moving it. So, for simplicity
+I will show you stride of 1and then we will change it. So, if this is unclear wait for a few
+moments... we will get to it. And whether we shuffle the data or not. And then we are iterating
+here just for demonstration purposes over the dataset manually. And later I will show you a
+different way to do that. So, here we are creating an iteration object, and it's our object, and then
+we are taking the next sample from our dataset. So, when we are executing this we can see the
+the next batch here. So, this is the first input it only has a size of 1 and this is then the
+targets. So, you can see the targets are shifted by 1 position. And then let's draw another batch
+now. What you can see is that the targets here become those inputs. So, the first one is always
+The inputs. The second one is always the targets because that's how we set up our dataset. So, the
+first is the inputs, the second is the targets. Now, you can see this is something where it's maybe not
+ideal because when we have this input and then
+the second iteration is this input, there is an overlap. So, these tokens are the same, and if you
+do it like this, the LLM sees certain tokens many, many times, and then it's kind of leading to
+overfitting. So, what's actually better is to increase the stride by four. If we do that,
+you can see each of the tokens is unique. So, you can see they are not overlapping anymore.
+What it does is it's moving this box by a stride of four—by four positions. So, one, two, three, four,
+moving it by four positions. So, we add "the city stood the," and you can see this is what's shown here
+in the second row. The reason why I showed you just the stride of one was so you can see that this
+actually works and it's not missing any data because you can see this one picks up right here.
+If we have a stride of 1, I thought this might be more intuitive, but if it is confusing, don't
+worry about it. Just go to the stride of 4, and then you have exactly what you can see here in the
+figure. Now, this is for a batch size of 1. When we are training a deep network, it's usually efficient
+to use a larger batch size. So, what we can do is use a batch size of 8. I'm just
+showing you the same thing here. Instead of a batch size of 1, I have a batch size of 8,
+a max length of 4, and a stride of 4. And then, yeah, some labeling, so it's a bit clearer.
+And yeah, you can see now we have the inputs here and the targets, and this is similar to what
+we are seeing here, where we have multiple rows, where each row is one training example. So, we
+have a batch size of one, two, three, four, five, six, seven, eight, and then the corresponding targets.
+Yeah, and this is really how we implement this data loader. Then later, we can also iterate
+over it more efficiently. So, this is a topic for later. I just wanted to set up this data loader
+so that we have one way, later on, to load the data into the LLM efficiently.
+We talked a lot about creating token IDs, but now let's take it to the next step
+and talk about creating token embeddings. So, if I go back to an earlier figure from Section 2.2,
+we look at this figure where I showed you that input text gets converted into tokenized text,
+and the tokenized text gets converted to token IDs. Now, the next step is creating these token
+embeddings from the token IDs—essentially taking an ID, an integer value, and converting
+it to an embedding vector. So, this embedding vector contains real numbers, like floating-point
+numbers, that can then be optimized. So, yeah, to show you how it works, we are going to use some
+token IDs as an example, just like a PyTorch tensor, so that it is a bit easier to see what's
+going on. So, let's do torch.tensor and then insert those. I should say these are relatively
+large numbers. So, let's actually use some smaller ones, so we can have a nicer visualization.
+These are just some words or tokens in our input. So, we have this input tensor now,
+and then the next step would be creating a so-called embedding layer. Usually, this
+embedding layer is part of the LLM itself. We will revisit this many times later in this book,
+but this would be a standalone embedding layer, and that's usually something called the vocabulary
+size. So, this is the size of the tokenizer, the vocabulary tokenizer, and then the output dimension.
+This is the vector embedding size. The vocabulary size is, in our case, for the tiktoken
+tokenizer, 50,257. Sorry, that is probably not
+the correct number. Let me double-check. Actually, tokenizer—one way if you forget, like me, what the
+name of the vocabulary is, you can use Python's "dir", and it should actually show you. So,
+n_vocab. If I go up here, type n_vocab, and then do the length, you can see—oops—
+it's not a list; it's just an integer. You can see it has 50,257
+unique tokens. So, this would be one argument for our embedding layer—it supports all
+these different tokens. The other would be the output dimension, which is the
+desired size for these vectors.
+For simplicity, let's actually use simpler and smaller values, so it's then easier to visualize.
+So, let me use vocab size six and output dimension. Let me just copy it.
+Let's do three because three is also what we are seeing here—like three little boxes per vector.
+So, we have a very small example that is hopefully easy to see. And then, one more thing is I'm adding
+a random seed here. Why am I doing that? It's because this is a newer network layer with random
+weights. So, the random weights are different each time you instantiate a new layer, and so I
+just want to make sure you get the same results that I do. So, I'm initializing this random seed.
+And by the way, if random seeds are something you are not familiar with, let me know. I also have a
+nice video on random seeds I can share with you. But yeah, so this is now this embedding layer,
+and the embedding layer has a weight matrix.
+Weight. So, this is something that is later optimized during neural network training,
+like LLM training. And yeah, they are called weight parameters or parameters, and these are
+things that are going to be adjusted. And by the way, if you are already familiar with linear layers
+or matrix multiplications and everything, an embedding layer is just an implementation
+detail to make a certain lookup easier or more efficient. This is more advanced—you don't have
+to read this if you're not familiar with it. But for those who are curious, I do actually have some
+bonus material here about understanding the difference between...
+One moment... the difference between embedding layers and linear layers. So, if you're curious how
+this relates to matrix multiplications and linear layers, it's like a short notebook for those who
+are curious. But if you are not familiar with it, don't worry about it. I will try to explain it in
+a more, let's say, intuitive sense. So, let me show you something. If I do an embedding layer...
+and I call it on, let's say, this input here. Let's just pick one of these numbers.
+torch.tensor, let's make a smaller tensor and use, let's say, the three from here.
+Vector. Let's see what happens. So, you can see it's pulling out a vector here. There's a
+tensor of three different numbers. And if you have a sharp eye, you might notice it's actually this
+row here from this embedding matrix. So, if we are typing three here—Python is zero-indexed—
+so it's 0, 1, 2, 3, it's giving us this vector from this matrix. And similarly, if I go
+here and I do... let's use the first one... and I do this one, you can see this one is the first, um...
+Sorry, not quite the third row. Sorry—0, 1, 2, because that's the number two, and this is, yeah, the
+index two corresponding to this row. And similarly, if I now use the whole input IDs...
+I'm pulling out values from this matrix. So, I probably should show them here for reference.
+So, the first one, that's the two, corresponds to 0, 1, 2—to this one here. The second one
+corresponds to this three. So, this would be this row here. The five—this one—0, 1, 2, 3, 4.
+Five, and so forth. So, essentially, when we are calling this embedding layer on the input IDs,
+we are pulling out vectors from this matrix. And this matrix technically has the size of our
+tokenizer. So, I can just show you this example: tokenizer.n_vocab, right? So, in this case, this
+might be a very large one. Should I print it? Maybe let's try and see what happens. It's actually
+dotting it out, but yeah, this would then be 50,257 rows, essentially. And yeah, this is essentially
+the embedding layer that is used to convert the token IDs here into these vectors. This is
+usually part of the LLM. And yeah, these numbers I mentioned before—they are random. So, if I actually
+comment this out, you might see these numbers change because the weight matrix—yeah, the weight
+matrix changes. So, usually, what we want to do is start with small random numbers.
+It doesn't really matter what these numbers are, but later on, during training, these numbers
+get optimized in the sense that the LLM is optimized end-to-end to produce, yeah, the desired
+text—the next word in the training text. So, don't worry about why these numbers are random
+yet, because they're not trained yet. They're just starting values. We are going to train them later
+in Chapter 5. But now you have, hopefully, a good understanding of what an embedding is. So, an embedding
+is a vector from this embedding matrix that gets trained later.
+So, now that we understand word embeddings, let's take it a step further and add positional
+information. I will tell you in a few moments what positional information means. But yeah, just to
+recap—we had input text, we tokenized the input text, and created token IDs. Then, the previous section
+focused on creating these so-called token embeddings, and we only had a very small toy
+example. And then, just to use the actual sizes for our tokenizer, we mentioned that our tokenizer has
+50,257 words. So, we pass this vocab size to our embedding layer to create it in this size.
+Now, we also scale this a little bit up because before, you know, we had an output dimension of
+one, two, three tokens, which was just for a toy example. Now, we are increasing it to 256, which
+is what we are going to use to train the LLM later. It's a more realistic size. GPT-2 was originally
+trained with an output dimension of, I think, 1024—I'm not quite sure; I would have to double-check.
+But yeah, this would be something that works well even on a small computer, like a laptop, for example.
+You can always, you know, try larger values if your computer supports it. But I think this should be
+supported on most hardware for demonstration purposes, while also making it a bit more realistic
+than having an embedding size of just three dimensions. So, we now have 256 dimensions.
+So, if we do that, we have our embedding matrix that has 50,000 rows and about 200
+columns. So, that's our weight matrix, similar to what we did before. Now, taking it a step
+further, we also had the data loader. How does it now come together with these embeddings?
+Previously, we created these token IDs. If I just show you this, it's the same as what we covered
+earlier. So, we have a data loader that creates batches of size eight with a max length of four—
+So, four token IDs per training example, and then we have eight examples. And so, now, how does it
+actually relate to the token embedding that we have seen in the previous section? So, what we do
+now is actually convert these token IDs into these embedding vectors. So, if I do that, what I
+showed you earlier is if I take this and type inputIDs, it would create the sample vectors for
+the simple inputIDs that we talked about earlier. But now, we are going to use the actual data
+batch here. So, this would be the data batch that we convert, and let's maybe call this token_embeddings.
+And let's just see what happens. Let's actually look at the size of the output here.
+So, you can see now we still have the batch size of eight. It's now a three-dimensional tensor,
+and the numbers correspond to the batch size. So, we have one, two, three, four, five, six, seven, eight
+rows—eight examples. Each example has four tokens, like one, two—whoops—one, two, three, four. But now,
+it's not just the token ID. Each one of those is actually a 256-dimensional vector. So, here, each
+token ID gets converted to a three-dimensional vector. Now, it's a 256-dimensional vector. It's
+hard to visualize vectors in 256 dimensions, but we can actually maybe print one of those out.
+So, if we take a look at the first one—the first batch, the first token—this should give us
+yeah, the vector—the 256-dimensional vector corresponding to the first token in the first
+batch. Basically, this one. Okay, so now we have converted token IDs into
+token embeddings. The next step is adding positional information. Let me see if I have a nice figure
+for this. So, previously, what we've done is we pulled out these embedding vectors from the
+weight matrix for each input example. And so, I previously chose an input that was, yeah, I would
+say, relatively nice for explanation purposes, where each output row looked different. So, we had
+"fox jumps over dog." These are token IDs corresponding to an example input like this.
+Then, we pulled out these embedding vectors corresponding to the token IDs from this weight
+matrix. Now, what happens if we have the same token ID? For example, "fox jumps over fox." Here, this
+token index 2 is the third row in the weight matrix. So, we get, as the result, this row here.
+But since in the last token ID we have the same, yeah, the same word, the same token ID, it has the
+same vector. I mean, it makes sense, right? We are looking up the position here, we are pulling out
+the vector, and creating the output like that. Now, this is fine, and it would work, but we could actually
+add some more information to it. So, to provide more information to the LLM depending on where
+this word is located in the input, we can create so-called positional embedding information. There
+are different ways you can do that. GPT-2 used a very simple way—it used a second embedding
+layer. There are nowadays other ways, for example, using rotational positional embeddings. If you're
+curious about those, in the bonus material on my GitHub repository, I implemented Llama 3.2
+from scratch. It's more advanced and more complicated, and it's not as nicely described as in the book,
+but they use something called RoPE embeddings that I also implemented here. But GPT-2 is, yeah,
+fortunately, much simpler in this case with the embeddings. It's using simply a second embedding
+layer. So, let me actually show you how that would work. We are using the same embedding class we
+used before, but now we have a token embedding layer. In addition, we have a position embedding
+layer where we add positional information. So, the goal will be—maybe I have a figure—yeah, I do have
+a figure on that. If we have input embeddings like this, the goal is to have a second set of values
+that we add here—so, position embeddings that we add. So, we have—sorry—token embeddings. To step
+through this figure more slowly, I chose the same token embeddings for each example here just to
+keep things simple. So, if we have input consisting of the same word, like "fox fox fox fox,"
+for example, the token embeddings would be the same in all cases. But then, we add positional
+information on top of that, so the actual input embeddings look different depending on
+on where it's located. Now, I'm using these very nice numbers where it's easy to read those numbers.
+In reality, these all start with random numbers, so it doesn't look quite as nice.
+But these numbers—the position embedding numbers—they also get optimized automatically later during
+the LLM training. So, they are random numbers to start with, and later they will get optimized
+similar to the token embeddings. So here, yeah, I'm creating a second position embedding layer,
+essentially. And then, what I'm doing here is setting the max length. So, the max length is
+how many inputs are supported. In this case, we only have four, right? So, we had a max length of
+four—one, two, three, four. It can only support four input tokens. In practice, this is a much bigger
+layer. So, for simplicity, we just keep it small for visualization purposes and simplicity.
+Later, when we train the LLM, we will actually use much larger values. And then, what we can do is we
+can use torch.arange. So, arange is creating sequential order values here—zero, one, two, and three.
+So, zero, one, two, three—it's just a tensor. It's a placeholder tensor for the positions: position zero,
+position one, two, and three. And we have this position embedding matrix, and it's a similar
+matrix to what we had before—oops. And then, when we are calling...
+when we are calling...
+this with our arange,
+what it will do is just pull out the values in sequential order here. So, you can see it
+here. It's just getting me the values here, and that is all that is really happening in
+this positional embedding layer. And then, what we do is we add them on top of each other.
+Maybe before I execute this—this one has shape [8, 4, 256], and this one should have the
+same shape so we can then add them to each other. I have not executed this right here, so I'm sorry.
+This is actually only [4, 256], because of how PyTorch works. I mean, for efficiency, we don't need
+to duplicate this over the batch dimension because this one will be added to each batch
+separately. So, what happens is essentially that when we have something like this, the input embedding
+has the same size as the—sorry—the token embedding has the same dimension as the position embeddings.
+And then, the input embedding will also have the same dimension. So, here, this concept is
+called broadcasting in PyTorch. So, let me maybe show it to you like this. When we do this...
+we can add these values together. This is the first example in the training set, and then our
+position embedding vector. This would be essentially similar to doing this, except now
+we are doing it for all the examples in the batch. But the first example—maybe
+you can see it here—should be similar. So, you can see this one is similar to this one. I mean, this
+is like a rounding thing—not a rounding thing, a different print representation. But this row
+is the same as this row, essentially, and so forth. So, this is just generalizing it over the whole
+batch dimension. Oops, let me just clean this up a bit. And then, when I add them together like before,
+the shape should be the same as before. So, we are just adding this additional, yeah, position
+information to it. And so, with that, we have now covered the whole input pipeline. We have input
+text that we break down into tokenized text, then we convert it into token IDs. Then, we create these
+token embeddings with our token embedding layer. We create the position embeddings, add them together
+to get the input embeddings. And so, this is all we need to know for now for the data preparation
+step. Next, let's actually tackle the inside of the GPT-like decoder-only transformer. So, what is
+actually inside the model? One more thing I should say—the embedding layers are technically part of
+the GPT model, as we will see later. I just draw them outside here because it's a bit easier to
+talk about them since we already talked about the data loader. But yeah, in the next chapter,
+we will talk more about the attention mechanism that is inside of a GPT model. So, I
+hope this was useful, and I hope I will see you in the next video.

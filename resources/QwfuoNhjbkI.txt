@@ -1,0 +1,529 @@
+In the last few videos, we've
+constructed different components of the
+Transformer neural network, outlining
+the logic in code as well as in theory.
+Now, in this video, I'm just going to
+talk about the encoder part of the
+architecture in its entirety, and I'm
+going to basically blow up this
+architecture so that we can talk about
+each and every component and how we go
+from start to finish of the encoder.
+So, real quick at a high level, when we
+want to perform translation, let's say
+from English to French, we take an
+English sentence. Let's say it's my name
+is Ajay. That's actually my name. Hi,
+pleasure to meet you. We then pass this
+into the Transformer encoder. All of
+these are passed in simultaneously,
+and then these are going to be
+generating
+four vectors
+also generated simultaneously that
+correspond to my name is Ajay.
+Now, these vectors actually better
+encapsulate the context of the word
+within the sentence, and hence they're
+better representations of the meaning of
+the word, and hence they can be used
+into the decoder to assist in
+translation so that the decoder knows
+which parts of the sentence to focus on
+when translating one word at a time.
+But how do we go from these English
+words to these really cool vectors? And
+that is exactly what I not so
+painstakingly just drew in this not so
+very complicated diagram over here. So,
+this entire box is one encoder layer,
+and we repeat this like 12 times, but
+I'm going to explain each and every
+component in it. So, let's get started.
+So, we first have the input sentence, my
+name is Ajay.
+Now, typically though, when we are
+actually training the network, we're
+going to be adding a padding token,
+which is basically going to be a dummy
+of tokens such that we have a consistent
+input even though that the number of
+words in the sentence may change, we
+will always have a fixed number of
+vectors that we pass through the
+transformer.
+And so this is going to be like some
+padding token.
+Now each of these is encoded into a
+one-hot dimensional vector.
+So that is going to be for example my
+would be a set of zeros where the
+corresponding token that corresponds to
+the word my will be one. The same thing
+for name and is a jay and then we have a
+bunch of padding tokens will be the
+exact same one-hot encoded vectors.
+Now you'll notice that this would be of
+shape max sequence length cross max
+sequence length which is what we define
+to be the maximum number of words that
+we want to pass through the transformer
+architecture. These one-hot vectors
+though don't really encapsulate words in
+a very compressed space and so in order
+to have more condensed vectors that
+actually incorporate better meaning and
+so that we can compute distances between
+these vectors, we want to transform them
+into actual embedding vectors that may
+not be so large. So for example we might
+want to translate it to 512 dimensional
+vectors. So each of these red rectangles
+corresponds to a vector of 512
+dimensions.
+This green thing over here is what I
+have used to determine a transformation
+with learnable parameters.
+So in this case we are going to be
+mapping each of these vectors which will
+be a size of like the maximum sequence
+length in both directions and each
+vector will be mapped to a 512
+dimensional vector that encapsulates the
+initial meaning of the word whatever
+primitive sense that means in this
+initial case.
+And these parameters are learnable via
+back propagation that comes from the end
+of the decoder.
+Now to this initial word embeddings we
+are going to add positional encodings.
+Now these positional encodings are a set
+of sine and cosine functions in order to
+determine each and every single one of
+these individual spots.
+Now these encodings are not going to be
+learned by the model. They are just
+predetermined and we can just basically
+add this entire fixed set of value
+matrix to every single input that we
+receive.
+Now why do we add positional encodings?
+It's because every single word here is
+passed in parallel, but when you're
+dealing with English sentences,
+the actual sequence of these tokens
+matter. And so using the sine and cosine
+functions that we use to populate these
+vectors, we can encode position. These
+vectors encode meaning and so we will
+end up with another set of vectors that
+encode both meaning and position.
+And you see this this white line is
+basically going to be the huge rectangle
+that is the start of the encoder layer
+that can be repeated.
+What you'll notice now is that each of
+these word vectors are going to be
+mapped to a query vector, a key vector,
+and a value vector. Each of them will be
+512 dimensions each.
+And so we do this by passing it through
+the green squares here which are
+learnable parameters of WQ, WK, and WV.
+And each of them will just return the
+maximum sequence length cross 512. And
+because this happens three times, we're
+going to see a max sequence length cross
+1,536. That's 512 * 3.
+And so that is the Q, K, and V vectors.
+And we're going to split this into eight
+heads. So let me just actually scroll
+here just to see exactly how that looks.
+So for example, when we take the initial
+set of vectors, we pass it into WQ.
+This is the max sequence length. We'll
+have I've kind of transposed the
+vectors. So this is my name is a
+And this is basically, this side is
+going to be max sequence length.
+And this vertical direction here is
+going to be 512 dimensions.
+We now split this up into eight parts.
+That's one for each head. What attention
+heads do is basically it kind of adds
+like an additional batch dimension
+or it acts like in code when you
+actually code it out like another batch
+dimension so that there's parallel
+processing that goes on.
+And these heads can eventually interact
+with each other to get better context of
+the data. So it's faster and also helps
+get better context and that's why we use
+multi-head attention versus just the
+single head.
+And so we end up with the same kind of
+vectors for query, for key, and for
+value.
+Now the query vectors essentially for
+every word, the query vector is what I
+am looking for.
+The key vector on the other hand is what
+can I offer?
+And the value vector
+here is what I actually offer. And
+you'll notice that the key and the value
+vectors are very similar. It's just that
+during when we actually compute
+attention a little later, you'll kind of
+see the difference of where they are
+used, where one is used versus the
+other.
+And so what you'll notice here is that
+each of these little squares is going to
+be 512 divided by eight. So they're like
+little 64 dimensional vectors that we
+now compute attention with.
+So let's just scroll here to the top
+and then keep continuing along our path
+here.
+And so what we'll take here is that
+we'll have the maximum sequence length
+that is the maximum number of words that
+we can pass into the transformer
+cross 64.
+That will be one query matrix for one
+head
+that we now pass into this first
+square with an X which is basically a a
+matrix multiplier.
+So I pass this query tensor
+right into here.
+And then I also pass in this first head
+of the key tensor, which is also max
+sequence length cross 64.
+We pass both of these in, and what we're
+going to get is this little square.
+This square is an attention matrix. The
+dimensions of this attention matrix are
+going to be the max sequence length
+cross the max sequence length.
+So that's going to be like because this
+Q vector is going to be max sequence
+length cross 64 times the transpose of
+this key vector, which is 64 cross the
+max sequence length. And so we get max
+sequence length cross max sequence
+length. And now this gives us a little
+matrix that we call uh almost it's not
+the complete attention matrix, but it is
+an attention matrix so that we're able
+to kind of have a relationship between
+every word in the sentence with every
+word in the same sentence.
+So this is kind of the primitive form of
+the self-attention matrix.
+And you can see that we have this
+this little multiplier for every single
+head. So the second one over here is
+multiplying the second entire query
+tensor
+with
+this entire query tensor for the key.
+Same thing with the third.
+And we have the fourth, the fifth, the
+sixth, the seventh, and the eighth. So
+that would be eight heads. And for each
+of them, we are going to get eight of
+these attention matrices.
+And you can kind of see I've written a
+little note too at the bottom for each
+matrix that's max sequence length cross
+max sequence length.
+We'll now basically pass each of these
+matrices individually into a softmax
+function where we're first going to
+first divide it by the square root of
+the dimensions that is 512 in this case
+like DK. DK is like the dimension of um
+you know these K vectors which is 512,
+but it's the same as DQ like the the
+value vector and the query vector
+basically scaling by a constant and then
+applying a softmax. We are dividing by a
+constant here to better stabilize the
+values for better training. And then we
+are applying a softmax so that we
+actually can compare these values to see
+how much attention every single word
+should be paying attention to every
+other word in that sentence.
+And it's eventually these squares over
+here that will give us the actual
+attention matrices, or more specifically
+the self-attention matrices, where every
+value represents like a probability.
+We now take each of these attention
+matrices and we pass them each head
+through these multipliers here. And what
+we're multiplying actually comes from
+the value vector that we computed
+before. And this is where the difference
+comes in between the key and the value.
+So the key is used to compute the
+attention matrix itself, but the value
+vector is applied as a multiplier on the
+final attention matrix itself. So I hope
+that distinction makes more sense.
+So we'll take the attention matrix,
+which is max sequence length cross max
+sequence length. We will now multiply
+that by every single value tensor, which
+is max sequence length cross 64 for
+every head.
+And then we were going to end up with
+basically max sequence length cross 64
+tensors. And we end up with like eight
+of them, one for each attention head.
+And if you look here, that's kind of
+exactly also the note that I've written
+down here.
+And once we actually perform some
+concatenation, we're going to
+concatenate them all together so that we
+have a max sequence length cross 512
+dimensional vectors. And now just to see
+where these 500 where these max sequence
+like 512 dimensional vectors are, we can
+actually look back into this diagram
+over here,
+where we've done the input embedding,
+the positional encoding, we have the
+query, the key, and the value. That's
+why we see three arrows here, one for
+query, key, and value. We did our
+multi-head attention already, and we're
+actually like right here in the in
+between this orange box and this yellow
+box. We're actually right there where we
+have this 512 dimensional vector and for
+every single like sequence. So that's
+like the max sequence length cross 512
+dimensions.
+Just for perspective.
+Now you can see from this graph the next
+thing we want to do is add and
+normalize. So we want to add basically
+whatever we get the result here along
+with a residual connection. That's what
+we call this little skip connection or a
+residual connection.
+And then we want to perform some layer
+normalization on it.
+So the reason that we have residual
+connections is to ensure that for very
+deep networks the back propagation of
+values will eventually or might lead to
+very very small gradients. This is
+because the activations that are used
+like ReLU, GeLU, ELU, all of these have
+values that are either zero or there are
+neurons that can take like near zero
+activations. And if you try to take the
+gradient of these very small values,
+it's going to be even smaller and that
+gradient value is going to decrease as
+we go further and further back in the
+network, which for longer deeper
+networks it can eventually become zero.
+And if the gradients become zero, no
+parameters are updated properly and the
+network does not learn.
+So to prevent that for for these longer
+networks, we tend to use these residual
+connections and hence we are using them
+here.
+Why are we using layer normalization? It
+is mostly because that we want to
+perform stable training. The values that
+we might get from, you know, after
+multi-head attention and applying it to
+the value vector may be, you know, may
+have like a quite a wide standard
+deviation and also a scattered mean. But
+with layer normalization, we can ensure
+that these values are centered around
+like zero, maybe standard deviation
+around one. And also there are thus like
+even steps. It's easier to take even
+steps during the learning process. And
+so training hence becomes more stable
+with layer normalization.
+Now that we have an understanding of why
+that happens, we can kind of take this
+set of matrices. And you can see that
+there's like an addition here. And I've
+put this like in a square as well as an
+addition operation that we're adding
+with something that comes here. This is
+actually going to be the initial
+positional vector encoding that we saw
+on the very beginning of this encoder
+layer. To see exactly where it is, let
+me just zoom back out. You can see that
+this goes all the way back to where we
+actually computed our positional
+encodings here. And that's also like a
+max sequence length cross 512. Apologies
+if it's not super clear, um but
+essentially it's just like very hard to
+zoom out. But I hope that this entire
+thing still makes sense where we're
+adding matrices of the same dimension to
+each other in order to get the add
+there's the add and norm. This is the
+addition part. And then after that we're
+going to perform layer normalization. So
+let's just scroll back in here.
+So when we perform layer normalization,
+we are basically going to let me just
+scroll here.
+We're going to be stabilizing these
+values as much as possible. And so we're
+going to essentially have the same
+vectors just with more stable values
+here. The only difference though is that
+I've labeled this in green to indicate
+that there are learnable parameters here
+as well.
+Now the learnable parameters can be a
+set of gammas and betas. Now I've put
+this as like 512 pairs of gammas and
+betas that are there. But honestly this
+doesn't have to be the case. You can
+have as few as just like one gamma and
+beta for the entire thing or a gamma and
+beta for every single part or every
+single like layer in our case and that
+the name of layer normalization.
+But this is left to implementation
+details itself and it's not like super
+crucial.
+As long as you have like if you're doing
+layer normalization across a batch, you
+might need to also be wary of your batch
+size. Just a a tidbit and caution.
+But essentially we're going after layer
+normalization, we are going to get much
+more stable values
+and we're going to now pass this into a
+set of like a linear layer with
+activation and dropout. Now the linear
+layer is going to help better
+interactions, especially among the
+heads. We had eight heads that we simply
+just concatenated. This linear layer is
+going to help basically push them all
+these heads to kind of interact with
+each other across the layers. ReLU is an
+activation function that helps the
+network understand better and more
+complex patterns
+and dropout allow it's basically a sense
+of like turning off neurons within our
+feedforward layer just randomly so that
+the network is better able to generalize
+and it makes sure that the network
+doesn't like specifically memorize a a
+specific kind of pattern. Now if we say
+that like the this linear layer is like
+it maps 512 neurons to 1,024 neurons,
+we're basically going to get each vector
+here of like you know each sequence,
+each word is going to be represented by
+then like a 1,024 dimensional vector.
+That's kind of what I've written here.
+We then pass this into another linear
+layer where we just compress it back to
+its 512 dimensions
+and we're going to use our good old
+friend the skip connection to add
+basically what we had from the output of
+the previous case. Let's let me just
+go back to the zoom out view so we can
+see what we're doing. We're again now at
+this phase where we're adding basically
+the output of the feedforward layers
+that we just computed and also the skip
+layer that we did from the previous
+added norm. So we have this residual
+connection
+which we do here
+and then we are going to now take this
+resulting network
+and we'll perform layer normalization to
+better stabilize these values. And so
+we'll just end up with the for every
+single sequence, we'll still end up with
+512 dimensions.
+And each of these correspond to a word.
+Now, one thing to note is that these
+final words, like I mentioned before,
+now have better contextual awareness
+because they've passed through this
+entire network that encompasses
+attention. They also, you know, help
+preserve signals via skip connections.
+They are also much more stable values
+via layer normalization. And so these
+values are just
+overall, like each vector is just better
+encompassing and a better representation
+of the words then compared to like what
+the initial vectors that we passed into
+this network were.
+Now, because language here is just so
+complicated, we actually execute all of
+these kinds of roles multiple times
+over. In fact, you'll see that we
+execute it like 12 times here. All of
+these operations just can cast con
+cascaded one after the other after the
+other. And so that just helps us get
+like the best vectors that represent
+English words at the end. This is
+required because like English is just
+such a complex language. And now when we
+have all of these vectors, we can
+eventually like pass all of these now
+into the decoder that will now assist in
+translation from English to let's say
+French, another language.
+So that's going to do it for explaining
+this architecture for the encoder
+network. And I hope all of this made
+sense. I also have like a good amount of
+code too that kind of illustrates this
+as well. I was just like writing this
+out and it's pretty fun um also printing
+out the shapes of each layer so that we
+can see what's going on. But I think I'm
+going to illustrate this actually in
+another video since this one is getting
+too long. So if you want to join me in
+this journey of constructing a
+transformer neural network from scratch,
+then please do hit that subscribe
+button. Please do give this a like and
+also do comment what your thoughts are
+on this and whether you have also tried
+using transformers because there's so
+many cool things that are happening
+today with like ChatGPT and also new
+language models that were introduced by
+like Meta AI and so many other places
+too that are just cropping up. So this
+is super exciting. Thank you so much for
+watching and I will see you in another
+video. Bye-bye.
