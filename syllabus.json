@@ -161,7 +161,7 @@
               "title": "The context problem",
               "hook": "Translation squeezed a whole sentence into one fixed vector, and long sentences broke. Bahdanau (2014): let the decoder look back.",
               "status": "current",
-              "lesson": null,
+              "lesson": "3-1-the-context-problem.html",
               "papers": [
                 {
                   "title": "Sutskever et al. 2014 — Seq2Seq",
@@ -1037,5 +1037,44 @@
     }
   ],
   "branches": [],
-  "notes": []
+  "notes": [
+    {
+      "crux": "3.1",
+      "label": "c_i, not c_ij",
+      "note": "The context vector has one index: c_i = Σ_j α_ij h_j. Each output word i gets one context vector, which is a sum over all input positions j. α_ij is a scalar weight, so the product is scalar times vector, not a matrix product. The single index i is the whole idea: before attention, one c served every output word."
+    },
+    {
+      "crux": "3.1",
+      "label": "Why a hard pick cannot learn",
+      "note": "argmax gives zero gradient almost everywhere. A small change to a score leaves the pick the same, so the loss does not change and no signal reaches the scorer. At the flip point the output jumps, which is not differentiable. Softmax weights move smoothly with every score, so the gradient reaches the scorer at every step."
+    },
+    {
+      "crux": "3.1",
+      "label": "What the scorer compares",
+      "note": "The scorer does not compare two raw words. It compares the decoder state s_{i-1} (what the decoder has written so far, and so what it needs now) with the encoder state h_j (word j read in its context). s_{i-1} acts as the question; h_j acts as the candidate answer."
+    },
+    {
+      "crux": "3.1",
+      "label": "The bottleneck has two causes",
+      "note": "Capacity: a long sentence must fit into the same d numbers as a short one. Recency: the RNN overwrites h at every step, so early words fade most. The real model with d=1000 already fails at 20–30 words, far below n/d = 1, so capacity alone does not explain the curve."
+    },
+    {
+      "crux": "3.1",
+      "label": "What feeds the decoder state",
+      "note": "Plain encoder–decoder: s_t = f(s_{t-1}, y_{t-1}, c), where c = h_T is the final encoder state, the same for every step, and y_{t-1} is the word just written. With attention: s_i = f(s_{i-1}, y_{i-1}, c_i). The decoder never reads h_t at the same index t, because input position and output position do not line up."
+    },
+    {
+      "crux": "3.1",
+      "label": "s_t vs y_t",
+      "note": "s_t is the decoder's hidden state: an internal vector, never seen outside. y_t is the word it outputs. Each step runs in order: build s_t = f(s_{t-1}, y_{t-1}, c), then read off a probability for every vocabulary word, p(y_t) = g(y_{t-1}, s_t, c), pick y_t, and feed y_t into the next step. With attention, c becomes c_i in both equations (Bahdanau Eq. 4)."
+    },
+    {
+      "crux": "3.1",
+      "label": "np.random.default_rng(0)",
+      "note": "Creates a random number generator with seed 0. The seed fixes the sequence of random numbers, so every run gives the same 'random' vectors and the same table. Change the seed to get a different but equally valid run. Experiments use a fixed seed so that results can be reproduced and compared."
+    }
+  ],
+  "conventions": {
+    "learner_notes": "For each new lesson <id>-<slug>.html, also create my-notes/<id>-<slug>.txt containing only the heading '<id> <Title>' underlined with '=' of the same length, then a blank line. The learner writes the rest."
+  }
 }

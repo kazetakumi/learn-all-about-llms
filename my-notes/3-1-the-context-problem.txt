@@ -1,0 +1,45 @@
+3.1 The context problem
+=======================
+
+Need to build a translation engine. For example, say from English to French.
+
+There is an english sentence, need the French translation from that.
+
+First idea would be to convert each word to a vector(some list of numbers). We could think of a sliding window, that takes last (n-1) words and predict the next word. But the
+problem with this approach is that window size is fixed. What should be n??? Can't decide that. We need to think something more flexible than this.
+
+Lets think about a running summary approach. We uses a new vector h, that holds the information. We pass one word at a time and mix the information from the word with this h.
+h_t = f(x_t, h_{t-1})
+
+We do this in the encoder and ht holds all information of the input sentence. We pass this decoder, where it uses the ht and predict the new word. We follow a similar idea in decoder as well.
+We pass define another vector which holds the running summary of the decoder.
+c -> h_T -> context
+s_t = f(s_{t-1}, y_{t-1}, c)
+To build the next state, need previous state, previous word, and the context
+
+When we have the next state, we use another function to get the probability word
+p(y_t) = g(y_{t-1}, s_t, c)
+To predict the probability of the word, we take the inputs, current state, previous word and context. Then we use that probability and get the word.
+
+
+This works good, it gave us the flexibility to vary the sentence length. Works well for short sentence. What happen when the sentence grows?
+If h -> 1000 dimension vector. If the sentece has 1000 words, n/d -> 1. So the whole information is squeezed alot and the signal get lost in the noise. We need a means to avoid this.
+The earlier words fade out from h_t as we add new words on top of that.
+
+We can hold all the individual h_i, then we will average them to use as input. But a plain average will give equal importance to all the words, but we know some words play more role than others
+during translation. Need weighted average. But how do we calcualte the weights. Now need a network that looks at the current state in hand s_{i-1}, compares it with all the 
+input encoder states hi and gives a score. Then softmax the score across all the inputs against one out word. This gives a neat number for weights. 
+
+e_ij = a(s_{i-1}, hj) (raw score)
+alpha_ij = softmax over j for (e_ij)
+c_i = sigma_j alpha_ij  h_j
+
+Now the equations change from a constant context vector c to word specific context vector c_i.
+
+Why dont we just pick a single word with best score??? While translating one out word can depend on more than one input words. Also the weights are obtained from training a network, when 
+we pick one word, instead of nudging small changes, nothing happens, then after a threshold sudden flip happens. The gradient flow might will be zero and network does not learn anything.
+
+The new idea comes at a compute cost. Earlier we only maintain on h_T (final state), now we need maintain all h_t (individual states). Earlier an out word need only 1 calcualtion with h_T, now each out word needs to have a calcualtion
+with each h_i. So if there are n input words and m out words, we now has n x m calcualtions.
+
+Bonus the new method gives free alignemnt, the network learns the alignemnt by its own.
