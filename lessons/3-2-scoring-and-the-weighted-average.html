@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scoring and the Weighted Average</title>
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] } };
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous"></script>
+<style>
+:root { --paper:#fbfaf6; --ink:#2b2620; --soft:#6b6358; --rule:#e4dfd3; --accent:#355070; --code:#f3f0e8; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--paper); color:var(--ink);
+  font:19px/1.65 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif; }
+main { max-width:640px; margin:0 auto; padding:64px 20px 120px; }
+.label { font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0; }
+h1 { font-weight:normal; font-size:2.1rem; line-height:1.2; margin:.3rem 0 .6rem; }
+.sub { color:var(--soft); font-style:italic; margin:0 0 3rem; }
+h2 { font-weight:normal; font-size:1.4rem; margin:3.5rem 0 1rem; }
+p { margin:0 0 1.1rem; }
+.aside { border-left:2px solid var(--rule); padding:.1rem 0 .1rem 1.1rem; margin:1.5rem 0 1.5rem .3rem; color:var(--soft); font-size:.93rem; }
+.big { font-size:1.15rem; margin:2rem 0; padding-left:1.1rem; border-left:3px solid var(--accent); }
+.q { margin:1.6rem 0 .6rem; }
+.q b { color:var(--accent); font-weight:normal; letter-spacing:.06em; text-transform:uppercase; font-size:.78rem; display:block; }
+details { margin:.4rem 0 1.8rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+summary { cursor:pointer; color:var(--accent); padding:.55rem 0; font-size:.95rem; }
+details > div { padding:.2rem 0 1rem; }
+pre { background:var(--code); padding:1rem 1.1rem; overflow-x:auto; font-size:.8rem; line-height:1.5; border-radius:3px; }
+code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.85em; }
+table { border-collapse:collapse; margin:1rem 0 1.5rem; font-size:.9rem; width:100%; }
+th, td { text-align:right; padding:.3rem .6rem; border-bottom:1px solid var(--rule); }
+th:first-child, td:first-child { text-align:left; }
+th { font-weight:normal; color:var(--soft); }
+.hl { color:var(--accent); }
+a { color:var(--accent); }
+svg { display:block; width:100%; max-width:420px; height:auto; margin:1.5rem auto .5rem; }
+.cap { font-size:.85rem; color:var(--soft); text-align:center; margin-bottom:2rem; }
+.nav { display:flex; justify-content:space-between; gap:1rem; margin-top:4rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:.9rem; }
+ol.src { font-size:.85rem; color:var(--soft); padding-left:1.2rem; }
+</style>
+</head>
+<body>
+<main>
+
+<p class="label">Part 1.3 · Attention · Crux 3.2</p>
+<h1>Scoring and the weighted average</h1>
+<p class="sub">What should a relevance score compute? Start from plain distance, and the dot product falls out.</p>
+
+<p>Last time we built a machine with one empty box in it. Here is the machine again:</p>
+
+<p class="big">\(e_{ij} = a(s_{i-1}, h_j)\) &nbsp;→&nbsp; \(\alpha_{ij} = \mathrm{softmax}_j(e_{ij})\) &nbsp;→&nbsp; \(c_i = \sum_j \alpha_{ij} h_j\)</p>
+
+<p>The softmax and the weighted sum are fixed. All the intelligence sits in \(a\), the function that gives each pair a score. You saw why in the last check of 3.1: make every weight equal and the look-back becomes a plain average again. So today has one question. <em>What should \(a\) compute?</em></p>
+
+<p class="q"><b>Before you read on</b>Forget any formula you know. Write down what a good score function must do. Give at least three requirements. Use what you learned in 3.1.</p>
+<details><summary>Show my list</summary><div>
+<p><b>One number per pair.</b> It takes the need \(s_{i-1}\) and one candidate \(h_j\), and it returns one scalar.</p>
+<p><b>High when \(h_j\) holds what \(s_{i-1}\) needs.</b> Low when it does not.</p>
+<p><b>Smooth.</b> The gradient must reach the scorer, or it cannot learn. That is why we rejected the hard pick.</p>
+<p><b>Cheap.</b> It runs for every pair: \(n\) input words times \(m\) output words. Any cost inside \(a\) is paid \(n \times m\) times.</p>
+<p>Keep the last one in mind. It decides the end of this story.</p>
+</div></details>
+
+<h2>Bahdanau's answer: ask a small network</h2>
+
+<p>In 2014 Bahdanau and co-authors did not fix in advance what a relevance score should look like. They let a network learn it. The scorer is a tiny neural network with one hidden layer:</p>
+
+<p class="big">\(a(s_{i-1}, h_j) = v^\top \tanh(W s_{i-1} + U h_j)\)</p>
+
+<p>Read it from the inside out. Push the need through a matrix \(W\) and the candidate through a matrix \(U\). Add the two results. Squash the sum with \(\tanh\). Then collapse the vector to one number with a learned vector \(v\). People call it <em>additive</em> attention, because of the plus sign in the middle.</p>
+
+<p>It works. You saw its results in 3.1. But it is a confession: "I do not know what relevance is, so a network must find out." It also has two matrices and a vector to learn, and a nonlinearity for every one of the \(n \times m\) pairs. The authors knew the cost. Their appendix says the scorer runs \(T_x \times T_y\) times per sentence pair, so they kept it to one layer, and they compute \(U h_j\) once in advance.</p>
+
+<p>So here is the better question. Is there a function with <em>no</em> parameters at all that already measures "how alike are these two vectors"? Let us find one, from the most basic idea of likeness that you own.</p>
+
+<h2>The idea you already own: distance</h2>
+
+<p>Two points are alike when they are close. You have known this since school. In two dimensions, the distance comes from Pythagoras.</p>
+
+<p>Take a need and two candidates. They are arrows from the origin:</p>
+
+<p class="big">\(s = (3, 1)\), &nbsp; \(h_1 = (2, 2)\), &nbsp; \(h_2 = (-1, 3)\)</p>
+
+<svg viewBox="0 0 400 220" role="img" aria-label="Three arrows from the origin: s to (3,1), h1 to (2,2), h2 to (-1,3)">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b2620"/></marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#355070"/></marker>
+  </defs>
+  <line x1="40" y1="190" x2="380" y2="190" stroke="#e4dfd3"/>
+  <line x1="160" y1="20" x2="160" y2="210" stroke="#e4dfd3"/>
+  <line x1="160" y1="190" x2="280" y2="150" stroke="#355070" stroke-width="2.5" marker-end="url(#arb)"/>
+  <line x1="160" y1="190" x2="240" y2="110" stroke="#2b2620" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="160" y1="190" x2="120" y2="70" stroke="#2b2620" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="288" y="152" font-size="15" fill="#355070" font-style="italic">s</text>
+  <text x="246" y="106" font-size="15" fill="#2b2620" font-style="italic">h₁</text>
+  <text x="100" y="64" font-size="15" fill="#2b2620" font-style="italic">h₂</text>
+  <text x="166" y="208" font-size="12" fill="#6b6358">0</text>
+</svg>
+<p class="cap">One need, two candidates. Which candidate is more relevant?</p>
+
+<p class="q"><b>Your turn</b>Compute the squared distance \(|h - s|^2\) for each candidate. Which one is closer to \(s\)?</p>
+<details><summary>Show the answer</summary><div>
+<p>\(|h_1 - s|^2 = (2-3)^2 + (2-1)^2 = 1 + 1 = 2\).</p>
+<p>\(|h_2 - s|^2 = (-1-3)^2 + (3-1)^2 = 16 + 4 = 20\).</p>
+<p>\(h_1\) is much closer. So a natural score is "minus the squared distance": the closer the candidate, the higher the score. That score has no parameters, and it is smooth. It meets three of our four requirements already.</p>
+</div></details>
+
+<p>Now I want you to open the distance up and look inside. This is the step where the whole lesson turns.</p>
+
+<p class="q"><b>Your turn</b>Write the coordinates as \(s = (s_x, s_y)\) and \(h = (h_x, h_y)\). Expand \((h_x - s_x)^2 + (h_y - s_y)^2\) completely. Collect the terms into three groups: terms with only \(h\), terms with only \(s\), and the rest.</p>
+<details><summary>Show the expansion</summary><div>
+<p>\(|h - s|^2 = \underbrace{(h_x^2 + h_y^2)}_{|h|^2} + \underbrace{(s_x^2 + s_y^2)}_{|s|^2} - 2\,\underbrace{(h_x s_x + h_y s_y)}_{\text{the cross term}}\)</p>
+<p>The first group is the squared length of \(h\). The second is the squared length of \(s\). The third mixes the two vectors: multiply matching coordinates, then add. In \(d\) dimensions it is the same sum with \(d\) terms, one for each coordinate \(k\). This cross term has a name. It is the <em>dot product</em>:</p>
+<p class="big">\(h \cdot s = \sum_{k=1}^{d} h_k\, s_k\)</p>
+<p>So the dot product is not a new invention. It is the part of the distance that actually compares the two vectors. The other two parts each look at one vector alone.</p>
+</div></details>
+
+<p>Now use the softmax. Our score for candidate \(j\) is minus half the squared distance (the half only makes the numbers tidy):</p>
+
+<p class="big">\(-\tfrac12 |h_j - s|^2 \;=\; h_j \cdot s \;-\; \tfrac12 |h_j|^2 \;-\; \tfrac12 |s|^2\)</p>
+
+<p class="q"><b>Your turn</b>One of the three terms on the right is the same for every candidate \(j\). Which one? Then: what does the softmax do with a number that it adds to every score? Try it on scores \((1, 2)\) and \((1 + c, 2 + c)\).</p>
+<details><summary>Show the answer</summary><div>
+<p>\(\tfrac12 |s|^2\) does not depend on \(j\). There is only one need.</p>
+<p>The softmax ignores it. \(e^{x_j + c} = e^c \, e^{x_j}\), and the factor \(e^c\) is in the numerator and in every term of the denominator. It cancels. A softmax only cares about the <em>differences</em> between scores.</p>
+<p>So after the softmax, "closeness" is exactly this:</p>
+<p class="big">\(h_j \cdot s \;-\; \tfrac12 |h_j|^2\)</p>
+<p>Now drop the last term and keep the plain dot product. You change one thing only. A long candidate no longer pays a penalty for its length, so long vectors get a bonus. <b>The dot product is closeness plus a bonus for length.</b> Remember that sentence. It comes back at the end of this lesson, and it bites.</p>
+</div></details>
+
+<div class="aside">The first part of today's code checks this algebra with 64-dimensional vectors. The two lines of weights agree to every digit. That is not a discovery. It is the identity above, and the code only shows that the algebra holds.</div>
+
+<h2>What the number means: an angle</h2>
+
+<p>There is a second way to read the dot product, and it gives you the picture to keep. You know the law of cosines for a triangle with sides \(a\), \(b\), \(c\) and the angle \(\theta\) between \(a\) and \(b\):</p>
+
+<p class="big">\(c^2 = a^2 + b^2 - 2ab\cos\theta\)</p>
+
+<p class="q"><b>Your turn</b>The arrows \(s\) and \(h\) and the segment \(h - s\) make a triangle. Put the expansion from above next to the law of cosines. What must \(h \cdot s\) equal?</p>
+<details><summary>Show the answer</summary><div>
+<p>Same shape: \(|h - s|^2 = |h|^2 + |s|^2 - 2\, h\cdot s\). Match the terms, and you get:</p>
+<p class="big">\(h \cdot s = |h|\,|s|\cos\theta\)</p>
+<p>Two lengths, times the cosine of the angle between the arrows. Arrows that point the same way give a large positive number. Perpendicular arrows give zero. Opposite arrows give a negative number.</p>
+<p>Check it on the picture. \(s \cdot h_1 = 3 \cdot 2 + 1 \cdot 2 = 8\). \(s \cdot h_2 = 3 \cdot (-1) + 1 \cdot 3 = 0\). So \(h_2\) is exactly perpendicular to \(s\). Look at the figure again: it is.</p>
+</div></details>
+
+<p>This is the operator <code>@</code> that you used in the 3.1 experiment, when you asked "was this word in the sentence?". I promised to build it properly, and now it is built. Training puts related words on arrows that point in similar directions. So "do these arrows point the same way?" is a fair first guess at "is this relevant?".</p>
+
+<h2>Three scorers, one experiment</h2>
+
+<p>In 2015 Luong and co-authors put the question to a test. They used the same translation task and the same model, and they changed only the scorer. They tried three:</p>
+
+<table>
+<tr><th>Name</th><th>Score</th><th>Learned parts</th></tr>
+<tr><td>dot</td><td>\(s^\top h\)</td><td>none</td></tr>
+<tr><td>general</td><td>\(s^\top W h\)</td><td>one matrix</td></tr>
+<tr><td>concat</td><td>\(v^\top \tanh(W[s; h])\)</td><td>a small network, in the style of Bahdanau</td></tr>
+</table>
+
+<div class="aside">Two small changes from 3.1. Luong scores against the decoder's current state \(s_i\), not the previous one \(s_{i-1}\). And \(s^\top h\) is the same as \(s \cdot h\): a row times a column is the dot product.</div>
+
+<p class="q"><b>Predict first</b>The scorer with no parameters against the scorers that can learn. Which one wins, and by how much?</p>
+<details><summary>Show the results</summary><div>
+<p>No clear winner. Lower perplexity is better, higher BLEU is better (BLEU after their rare-word fix):</p>
+<table>
+<tr><th>Model</th><th>Perplexity</th><th>BLEU</th></tr>
+<tr><td>global, dot</td><td>6.1</td><td>20.5</td></tr>
+<tr><td>global, general</td><td>6.1</td><td>19.1</td></tr>
+<tr><td>local-p, dot</td><td>6.6</td><td>19.6</td></tr>
+<tr><td>local-p, general</td><td>5.9</td><td>20.9</td></tr>
+</table>
+<p>The dot product, with nothing to learn, matched the learned matrix. Concat did worse in their hands (perplexity 6.7 for global attention). But the authors themselves suspect a simplification in their own version. So do not read the table as "the network scorer loses".</p>
+<p>Two years later Vaswani and co-authors reported more. For small vectors, additive and dot-product scores perform about the same. For large vectors, additive is <em>better</em> than the plain dot product. Hold on to that. Crux 3.5 is about why.</p>
+</div></details>
+
+<p>So the dot product did not win on quality. At best it tied. Yet today every transformer uses it. Something else must have decided the contest. Go back to the fourth requirement on your list.</p>
+
+<h2>Why the dot product won: one multiply</h2>
+
+<p>Stack the \(m\) decoder states as the rows of a matrix \(S\), size \(m \times d\). Stack the \(n\) encoder states as the rows of \(H\), size \(n \times d\).</p>
+
+<p class="q"><b>Your turn</b>Which product of \(S\) and \(H\) gives the \(m \times n\) table of all scores \(s_i \cdot h_j\)? Then write the whole of attention, all the context vectors at once, as one line.</p>
+<details><summary>Show the answer</summary><div>
+<p>\(S H^\top\). Entry \((i, j)\) is row \(i\) of \(S\) times column \(j\) of \(H^\top\), and that column is \(h_j\). So the entry is \(s_i \cdot h_j\). Every score, in one matrix multiply.</p>
+<p>Then apply the softmax along each row, and multiply by \(H\) again:</p>
+<p class="big">\(C = \mathrm{softmax}(S H^\top)\, H\)</p>
+<p>Row \(i\) of \(C\) is \(\sum_j \alpha_{ij} h_j = c_i\). That is your equation from 3.1, for every output word at the same time.</p>
+</div></details>
+
+<p class="q"><b>Your turn</b>Now try the same with the additive scorer. You can compute \(W s_i\) and \(U h_j\) once for each word. But what must you build before the \(\tanh\)? How many numbers does it hold, if the hidden layer has size \(d'\)?</p>
+<details><summary>Show the answer</summary><div>
+<p>You must build \(W s_i + U h_j\) for every pair. That is a block of \(m \times n \times d'\) numbers. Then a \(\tanh\) on every one, then a dot with \(v\) for every pair. The dot-product scorer only ever holds the \(m \times n\) table of scores.</p>
+<p>The count of operations is similar for the two. The difference is the form. A matrix multiply is the one operation that GPUs are built for. Vaswani says it directly: dot-product attention is "much faster and more space-efficient in practice", because it runs on highly optimized matrix multiply code.</p>
+</div></details>
+
+<p>That is the real reason. Quality was a tie. Speed and memory were not. The multiply form beat the network form. When you train on billions of words, the faster scorer lets you train a bigger model on more data, and that wins.</p>
+
+<div class="aside">The "general" scorer \(s^\top W h\) is also one multiply: \((S W) H^\top\). It is a dot product after you turn one side with a learned matrix. Keep that in mind. It is the seed of the next crux.</div>
+
+<h2>A sentence asks itself</h2>
+
+<p>Now take away the translator. A GPT has no encoder and no decoder. It has one sequence of words, the text so far. In 3.1 you saw that it looks back over its own words. But our formula needs a question \(s\) and candidates \(h\). Where do they come from now?</p>
+
+<p>The simplest answer is to use the words themselves for both. Stack the word vectors as the rows of one matrix \(X\). Each word asks the question, and each word is also a candidate:</p>
+
+<p class="big">\(\mathrm{softmax}(X X^\top)\, X\)</p>
+
+<p>This is <em>self-attention</em> in its rawest form. Every word gets a new vector, a mixture of the whole sentence, weighted by relevance. No new parts. It is the line from the last section with \(S = H = X\).</p>
+
+<p>Let us test it on a sentence with a real need in it:</p>
+
+<p class="big">The animal did not cross the street because it was tired.</p>
+
+<p>The word <em>it</em> needs <em>animal</em>. To make the test fair, I plant that link by hand in the code. I give each word a random 64-number vector. Then I build <em>it</em> as 0.6 of <em>animal</em> plus 0.8 of fresh noise. So <em>it</em> really does point partly toward <em>animal</em>.</p>
+
+<p class="q"><b>Predict first</b>Where does <em>it</em> put its weight? Think about one special score in its row before you answer: the score of <em>it</em> with itself. What is \(x \cdot x\)? Use the angle picture.</p>
+<details><summary>Show my reasoning</summary><div>
+<p>\(x \cdot x = |x|^2\). The angle between an arrow and itself is zero, so the cosine is 1, the largest value possible. Any other word \(y\) gives \(|x||y|\cos\theta\), and \(\cos\theta &lt; 1\). Unless \(y\) is much longer than \(x\), the top score in every row is the word itself.</p>
+<p>So I expect <em>it</em> to look mostly at <em>it</em>.</p>
+</div></details>
+
+<p>The code is in <code>lessons/code/3_2_scoring.py</code>. It needs NumPy. If plain <code>python3</code> does not have NumPy, run it with <code>uv run --with numpy python lessons/code/3_2_scoring.py</code>.</p>
+
+<pre><code>words = "the animal did not cross the street because it was tired".split()
+vec = {w: rng.standard_normal(d) for w in dict.fromkeys(words)}
+vec["it"] = 0.6 * vec["animal"] + 0.8 * rng.standard_normal(d)   # planted link
+X = np.stack([vec[w] for w in words])
+scores = X @ X.T                    # every pair at once: one matrix multiply
+A = np.stack([softmax(row) for row in scores])
+out = A @ X                         # each row: a weighted average of all words</code></pre>
+
+<details><summary>Show my results</summary><div>
+<table>
+<tr><th>Where <em>it</em> looks</th><th>Score</th><th>Weight</th></tr>
+<tr><td>it</td><td>81.1</td><td>1.000</td></tr>
+<tr><td>animal</td><td>45.3</td><td>0.000</td></tr>
+<tr><td>the</td><td>19.8</td><td>0.000</td></tr>
+</table>
+<p>The scorer ranks <em>animal</em> second, far ahead of the rest. The planted link is found. But <em>it</em> scores itself at 81.1, and the softmax gives all the weight to that. The new vector for <em>it</em> is just <em>it</em> again. Self-attention, in this raw form, did nothing.</p>
+<p>The code prints one more fact: the score table is symmetric. The score of <em>it</em> for <em>animal</em> is exactly the score of <em>animal</em> for <em>it</em>, because \(x \cdot y = y \cdot x\).</p>
+<div class="aside">The planted link is not always visible. With \(d = 16\), noise is large compared to the signal, and <em>animal</em> ranks second in only about 77 of 100 random seeds. With \(d = 64\) and above, it ranks second in every seed I tried.</div>
+</div></details>
+
+<h2>Ablation: is it only the size of the numbers?</h2>
+
+<p>A score of 81 against 45 is a huge gap after a softmax. Perhaps the fault is only that the numbers are big. Test that. Divide every vector by its length, so that each has length 1. Now the score is \(\cos\theta\) and nothing else.</p>
+
+<p class="q"><b>Predict</b>With length-1 vectors, does <em>it</em> still look mostly at itself? Does <em>animal</em> now win?</p>
+<details><summary>Show what happens</summary><div>
+<p><em>It</em> puts 0.20 on itself and 0.13 on <em>animal</em>. An even split over the 11 words would give 0.09 each.</p>
+<p>So the size of the numbers decides only how extreme the weights get. Large numbers make the softmax a hard pick; small numbers make it nearly flat. That is a real problem, and it is all of crux 3.5.</p>
+<p>But the ranking did not change. Self is still first, because \(\cos 0 = 1\) beats every other angle. That fault is in the structure, not in the size.</p>
+</div></details>
+
+<p>Now you can name what is wrong. In raw self-attention, a word can find only words that <em>look like itself</em>. And the closest thing to a word is always that word. But <em>it</em> does not want a word like <em>it</em>. It wants a noun that it can refer to. What a word <em>seeks</em> is different from what a word <em>is</em>. And the relation is not symmetric: <em>it</em> looks for <em>animal</em>, but <em>animal</em> does not look for a pronoun.</p>
+
+<p>One vector per word cannot play both roles. That is the problem the next crux solves. You already saw the seed of the answer: the general scorer, a dot product after a learned turn of one side.</p>
+
+<h2>Check: can you predict new cases?</h2>
+
+<p class="q"><b>1</b>Double the length of one encoder state \(h_3\) and keep its direction. What happens to its score under the plain dot product? What happens under the negative squared distance?</p>
+<details><summary>Show</summary><div>
+<p>Dot product: the score doubles. If \(h_3\) pointed toward the need, it gains weight. If it pointed away, it loses even more. Direction sets the sign, and length makes it louder.</p>
+<p>Distance: the \(-\tfrac12|h_3|^2\) term grows four times. So a long vector pays a penalty, and doubling it can push \(h_3\) away from \(s\). This is the length bonus from the expansion, seen from the other side.</p>
+</div></details>
+
+<p class="q"><b>2</b>Use the general scorer \(x_i^\top W x_j\) for self-attention. Which \(W\) gives back the raw dot product? Can some \(W\) make the score of <em>it</em> for <em>animal</em> differ from the score of <em>animal</em> for <em>it</em>?</p>
+<details><summary>Show</summary><div>
+<p>\(W = I\), the identity matrix, gives the raw dot product.</p>
+<p>Yes. \(x_j^\top W x_i\) is a number, so it equals its own transpose, \(x_i^\top W^\top x_j\). That equals \(x_i^\top W x_j\) for all vectors only when \(W = W^\top\). Pick any \(W\) that is not symmetric, and the two directions get different scores. Also \(x^\top W x\) need not be the largest score in its row. A learned \(W\) can break both faults. You will take this further in 3.3.</p>
+</div></details>
+
+<p class="q"><b>3</b>In the experiment, the word <em>the</em> appears twice, with the same vector both times. Predict the weight that each copy of <em>the</em> puts on itself. Then check the last line of the code output.</p>
+<details><summary>Show</summary><div>
+<p>0.5 each. The two copies have the same vector, so each copy gives both copies the same top score. The softmax splits the weight evenly between them. The output line starts <code>[0.5 1. 1. 1. 1. 0.5 …]</code>. A word with \(k\) copies gives \(1/k\) to each copy. Raw self-attention cannot tell copies apart. That fact waits for us in part 1.4, on position.</p>
+</div></details>
+
+<h2>What you own now</h2>
+
+<p class="big">A relevance score should measure closeness. Open up the squared distance, and the part that compares the two vectors is the dot product, \(|h||s|\cos\theta\). It ties with the small-network scorer on quality, and its form wins: all the scores come from one matrix multiply, \(\mathrm{softmax}(S H^\top) H\). Put one sequence in both places and you get self-attention, but every word then finds itself first.</p>
+
+<p>A warning about this page. You followed each step, so it may feel understood. That feeling is not proof. Tomorrow, on blank paper, expand \(|h - s|^2\) and say which term the softmax removes. Then write the attention line in matrix form and say what each row means. Then explain, with the angle picture, why raw self-attention looks at itself. If you can do that cold, you own it.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+<li>Bahdanau, Cho, Bengio. <a href="https://arxiv.org/abs/1409.0473">Neural Machine Translation by Jointly Learning to Align and Translate</a>. ICLR 2015. The additive scorer and its cost note (appendix A.1.2).</li>
+<li>Luong, Pham, Manning. <a href="https://arxiv.org/abs/1508.04025">Effective Approaches to Attention-based Neural Machine Translation</a>. EMNLP 2015. The three score functions (section 3.1), Table 4, and footnote 15 on concat.</li>
+<li>Vaswani et al. <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>. 2017. Section 3.2.1: speed and memory of dot-product against additive attention, and the large-\(d_k\) result.</li>
+<li>Attention Family lecture series, lectures on additive attention and on dot-product attention (<code>resources/6yIe4ekER14.txt</code>, <code>resources/DDxMVJnjgps.txt</code>). The cosine picture of semantic space comes from here.</li>
+</ol>
+
+<div class="nav"><a href="3-1-the-context-problem.html">← 3.1 The context problem</a><a href="index.html">Map</a><span style="color:var(--soft)">Next: 3.3 Q, K, V</span></div>
+
+</main>
+</body>
+</html>

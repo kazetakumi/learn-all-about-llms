@@ -160,7 +160,7 @@
               "id": "3.1",
               "title": "The context problem",
               "hook": "Translation squeezed a whole sentence into one fixed vector, and long sentences broke. Bahdanau (2014): let the decoder look back.",
-              "status": "current",
+              "status": "done",
               "lesson": "3-1-the-context-problem.html",
               "papers": [
                 {
@@ -181,8 +181,8 @@
               "id": "3.2",
               "title": "Scoring and the weighted average",
               "hook": "How relevant is each token? Additive scoring first, then the dot product, and why the dot product won. Self-attention: a sentence attends to itself.",
-              "status": "planned",
-              "lesson": null,
+              "status": "current",
+              "lesson": "3-2-scoring-and-the-weighted-average.html",
               "papers": [
                 {
                   "title": "Luong et al. 2015 — Effective Approaches to Attention (dot-product scoring)",
